@@ -1,0 +1,4 @@
+packages:
+  - 'packages/types'
+  - 'packages/redux-adapter'
+  - 'packages/examples'

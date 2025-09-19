@@ -1,0 +1,11 @@
+{
+  "extends": "../../tsconfig.json",
+  "compilerOptions": {
+    "baseUrl": ".",
+    "paths": {
+      "@softer-components/types": ["../types/src"]
+    },
+    "outDir": "dist"
+  },
+  "include": ["index.ts"]
+}

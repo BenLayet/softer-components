@@ -1,0 +1,6 @@
+{
+  "name": "@softer-components/types",
+  "version": "1.0.0",
+  "types": "src/index.d.ts",
+  "license": "MIT"
+}
