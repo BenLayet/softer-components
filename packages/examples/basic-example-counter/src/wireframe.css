@@ -1,0 +1,223 @@
+/* wireframe.css - Draft/Sketch Design Style */
+
+* {
+  /* Wireframe font */
+  font-family: "Courier New", "Courier", monospace !important;
+
+  /* Remove colors, use grayscale */
+  color: #333 !important;
+  background-color: transparent !important;
+}
+
+/* Body and containers */
+body,
+div,
+section,
+article,
+aside,
+header,
+footer,
+main {
+  margin: 5px !important;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+}
+
+.horizontal {
+  flex-direction: row;
+}
+
+/* Headings - make them look sketchy */
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
+  border-bottom: 3px double #666 !important;
+  padding-bottom: 5px !important;
+  text-transform: uppercase !important;
+  letter-spacing: 2px !important;
+}
+
+/* Buttons - wireframe style */
+button,
+input[type="button"],
+input[type="submit"],
+.btn {
+  background-color: #bababa !important;
+  border: 2px solid #333 !important;
+  padding: 8px 16px !important;
+  cursor: pointer !important;
+  text-transform: uppercase !important;
+  font-weight: bold !important;
+  box-shadow: 3px 3px 0 #ccc !important;
+  margin: 0.5em;
+}
+
+button:hover,
+input[type="button"]:hover,
+input[type="submit"]:hover {
+  background-color: #e0e0e0 !important;
+  transform: translate(1px, 1px) !important;
+  box-shadow: 2px 2px 0 #ccc !important;
+}
+
+/* Input fields */
+input[type="text"],
+input[type="email"],
+input[type="password"],
+input[type="number"],
+textarea,
+select {
+  background-color: #fff !important;
+  border: 2px solid #666 !important;
+  padding: 8px !important;
+  font-size: 14px !important;
+}
+
+input::placeholder,
+textarea::placeholder {
+  color: #999 !important;
+  font-style: italic !important;
+}
+
+/* Images - show as placeholder boxes */
+img {
+  background: repeating-linear-gradient(
+    45deg,
+    #f0f0f0,
+    #f0f0f0 10px,
+    #e0e0e0 10px,
+    #e0e0e0 20px
+  ) !important;
+  border: 2px dashed #999 !important;
+  opacity: 0.5 !important;
+}
+
+/* Add "IMAGE" text overlay on images */
+img::after {
+  content: "[IMAGE]" !important;
+  position: absolute !important;
+  top: 50% !important;
+  left: 50% !important;
+  transform: translate(-50%, -50%) !important;
+  color: #666 !important;
+  font-weight: bold !important;
+}
+
+/* Links - underlined and simple */
+a {
+  color: #333 !important;
+  text-decoration: underline !important;
+  text-decoration-style: dashed !important;
+}
+
+a:hover {
+  text-decoration-style: solid !important;
+}
+
+/* Lists */
+ul,
+ol {
+  border-left: 3px solid #999 !important;
+  padding-left: 20px !important;
+}
+
+li {
+  margin: 5px 0 !important;
+}
+
+/* Tables */
+table {
+  border: 2px solid #333 !important;
+  border-collapse: collapse !important;
+  width: 100% !important;
+}
+
+th,
+td {
+  border: 1px solid #666 !important;
+  padding: 8px !important;
+  text-align: left !important;
+}
+
+th {
+  background-color: #f5f5f5 !important;
+  font-weight: bold !important;
+  text-transform: uppercase !important;
+}
+
+/* Cards/Panels */
+.card,
+.panel,
+[class*="card"],
+[class*="panel"] {
+  background-color: #fafafa !important;
+  border: 2px solid #333 !important;
+  box-shadow: 4px 4px 0 #ddd !important;
+  padding: 15px !important;
+  margin: 10px !important;
+}
+
+/* Checkbox and Radio */
+input[type="checkbox"],
+input[type="radio"] {
+  width: 20px !important;
+  height: 20px !important;
+  border: 2px solid #333 !important;
+  appearance: none !important;
+  -webkit-appearance: none !important;
+}
+
+input[type="checkbox"]:checked::before {
+  content: "✓" !important;
+  display: block !important;
+  text-align: center !important;
+  font-weight: bold !important;
+  color: #333 !important;
+}
+
+input[type="radio"] {
+  border-radius: 50% !important;
+}
+
+input[type="radio"]:checked::before {
+  content: "●" !important;
+  display: block !important;
+  text-align: center !important;
+  color: #333 !important;
+}
+
+/* Remove shadows and animations */
+* {
+  box-shadow: none !important;
+  animation: none !important;
+  transition: none !important;
+}
+
+/* Exception for buttons - keep minimal shadow */
+button,
+input[type="button"],
+input[type="submit"],
+.btn {
+  box-shadow: 3px 3px 0 #ccc !important;
+}
+
+/* Grid/Flexbox visualization (optional) */
+[style*="display: flex"],
+[style*="display: grid"],
+.flex,
+.grid {
+  border: 2px dotted #f00 !important;
+  background: repeating-linear-gradient(
+    0deg,
+    transparent,
+    transparent 10px,
+    rgba(255, 0, 0, 0.05) 10px,
+    rgba(255, 0, 0, 0.05) 11px
+  ) !important;
+}

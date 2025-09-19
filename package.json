@@ -1,0 +1,33 @@
+{
+  "name": "softer-components",
+  "version": "1.0.0",
+  "description": "A TypeScript component types library that is state-manager-agnostic and reusable",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "scripts": {
+    "build": "tsc",
+    "clean": "rm -rf dist",
+    "prepublishOnly": "npm run clean && npm run build"
+  },
+  "keywords": [
+    "typescript",
+    "components",
+    "state-management",
+    "redux",
+    "types",
+    "functional"
+  ],
+  "author": "BenLayet",
+  "license": "MIT",
+  "devDependencies": {
+    "typescript": "^5.0.0"
+  },
+  "peerDependencies": {},
+  "files": [
+    "dist/**/*",
+    "README.md"
+  ],
+  "engines": {
+    "node": ">=14.0.0"
+  }
+}

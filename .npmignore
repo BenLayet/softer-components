@@ -1,0 +1,40 @@
+# Source files
+src/
+tsconfig.json
+
+# Development and build files
+*.log
+*.tsbuildinfo
+.DS_Store
+.vscode/
+.idea/
+
+# Testing files
+test/
+tests/
+spec/
+__tests__/
+coverage/
+
+# Documentation build files
+docs/
+
+# Git files
+.git/
+.gitignore
+.gitattributes
+
+# CI/CD files
+.github/
+.travis.yml
+.circleci/
+.gitlab-ci.yml
+
+# Package manager files
+yarn.lock
+package-lock.json
+pnpm-lock.yaml
+
+# Temporary directories
+tmp/
+temp/

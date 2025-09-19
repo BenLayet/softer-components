@@ -1,0 +1,29 @@
+{
+  "name": "@softer-components/redux-adapter",
+  "type": "module",
+  "version": "1.0.0",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "license": "MIT",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js"
+    }
+  },
+  "scripts": {
+    "build": "tsc -b",
+    "test": "vitest",
+    "format": "prettier --write ."
+  },
+  "dependencies": {
+    "@reduxjs/toolkit": "^2.6.1",
+    "@softer-components/types": "workspace:*",
+    "lodash": "^4.17.21",
+    "react-redux": "^9.2.0"
+  },
+  "devDependencies": {
+    "prettier": "^3.6.2",
+    "vitest": "^3.2.4"
+  }
+}
