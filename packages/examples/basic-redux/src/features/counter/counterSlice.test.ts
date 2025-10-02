@@ -17,7 +17,6 @@ describe("counter reducer", () => {
   beforeEach<LocalTestContext>(context => {
     const initialState: CounterSliceState = {
       value: 3,
-      status: "idle",
     }
 
     const store = makeStore({ counter: initialState })

@@ -5,6 +5,6 @@
   "types": "dist/index.d.ts",
   "license": "MIT",
   "dependencies": {
-    "@softer-components/types": "1.0.0"
+    "@softer-components/types": "workspace:*"
   }
 }

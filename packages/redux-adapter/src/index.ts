@@ -1,134 +1,173 @@
 /**
  * Redux adapter for integrating ComponentDef with Redux.
- * Dépend du package @softer-components/types pour les types de base.
+ * Depends on the @softer-components/types package for core types.
  */
 
 import type {
   ComponentDef,
   Event,
-  EventChain,
-  Reducer,
+  ChainedEvent,
+  State,
+  Payload,
   Selector,
+  Value,
 } from '@softer-components/types';
 
-export interface ReduxAction<TPayload = any> extends Event<TPayload> {
-	readonly type: string;
-	readonly payload: TPayload;
+export interface ReduxAction<TPayload extends Payload = Payload> {
+  readonly type: string;
+  readonly payload: TPayload;
 }
 
-export interface ReduxStore<TState = any> {
-	getState(): TState;
-	dispatch(action: ReduxAction): ReduxAction;
-	subscribe(listener: () => void): () => void;
+export interface ReduxStore<TState extends State = State> {
+  getState(): TState;
+  dispatch<TPayload extends Payload>(action: ReduxAction<TPayload>): ReduxAction<TPayload>;
+  subscribe(listener: () => void): () => void;
 }
-
 
 export interface ReduxAdapterConfig {
-	readonly enableEventChains?: boolean;
-	readonly chainActionType?: string;
+  readonly enableChainedEvents?: boolean;
+  readonly chainActionType?: string;
 }
 
-const DEFAULT_CONFIG: ReduxAdapterConfig = {
-  enableEventChains: true,
-  chainActionType: '@@COMPONENT/EVENT_CHAIN',
-};
-
-export interface EventChainAction extends ReduxAction<EventChain> {
-	readonly type: string;
-	readonly payload: EventChain;
+export interface ChainedEventAction<TState extends State> extends ReduxAction<ChainedEvent<TState>> {
+  readonly type: string;
+  readonly payload: ChainedEvent<TState>;
 }
 
-export function isEventChainAction(
-	action: ReduxAction,
-	chainActionType: string = DEFAULT_CONFIG.chainActionType!
-): action is EventChainAction {
-	return action.type === chainActionType;
+export function isChainedEventAction<TState extends State>(
+  action: ReduxAction,
+  chainActionType: string = DEFAULT_CONFIG.chainActionType!
+): action is ChainedEventAction<TState> {
+  return action.type === chainActionType;
 }
 
-export function createReduxReducer<TState, TEvent extends Event>(
-	componentDef: ComponentDef<TState, TEvent>,
-	config: ReduxAdapterConfig = {}
-): Reducer<TState, ReduxAction> {
-	const finalConfig = { ...DEFAULT_CONFIG, ...config };
-  
-		return (state: TState = componentDef.initialState, action: ReduxAction): TState => {
-			if (finalConfig.enableEventChains && isEventChainAction(action, finalConfig.chainActionType)) {
-				return processEventChain(state, action.payload as EventChain<TEvent>, componentDef.reducer);
-			}
-			if (componentDef.eventHandling.supportedEvents.includes(action.type)) {
-				return componentDef.reducer(state, action as TEvent);
-			}
-			return state;
-		};
+export function createReduxReducer<TState extends Value>(
+  componentDef: ComponentDef<TState>
+): (state: TState | undefined, action: ReduxAction) => TState {
+
+  const fullComponentDef = setDefaultValues(componentDef);
+
+  return (
+    state: TState | undefined = componentDef.initialState,
+    action: ReduxAction
+  ): TState => {
+
+    // Handle chained events
+    processChainedEvent(currentState, action.payload, componentDef);
+
+    // Handle regular events
+    if (componentDef.events && action.type in componentDef.events) {
+      const event = componentDef.events[action.type as keyof typeof componentDef.events];
+      if (event && 'handler' in event && event.handler) {
+        return event.handler(action.payload, currentState);
+      }
+    }
+
+    return currentState;
+  };
 }
 
-function processEventChain<TState, TEvent extends Event>(
-	initialState: TState,
-	eventChain: EventChain<TEvent>,
-	reducer: Reducer<TState, TEvent>
+function processChainedEvent<TState extends State>(
+  state: TState,
+  chainedEvent: ChainedEvent<TState>,
+  componentDef: ComponentDef<TState>
 ): TState {
-	return eventChain.events.reduce((currentState: TState, event: TEvent) => {
-		return reducer(currentState, event);
-	}, initialState);
+  // Check condition if provided
+  if (chainedEvent.onCondition && !chainedEvent.onCondition(undefined, state)) {
+    return state;
+  }
+
+  // Find the target event to dispatch
+  const targetEventType = chainedEvent.thenDispatch.eventType;
+  if (componentDef.events && targetEventType in componentDef.events) {
+    const targetEvent = componentDef.events[targetEventType as keyof typeof componentDef.events];
+    
+    // Calculate payload for the chained event
+    const payload = chainedEvent.withPayload ? chainedEvent.withPayload(undefined, state) : undefined;
+    
+    // Execute the target event handler
+    if (targetEvent && 'handler' in targetEvent && targetEvent.handler) {
+      return targetEvent.handler(payload as Payload, state);
+    }
+  }
+
+  return state;
 }
 
+export function createReduxSelectors<TState extends State>(
+  componentDef: ComponentDef<TState>,
+  stateKey?: string
+): Record<string, Selector<any, Value>> {
+  const selectors: Record<string, Selector<any, Value>> = {};
 
+  if (componentDef.selectors) {
+    for (const [key, selector] of Object.entries(componentDef.selectors)) {
+      selectors[key] = (rootState: any) => {
+        const componentState = stateKey ? rootState[stateKey] : rootState;
+        return selector(componentState);
+      };
+    }
+  }
 
-export function createReduxSelectors<TState, TSelectors extends Record<string, Selector<TState>>>(
-	componentDef: ComponentDef<TState, any, TSelectors>,
-	stateKey?: string
-): { [K in keyof TSelectors]: Selector<any, ReturnType<TSelectors[K]>> } {
-	const selectors = {} as { [K in keyof TSelectors]: Selector<any, ReturnType<TSelectors[K]>> };
-	for (const [key, selector] of Object.entries(componentDef.selectors) as [keyof TSelectors, TSelectors[keyof TSelectors]][]) {
-		selectors[key] = (rootState: any) => {
-			const componentState = stateKey ? rootState[stateKey] : rootState;
-			return selector(componentState);
-		};
-	}
-	return selectors;
+  return selectors;
 }
 
-export function createEventChainActionCreator(
-	chainActionType: string = DEFAULT_CONFIG.chainActionType!
+export function createChainedEventActionCreator<TState extends State>(
+  chainActionType: string = DEFAULT_CONFIG.chainActionType!
 ) {
-	return <TEvent extends Event>(eventChain: EventChain<TEvent>): EventChainAction => ({
-		type: chainActionType,
-		payload: eventChain,
-	});
+  return (chainedEvent: ChainedEvent<TState>): ChainedEventAction<TState> => ({
+    type: chainActionType,
+    payload: chainedEvent,
+  });
 }
 
-export function enhanceStoreWithComponents<TState>(
-	store: ReduxStore<TState>,
-	config: ReduxAdapterConfig = {}
+export function enhanceStoreWithComponents<TState extends State>(
+  store: ReduxStore<TState>,
+  config: ReduxAdapterConfig = {}
 ) {
-	const finalConfig = { ...DEFAULT_CONFIG, ...config };
-	const createEventChainAction = createEventChainActionCreator(finalConfig.chainActionType);
-	return {
-		...store,
-		dispatchEventChain<TEvent extends Event>(eventChain: EventChain<TEvent>): void {
-			if (!finalConfig.enableEventChains) {
-				throw new Error('Event chains are not enabled in the Redux adapter configuration');
-			}
-			store.dispatch(createEventChainAction(eventChain));
-		},
-		createBoundSelector<TResult>(selector: Selector<TState, TResult>) {
-			return (): TResult => selector(store.getState());
-		},
-		registerComponent<TComponentState, TEvent extends Event, TSelectors extends Record<string, Selector<TComponentState>>>(
-			componentDef: ComponentDef<TComponentState, TEvent, TSelectors>,
-			stateKey?: string
-		) {
-			return {
-				reducer: createReduxReducer(componentDef, finalConfig),
-				selectors: createReduxSelectors(componentDef, stateKey),
-				initialState: componentDef.initialState,
-			};
-		},
-	};
+  const finalConfig = { ...DEFAULT_CONFIG, ...config };
+  const createChainedEventAction = createChainedEventActionCreator<TState>(finalConfig.chainActionType);
+
+  return {
+    ...store,
+    dispatchChainedEvent(chainedEvent: ChainedEvent<TState>): void {
+      if (!finalConfig.enableChainedEvents) {
+        throw new Error('Chained events are not enabled in the Redux adapter configuration');
+      }
+      store.dispatch(createChainedEventAction(chainedEvent));
+    },
+    createBoundSelector<TResult extends Value>(selector: Selector<TState, TResult>) {
+      return (): TResult => selector(store.getState());
+    },
+    registerComponent(
+      componentDef: ComponentDef<TState>,
+      stateKey?: string
+    ) {
+      return {
+        reducer: createReduxReducer(componentDef, finalConfig),
+        selectors: createReduxSelectors(componentDef, stateKey),
+        initialState: componentDef.initialState,
+      };
+    },
+  };
 }
 
-export type EnhancedReduxStore<TState> = ReturnType<typeof enhanceStoreWithComponents<TState>>;
+export type EnhancedReduxStore<TState extends State> = ReturnType<typeof enhanceStoreWithComponents<TState>>;
 
+// Action creators for common patterns
+export function createEventActionCreator<TEventType extends string, TPayload extends Payload>(
+  eventType: TEventType
+) {
+  return (payload: TPayload): ReduxAction<TPayload> => ({
+    type: eventType,
+    payload,
+  });
+}
 
-
-
+// Utility type for extracting event types from ComponentDef
+export type ComponentEventTypes<T extends ComponentDef<any>> = 
+  T extends ComponentDef<infer TState> 
+    ? T['events'] extends Record<string, any>
+      ? keyof T['events']
+      : never
+    : never;

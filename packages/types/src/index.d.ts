@@ -3,91 +3,60 @@
  * These types provide the foundation for reusable and composable components,
  * compatible with any state manager.
  */
-
-/**
- * Describes the payload for a single event.
- */
-export interface Event<TPayload = any> {
-	readonly payload: TPayload;
-}
-
-/**
- * A map of event type strings to their event payloads.
- * Example:
- *   interface CounterEvents {
- *     INCREMENT: Event<undefined>;
- *     DECREMENT: Event<undefined>;
- *     SET_VALUE: Event<number>;
- *   }
- */
-export type Events = Record<string, Event<any>>;
-
-export type EventCreator<TPayload = void> = TPayload extends void
-  ? () => Event<undefined>
-  : (payload: TPayload) => Event<TPayload>;
-
-export type Reducer<TState, TEvent = any> = (
-	state: TState,
-	event: TEvent
-) => TState;
-
-export type Selector<TState, TResult = any> = (state: TState) => TResult;
-
-export interface EventChain<TEvent = any> {
-	readonly events: readonly TEvent[];
-	readonly metadata?: {
-		readonly id?: string;
-		readonly timestamp?: number;
-		readonly source?: string;
-	};
-}
-
-export interface EventHandling<TEvents extends Events = Events> {
-	readonly supportedEvents: (keyof TEvents)[];
-	readonly chainSupport?: boolean;
-}
-
-/**
- * Defines a reusable, typed, and composable component.
- * TEvents should be a map of event type strings to Event payloads.
- *
- * Example:
- *   interface CounterEvents {
- *     INCREMENT: Event<undefined>;
- *     DECREMENT: Event<undefined>;
- *     SET_VALUE: Event<number>;
- *   }
- *   const counterComponent: ComponentDef<CounterState, CounterEvents, ...>
- */
-export interface ComponentDef<
-	TState = any,
-	TEvents extends Events = Events,
-	TSelectors = Record<string, Selector<TState>>
-> {
-	readonly initialState: TState;
-	/**
-	 * The reducer receives the current state and an event object, where the key is the event type and the value is the event payload.
-	 */
-	readonly reducer: (
-		state: TState,
-		event: { type: keyof TEvents; payload: TEvents[keyof TEvents]["payload"] }
-	) => TState;
-	readonly selectors: TSelectors;
-	readonly eventHandling: EventHandling<TEvents>;
-}
-
-export type ComponentState<T> = T extends ComponentDef<infer TState, any, any>
-	? TState
-	: never;
-
-export type ComponentEvents<T> = T extends ComponentDef<any, infer TEvents, any>
-	? TEvents
-	: never;
-
-export type ComponentSelectors<T> = T extends ComponentDef<any, any, infer TSelectors>
-	? TSelectors
-	: never;
-
-export type EventCreators<TEventMap extends Events> = {
-	readonly [K in keyof TEventMap]: EventCreator<TEventMap[K]["payload"]>;
+type Value =
+    | string
+    | number
+    | boolean
+    | null
+    | { readonly [key: string]: Value }
+    | readonly Value[];
+type Payload = Value | void;
+type State = Value | void;
+type Selector<TState extends State, TResult extends Value = Value> = (state: TState) => TResult;
+type EventLocator<TEventType extends string = string, TPath extends string[] = string[]> = {
+    readonly eventType: TEventType;
+    readonly path?: TPath;
 };
+type ComponentReducers<TState extends State, TEventPayloads extends Record<string, Payload>> = {
+    readonly [K in keyof TEventPayloads]:
+    TEventPayloads[K] extends void ? (state: TState) => void : (state: TState, action: {type: K, payload: TEventPayloads[K]}) => void
+};
+
+type ChainedEvent<TState extends State, TPreviousEvent extends Event = Event, TNextEvent extends Event = Event> = {
+    readonly onEvent: EventLocator<TPreviousEvent["type"]>
+    readonly thenDispatch: EventLocator<TNextEvent["type"]>;
+    readonly withPayload?: (previousPayload?: TPreviousEvent["payload"], state?: TState) => object;
+    readonly onCondition?: (previousPayload?: TPreviousEvent["payload"], state?: TState) => boolean;
+};
+
+export type ComponentDef<TState extends State> = {
+    readonly initialState?: TState;
+    readonly children?: Record<string, ComponentDef<State>>;
+    readonly chainedEvents?: ChainedEvent<TState>[];
+    readonly selectors?: Record<string, Selector<TState>>;
+    readonly reducers?: ComponentReducers<TState, Record<string, Payload>>;
+    readonly name?: string;
+}
+
+const eventPayloads= {
+    test1: undefined,
+    test2: 123,
+    test3: "string",
+    test4: { key: "value" },
+    test5: [1, 2, 3],
+};
+const reducers: ComponentReducers<{ count: number }, typeof eventPayloads> = {
+    test1: (state) => { state.count += 1; },
+    test2: (state, action) => { state.count += action.payload; },
+    test3: (state, action) => { console.log(action.payload); },
+    test4: (state, action) => { console.log(action.payload.key); },
+    test5: (state, action) => { console.log(action.payload.length);
+        if(action.type !== "test5") {
+            // This should error, as action.type is not "test5"
+            throw new Error("Unexpected action type");
+        }
+
+     },
+};
+
+export { State, Payload, Value, Selector, EventLocator, ComponentReducers, ChainedEvent, ComponentDef };
