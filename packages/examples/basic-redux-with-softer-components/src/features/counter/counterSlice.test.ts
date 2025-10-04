@@ -1,6 +1,6 @@
 import type { AppStore } from "../../app/store"
 import { makeStore } from "../../app/store"
-import type { CounterState } from "./counterSlice"
+import type { CounterState } from "./counterComponent"
 import {
   counterSlice,
   decrementRequested,
