@@ -47,8 +47,8 @@ type ChainedEvent<TState extends State> = {
 // Component definition type for defining a component with state, selectors, and event handlers
 export type ComponentDef<
     TState extends State = State,
-    TPayloads extends Record<string, Payload> = {},
-    TSelectorReturnTypes extends Record<string, Value> = {}
+    TPayloads extends Record<string, Payload> = Record<string, Payload>,
+    TSelectorReturnTypes extends Record<string, Value> = Record<string, Value>
 > = {
     readonly initialState: TState;
     readonly children?: Record<string, ComponentDef>;
