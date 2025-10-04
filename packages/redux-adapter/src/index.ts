@@ -48,11 +48,10 @@ export function createSofterSlice<
     Name,
     Name,
     Selectors<TState, TSelectorReturnTypes>> {
-    const reducers:any = createReducers(componentDef.eventHandlers);
     return createSlice({
         name: path,
         initialState: componentDef.initialState,
         selectors: componentDef.selectors ?? {},
-        reducers
+        reducers:createReducers(componentDef.eventHandlers)
     }) as any;
 }

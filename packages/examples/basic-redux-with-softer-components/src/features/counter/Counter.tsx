@@ -6,12 +6,13 @@ import {
   decrementRequested,
   incrementRequested,
   selectCount,
-} from "../counter/counterSlice"
+    incrementByAmountRequested,
+} from "./counterSlice.ts"
 
 export const Counter = (): JSX.Element => {
   const dispatch = useAppDispatch()
   const count = useAppSelector(selectCount)
-  const [incrementAmount, setIncrementAmount] = useState("2")
+  const [incrementAmount, setIncrementAmount] = useState(2)
 
   return (
     <div>
@@ -41,10 +42,16 @@ export const Counter = (): JSX.Element => {
           value={incrementAmount}
           type="number"
           onChange={e => {
-            setIncrementAmount(e.target.value)
+            setIncrementAmount(parseInt(e.target.value))
           }}
         />
       </div>
+        <button
+            className={styles.button}
+            onClick={() => dispatch(incrementByAmountRequested(incrementAmount))}
+        >
+            Add Amount
+        </button>
     </div>
   )
 }
