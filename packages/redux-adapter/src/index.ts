@@ -39,8 +39,8 @@ function createReducers<
 
 export function createSofterSlice<
     TState extends State,
-    TPayloads extends Record<string, Payload>,
-    TSelectorReturnTypes extends Record<string, Value>,
+    TPayloads extends Record<string, Payload> = {},
+    TSelectorReturnTypes extends Record<string, Value> = {},
     Name extends string = string,
 >(path: Name, componentDef: ComponentDef<TState, TPayloads, TSelectorReturnTypes>):Slice<
     TState,

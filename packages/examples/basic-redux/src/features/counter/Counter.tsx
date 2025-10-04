@@ -1,5 +1,4 @@
 import type { JSX } from "react"
-import { useState } from "react"
 import { useAppDispatch, useAppSelector } from "../../app/hooks"
 import styles from "./Counter.module.css"
 import {
@@ -8,11 +7,13 @@ import {
     selectCount,
     incrementByAmountRequested,
 } from "./counterSlice"
+import {Amount} from "../amount/Amount.tsx";
+import {selectAmount} from "../amount/amountSlice.ts";
 
 export const Counter = (): JSX.Element => {
     const dispatch = useAppDispatch()
     const count = useAppSelector(selectCount)
-    const [incrementAmount, setIncrementAmount] = useState(2)
+    const amount = useAppSelector(selectAmount)
 
     return (
         <div>
@@ -36,18 +37,10 @@ export const Counter = (): JSX.Element => {
                 </button>
             </div>
             <div className={styles.row}>
-                <input
-                    className={styles.textbox}
-                    aria-label="Set increment amount"
-                    value={incrementAmount}
-                    type="number"
-                    onChange={e => {
-                        setIncrementAmount(parseInt(e.target.value))
-                    }}
-                />
+                <Amount/>
                 <button
                     className={styles.button}
-                    onClick={() => dispatch(incrementByAmountRequested(incrementAmount))}
+                    onClick={() => dispatch(incrementByAmountRequested(amount))}
                 >
                     Add Amount
                 </button>

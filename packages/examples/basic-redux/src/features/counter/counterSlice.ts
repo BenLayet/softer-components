@@ -32,4 +32,3 @@ export const counterSlice = createSlice({
 
 export const { incrementRequested, decrementRequested, incrementByAmountRequested } = counterSlice.actions;
 export const { selectCount } = counterSlice.selectors
-export default counterSlice.reducer;
