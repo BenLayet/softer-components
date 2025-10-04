@@ -1,8 +1,11 @@
-import { createSofterSlice } from './redux-adapter';
-import { counterComponent } from './counterComponent';
+import {counterComponentDef, CounterState} from './counterComponent';
+import {createSofterSlice} from "@softer-components/redux-adapter";
 
-export const counterSlice = createSofterSlice(counterComponent)
+export const counterSlice = createSofterSlice<CounterState, {
+    incrementRequested: void,
+    decrementRequested: void,
+    resetRequested: void,
+}, {selectCount: number} , "counter" >("counter", counterComponentDef)
 
-export const { increment, decrement } = counterSlice.actions;
-export const { selectCount } = counterSlice.selectors as any;
-export default counterSlice.reducer;
+export const { incrementRequested, decrementRequested, resetRequested } = counterSlice.actions;
+export const { selectCount } = counterSlice.selectors;

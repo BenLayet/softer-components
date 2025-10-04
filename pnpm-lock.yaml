@@ -266,6 +266,9 @@ importers:
 
   packages/redux-adapter:
     dependencies:
+      '@reduxjs/toolkit':
+        specifier: ^2.6.1
+        version: 2.9.0(react-redux@9.2.0(@types/react@19.1.13)(react@19.1.1)(redux@5.0.1))(react@19.1.1)
       '@softer-components/types':
         specifier: workspace:*
         version: link:../types

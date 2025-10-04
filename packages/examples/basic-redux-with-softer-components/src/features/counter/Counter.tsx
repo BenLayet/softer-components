@@ -3,8 +3,8 @@ import { useState } from "react"
 import { useAppDispatch, useAppSelector } from "../../app/hooks"
 import styles from "./Counter.module.css"
 import {
-  decrement,
-  increment,
+  decrementRequested,
+  incrementRequested,
   selectCount,
 } from "../counter/counterSlice"
 
@@ -19,7 +19,7 @@ export const Counter = (): JSX.Element => {
         <button
           className={styles.button}
           aria-label="Decrement value"
-          onClick={() => dispatch(decrement())}
+          onClick={() => dispatch(decrementRequested())}
         >
           -
         </button>
@@ -29,7 +29,7 @@ export const Counter = (): JSX.Element => {
         <button
           className={styles.button}
           aria-label="Increment value"
-          onClick={() => dispatch(increment())}
+          onClick={() => dispatch(incrementRequested())}
         >
           +
         </button>

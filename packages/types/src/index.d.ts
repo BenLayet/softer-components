@@ -10,53 +10,49 @@ type Value =
     | null
     | { readonly [key: string]: Value }
     | readonly Value[];
+
+// State can be a specific value type or undefined (void)
+export type State = Value;
+
+// Selector takes state and returns a value, with state being optional
+export type Selector<TState extends State, TReturnType extends Value> = (state: TState) => TReturnType;
+type SelectorMap<TState extends State, TReturnType extends Record<string, Value>> = {
+    readonly [key in keyof TReturnType]: Selector<TState, TReturnType[key]>;
+};
+
+// Payload can be a specific value type or void (no payload)
 type Payload = Value | void;
-type State = Value | void;
-type Selector<TState extends State, TResult extends Value = Value> = (state: TState) => TResult;
-type EventLocator<TEventType extends string = string, TPath extends string[] = string[]> = {
+
+// Event handler takes only one type of payload: either void or a specific type
+export type EventHandler<TState extends State = State, TPayload extends Payload = void> =
+    (state: TState, payload: TPayload) => TState;
+
+// EventHandler maps event types to their corresponding handlers
+export type EventHandlerMap<TState extends State, TPayloads extends Record<string, Payload> = {}> = {
+    readonly [eventType in keyof TPayloads]: EventHandler<TState, TPayloads[eventType]>;
+};
+
+// ChainedEvent type for defining a chain of synchronous event
+type EventLocator<TEventType extends string = string, TPath extends readonly string[] = readonly string[]> = {
     readonly eventType: TEventType;
     readonly path?: TPath;
 };
-type ComponentReducers<TState extends State, TEventPayloads extends Record<string, Payload>> = {
-    readonly [K in keyof TEventPayloads]:
-    TEventPayloads[K] extends void ? (state: TState) => void : (state: TState, action: {type: K, payload: TEventPayloads[K]}) => void
+type ChainedEvent<TState extends State> = {
+    readonly onEvent: EventLocator;
+    readonly thenDispatch: EventLocator;
+    readonly withPayload?: (previousPayload?: Payload, state?: TState) => Payload;
+    readonly onCondition?: (previousPayload?: Payload, state?: TState) => boolean;
 };
 
-type ChainedEvent<TState extends State, TPreviousEvent extends Event = Event, TNextEvent extends Event = Event> = {
-    readonly onEvent: EventLocator<TPreviousEvent["type"]>
-    readonly thenDispatch: EventLocator<TNextEvent["type"]>;
-    readonly withPayload?: (previousPayload?: TPreviousEvent["payload"], state?: TState) => object;
-    readonly onCondition?: (previousPayload?: TPreviousEvent["payload"], state?: TState) => boolean;
-};
-
-export type ComponentDef<TState extends State> = {
-    readonly initialState?: TState;
-    readonly children?: Record<string, ComponentDef<State>>;
+// Component definition type for defining a component with state, selectors, and event handlers
+export type ComponentDef<
+    TState extends State = State,
+    TPayloads extends Record<string, Payload> = {},
+    TSelectorReturnTypes extends Record<string, Value> = {}
+> = {
+    readonly initialState: TState;
+    readonly children?: Record<string, ComponentDef>;
     readonly chainedEvents?: ChainedEvent<TState>[];
-    readonly selectors?: Record<string, Selector<TState>>;
-    readonly reducers?: ComponentReducers<TState, Record<string, Payload>>;
-    readonly name?: string;
-}
-
-const eventPayloads= {
-    test1: undefined,
-    test2: 123,
-    test3: "string",
-    test4: { key: "value" },
-    test5: [1, 2, 3],
+    readonly eventHandlers?: EventHandlerMap<TState, TPayloads>;
+    readonly selectors?: SelectorMap<TState, TSelectorReturnTypes>;
 };
-const reducers: ComponentReducers<{ count: number }, typeof eventPayloads> = {
-    test1: (state) => { state.count += 1; },
-    test2: (state, action) => { state.count += action.payload; },
-    test3: (state, action) => { console.log(action.payload); },
-    test4: (state, action) => { console.log(action.payload.key); },
-    test5: (state, action) => { console.log(action.payload.length);
-        if(action.type !== "test5") {
-            // This should error, as action.type is not "test5"
-            throw new Error("Unexpected action type");
-        }
-
-     },
-};
-
-export { State, Payload, Value, Selector, EventLocator, ComponentReducers, ChainedEvent, ComponentDef };
