@@ -34,7 +34,8 @@ export const counterComponentDef: ComponentDef<CounterState, {
     decrementRequested: void,
     incrementByAmountRequested: number,
     setNextAmountRequested: number,
-}, { selectCount: number }> = {
+}, { selectCount: number }
+> = {
     initialState,
     eventHandlers: {
         incrementRequested,
@@ -45,7 +46,10 @@ export const counterComponentDef: ComponentDef<CounterState, {
     selectors: {
         selectCount,
     },
-    children: {
-        amount: amountComponentDef,
-    }
+    chainedEvents:[
+        {
+            onEvent: "amount/amountUpdated",
+            thenDispatch: "setNextAmountRequested",
+        }
+    ]
 };

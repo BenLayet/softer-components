@@ -26,4 +26,10 @@ export const amountComponentDef: ComponentDef<AmountState, {
     selectors: {
         selectAmount,
     },
+    chainedEvents: [
+        {
+            onEvent: "setAmountRequested",
+            thenDispatch: "amountUpdated",
+        }
+    ]
 };
