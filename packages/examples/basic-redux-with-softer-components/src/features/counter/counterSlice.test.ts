@@ -1,6 +1,6 @@
 import type { AppStore } from "../../app/store"
 import { makeStore } from "../../app/store"
-import type { CounterState } from "../../softer-components/counter/counterComponent.ts"
+import type { CounterState } from "../counter/counterComponent.ts"
 import {
   counterSlice,
   decrementRequested,
@@ -17,7 +17,7 @@ describe("counter reducer", () => {
   beforeEach<LocalTestContext>(context => {
     const initialState: CounterState = {
       value: 3,
-      nextAmount: 1,
+      nextAmount: 2,
     }
 
     const store = makeStore({ counter: initialState })
@@ -50,7 +50,7 @@ describe("counter reducer", () => {
   it<LocalTestContext>("should handle incrementByAmount", ({ store }) => {
     expect(selectCount(store.getState())).toBe(3)
 
-    store.dispatch(incrementByAmountRequested(2))
+    store.dispatch(incrementByAmountRequested())
 
     expect(selectCount(store.getState())).toBe(5)
   })

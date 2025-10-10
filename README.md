@@ -54,7 +54,7 @@ export const counterComponentDef: ComponentDef<
     }
 > = {
     initialState,
-    eventHandlers: {
+    stateUpdaters: {
         incrementRequested,
         decrementRequested,
         incrementByAmountRequested,

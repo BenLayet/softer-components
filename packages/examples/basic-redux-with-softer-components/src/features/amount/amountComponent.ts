@@ -6,7 +6,7 @@ const initialState = {
 };
 export type AmountState = typeof initialState;
 
-// Event Handlers
+// state updater
 const setAmountRequested =
     (_state: AmountState, payload: number): AmountState => ({
         amount: payload,
@@ -19,15 +19,15 @@ const selectAmount = (state: AmountState) => state.amount;
 export const amountComponentDef: ComponentDef<AmountState, {
     setAmountRequested: number,
     amountUpdated: number,
-}, { selectAmount: number }> = {
+}> = {
     initialState,
-    eventHandlers: {
+    stateUpdaters: {
         setAmountRequested
     },
     selectors: {
         selectAmount,
     },
-    chainedEvents: [
+    eventForwarders: [
         {
             onEvent: "setAmountRequested",
             thenDispatch: "amountUpdated",

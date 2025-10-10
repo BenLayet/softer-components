@@ -1,4 +1,4 @@
-import { ComponentDef, ChainedEvent, ExtractEventHandlerPayloads, ExtractSelectorReturnTypes } from "@softer-components/types";
+import { ComponentDef, EventForwarder, ExtractEventSignatures} from "@softer-components/types";
 
 // State
 const initialState = {
@@ -7,7 +7,16 @@ const initialState = {
 };
 export type CounterState = typeof initialState;
 
-// Event Handlers
+// Selectors
+const selectCount = ((state: CounterState) => state.value);
+const selectIsEven = ((state: CounterState) => state.value % 2 === 0);
+
+const selectors = {
+    selectCount,
+    selectIsEven,
+};
+
+// State Updaters
 const incrementRequested =
     (state: CounterState) => ({ ...state, value: state.value + 1 });
 const decrementRequested =
@@ -22,59 +31,47 @@ const setNextAmountRequested =
         ...state,
         nextAmount: amount,
     });
-const eventHandlers = {
+const stateUpdaters = {
     incrementRequested,
     decrementRequested,
     incrementByAmountRequested,
     setNextAmountRequested,
 };
 
-type CounterEventPayloads = ExtractEventHandlerPayloads<typeof eventHandlers>;
+type CounterEventPayloads = ExtractEventSignatures<typeof stateUpdaters>;
 
-// Selectors
-const selectCount = ((state: CounterState) => state.value);
-const selectIsEven = ((state: CounterState) => state.value % 2 === 0);
 
-const selectors = {
-    selectCount,
-    selectIsEven,
-};
-type SelectorReturnTypes = ExtractSelectorReturnTypes<typeof selectors>;
-
-//Chained Events
+//Event forwarders
 type EventDependencies = {
     amount: {
         amountUpdated: number,
     }
 };
-
-const chainedEvent1: ChainedEvent<CounterState, CounterEventPayloads, EventDependencies> = {
+const eventForwarder1: EventForwarder<CounterState, CounterEventPayloads, EventDependencies> = {
     onEvent: "amount/amountUpdated",
     thenDispatch: "setNextAmountRequested",
-    onCondition: selectIsEven,
 };
 
-const chainedEvent2: ChainedEvent<CounterState, CounterEventPayloads, EventDependencies> = {
+const eventForwarder2: EventForwarder<CounterState, CounterEventPayloads, EventDependencies> = {
     onEvent: "incrementRequested",
     thenDispatch: "setNextAmountRequested",
     withPayload: (state) => state.nextAmount + 1,
     onCondition: (state) => selectCount(state) > 0,
 };
 
-const chainedEvents: ChainedEvent<CounterState, CounterEventPayloads, EventDependencies>[] =
-    [chainedEvent1, chainedEvent2];
+const eventForwarders: EventForwarder<CounterState, CounterEventPayloads, EventDependencies>[] =
+    [eventForwarder1, eventForwarder2];
 
 // Component Definition
 export const counterComponentDef: ComponentDef<
     CounterState,
     CounterEventPayloads,
-    SelectorReturnTypes,
     EventDependencies
 > = {
     initialState,
-    eventHandlers,
+    stateUpdaters,
     selectors,
-    chainedEvents
+    eventForwarders
 };
 
 
