@@ -1,11 +1,10 @@
 import {
     ComponentDef,
-    EventHandlerMap,
+    EventHandlerRecord,
     EventHandler,
     State,
     Payload,
     Value,
-    ChainedEvent
 } from '@softer-components/types'
 import {
     CaseReducer,
@@ -16,7 +15,7 @@ import {
 
 type Reducers<
     TState extends State,
-    TPayloads extends Record<string, Payload>,> = {
+    TPayloads extends Record<string, Payload>, > = {
     [K in keyof TPayloads]: CaseReducer<TState, PayloadAction<TPayloads[K]>>
 };
 
@@ -30,13 +29,14 @@ function createReducer<
     TState extends State,
     TPayload extends Payload,
     Name extends string,
->(_actionType: Name, eventHandler: EventHandler<TState, TPayload>): CaseReducer<TState, PayloadAction<TPayload>>{
-    return ((state: TState, action:PayloadAction<TPayload>)=> eventHandler(state, action.payload) ) as any;
+>(_actionType: Name, eventHandler: EventHandler<TState, TPayload>): CaseReducer<TState, PayloadAction<TPayload>> {
+    return ((state: TState, action: PayloadAction<TPayload>) => eventHandler(state, action.payload)) as any;
 }
+
 function createReducers<
     TState extends State,
     TPayloads extends Record<string, Payload>,
->(eventHandlers: EventHandlerMap<TState, TPayloads> | undefined):Reducers<TState, TPayloads> {
+>(eventHandlers: EventHandlerRecord<TState, TPayloads> | undefined): Reducers<TState, TPayloads> {
     return Object.fromEntries(
         Object.entries(eventHandlers ?? {})
             .map(
@@ -44,32 +44,41 @@ function createReducers<
                     [actionType, createReducer(actionType, eventHandler)])) as any;
 }
 
-function chainLocalEvents<TState extends State>(slice:Slice<TState>, chainedEvents: ChainedEvent<TState>[]){
-    chainedEvents
-        .filter(event => !event.onEvent.includes('/'))
-        .forEach(event => {
-            slice.re
-        })
+type ListenerOptions = {
+    type: string,
+    effect: (action: PayloadAction, listenerApi: any) => void,
 }
-
 
 export function createSofterSlice<
     TState extends State,
     TPayloads extends Record<string, Payload> = {},
     TSelectorReturnTypes extends Record<string, Value> = {},
     Name extends string = string,
->(path: Name, componentDef: ComponentDef<TState, TPayloads, TSelectorReturnTypes>):Slice<
-    TState,
-    Reducers<TState, TPayloads>,
-    Name,
-    Name,
-    Selectors<TState, TSelectorReturnTypes>> {
-    const slice = createSlice({
+    EventDependencies extends Record<string, Record<string, Payload>> = {},
+>(path: Name, componentDef: ComponentDef<TState, TPayloads, TSelectorReturnTypes, EventDependencies>): {
+    slice: Slice<
+        TState,
+        Reducers<TState, TPayloads>,
+        Name,
+        Name,
+        Selectors<TState, TSelectorReturnTypes>>,
+    listenerOptions: ListenerOptions[]
+} {
+    const slice: any = createSlice({
         name: path,
         initialState: componentDef.initialState,
         selectors: componentDef.selectors ?? {},
         reducers: createReducers(componentDef.eventHandlers)
     });
-    componentDef.chainedEvents.filter(event => event.onEvent !== undefined).forEach(event => {})
-    return slice as any;
+
+    const listenerOptions: ListenerOptions[] = componentDef
+        .chainedEvents
+        .map(chainedEvent => ({
+            type: path + '/' + chainedEvent.onEvent,
+            effect: async (action: PayloadAction, listenerApi) => {
+                listenerApi.dispatch({type: path + '/' + chainedEvent.thenDispatch, payload: action.payload})
+            }
+        }))
+
+    return {slice, listenerOptions};
 }

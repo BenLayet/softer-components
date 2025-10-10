@@ -8,13 +8,10 @@ import {
     incrementByAmountRequested,
 } from "./counterSlice"
 import {Amount} from "../amount/Amount.tsx";
-import {selectAmount} from "../amount/amountSlice.ts";
 
 export const Counter = (): JSX.Element => {
-    const dispatch = useAppDispatch()
+    const dispatch = useAppDispatch();
     const count = useAppSelector(selectCount)
-    const amount = useAppSelector(selectAmount)
-
     return (
         <div>
             <div className={styles.row}>
@@ -40,7 +37,7 @@ export const Counter = (): JSX.Element => {
                 <Amount/>
                 <button
                     className={styles.button}
-                    onClick={() => dispatch(incrementByAmountRequested(amount))}
+                    onClick={() => dispatch(incrementByAmountRequested())}
                 >
                     Add Amount
                 </button>

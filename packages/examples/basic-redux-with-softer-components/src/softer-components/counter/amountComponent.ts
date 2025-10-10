@@ -18,6 +18,7 @@ const selectAmount = (state: AmountState) => state.amount;
 // Component Definition
 export const amountComponentDef: ComponentDef<AmountState, {
     setAmountRequested: number,
+    amountUpdated: number,
 }, { selectAmount: number }> = {
     initialState,
     eventHandlers: {

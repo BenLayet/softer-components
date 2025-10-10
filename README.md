@@ -15,7 +15,7 @@ A TypeScript component types library that is state-manager-agnostic and reusable
 ## 📦 Installation
 
 ```bash
-npm install softer-components
+pnpm install -D @softer-components/types
 ```
 
 ## 🚀 Quick Start
@@ -23,70 +23,55 @@ npm install softer-components
 ### Basic Component Definition
 
 ```typescript
-import { ComponentDef, Event, createEventCreators } from 'softer-components';
+iimport {ComponentDef} from "@softer-components/types";
 
-// Define your state shape
-interface TodoState {
-  items: Array<{ id: string; text: string; completed: boolean }>;
-  filter: 'all' | 'active' | 'completed';
-}
-
-// Define your events
-interface TodoEventMap {
-  ADD_TODO: { text: string };
-  TOGGLE_TODO: { id: string };
-  SET_FILTER: { filter: 'all' | 'active' | 'completed' };
-}
-
-// Create event creators
-const todoEvents = createEventCreators<TodoEventMap>(['ADD_TODO', 'TOGGLE_TODO', 'SET_FILTER']);
-
-// Define your component
-const todoComponent: ComponentDef<TodoState, TodoEvent> = {
-  name: 'todos',
-  initialState: { items: [], filter: 'all' },
-  reducer: (state, event) => {
-    switch (event.type) {
-      case 'ADD_TODO':
-        return {
-          ...state,
-          items: [...state.items, {
-            id: Date.now().toString(),
-            text: event.payload.text,
-            completed: false
-          }]
-        };
-      case 'TOGGLE_TODO':
-        return {
-          ...state,
-          items: state.items.map(item =>
-            item.id === event.payload.id
-              ? { ...item, completed: !item.completed }
-              : item
-          )
-        };
-      case 'SET_FILTER':
-        return { ...state, filter: event.payload.filter };
-      default:
-        return state;
-    }
-  },
-  selectors: {
-    getAllTodos: (state) => state.items,
-    getVisibleTodos: (state) => {
-      switch (state.filter) {
-        case 'active': return state.items.filter(item => !item.completed);
-        case 'completed': return state.items.filter(item => item.completed);
-        default: return state.items;
-      }
-    },
-    getFilter: (state) => state.filter
-  },
-  eventHandling: {
-    supportedEvents: ['ADD_TODO', 'TOGGLE_TODO', 'SET_FILTER'],
-    chainSupport: true
-  }
+// State
+const initialState = {
+    value: 0,
 };
+type CounterState = typeof initialState;
+
+// Event Handlers
+const incrementRequested =
+    (state: CounterState) => ({...state, value: state.value + 1});
+const decrementRequested =
+    (state: CounterState) => ({...state, value: state.value - 1});
+// Selectors
+const selectCount =  (state: CounterState) => state.value;
+
+// Component Definition
+export const counterComponentDef: ComponentDef<
+    CounterState,
+    {
+        incrementRequested: void,
+        decrementRequested: void,
+    },
+    { selectCount: number },
+    {
+        amount: {
+            amountUpdated: number,
+        }
+    }
+> = {
+    initialState,
+    eventHandlers: {
+        incrementRequested,
+        decrementRequested,
+        incrementByAmountRequested,
+        setNextAmountRequested,
+    },
+    selectors: {
+        selectCount,
+    },
+    chainedEvents: [
+        {
+            onEvent: "amount/amountUpdated",
+            thenDispatch: "setNextAmountRequested",
+            withPayload: (previousPayload) => (previousPayload ?? 0) * 2
+        }
+    ]
+};
+
 ```
 
 ## 🔄 Redux Integration

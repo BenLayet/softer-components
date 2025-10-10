@@ -1,6 +1,6 @@
 import type { AppStore } from "../../app/store"
 import { makeStore } from "../../app/store"
-import type { CounterState } from "./counterComponent"
+import type { CounterState } from "../../softer-components/counter/counterComponent.ts"
 import {
   counterSlice,
   decrementRequested,
@@ -17,6 +17,7 @@ describe("counter reducer", () => {
   beforeEach<LocalTestContext>(context => {
     const initialState: CounterState = {
       value: 3,
+      nextAmount: 1,
     }
 
     const store = makeStore({ counter: initialState })
