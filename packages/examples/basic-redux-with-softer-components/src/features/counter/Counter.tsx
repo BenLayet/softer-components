@@ -6,12 +6,14 @@ import {
     incrementRequested,
     selectCount,
     incrementByAmountRequested,
+    selectIsEven,
 } from "./counterSlice"
 import {Amount} from "../amount/Amount.tsx";
 
 export const Counter = (): JSX.Element => {
     const dispatch = useAppDispatch();
-    const count = useAppSelector(selectCount)
+    const count = useAppSelector(selectCount);
+    const isEven = useAppSelector(selectIsEven);
     return (
         <div>
             <div className={styles.row}>
@@ -22,7 +24,7 @@ export const Counter = (): JSX.Element => {
                 >
                     -
                 </button>
-                <label aria-label="Count" className={styles.value}>
+                <label aria-label="Count" className={styles.value} style={{ color: isEven ? 'blue' : 'red' }}>
                     {count}
                 </label>
                 <button
