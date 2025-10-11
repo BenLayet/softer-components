@@ -1,4 +1,4 @@
-import { ComponentDef, EventForwarder, ExtractEventSignatures, StateUpdater} from "@softer-components/types";
+import { EventForwarder, ExtractEventSignatures, StateUpdater } from "@softer-components/types";
 import { PublicAmountEvents } from "../amount/amountComponent";
 
 // State
@@ -18,16 +18,16 @@ const selectors = {
 };
 
 // State Updaters
-const incrementRequested:StateUpdater<CounterState> =
+const incrementRequested: StateUpdater<CounterState> =
     (state: CounterState) => ({ ...state, value: state.value + 1 });
-const decrementRequested:StateUpdater<CounterState> =
+const decrementRequested: StateUpdater<CounterState> =
     (state: CounterState) => ({ ...state, value: state.value - 1 });
-const incrementByAmountRequested:StateUpdater<CounterState> =
+const incrementByAmountRequested: StateUpdater<CounterState> =
     (state: CounterState): CounterState => ({
         ...state,
         value: state.value + state.nextAmount,
     });
-const setNextAmountRequested:StateUpdater<CounterState, number> =
+const setNextAmountRequested: StateUpdater<CounterState, number> =
     (state: CounterState, amount: number): CounterState => ({
         ...state,
         nextAmount: amount,
@@ -55,11 +55,7 @@ const eventForwarders: EventForwarder<CounterState, CounterEventPayloads, EventD
     [eventForwarder1];
 
 // Component Definition
-export const counterComponentDef: ComponentDef<
-    CounterState,
-    CounterEventPayloads,
-    EventDependencies
-> = {
+export const counterComponentDef = {
     initialState,
     stateUpdaters,
     selectors,

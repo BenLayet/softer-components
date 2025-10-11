@@ -2,7 +2,8 @@ import {
     ComponentDef,
     State,
     Payload,
-    EventDependencies
+    EventDependencies,
+    SelectorRecord
 } from '@softer-components/types'
 import {
     CaseReducer,
@@ -48,10 +49,11 @@ type Reducers<
 
 export function createSofterSlice<
     TState extends State,
+    TSelectors extends SelectorRecord<TState> = {},
     TPayloads extends Record<string, Payload> = {},
     Name extends string = string,
     TEventDependencies extends EventDependencies = {},
->(path: Name, componentDef: ComponentDef<TState, TPayloads, TEventDependencies>)
+>(path: Name, componentDef: ComponentDef<TState,TSelectors, TPayloads, TEventDependencies>)
     : [Slice<
         typeof componentDef.initialState,
         Reducers<typeof componentDef.initialState, TPayloads>,

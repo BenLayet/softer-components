@@ -302,11 +302,12 @@ export type EventForwarder<
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////
 export type ComponentDef<
     TState extends State = State,
+    TSelectorRecord extends SelectorRecord<TState> = {},
     TPayloadRecord extends PayloadRecord = {},
     TEventDependencies extends EventDependencies = {},
 > = {
     readonly initialState: TState;
-    readonly selectors?: SelectorRecord<TState>;
+    readonly selectors?: TSelectorRecord;
     readonly stateUpdaters?: Partial<StateUpdaterRecord<TState, TPayloadRecord>>;
     readonly eventForwarders?: EventForwarder<TState, TPayloadRecord, TEventDependencies>[];
 };
