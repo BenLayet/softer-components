@@ -15,11 +15,16 @@ const setAmountRequested =
 // Selectors
 const selectAmount = (state: AmountState) => state.amount;
 
-// Component Definition
-export const amountComponentDef: ComponentDef<AmountState, {
+
+export type PublicAmountEvents = {
+        amountUpdated: number,
+};
+
+type AmountEvents = PublicAmountEvents & {
     setAmountRequested: number,
-    amountUpdated: number,
-}> = {
+};
+// Component Definition
+export const amountComponentDef: ComponentDef<AmountState, AmountEvents> = {
     initialState,
     stateUpdaters: {
         setAmountRequested
