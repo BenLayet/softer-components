@@ -1,6 +1,6 @@
 import { combineSlices, configureStore, createListenerMiddleware } from "@reduxjs/toolkit";
-import { amountSlice } from "../features/amount/amountSlice";
-import { counterSlice } from "../features/counter/counterSlice";
+import { amountSlice, amountListenerOptions } from "../features/amount/amountSlice";
+import { counterSlice, counterListenerOptions } from "../features/counter/counterSlice";
 
 // `combineSlices` automatically combines the reducers using
 // their `reducerPath`s, therefore we no longer need to call `combineReducers`.
@@ -10,6 +10,10 @@ export type RootState = ReturnType<typeof rootReducer>;
 
 // Create the middleware instance and methods
 const listenerMiddleware = createListenerMiddleware();
+// Register all event forwarders from all slices
+[...amountListenerOptions, ...counterListenerOptions].forEach((listenerOption) => {
+    listenerMiddleware.startListening(listenerOption);
+});
 
 // The store setup is wrapped in `makeStore` to allow reuse
 // when setting up tests that need the same store config

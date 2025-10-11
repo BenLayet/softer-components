@@ -1,4 +1,4 @@
-import { ComponentDef, EventForwarder, ExtractEventSignatures} from "@softer-components/types";
+import { ComponentDef, EventForwarder, ExtractEventSignatures, StateUpdater} from "@softer-components/types";
 
 // State
 const initialState = {
@@ -17,16 +17,16 @@ const selectors = {
 };
 
 // State Updaters
-const incrementRequested =
+const incrementRequested:StateUpdater<CounterState> =
     (state: CounterState) => ({ ...state, value: state.value + 1 });
-const decrementRequested =
+const decrementRequested:StateUpdater<CounterState> =
     (state: CounterState) => ({ ...state, value: state.value - 1 });
-const incrementByAmountRequested =
+const incrementByAmountRequested:StateUpdater<CounterState> =
     (state: CounterState): CounterState => ({
         ...state,
         value: state.value + state.nextAmount,
     });
-const setNextAmountRequested =
+const setNextAmountRequested:StateUpdater<CounterState, number> =
     (state: CounterState, amount: number): CounterState => ({
         ...state,
         nextAmount: amount,
@@ -55,7 +55,7 @@ const eventForwarder1: EventForwarder<CounterState, CounterEventPayloads, EventD
 const eventForwarder2: EventForwarder<CounterState, CounterEventPayloads, EventDependencies> = {
     onEvent: "incrementRequested",
     thenDispatch: "setNextAmountRequested",
-    withPayload: (state) => state.nextAmount + 1,
+    withPayload: (state) => state.value + 1,
     onCondition: (state) => selectCount(state) > 0,
 };
 

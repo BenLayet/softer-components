@@ -2,7 +2,6 @@ import {
     ComponentDef,
     State,
     Payload,
-    EventForwarder,
     EventDependencies
 } from '@softer-components/types'
 import {
@@ -13,68 +12,62 @@ import {
     SliceSelectors,
 } from '@reduxjs/toolkit';
 
+function createReducer(stateUpdater: any): any {
+    return ((state: any, action: any) => stateUpdater(state, action.payload));
+}
+
+function createReducers(stateUpdaters: any) {
+    return Object.fromEntries(
+        Object.entries(stateUpdaters ?? {})
+            .map(
+                ([actionType, stateUpdater]) =>
+                    [actionType, createReducer(stateUpdater)]));
+}
+
+const createListenerOption = (path: any) => (eventForwarder: any) => ({
+    type: `${path}/${eventForwarder.onEvent}`,
+    effect: (action: any, listenerApi: any) => {
+        const state = listenerApi.getState()[path];
+        const previousPayload = action.payload;
+        if (eventForwarder.onCondition && !eventForwarder.onCondition(state, previousPayload)) {
+            return;
+        }
+        const nextPayload = eventForwarder.withPayload
+            ? eventForwarder.withPayload(listenerApi.getState()[path], previousPayload)
+            : previousPayload;
+        listenerApi.dispatch({ type: path + '/' + eventForwarder.thenDispatch, payload: nextPayload });
+    }
+});
+
+
 type Reducers<
     TState extends State,
     TPayloads extends Record<string, Payload>,> = {
         [K in keyof TPayloads]: CaseReducer<TState, PayloadAction<TPayloads[K]>>
     };
 
-function createReducer<
-    TState extends State,
-    TPayload extends Payload,
->(stateUpdater: any): any {
-    return ((state: TState, action: PayloadAction<TPayload>) => stateUpdater(state, action.payload));
-}
-
-function createReducers<
-    TState extends State,
-    TPayloadRecord extends Record<string, Payload>,
->(stateUpdaters:any): Reducers<TState, TPayloadRecord> {
-    return Object.fromEntries(
-        Object.entries(stateUpdaters ?? {})
-            .map(
-                ([actionType, stateUpdater]) =>
-                    [actionType, createReducer(stateUpdater)])) as Reducers<TState, TPayloadRecord>;
-}
-
-type ListenerOption = {
-    type: string,
-    effect: (action: PayloadAction, listenerApi: any) => void,
-};
-const createListenerOption = <TState extends State,
-    TPayloads extends Record<string,
-        Payload> = {}, Name extends string = string,
-    TEventDependencies extends EventDependencies = {}>(path: Name) => (eventForwarder: EventForwarder<TState, TPayloads, TEventDependencies>) => ({
-        type: path + '/' + eventForwarder.onEvent,
-        effect: (action: PayloadAction, listenerApi: { dispatch: (action: PayloadAction) => void }) => {
-            listenerApi.dispatch({ type: path + '/' + eventForwarder.thenDispatch, payload: action.payload });
-        }
-    });
-
-
 export function createSofterSlice<
     TState extends State,
     TPayloads extends Record<string, Payload> = {},
     Name extends string = string,
     TEventDependencies extends EventDependencies = {},
->(path: Name, componentDef: ComponentDef<TState, TPayloads, TEventDependencies>): {
-    slice: Slice<
+>(path: Name, componentDef: ComponentDef<TState, TPayloads, TEventDependencies>)
+    : [Slice<
         typeof componentDef.initialState,
         Reducers<typeof componentDef.initialState, TPayloads>,
         Name,
         Name,
         typeof componentDef.selectors & SliceSelectors<TState>>,
-    listenerOptions: ListenerOption[]
-} {
-    const slice:any= createSlice({
+        any] {
+
+    const slice: any = createSlice({
         name: path,
         initialState: componentDef.initialState,
         selectors: componentDef.selectors ?? {},
-        reducers: createReducers<TState, TPayloads>(componentDef.stateUpdaters ?? {})
-    })  ;
+        reducers: createReducers(componentDef.stateUpdaters ?? {})
+    });
 
-    const listenerOptions: ListenerOption[] = componentDef
-        .eventForwarders?.map(createListenerOption(path)) ?? []
+    const listenerOptions = componentDef.eventForwarders?.map(createListenerOption(path)) ?? []
 
-    return { slice, listenerOptions };
+    return [slice, listenerOptions];
 }
