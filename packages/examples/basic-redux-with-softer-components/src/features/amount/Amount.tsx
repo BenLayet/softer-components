@@ -1,20 +1,18 @@
 import {JSX} from "react";
-import {useAppDispatch, useAppSelector} from "../../app/hooks.ts";
 import styles from "../counter/Counter.module.css";
-import {selectAmount, setAmountRequested} from "./amountSlice.ts";
+import { amountComponentDef } from "./amountComponent";
 
-export const Amount = (): JSX.Element => {
-    const dispatch = useAppDispatch()
-    const amount = useAppSelector(selectAmount)
+export const Amount = (softerPath:string): JSX.Element => {
+    const [dispatchers, selectors] = useSofter(softerPath, amountComponentDef);
 
     return (
         <input
             className={styles.textbox}
             aria-label="Set increment amount"
-            value={amount}
+            value={selectors.amount}
             type="number"
             onChange={e => {
-                dispatch(setAmountRequested(parseInt(e.target.value)))
+                dispatchers.setAmountRequested(parseInt(e.target.value)))
             }}
         />
     )

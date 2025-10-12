@@ -1,6 +1,6 @@
 {
   "name": "@softer-components/redux-adapter",
-  "type":"module",
+  "type": "module",
   "version": "1.0.0",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
@@ -12,10 +12,14 @@
     }
   },
   "scripts": {
-    "build": "tsc -b"
+    "build": "tsc -b",
+    "test": "vitest"
   },
   "dependencies": {
-    "@softer-components/types": "workspace:*",
-    "@reduxjs/toolkit": "^2.6.1"
+    "@reduxjs/toolkit": "^2.6.1",
+    "@softer-components/types": "workspace:*"
+  },
+  "devDependencies": {
+    "vitest": "^3.2.4"
   }
 }

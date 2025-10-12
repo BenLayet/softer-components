@@ -1,38 +1,4 @@
-import { combineSlices, configureStore, createListenerMiddleware } from "@reduxjs/toolkit";
-import { amountSlice, amountListenerOptions } from "../features/amount/amountSlice";
-import { counterSlice, counterListenerOptions } from "../features/counter/counterSlice";
+import {configureSofterStore} from "@softer-components/redux-adapter";
+import {counterComponentDef} from "../features/counter/counterComponent.ts";
 
-// `combineSlices` automatically combines the reducers using
-// their `reducerPath`s, therefore we no longer need to call `combineReducers`.
-const rootReducer = combineSlices(counterSlice, amountSlice);
-// Infer the `RootState` type from the root reducer
-export type RootState = ReturnType<typeof rootReducer>;
-
-// Create the middleware instance and methods
-const listenerMiddleware = createListenerMiddleware();
-// Register all event forwarders from all slices
-[...amountListenerOptions, ...counterListenerOptions].forEach((listenerOption) => {
-    listenerMiddleware.startListening(listenerOption);
-});
-
-// The store setup is wrapped in `makeStore` to allow reuse
-// when setting up tests that need the same store config
-export const makeStore = (preloadedState?: Partial<RootState>) => {
-    const store = configureStore({
-        reducer: rootReducer,
-        preloadedState,
-        // Add the listener middleware to the store.
-        // NOTE: Since this can receive actions with functions inside,
-        // it should go before the serializability check middleware
-        middleware: (getDefaultMiddleware) =>
-            getDefaultMiddleware().prepend(listenerMiddleware.middleware),
-    });
-    return store;
-}
-
-export const store = makeStore();
-
-// Infer the type of `store`
-export type AppStore = typeof store
-// Infer the `AppDispatch` type from the store itself
-export type AppDispatch = AppStore["dispatch"];
+export const store = configureSofterStore(counterComponentDef); // --- IGNORE ---import { describe, it, expect } from "vitest";

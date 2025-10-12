@@ -1,5 +1,5 @@
-import { EventForwarder, ExtractEventSignatures, StateUpdater } from "@softer-components/types";
-import { PublicAmountEvents } from "../amount/amountComponent";
+import {ComponentDef, EventForwarder, ExtractEventSignatures, StateUpdater} from "@softer-components/types";
+import { amountComponentDef, PublicAmountEvents } from "../amount/amountComponent";
 
 // State
 const initialState = {
@@ -43,23 +43,50 @@ type CounterEventPayloads = ExtractEventSignatures<typeof stateUpdaters>;
 
 
 //Event forwarders
-type EventDependencies = {
+type CounterDependencies = {
     amount: PublicAmountEvents;
 };
-const eventForwarder1: EventForwarder<CounterState, CounterEventPayloads, EventDependencies> = {
+
+const eventForwarder1: EventForwarder<CounterState, CounterEventPayloads, CounterDependencies> = {
     onEvent: "amount/amountUpdated",
     thenDispatch: "setNextAmountRequested",
 };
 
-const eventForwarders: EventForwarder<CounterState, CounterEventPayloads, EventDependencies>[] =
+const eventForwarders: EventForwarder<CounterState, CounterEventPayloads, CounterDependencies>[] =
     [eventForwarder1];
 
+export type CounterEvents = { //TODO default is { payload: void, uiEvent: false }
+    incrementRequested: { payload: void, uiEvent: true },
+    decrementRequested: { payload: void, uiEvent: true },
+    incrementByAmountRequested: { payload: void, uiEvent: true },
+    setNextAmountRequested: { payload: number, uiEvent: false },
+    countDownRequested: { payload: void, uiEvent: true , effectRequired: true},
+    timeUp: { payload: void, uiEvent: false },
+};
+type CounterPayloads = {[key in keyof CounterEvents]: CounterEvents[key]["payload"]};
+export type CounterEffects = {
+        delayedDecrementRequested: ["decrementRequested"],
+        fetchDataRequested: ["fetchDataSuccess", "fetchDataFailed"],
+    }; // TODO declare expected effects : onEvent, dispatchEvents : [], --- effect implementation is in the adapter
+
 // Component Definition
-export const counterComponentDef = {
+//TODO declare public events separately from internal events
+// public events for UI actions / for Effects / for event Forwarding
+export const counterComponentDef: ComponentDef<CounterState, typeof selectors,CounterPayloads,CounterDependencies> = {
     initialState,
+    // state updaters
     stateUpdaters,
     selectors,
-    eventForwarders
+    eventForwarders,//TODO separate internal / from child/ to child / child to child
+   // effects: {
+    //    delayedDecrementRequested: ["decrementRequested"],
+    //    fetchDataRequested: ["fetchDataSuccess", "fetchDataFailed"],
+    //}, // TODO declare expected effects : onEvent, dispatchEvents : [], --- effect implementation is in the adapter
+    dependencies: {
+        children: {
+            amount: amountComponentDef
+        }
+    }
 };
 
 
