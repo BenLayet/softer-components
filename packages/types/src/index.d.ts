@@ -11,16 +11,19 @@ export type Value =
     | null
     | { readonly [key: string]: Value }
     | readonly Value[];
-
+/////////////////////////////////////////////////////////////////////////////////
+// STATE
 // State can be a specific value type or undefined (void)
 export type State = Value;
 
+/////////////////////////////////////////////////////////////////////////////////
+// SELECTORS
 // Selector takes state and returns a value
 // example: 
 // ```
 // (state: {counter:number}) => state.counter
 // ```
-export type Selector<TState extends State> = (state: TState) => Value;
+export type Selector<TState extends State, TValue extends Value = Value> = (state: TState) => TValue;
 
 // SelectorRecord maps selector names to their corresponding functions
 // all from the sme state type, but different return types
@@ -33,11 +36,23 @@ export type Selector<TState extends State> = (state: TState) => Value;
 // ```
 type SelectorRecord<TState extends State> = Record<string, Selector<TState>>;
 
+/////////////////////////////////////////////////////////////////////////////////
+// EVENTS
 // Payload can be a specific value type or void (no payload)
 export type Payload = Value | void;
+type EventConfig = {
+    readonly uiEvent: boolean;
+};
+type Events = Record<string, EventConfig>;
 
-// State Updater takes only one type of payload: either void or a specific type
-// example swith and without payload: 
+
+/////////////////////////////////////////////////////////////////////////////////
+// STATE UPDATERS
+// State Updater takes only one type of payload: either void or a specific type.
+// A state updater is called when a specific event is dispatched with a specific payload.
+// (equivalent to a case reducer for a specific action in Redux)
+//
+// example with and without payload:
 // ```
 // (state: {counter:number}, payload:number) => ({counter: state.counter + payload})
 // (state: {counter:number}) => ({counter: state.counter + 1})
@@ -56,6 +71,9 @@ export type StateUpdater<TState extends State = State, TPayload extends Payload 
 type StateUpdaterRecord<TState extends State, TPayloadRecord extends PayloadRecord = {}> = {
     readonly [eventType in keyof TPayloadRecord]: StateUpdater<TState, TPayloadRecord[eventType]>;
 };
+
+/////////////////////////////////////////////////////////////////////////////////
+// EVENT FORWARDERS
 
 // Extract PayloadRecord from state updater record
 // When a user of the library defines a componentDef they need to provide the signatures of all the events.
@@ -305,13 +323,15 @@ export type ComponentDef<
     TSelectorRecord extends SelectorRecord<TState> = SelectorRecord<TState>,
     TPayloadRecord extends PayloadRecord = PayloadRecord,
     TEventDependencies extends EventDependencies = EventDependencies,
+    TChildrenPaths extends readonly string[] = readonly string[],
 > = {
     readonly initialState?: TState;
     readonly selectors?: TSelectorRecord;
+    readonly uiEvents?:(keyof TPayloadRecord & string)[],
     readonly stateUpdaters?: Partial<StateUpdaterRecord<TState, TPayloadRecord>>;
     readonly eventForwarders?: EventForwarder<TState, TPayloadRecord, TEventDependencies>[];
     readonly dependencies? : {
-            children?: Record<string, ComponentDef<any, any, any, any>>;
+            children?: Record<TChildrenPaths[number], ComponentDef<any, any, any, any>>;
         }
     //TODO separate internal / from child/ to child / child to child
     //TODO add effects

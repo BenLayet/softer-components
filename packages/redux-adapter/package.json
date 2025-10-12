@@ -13,13 +13,17 @@
   },
   "scripts": {
     "build": "tsc -b",
-    "test": "vitest"
+    "test": "vitest",
+    "format": "prettier --write ."
   },
   "dependencies": {
     "@reduxjs/toolkit": "^2.6.1",
-    "@softer-components/types": "workspace:*"
+    "@softer-components/types": "workspace:*",
+    "lodash": "^4.17.21",
+    "react-redux": "^9.2.0"
   },
   "devDependencies": {
+    "prettier": "^3.6.2",
     "vitest": "^3.2.4"
   }
 }
