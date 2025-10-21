@@ -17,7 +17,10 @@ const selectors = {
 type CounterEvents =
   | { type: "incrementRequested"; payload: void }
   | { type: "decrementRequested"; payload: void };
-const uiEventTypes = ["incrementRequested" as const, "decrementRequested" as const];
+const uiEventTypes = [
+  "incrementRequested" as const,
+  "decrementRequested" as const,
+];
 
 // State Updaters
 const incrementRequested = (state: CounterState) => ({
@@ -34,7 +37,7 @@ const stateUpdaters = {
 };
 
 // Component Definition
-export const counterComponentDef={
+export const counterComponentDef = {
   initialState,
   stateUpdaters,
   uiEventTypes,
@@ -45,4 +48,4 @@ export const counterComponentDef={
   typeof selectors,
   {},
   CounterEvents
-> ;
+>;

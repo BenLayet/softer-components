@@ -112,3 +112,15 @@ describe("Counter Component", () => {
   });
 });
 ```
+
+## Next Steps
+
+- See [redux-adapter example](../basic-redux-with-softer-components/) for more complex scenarios
+- Explore [component composition patterns](../../docs/component-composition.md)
+- Learn about [event forwarding](../../docs/event-forwarding.md) between components
+
+## Related Examples
+
+- **[Redux Integration](../basic-redux-with-softer-components/)** - Full Redux Toolkit integration
+- **[Component Dependencies](../component-dependencies/)** - Inter-component communication
+- **[Async Effects](../async-effects/)** - Handling side effects and API calls

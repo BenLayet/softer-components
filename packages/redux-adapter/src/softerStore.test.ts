@@ -46,13 +46,10 @@ describe("configureSofterStore", () => {
 
   it("should handle nested component state", () => {
     //GIVEN a child component definition
-    const childComponentDef: ComponentDef<
-      { type: "decrementRequested"; payload: number },
-      { count: number }
-    > = {
+    const childComponentDef: ComponentDef<any, any, any, any, any> =  {
       initialState: { count: 10 },
       stateUpdaters: {
-        decrementRequested: (state, amount) => ({
+        decrementRequested: (state, amount:number) => ({
           count: state.count - amount,
         }),
       },
@@ -77,29 +74,29 @@ describe("configureSofterStore", () => {
     store.dispatch({ type: "/child/decrementRequested", payload: 3 });
 
     //THEN the child's state should be updated accordingly
-    const childState = store.getState()["/child"] as { count: number };
+    const childState = store.getState()["/child/"] as { count: number };
     expect(childState.count).toBe(7);
   });
 
   it("should set up own event forwarders", () => {
     //GIVEN a root component definition with an event forwarder
     const rootComponentDef: ComponentDef<
-      { type: "start"; payload: void } | { type: "finish"; payload: void },
+      { type: "started"; payload: void } | { type: "finished"; payload: void },
       { log: string[] }
     > = {
       initialState: { log: [] },
       stateUpdaters: {
-        start: (state) => ({
+        started: (state) => ({
           log: [...state.log, `Started`],
         }),
-        finish: (state) => ({
+        finished: (state) => ({
           log: [...state.log, `Finished`],
         }),
       },
       eventForwarders: [
         {
-          onEvent: "start",
-          thenDispatch: "finish",
+          onEvent: "started",
+          thenDispatch: () => "finished",
         },
       ],
     };
@@ -108,7 +105,7 @@ describe("configureSofterStore", () => {
     const store = configureSofterStore(rootComponentDef);
 
     //WHEN a start event is dispatched
-    store.dispatch({ type: "/start" });
+    store.dispatch({ type: "/started" });
 
     //THEN the store should have the initial state
     expect(store.getState()).toHaveProperty("/");

@@ -1,6 +1,5 @@
 packages:
   - "packages/types"
   - "packages/redux-adapter"
-  - "packages/examples/basic-redux"
-  - "packages/examples/vite-template-redux"
-  - "packages/examples/basic-redux-with-softer-components"
+  - "packages/examples/basic-example-counter"
+  - "packages/examples/complete-example-shopping-list"
