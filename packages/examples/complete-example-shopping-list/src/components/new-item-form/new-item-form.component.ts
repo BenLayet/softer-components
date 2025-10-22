@@ -1,4 +1,4 @@
-import { ComponentDef, EventForwarderDef } from "@softer-components/types";
+import { createComponentDef, EventForwarderDef} from "@softer-components/types";
 
 // State
 const initialState = {
@@ -48,14 +48,10 @@ const eventForwarders: EventForwarderDef<ComponentState, ComponentEvents>[] = [
   
 
 // Component Definition
-export const newItemFormDef: ComponentDef<
-  ComponentEvents,
-  ComponentState,
-  typeof selectors
-> = {
+export const newItemFormDef= createComponentDef<{},  ComponentEvents, ComponentState>({
   initialState,
   stateUpdaters,
   uiEventTypes,
   selectors,
   eventForwarders
-};
+});

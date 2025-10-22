@@ -61,7 +61,7 @@ export type Payload = Value | void;
  * const event:LinkClicked = {type:"linkClicked", payload:{url:"https://example.com"}};
  * ```
  */
-type Event<
+export type Event<
     TEventName extends string = string,
     TPayload extends Payload = Payload,
 > = {
@@ -320,3 +320,22 @@ export type ComponentDef<
         TEvents | ExtractDependencyEvent<TChildrenEvents>
     >[];
 };
+export const createComponentDef = <
+    TChildrenEvents extends Record<string, Event> = Record<string, Event>,
+    TEvents extends Event = Event,
+    TState extends State = State,
+    TSelectors extends Record<string, Selector<TState>> = Record<
+        string,
+        Selector<TState>
+    >,
+    TUiEvents extends TEvents = TEvents,
+    TChildren extends Children<TState, TChildrenEvents> = Children<TState, TChildrenEvents>
+>(componentDef: ComponentDef<
+      TEvents,
+      TState,
+      TSelectors,
+      TChildrenEvents,
+      TUiEvents,
+      TChildren
+  >
+) => componentDef

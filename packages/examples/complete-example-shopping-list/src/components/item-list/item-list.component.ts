@@ -1,6 +1,5 @@
 import {
-    ChildCollectionComponentDef,
-    ComponentDef,
+    createComponentDef,
     EventForwarderDef,
     ExtractDependencyEvent
 } from "@softer-components/types";
@@ -52,14 +51,7 @@ const eventForwarders: EventForwarderDef<ComponentState, ExtractDependencyEvent<
 ];
 
 // Component Definition
-export const itemListDef: ComponentDef<
-    ComponentEvents,
-    ComponentState,
-    typeof selectors,
-    ChildrenEvents,
-    ComponentEvents,
-    { items: ChildCollectionComponentDef<ItemEvents, ComponentState> }
-> = {
+export const itemListDef = createComponentDef<ChildrenEvents, ComponentEvents, ComponentState>({
     initialState,
     stateUpdaters,
     uiEventTypes,
@@ -74,4 +66,4 @@ export const itemListDef: ComponentDef<
             initialStateFactory: (state, id) => state.items.find(i => i.id == id)
         }
     },
-};
+});

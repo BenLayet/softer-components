@@ -1,4 +1,4 @@
-import {ComponentDef, EventForwarderDef} from "@softer-components/types";
+import { createComponentDef, EventForwarderDef} from "@softer-components/types";
 import {Item} from "../../model/Item";
 
 type ComponentState = Item;
@@ -6,6 +6,7 @@ type ComponentState = Item;
 const name = (state: ComponentState) => state.name;
 const id = (state: ComponentState) => state.id;
 const selectors = {name, id};
+
 // Events
 export type ItemEvents = { type: "removeItemRequested"; payload: string };
 type ComponentEvents =
@@ -24,14 +25,9 @@ const eventForwarders: EventForwarderDef<ComponentState, ComponentEvents>[] = [
 
 
 // Component Definition
-export const itemDef: ComponentDef<
-    ComponentEvents,
-    ComponentState,
-    typeof selectors
-> = {
-    initialState: {} as any, //TODO initial state should be always a factory ?
+export const itemDef = createComponentDef({
     stateUpdaters,
     uiEventTypes,
     selectors,
     eventForwarders
-};
+});

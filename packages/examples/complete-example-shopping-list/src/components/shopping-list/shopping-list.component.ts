@@ -1,4 +1,4 @@
-import { ComponentDef } from "@softer-components/types";
+import { createComponentDef} from "@softer-components/types";
 import {
   newItemFormDef,
   NewItemFormEvents,
@@ -11,12 +11,7 @@ type ChildrenEvents = {
 };
 
 // Component Definition
-export const shoppingListComponentDef: ComponentDef<
-  never,
-  {},
-  {},
-  ChildrenEvents
-> = {
+export const shoppingListComponentDef = createComponentDef<ChildrenEvents>({
   children: { newItemForm: newItemFormDef, itemList: itemListDef },
   eventForwarders: [
     {
@@ -24,4 +19,4 @@ export const shoppingListComponentDef: ComponentDef<
       thenDispatch:() => "itemList/addItemRequested",
     },
   ],
-};
+});

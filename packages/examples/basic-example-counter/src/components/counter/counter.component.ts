@@ -2,12 +2,12 @@ import { ComponentDef } from "@softer-components/types";
 
 // State
 const initialState = {
-  value: 0,
+  count: 0,
 };
 type CounterState = typeof initialState;
 
 // Selectors
-const count = (state: CounterState) => state.value;
+const count = (state: CounterState) => state.count;
 
 const selectors = {
   count,
@@ -25,11 +25,11 @@ const uiEventTypes = [
 // State Updaters
 const incrementRequested = (state: CounterState) => ({
   ...state,
-  value: state.value + 1,
+  value: state.count + 1,
 });
 const decrementRequested = (state: CounterState) => ({
   ...state,
-  value: state.value - 1,
+  value: state.count - 1,
 });
 const stateUpdaters = {
   incrementRequested,
