@@ -1,6 +1,6 @@
 {
   "name": "@softer-components/types",
-  "version": "1.0.0",
+  "version": "0.1.0",
   "types": "src/index.d.ts",
   "license": "MIT",
   "exports": {
@@ -11,6 +11,10 @@
   },
   "scripts": {
     "build": "tsc -b",
+    "clean": "rm -rf dist",
     "format": "prettier --write ."
+  },
+  "publishConfig": {
+    "access": "public"
   }
 }
