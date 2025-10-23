@@ -1,7 +1,7 @@
 {
   "name": "@softer-components/redux-adapter",
   "type": "module",
-  "version": "1.0.0",
+  "version": "0.1.0",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
   "license": "MIT",
@@ -18,12 +18,15 @@
   },
   "dependencies": {
     "@reduxjs/toolkit": "^2.6.1",
-    "@softer-components/types": "workspace:*",
+    "@softer-components/types": "^0.1.0",
     "lodash": "^4.17.21",
     "react-redux": "^9.2.0"
   },
   "devDependencies": {
     "prettier": "^3.6.2",
     "vitest": "^3.2.4"
+  },
+  "publishConfig": {
+    "access": "public"
   }
 }

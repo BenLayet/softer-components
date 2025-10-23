@@ -194,8 +194,8 @@ importers:
         specifier: ^2.6.1
         version: 2.9.0(react-redux@9.2.0(@types/react@19.1.13)(react@19.1.1)(redux@5.0.1))(react@19.1.1)
       '@softer-components/types':
-        specifier: workspace:*
-        version: link:../types
+        specifier: ^0.1.0
+        version: 0.1.0
       lodash:
         specifier: ^4.17.21
         version: 4.17.21
@@ -785,6 +785,9 @@ packages:
     resolution: {integrity: sha512-ARz+Bs8kY6FtitYM96PqPEVvPXqEZmPZsSkXvyX19YzDqkCaIlhCieLLMI5hxO9SRZ2XtCtm8wxhy0iJ2jxNfw==}
     cpu: [x64]
     os: [win32]
+
+  '@softer-components/types@0.1.0':
+    resolution: {integrity: sha512-E3rRRl1XL6i2yccC9AKQDH0UDt8D+hiIaas5XV52tbgnuDPKOaEGyunGE0aq9UcFn9IKnVAXQnMZvnLMoNGPWw==}
 
   '@standard-schema/spec@1.0.0':
     resolution: {integrity: sha512-m2bOd0f2RT9k8QJx1JN85cZYyH1RqFBdlwtkSlf4tBDYLCiiZnv1fIIwacK6cqwXavOydf0NPToMQgpKq+dVlA==}
@@ -2921,6 +2924,8 @@ snapshots:
 
   '@rollup/rollup-win32-x64-msvc@4.52.2':
     optional: true
+
+  '@softer-components/types@0.1.0': {}
 
   '@standard-schema/spec@1.0.0': {}
 
