@@ -1,15 +1,29 @@
 {
   "compilerOptions": {
+    "rootDir": "./src",
+    "outDir": "./dist",
     "target": "ES2020",
-    "lib": ["ES2020", "DOM"],
+    "lib": [
+      "ES2020",
+      "DOM"
+    ],
     "moduleResolution": "Bundler",
     "module": "ESNext",
     "baseUrl": ".",
-    "paths": {
-      "@softer-components/types": ["../types/src"]
-    },
-    "outDir": "dist",
-    "declaration": true
+    "declaration": true,
+    "declarationMap": true,
+    "sourceMap": true,
+    "composite": true
   },
-  "include": ["src/*"]
+  "files": [
+    "src/index.ts",
+    "src/softer-utils.ts",
+    "src/softer-hooks.ts",
+    "src/softer-store.ts"
+  ],
+  "references": [
+    {
+      "path": "../types"
+    }
+  ]
 }

@@ -1,8 +1,8 @@
-import { useSofter } from "@softer-components/redux-adapter";
 import { newItemFormDef } from "./new-item-form.component";
+import { useSofter } from "@softer-components/redux-adapter";
 
 export const AddItemForm = ({ path = "/" }) => {
-  const [{ itemName }, { itemNameChanged, formSubmitted }] = useSofter(
+  const [{ name }, { nameChanged, submitted }] = useSofter(
     path,
     newItemFormDef,
   );
@@ -10,13 +10,13 @@ export const AddItemForm = ({ path = "/" }) => {
     <form
       onSubmit={e => {
         e.preventDefault();
-        formSubmitted();
+        submitted();
       }}
     >
       <input
         type="text"
-        value={itemName}
-        onChange={e => itemNameChanged(e.target.value)}
+        value={name}
+        onChange={e => nameChanged(e.target.value)}
       />
       <button type="submit">Add Item</button>
     </form>
