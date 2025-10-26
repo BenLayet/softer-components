@@ -10,7 +10,6 @@ export const ShoppingList = ({ path = "/" }) => {
   );
   return (
     <div>
-      <h2>Shopping List</h2>
       <AddItemForm path={newItemForm} />
       <ItemList path={itemList} />
     </div>

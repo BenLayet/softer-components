@@ -1,4 +1,4 @@
 import { configureSofterStore } from "@softer-components/redux-adapter";
-import { shoppingListComponentDef } from "./components/shopping-list/shopping-list.component.ts";
+import { appComponentDef } from "./components/app/app.component.ts";
 
-export const store = configureSofterStore(shoppingListComponentDef);
+export const store = configureSofterStore(appComponentDef);

@@ -1,2 +1,2 @@
-export * from "./softerStore";
-export * from "./softerHooks";
+export * from "./softer-store";
+export * from "./softer-hooks";

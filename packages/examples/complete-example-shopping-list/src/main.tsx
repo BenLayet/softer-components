@@ -1,7 +1,7 @@
 import { StrictMode } from "react";
 import { createRoot } from "react-dom/client";
 import { Provider } from "react-redux";
-import { App } from "./App";
+import { App } from "./components/app/App";
 import { store } from "./store.ts";
 import "./index.css";
 
@@ -13,9 +13,9 @@ if (container) {
   root.render(
     <StrictMode>
       <Provider store={store}>
-        <App />
+        <App path="/" />
       </Provider>
-    </StrictMode>,
+    </StrictMode>
   );
 } else {
   throw new Error(

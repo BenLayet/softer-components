@@ -12,13 +12,15 @@
     }
   },
   "scripts": {
+    "clean": "rm -rf dist & rm tsconfig.tsbuildinfo",
     "build": "tsc -b",
     "test": "vitest",
-    "format": "prettier --write ."
+    "test-no-timeout": "vitest --testTimeout=100000",
+    "format": "pnpx prettier --write ."
   },
   "dependencies": {
     "@reduxjs/toolkit": "^2.6.1",
-    "@softer-components/types": "^0.1.0",
+    "@softer-components/types": "workspace:*",
     "lodash": "^4.17.21",
     "react-redux": "^9.2.0"
   },
