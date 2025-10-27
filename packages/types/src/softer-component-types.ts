@@ -95,11 +95,13 @@ export type StateUpdater<TState extends State, TPayload extends Payload> = (
   payload: TPayload,
 ) => TState;
 
+
+
 /***************************************************************************************************************
- *                         EVENT DEFINITIONS TODO rename to EventHandler ?
+ *                         EVENT HANDLERS
  ***************************************************************************************************************/
 
-export type EventDef<TState extends State, TPayload extends Payload> = {
+export type EventHandler<TState extends State, TPayload extends Payload> = {
   readonly stateUpdater?: StateUpdater<TState & {}, TPayload>;
 };
 
@@ -112,11 +114,11 @@ export type InternalEventForwarderDef<
 } & WithPayloadDef<TState, TFromEvent["payload"], TToEvent["payload"]> &
   OnConditionDef<TState, TFromEvent["payload"]>;
 
-export type EventsDef<
+export type EventHandlers<
   TState extends State,
   TPayloads extends Record<string, Payload>,
 > = {
-  [TEventName in keyof TPayloads]: EventDef<TState, TPayloads[TEventName]> & {
+  [TEventName in keyof TPayloads]: EventHandler<TState, TPayloads[TEventName]> & {
     //TODO make this optional empty event handler do not need to be defined
     forwarders?: InternalEventForwarderDef<
       TState,
@@ -221,7 +223,7 @@ export type EventForwarderDef<
  ***************************************************************************************************************/
 export type BaseComponentDef<TState extends State> = {
   readonly initialState?: TState;
-  readonly events: EventsDef<any, any>;
+  readonly events: EventHandlers<any, any>;
 };
 type SingleChildFactory<
   TParentState extends State,
@@ -272,7 +274,7 @@ export type WithSelectors<
   readonly selectors: TSelectors;
 };
 export type WithEvents<TState extends State, TPayloads extends Payloads> = {
-  readonly events: EventsDef<TState, TPayloads>;
+  readonly events: EventHandlers<TState, TPayloads>;
 };
 export type WithInput<
   TState extends State,
@@ -316,11 +318,11 @@ export type AnyComponentDef = ComponentDef<any, any, any, any>;
  * Utility types
  ***************************************************************************************************************/
 
-export type EventsDefToPayloads<TEventsDef extends EventsDef<any, any>> =
-  TEventsDef extends EventsDef<any, infer TPayloads> ? TPayloads : never;
+export type EventHandlersToPayloads<TEventHandlers extends EventHandlers<any, any>> =
+  TEventHandlers extends EventHandlers<any, infer TPayloads> ? TPayloads : never;
 
-export type EventsDefToEvent<TEventsDef extends EventsDef<any, any>> =
-  PayloadsToEvent<EventsDefToPayloads<TEventsDef>>;
+export type EventHandlersToEvent<TEventHandlers extends EventHandlers<any, any>> =
+  PayloadsToEvent<EventHandlersToPayloads<TEventHandlers>>;
 
 export type PayloadsToEvent<TPayload extends Payloads> = {
   [TEventName in keyof TPayload]: Event<
@@ -330,18 +332,18 @@ export type PayloadsToEvent<TPayload extends Payloads> = {
 }[keyof TPayload];
 
 export type ChildrenDefToEvent<TChildrenDef extends ChildrenDef<any>> = {
-  [TChildName in keyof TChildrenDef]: ChildEventsDefToEvent<
+  [TChildName in keyof TChildrenDef]: ChildEventHandlersToEvent<
     TChildName & string,
     TChildrenDef[TChildName]["componentDef"]["events"]
   >;
 }[keyof TChildrenDef];
 
-type ChildEventsDefToEvent<
+type ChildEventHandlersToEvent<
   TChildName extends string,
-  TEventsDef extends EventsDef<any, any>,
+  TEventHandlers extends EventHandlers<any, any>,
 > = {
-  [TEventName in keyof EventsDefToPayloads<TEventsDef>]: Event<
+  [TEventName in keyof EventHandlersToPayloads<TEventHandlers>]: Event<
     `${TChildName}/${TEventName & string}`,
-    EventsDefToPayloads<TEventsDef>[TEventName]
+    EventHandlersToPayloads<TEventHandlers>[TEventName]
   >;
-}[keyof EventsDefToPayloads<TEventsDef>];
+}[keyof EventHandlersToPayloads<TEventHandlers>];

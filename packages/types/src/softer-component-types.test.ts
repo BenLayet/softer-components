@@ -1,15 +1,14 @@
 import {
   ComponentDef,
   EventForwarderDef,
-  EventsDef,
+  EventHandlers,
   Event,
   PayloadsToEvent,
   Selector,
   InternalEventForwarderDef,
-  EventsDefToPayloads,
+  EventHandlersToPayloads,
   ChildrenDefToEvent,
   AnyComponentDef,
-  ChildrenDef,
 } from "./softer-component-types";
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // test utilities
@@ -79,7 +78,7 @@ const ifd: InternalEventForwarderDef<
   to: "decrementRequested",
   onCondition: (state) => state.count > 10,
 };
-const events: EventsDef<MyState, MyPayloads> = {
+const events: EventHandlers<MyState, MyPayloads> = {
   incrementRequested: {
     forwarders: [ifd],
   },
@@ -152,7 +151,7 @@ ignoreUnread = myComponentDef;
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 //Payload
 type Test1 = Expect<
-  Equal<MyPayloads, EventsDefToPayloads<EventsDef<any, MyPayloads>>>
+  Equal<MyPayloads, EventHandlersToPayloads<EventHandlers<any, MyPayloads>>>
 >;
 ignoreUnread = null as any as Test1;
 
@@ -164,7 +163,7 @@ type T1 = MyComponentDef["input"];
 type T2 = ComponentDef<
   MyComponentDef["initialState"] & {},
   MyComponentDef["selectors"],
-  EventsDefToPayloads<MyComponentDef["events"]>,
+  EventHandlersToPayloads<MyComponentDef["events"]>,
   MyComponentDef["children"]
 >["input"];
 type Test3 = Expect<Equal<T1, T2>>;
@@ -176,7 +175,7 @@ type Test4 = Expect<
     ComponentDef<
       MyComponentDef["initialState"] & {},
       MyComponentDef["selectors"],
-      EventsDefToPayloads<MyComponentDef["events"]>,
+      EventHandlersToPayloads<MyComponentDef["events"]>,
       MyComponentDef["children"]
     >["output"]
   >
@@ -189,7 +188,7 @@ type Test5 = Expect<
     ComponentDef<
       MyComponentDef["initialState"] & {},
       MyComponentDef["selectors"],
-      EventsDefToPayloads<MyComponentDef["events"]>,
+      EventHandlersToPayloads<MyComponentDef["events"]>,
       MyComponentDef["children"]
     >
   >
@@ -199,7 +198,7 @@ ignoreUnread = null as any as Test5;
 const myComponentDef2: ComponentDef<
   MyComponentDef["initialState"] & {},
   MyComponentDef["selectors"],
-  EventsDefToPayloads<MyComponentDef["events"]>,
+  EventHandlersToPayloads<MyComponentDef["events"]>,
   MyComponentDef["children"]
 > = myComponentDef;
 ignoreUnread = myComponentDef2;
@@ -216,7 +215,7 @@ const selectors2: MySelectors2 = {
 const componentWithNewSelector: ComponentDef<
   MyComponentDef["initialState"] & {},
   MySelectors2,
-  EventsDefToPayloads<MyComponentDef["events"]>,
+  EventHandlersToPayloads<MyComponentDef["events"]>,
   MyComponentDef["children"]
 > = {
   ...myComponentDef,

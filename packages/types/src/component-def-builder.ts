@@ -2,11 +2,11 @@ import {
   ChildrenDef,
   ComponentDef,
   EventForwarderDef,
-  EventsDef,
+  EventHandlers,
   Payloads,
   Selectors,
-  EventsDefToPayloads,
-  EventsDefToEvent,
+  EventHandlersToPayloads,
+  EventHandlersToEvent,
   ChildrenDefToEvent,
   AnyComponentDef,
 } from "./softer-component-types";
@@ -25,7 +25,7 @@ const withOutput =
   (
     output: EventForwarderDef<
       TComponentDef["initialState"],
-      EventsDefToEvent<TComponentDef["events"]>,
+      EventHandlersToEvent<TComponentDef["events"]>,
       ChildrenDefToEvent<TComponentDef["children"]>
     >[],
   ) => {
@@ -41,7 +41,7 @@ const withInput =
     input: EventForwarderDef<
       TComponentDef["initialState"],
       ChildrenDefToEvent<TComponentDef["children"]>,
-      EventsDefToEvent<TComponentDef["events"]>
+      EventHandlersToEvent<TComponentDef["events"]>
     >[],
   ) => {
     const newBeingBuilt: TComponentDef = { ...beingBuilt, input };
@@ -58,7 +58,7 @@ const withChildren =
     const newBeingBuilt: ComponentDef<
       TComponentDef["initialState"],
       TComponentDef["selectors"],
-      EventsDefToPayloads<TComponentDef["events"]>,
+      EventHandlersToPayloads<TComponentDef["events"]>,
       TChildren
     > = { ...beingBuilt, children, input: [], output: [] };
     return {
@@ -71,7 +71,7 @@ const withChildren =
 const withEvents =
   <TComponentDef extends AnyComponentDef>(beingBuilt: TComponentDef) =>
   <TPayloads extends Payloads>(
-    events: EventsDef<TComponentDef["initialState"], TPayloads>,
+    events: EventHandlers<TComponentDef["initialState"], TPayloads>,
   ) => {
     const newBeingBuilt: ComponentDef<
       TComponentDef["initialState"],
@@ -93,7 +93,7 @@ const withSelectors =
     const newBeingBuilt: ComponentDef<
       TComponentDef["initialState"],
       TSelectors,
-      EventsDefToPayloads<TComponentDef["events"]>,
+      EventHandlersToPayloads<TComponentDef["events"]>,
       TComponentDef["children"]
     > = { ...beingBuilt, selectors, input: [], output: [] };
     return {
@@ -109,7 +109,7 @@ const withInitialState =
     const newBeingBuilt: ComponentDef<
       TState,
       TComponentDef["selectors"],
-      EventsDefToPayloads<TComponentDef["events"]>,
+      EventHandlersToPayloads<TComponentDef["events"]>,
       TComponentDef["children"]
     > = {
       ...beingBuilt,

@@ -1,7 +1,6 @@
 import { componentDefBuilder } from "@softer-components/types";
 import { Item } from "../../model/Item.ts";
 import { itemRowDef } from "../item-row/item-row.component.ts";
-import { List } from "../../model/List.ts";
 
 export const itemListDef = componentDefBuilder
     .initialState({

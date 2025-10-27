@@ -3,7 +3,7 @@ import {
   WithEvents,
   WithSelectors,
   WithChildrenDef,
-  EventsDefToPayloads,
+  EventHandlersToPayloads,
   Payloads,
   Selector,
   Selectors,
@@ -24,7 +24,7 @@ type PayloadsToUiDispatchers<TPayloads extends Payloads> = {
 export const useSofterEvents = <TComponentDef extends WithEvents<any, any>>(
   path = "/",
   componentDef: TComponentDef,
-): PayloadsToUiDispatchers<EventsDefToPayloads<TComponentDef["events"]>> => {
+): PayloadsToUiDispatchers<EventHandlersToPayloads<TComponentDef["events"]>> => {
   const dispatch = useDispatch();
   const events = componentDef.events;
   return Object.fromEntries(
@@ -109,7 +109,7 @@ export const useSofter = <TComponentDef
     componentDef: TComponentDef,
   ): [
     ResolvedSelectors<TComponentDef["selectors"]>,
-    PayloadsToUiDispatchers<EventsDefToPayloads<TComponentDef["events"]>>,
+    PayloadsToUiDispatchers<EventHandlersToPayloads<TComponentDef["events"]>>,
     ExtractChildrenPath<TComponentDef["children"]>,
   ] => [
     useSofterSelectors(path, componentDef),
