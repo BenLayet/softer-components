@@ -1,12 +1,8 @@
-import { T } from "vitest/dist/chunks/environment.d.cL3nLXbE.js";
 import {
   ComponentConstraints,
   ComponentDef,
-  OptionalValue,
-  Selector,
   Selectors,
   State,
-  Value,
 } from "./softer-component-types";
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -15,7 +11,7 @@ import {
 
 //TODO remove () => if not needed
 export const componentDefBuilder = () => ({
-  withStateConstructor,
+  withInitialState,
   build: () => defaultComponentDef,
 });
 
@@ -33,47 +29,39 @@ type DefaultConstraints = {
   };
 };
 const defaultComponentDef: ComponentDef<DefaultConstraints> = {
-  stateConstructor: () => ({}),
+  initialState: {},
   selectors: {},
   eventHandlers: {},
   children: {},
 };
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-// withStateConstructor
+// withInitialState
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-const withStateConstructor = <
-  TStateConstructor extends (constructWith: any) => State,
->(
-  stateConstructor: TStateConstructor
-) => {
+const withInitialState = <TState extends State>(initialState: TState) => {
   const newBeingBuilt = {
-    stateConstructor,
+    initialState,
     selectors: {},
     eventHandlers: {},
     children: {},
   } as any; //TODO check with EXPERT why 'as any' is needed here;
 
-  type NewComponentConstraints = AddStateConstructorToConstraints<
+  type NewComponentConstraints = AddStateToConstraints<
     DefaultConstraints,
-    TStateConstructor
+    TState
   >;
   return {
     withSelectors: withSelectors<NewComponentConstraints>(newBeingBuilt),
     build: () => newBeingBuilt as ComponentDef<NewComponentConstraints>,
   };
 };
-type AddStateConstructorToConstraints<
+type AddStateToConstraints<
   TConstraints extends ComponentConstraints,
-  TStateConstructor extends (constructWith: any) => State,
+  TState extends State,
 > = Omit<TConstraints, "state" | "contract"> & {
-  state: ReturnType<TStateConstructor>;
+  state: TState;
   contract: Omit<TConstraints["contract"], "forParent"> & {
     forParent: Omit<TConstraints["contract"]["forParent"], "constructWith"> & {
-      constructWith: TStateConstructor extends (
-        constructWith: infer TConstructWith
-      ) => State
-        ? TConstructWith
-        : undefined;
+      constructWith: TState | undefined;
     };
   };
 };

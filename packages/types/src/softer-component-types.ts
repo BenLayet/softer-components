@@ -82,14 +82,6 @@ type ExtractAllValuesFromComponentConstraints<
  */
 export type State = Value;
 /***************************************************************************************************************
- *                         STATE CONSTRUCTOR
- ***************************************************************************************************************/
-
-export type StateConstructor<
-  TComponentContraints extends ComponentConstraints,
-> = (constructWith: any) => TComponentContraints["state"];
-
-/***************************************************************************************************************
  *                         SELECTORS
  ***************************************************************************************************************/
 
@@ -365,7 +357,7 @@ export type ChildrenDef<TOwnConstraints extends ComponentConstraints> = {
 export type ComponentDef<
   TComponentConstraints extends ComponentConstraints = ComponentConstraints,
 > = {
-  readonly stateConstructor: StateConstructor<TComponentConstraints>;
+  readonly initialState: TComponentConstraints["state"];
   readonly selectors: Selectors<TComponentConstraints>;
   readonly eventHandlers: EventHandlers<TComponentConstraints>;
   readonly children: ChildrenDef<TComponentConstraints>;

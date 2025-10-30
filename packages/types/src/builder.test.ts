@@ -1,6 +1,12 @@
 import { describe, it, expect } from "vitest";
 import { componentDefBuilder } from "../../types/src/builder";
 
+const defaultComponentDef = {
+  initialState: {},
+  selectors: {},
+  eventHandlers: {},
+  children: {},
+};
 describe("componentDefBuilder", () => {
   it("returns a builder with withStateConstructor and build", () => {
     const componentDef = componentDefBuilder().build();
@@ -10,34 +16,40 @@ describe("componentDefBuilder", () => {
     expect(componentDef.eventHandlers).toEqual({});
     expect(componentDef.children).toEqual({});
   });
-  it("allows setting stateConstructor with withStateConstructor", () => {
-    const myConstructor = (constructWith: number) => ({
-      count: constructWith ?? 0,
-    });
+  it("allows setting initialState with withInitialState", () => {
+    const initialState = { count: 0 };
     const componentDef = componentDefBuilder()
-      .withStateConstructor(myConstructor)
+      .withInitialState(initialState)
       .build();
 
-    expect(componentDef.stateConstructor).toBe(myConstructor);
+    const componentDef2: typeof componentDef = {
+      ...defaultComponentDef,
+      initialState,
+    };
 
-    const initialState = componentDef.stateConstructor(42);
-    expect(initialState).toEqual({ count: 42 });
+    expect(componentDef.initialState).toBe(initialState);
     expect(componentDef.selectors).toEqual({});
     expect(componentDef.eventHandlers).toEqual({});
     expect(componentDef.children).toEqual({});
   });
 
   it("allows adding selectors with withSelectors", () => {
+    const initialState = { count: 0 };
     const componentDef = componentDefBuilder()
-      .withStateConstructor(() => ({
-        count: 0,
-      }))
+      .withInitialState(initialState)
       .withSelectors({
         count: (state) => state.count,
       })
       .build();
 
-    componentDef.selectors.count({ count: "qdsf" });
+    const componentDef2: typeof componentDef = {
+      ...defaultComponentDef,
+      initialState,
+      selectors: {
+        count: (state: { count: number }) => state.count,
+      },
+    };
+    componentDef.selectors.count({ count: 42 });
     expect(componentDef.selectors).toEqual({
       count: expect.any(Function),
     });
