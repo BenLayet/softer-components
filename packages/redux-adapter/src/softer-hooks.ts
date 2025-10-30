@@ -1,32 +1,42 @@
-import { useDispatch, useSelector } from "react-redux";
 import {
-  WithEvents,
-  WithSelectors,
-  WithChildrenDef,
-  EventHandlersToPayloads,
-  Payloads,
+  ChildrenDef,
+  ComponentDef,
+  EventsDef,
+  ExtractEventsDef,
   Selector,
   Selectors,
   State,
   Value,
-  ChildrenDef,
 } from "@softer-components/types";
+import { findComponentDef } from "@softer-components/utils";
+import { useDispatch, useSelector, useStore } from "react-redux";
+import { SofterStore } from "./softer-store";
 
 /////////////////////
 // useSofterDispatchers
 /////////////////////
-type PayloadsToUiDispatchers<TPayloads extends Payloads> = {
-  [K in keyof TPayloads]: TPayloads[K] extends undefined
-  ? () => void
-  : (payload: TPayloads[K]) => void;
-};
+type EventsDefToUiDispatchers<TEventsDef extends EventsDef | undefined> =
+  TEventsDef extends EventsDef
+    ? {
+        [K in keyof TEventsDef &
+          string]: TEventsDef[K]["payload"] extends undefined
+          ? () => void
+          : (payload: TEventsDef[K]["payload"]) => void;
+      }
+    : {};
 
-export const useSofterEvents = <TComponentDef extends WithEvents<any, any>>(
-  path = "/",
-  componentDef: TComponentDef,
-): PayloadsToUiDispatchers<EventHandlersToPayloads<TComponentDef["events"]>> => {
+export const useSofterEvents = <
+  TComponentDef extends ComponentDef<any, any, any>,
+>(
+  path = "/"
+): EventsDefToUiDispatchers<ExtractEventsDef<TComponentDef>> => {
   const dispatch = useDispatch();
-  const events = componentDef.events;
+  const store = useStore() as SofterStore;
+  const componentDef = findComponentDef(
+    store.rootComponentDef,
+    path
+  ) as TComponentDef;
+  const events = componentDef.events ?? {};
   return Object.fromEntries(
     Object.keys(events).map((key) => {
       return [
@@ -37,51 +47,70 @@ export const useSofterEvents = <TComponentDef extends WithEvents<any, any>>(
             payload: payload,
           }),
       ];
-    }),
+    })
   ) as any;
 };
 /////////////////////
 // useSofterSelectors
 /////////////////////
-type ResolvedSelectors<TSelectors extends Selectors> = {
-  [K in keyof TSelectors]: ReturnType<TSelectors[K]>;
-};
+type ResolvedSelectors<TSelectors extends Selectors<any> | undefined> =
+  TSelectors extends Selectors<any>
+    ? {
+        [K in keyof TSelectors]: ReturnType<TSelectors[K]>;
+      }
+    : {};
 
-export const useSofterSelectors = <TComponentDef extends WithSelectors<any, any>>(
-  path = "/",
-  componentDef: TComponentDef,
+export const useSofterSelectors = <
+  TComponentDef extends ComponentDef<any, any, any>,
+>(
+  path = "/"
 ): ResolvedSelectors<TComponentDef["selectors"]> => {
+  const store = useStore() as SofterStore;
+  const componentDef = findComponentDef(
+    store.rootComponentDef,
+    path
+  ) as TComponentDef;
+
   const selectors = componentDef.selectors as Selectors;
   return Object.fromEntries(
     Object.entries(selectors)
       .map(
         ([key, selector]) =>
-          [key, toGlobalStateSelector(path)(selector)] as const,
+          [key, toGlobalStateSelector(path)(selector)] as const
       )
-      .map(([key, selector]) => [key, useSelector(selector)]),
+      .map(([key, selector]) => [key, useSelector(selector)])
   ) as any;
 };
 const toGlobalStateSelector =
   (path: string) =>
-    (selector: Selector<Value>) =>
-      (globalState: Record<string, State>) =>
-        selector(globalState[path]);
+  (selector: Selector<Value>) =>
+  (globalState: Record<string, State>) =>
+    selector(globalState[path]);
 
 /////////////////////
 // useSofterChildrenPath
 /////////////////////
-type ExtractChildrenPath<TChildren extends ChildrenDef<any>> = {
-  [K in keyof TChildren]: TChildren[K] extends {
-    isCollection: true;
-  }
-  ? string[]
-  : string;
-};
-export const useSofterChildrenPath = <TComponentDef extends WithChildrenDef<any>>(
-  path = "/",
-  componentDef: TComponentDef,
+type ExtractChildrenPath<TChildren extends ChildrenDef | undefined> =
+  TChildren extends ChildrenDef
+    ? {
+        [K in keyof TChildren]: TChildren[K] extends {
+          isCollection: true;
+        }
+          ? string[]
+          : string;
+      }
+    : {};
+export const useSofterChildrenPath = <
+  TComponentDef extends ComponentDef<any, any, any>,
+>(
+  path = "/"
 ): ExtractChildrenPath<TComponentDef["children"]> => {
   const componentState = useSelector((state: any) => state[path]);
+  const store = useStore() as SofterStore;
+  const componentDef = findComponentDef(
+    store.rootComponentDef,
+    path
+  ) as TComponentDef;
   const children = (componentDef.children ?? {}) as Record<string, any>;
   return Object.entries(children).reduce((res, [childName, childDef]) => {
     if (childDef.isCollection) {
@@ -101,18 +130,14 @@ export const useSofterChildrenPath = <TComponentDef extends WithChildrenDef<any>
 /////////////////////
 // useSofter
 /////////////////////
-export const useSofter = <TComponentDef
-  extends WithSelectors<any, any>
-  & WithEvents<any, any>
-  & WithChildrenDef<any>>(
-    path: string,
-    componentDef: TComponentDef,
-  ): [
-    ResolvedSelectors<TComponentDef["selectors"]>,
-    PayloadsToUiDispatchers<EventHandlersToPayloads<TComponentDef["events"]>>,
-    ExtractChildrenPath<TComponentDef["children"]>,
-  ] => [
-    useSofterSelectors(path, componentDef),
-    useSofterEvents(path, componentDef),
-    useSofterChildrenPath(path, componentDef),
-  ];
+export const useSofter = <TComponentDef extends ComponentDef<any, any, any>>(
+  path: string
+): [
+  ResolvedSelectors<TComponentDef["selectors"]>,
+  EventsDefToUiDispatchers<ExtractEventsDef<TComponentDef>>,
+  ExtractChildrenPath<TComponentDef["children"]>,
+] => [
+  useSofterSelectors<TComponentDef>(path),
+  useSofterEvents<TComponentDef>(path),
+  useSofterChildrenPath<TComponentDef>(path),
+];

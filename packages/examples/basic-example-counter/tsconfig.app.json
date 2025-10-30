@@ -28,5 +28,6 @@
       "@softer-components/redux-adapter": ["../../redux-adapter/src"]
     }
   },
-  "include": ["src"]
+  "include": ["src/**/*.ts"],
+  "exclude": ["src/**/*.test.ts"]
 }

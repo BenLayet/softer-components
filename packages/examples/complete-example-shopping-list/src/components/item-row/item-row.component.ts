@@ -1,12 +1,24 @@
-import { componentDefBuilder } from "@softer-components/types";
+import { ComponentDef } from "@softer-components/types";
 import { Item } from "../../model/Item.ts";
 
-export const itemRowDef = componentDefBuilder
-  .initialState({ item: { id: "", name: "-" } }) // TODO tolerate empty initial state for children
-  .selectors({
+// Initial state definition
+const initialState = {
+  item: { id: "", name: "-" } as Item,
+};
+
+// Events type declaration
+type ItemRowEvents = {
+  itemRowClicked: { payload: undefined };
+  removeItemRequested: { payload: Item };
+};
+
+// Component definition
+export const itemRowDef: ComponentDef<typeof initialState, ItemRowEvents> = {
+  initialState,
+  selectors: {
     name: state => state.item.name,
-  })
-  .events<{ itemRowClicked: undefined; removeItemRequested: Item }>({
+  },
+  events: {
     itemRowClicked: {
       forwarders: [
         {
@@ -16,5 +28,5 @@ export const itemRowDef = componentDefBuilder
       ],
     },
     removeItemRequested: {},
-  })
-  .build();
+  },
+};

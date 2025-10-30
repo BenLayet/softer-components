@@ -1,28 +1,48 @@
-import { componentDefBuilder } from "@softer-components/types";
+import { ComponentDef } from "@softer-components/types";
 import { newItemFormDef } from "../new-item-form/new-item-form.component";
 import { itemListDef } from "../item-list/item-list.component";
 import { Item } from "../../model/Item.ts";
 
-export const shoppingListComponentDef = componentDefBuilder
-    .events<{ newItemSubmitted: Item }>({
-        newItemSubmitted: {}
-    })
-    .children({
-        newItemForm: { componentDef: newItemFormDef },
-        itemList: { componentDef: itemListDef }
-    })
-    .input([
+// Initial state definition
+const initialState = {};
+
+// Events type declaration
+type ShoppingListEvents = {
+  newItemSubmitted: { payload: Item };
+};
+
+// Component definition
+export const shoppingListComponentDef: ComponentDef<
+  typeof initialState,
+  ShoppingListEvents
+> = {
+  initialState,
+  events: {
+    newItemSubmitted: {},
+  },
+  children: {
+    newItemForm: {
+      ...newItemFormDef,
+      listeners: [
         {
-            onEvent: "newItemForm/newItemSubmitted",
-            thenDispatch: "newItemSubmitted",
-            withPayload: (_: {}, name: string) =>
-                ({ id: new Date().getTime().toString(), name })
-        }
-    ])
-    .output([
+          from: "submitted",
+          to: "newItemSubmitted",
+          withPayload: (_: {}, name: string) => ({
+            id: new Date().getTime().toString(),
+            name,
+          }),
+        },
+      ],
+    },
+    itemList: {
+      ...itemListDef,
+      commands: [
         {
-            onEvent: "newItemSubmitted",
-            thenDispatch: "itemList/addItemRequested"
-        }
-    ])
-    .build();
+          from: "newItemSubmitted",
+          to: "addItemRequested",
+          withPayload: (_: {}, item: Item) => item,
+        },
+      ],
+    },
+  },
+};

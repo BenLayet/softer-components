@@ -5,7 +5,7 @@ import { ShoppingList } from "../shopping-list/ShoppingList.tsx";
 
 export const App = ({ path }: { path: string }) => {
   const [{ isSelected, selectedListName }, {}, { listSelect, shoppingList }] =
-    useSofter(path, appComponentDef);
+    useSofter<typeof appComponentDef>(path);
 
   return (
     <div>

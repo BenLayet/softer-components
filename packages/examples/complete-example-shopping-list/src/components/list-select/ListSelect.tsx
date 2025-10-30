@@ -1,18 +1,18 @@
-import { useSofter } from "@softer-components/redux-adapter";
-import { listSelectComponentDef } from "./list-select.component.ts";
+import { useSofter, useSofterEvents } from "@softer-components/redux-adapter";
+import { listSelectDef } from "./list-select.component.ts";
 
 export const ListSelect = ({ path = "/" }) => {
-  const [
-    { listName },
-    { listNameChanged, createNewListClicked, openPreviousListRequested },
-  ] = useSofter(path, listSelectComponentDef);
+  const [{ name }] = useSofter<typeof listSelectDef>(path);
+
+  const { listNameChanged, createNewListClicked, openPreviousListRequested } =
+    useSofterEvents<typeof listSelectDef>(path);
   return (
     <div>
       <div className="horizontal">
         <input
           type="text"
           placeholder="New list name"
-          value={listName}
+          value={name}
           onChange={e => listNameChanged(e.target.value)}
         />
         <button onClick={() => createNewListClicked()}>Create new list</button>

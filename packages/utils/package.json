@@ -1,5 +1,5 @@
 {
-  "name": "@softer-components/redux-adapter",
+  "name": "@softer-components/utils",
   "type": "module",
   "version": "0.1.0",
   "main": "dist/index.js",
@@ -19,11 +19,8 @@
     "format": "pnpx prettier --write ."
   },
   "dependencies": {
-    "@reduxjs/toolkit": "^2.6.1",
     "@softer-components/types": "workspace:*",
-    "@softer-components/utils": "workspace:*",
-    "lodash": "^4.17.21",
-    "react-redux": "^9.2.0"
+    "lodash": "^4.17.21"
   },
   "devDependencies": {
     "prettier": "^3.6.2",

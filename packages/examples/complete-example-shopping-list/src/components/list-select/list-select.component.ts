@@ -1,14 +1,25 @@
-import { componentDefBuilder } from "@softer-components/types";
+import { ComponentDef } from "@softer-components/types";
 
-export const listSelectComponentDef = componentDefBuilder
-  .initialState({ listName: "" })
-  .selectors({ listName: state => state.listName })
-  .events<{
-    listNameChanged: string;
-    createNewListClicked: undefined;
-    createNewListRequested: string;
-    openPreviousListRequested: undefined;
-  }>({
+// Initial state definition
+const initialState = {
+  listName: "",
+};
+
+// Events type declaration
+type ListSelectEvents = {
+  listNameChanged: { payload: string };
+  createNewListClicked: { payload: undefined };
+  createNewListRequested: { payload: string };
+  openPreviousListRequested: { payload: undefined };
+};
+
+// Component definition
+export const listSelectDef = {
+  initialState,
+  selectors: {
+    name: state => state.listName,
+  },
+  events: {
     listNameChanged: {
       stateUpdater: (state, payload) => ({ ...state, listName: payload }),
     },
@@ -20,7 +31,5 @@ export const listSelectComponentDef = componentDefBuilder
         },
       ],
     },
-    createNewListRequested: {},
-    openPreviousListRequested: {},
-  })
-  .build();
+  },
+} satisfies ComponentDef<typeof initialState, ListSelectEvents>;

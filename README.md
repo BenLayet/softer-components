@@ -8,9 +8,25 @@ A TypeScript component types library that is state-manager-agnostic and reusable
 - **🌐 State-Manager Agnostic**: Works with Redux, Zustand, or any state management solution
 - **🔗 Composable**: Build complex components from simple, reusable parts
 - **⚡ Zero Runtime Dependencies**: Lightweight with no external dependencies
-- **🔄 Event Chains**: Support for complex, multi-step operations
+- **🔄 Event Forwarding**: Support for complex, multi-step operations
 - **🎯 Redux Integration**: Built-in Redux adapter with middleware support
 - **📖 Well Documented**: Comprehensive documentation and examples
+
+## 🧠 Concepts
+
+- component definition (componentDef):
+  - define the behaviour and structure of components
+  - 1 per type of component at runtime
+- component:
+  - represents the UI component
+  - 1 per UI component at runtime
+- events:
+  - UI interactions are captured as UI events
+  - which can trigger internal business events
+  - which can trigger commands to children or trigger events in parent
+- commands:
+  - use for parent to child communication
+-
 
 ## 📦 Installation
 
@@ -123,7 +139,7 @@ const complexOperation = createEventChain(
   {
     id: "complex-increment",
     source: "user-action",
-  },
+  }
 );
 
 // Dispatch the entire chain
@@ -150,7 +166,7 @@ Reducers are pure functions that describe how state changes in response to event
 ```typescript
 type Reducer<TState, TEvent extends Event = Event> = (
   state: TState,
-  event: TEvent,
+  event: TEvent
 ) => TState;
 ```
 
@@ -163,7 +179,7 @@ type Selector<TState, TResult = any> = (state: TState) => TResult;
 
 // Example with memoization
 const expensiveSelector = createMemoizedSelector((state: AppState) =>
-  state.items.map((item) => computeExpensiveValue(item)),
+  state.items.map((item) => computeExpensiveValue(item))
 );
 ```
 
@@ -231,7 +247,7 @@ import { composeReducers } from "softer-components";
 const combinedReducer = composeReducers(
   userReducer,
   settingsReducer,
-  uiReducer,
+  uiReducer
 );
 ```
 

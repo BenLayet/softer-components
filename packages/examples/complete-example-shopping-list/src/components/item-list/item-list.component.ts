@@ -1,48 +1,60 @@
-import { componentDefBuilder } from "@softer-components/types";
+import { ComponentDef } from "@softer-components/types";
 import { Item } from "../../model/Item.ts";
 import { itemRowDef } from "../item-row/item-row.component.ts";
 
-export const itemListDef = componentDefBuilder
-    .initialState({
-        name: "",
-        items: [] as Item[],
-    })
-    .selectors({
-        name: state => state.name,
-    })
-    .events<{
-        addItemRequested: Item;
-        removeItemRequested: Item;
-    }>({
-        addItemRequested: {
-            stateUpdater: (state, item) => ({
-                ...state,
-                items: [item, ...state.items],
-            }),
-        },
-        removeItemRequested: {
-            stateUpdater: (state, item) => ({
-                ...state,
-                items: state.items.filter(i => i.id !== item.id),
-            }),
-        },
-    })
-    .children({
-        itemRows: {
-            componentDef: itemRowDef,
-            isCollection: true,
-            count: state => state.items.length,
-            childKey: (state, index) => state.items[index]["id"],
-            initialStateFactoryWithKey: (state, id) =>
-            ({
-                item: state.items.find(i => i.id == id) as Item,
-            }),
-        } ,
-    })
-    .input([
+// Initial state definition
+const initialState = {
+  name: "",
+  items: [] as Item[],
+};
+
+// Events type declaration
+type ItemListEvents = {
+  removeItemRequested: { payload: Item };
+};
+// Commands type declaration
+type ItemListCommands = {
+  addItem: { payload: Item };
+};
+
+// Component definition
+export const itemListDef: ComponentDef<
+  typeof initialState,
+  ItemListEvents,
+  ItemListCommands
+> = {
+  initialState,
+  selectors: {
+    name: state => state.name,
+  },
+  events: {
+    addItemRequested: {
+      stateUpdater: (state, item) => ({
+        ...state,
+        items: [item, ...state.items],
+      }),
+    },
+    removeItemRequested: {
+      stateUpdater: (state, item) => ({
+        ...state,
+        items: state.items.filter(i => i.id !== item.id),
+      }),
+    },
+  },
+  children: {
+    itemRows: {
+      ...itemRowDef,
+      isCollection: true,
+      getKeys: state => state.items.map(item => item.id),
+      initialStateFactoryWithKey: (state, id) => ({
+        item: state.items.find(i => i.id == id) as Item,
+      }),
+      listeners: [
         {
-            onEvent: "itemRows/removeItemRequested",
-            thenDispatch: "removeItemRequested"
-        }
-    ])
-    .build();
+          from: "removeItemRequested",
+          to: "removeItemRequested",
+        },
+      ],
+    },
+  },
+};
