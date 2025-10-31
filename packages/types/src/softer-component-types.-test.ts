@@ -6,7 +6,7 @@ import {
   ChildrenDef,
   EventForwarderDef,
   ExtractCommandsDef,
-  Selectors,
+  SelectorsFromConstraints,
   StateUpdater,
   EventsDef,
 } from "./softer-component-types";
@@ -66,7 +66,7 @@ type BuiltFromParts = ComponentDef<
                                          ~~~~~~~~~~~~~
 */
 
-type ResolvedSelectors<TSelectors extends Selectors<any> | undefined> = TSelectors extends Selectors ? {
+type ResolvedSelectors<TSelectors extends SelectorsFromConstraints<any> | undefined> = TSelectors extends SelectorsFromConstraints ? {
   [K in keyof TSelectors]: ReturnType<TSelectors[K]>;
 } : {};
 type S = MyComponentDef["selectors"];

@@ -4,7 +4,7 @@ import {
   EventsDef,
   ExtractEventsDef,
   Selector,
-  Selectors,
+  SelectorsFromConstraints,
   State,
   Value,
 } from "@softer-components/types";
@@ -53,8 +53,10 @@ export const useSofterEvents = <
 /////////////////////
 // useSofterSelectors
 /////////////////////
-type ResolvedSelectors<TSelectors extends Selectors<any> | undefined> =
-  TSelectors extends Selectors<any>
+type ResolvedSelectors<
+  TSelectors extends SelectorsFromConstraints<any> | undefined,
+> =
+  TSelectors extends SelectorsFromConstraints<any>
     ? {
         [K in keyof TSelectors]: ReturnType<TSelectors[K]>;
       }
@@ -71,7 +73,7 @@ export const useSofterSelectors = <
     path
   ) as TComponentDef;
 
-  const selectors = componentDef.selectors as Selectors;
+  const selectors = componentDef.selectors as SelectorsFromConstraints;
   return Object.fromEntries(
     Object.entries(selectors)
       .map(

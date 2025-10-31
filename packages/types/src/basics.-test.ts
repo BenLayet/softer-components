@@ -118,7 +118,10 @@ oneTwoThreeArray = stringArray; // Error
 {
   type Value = number | string;
   type State = Value;
-  type StateConstructor = (constructWith: Value) => State;
+
+  type ComponentDef<T extends State = State> = {
+    stateConstructor: (constructWith: any) => T;
+  };
 
   function withStateConstructor<
     TStateConstructor extends (constructWith: Value) => State,
@@ -132,10 +135,6 @@ oneTwoThreeArray = stringArray; // Error
       build: () => newBeingBuilt,
     };
   }
-
-  type ComponentDef<T extends State = State> = {
-    stateConstructor: (constructWith: any) => T;
-  };
 
   type Test1 = Expect<string extends State ? true : false>; // ✅ true
   type Test2 = Expect<
@@ -183,16 +182,140 @@ oneTwoThreeArray = stringArray; // Error
 // Nested intersections type tests
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 {
-  type A = { level1: { level2: { a: undefined } } };
-  type B = { level1: { level2: { a: number } } };
+  type A = { level1: { level2: { a: string } } };
+  type B = { level1: { level2: { b: number } } };
   type C = A & B;
   const c: C = {
     level1: {
       level2: {
         a: "hello",
+        b: 42,
       },
     },
   };
   type Test1 = Expect<Equal<C["level1"]["level2"]["a"], string>>; // ✅ true
   type Test2 = Expect<Equal<C["level1"]["level2"]["b"], number>>; // ✅ true
+}
+
+/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+// Recursive type builder
+/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+{
+  function recursiveTypeBuilder<T extends object>(
+    obj: T
+  ): {
+    addProperty<K extends string, V>(
+      key: K,
+      value: V
+    ): ReturnType<typeof recursiveTypeBuilder<T & { [P in K]: V }>>;
+    build(): T;
+  } {
+    return {
+      addProperty<K extends string, V>(
+        key: K,
+        value: V
+      ): ReturnType<typeof recursiveTypeBuilder<T & { [P in K]: V }>> {
+        const newObj = {
+          ...obj,
+          [key]: value,
+        } as T & { [P in K]: V };
+        return recursiveTypeBuilder(newObj);
+      },
+      build(): T {
+        return obj;
+      },
+    };
+  }
+
+  const built = recursiveTypeBuilder({})
+    .addProperty("name", "Alice")
+    .addProperty("age", 30)
+    .build();
+
+  type Test1 = Expect<Equal<typeof built, { name: string; age: number }>>; // ✅ true
+}
+
+/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+// Unused generic type parameters are bivariant but can be useful
+/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+{
+  type ObjectWithUnusedConfig<Config, T> = { value: T };
+  type UnusedConfigIsBivariant1 = Expect<
+    ObjectWithUnusedConfig<boolean, string> extends { value: string }
+      ? true
+      : false
+  >;
+  type UnusedConfigIsBivariant2 = Expect<
+    { value: string } extends ObjectWithUnusedConfig<boolean, string>
+      ? true
+      : false
+  >;
+  type ExtractConfig<C> =
+    C extends ObjectWithUnusedConfig<infer Config, any> ? Config : never;
+
+  type T = ExtractConfig<ObjectWithUnusedConfig<number, string>>;
+  type ButCanBeExtracted = Expect<
+    Equal<number, ExtractConfig<ObjectWithUnusedConfig<number, string>>>
+  >;
+}
+
+/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+// functions with generic and default type parameters, and can be useful
+/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+{
+  type ObjectWithUnusedConfig<Config, T> = {
+    value: T;
+  };
+  type UnusedConfigIsBivariant1 = Expect<
+    ObjectWithUnusedConfig<boolean, string> extends { value: string }
+      ? true
+      : false
+  >;
+  type UnusedConfigIsBivariant2 = Expect<
+    { value: string } extends ObjectWithUnusedConfig<boolean, string>
+      ? true
+      : false
+  >;
+  type ExtractConfig<C> =
+    C extends ObjectWithUnusedConfig<infer Config, any> ? Config : never;
+  type ButCanBeExtracted = Expect<
+    NotEqual<
+      ExtractConfig<ObjectWithUnusedConfig<boolean, string>>,
+      ExtractConfig<ObjectWithUnusedConfig<number, string>>
+    >
+  >;
+  type ConfigIsBivariant2 = Expect<
+    boolean extends ExtractConfig<ObjectWithUnusedConfig<boolean, string>>
+      ? true
+      : false
+  >;
+
+  function genericFunction<Config = {}, T = string>(
+    arg?: T
+  ): ObjectWithUnusedConfig<Config, T> {
+    return { value: arg as T };
+  }
+  const result1 = genericFunction(); // Uses default types
+  const result2 = genericFunction<{}, number>(42); // Uses default Config, T as number
+  const result3 = genericFunction<{ forUi: true; forParent: false }, boolean>(
+    true
+  ); // Both Config and T specified
+
+  type Test1 = Expect<
+    Equal<typeof result1, ObjectWithUnusedConfig<{}, string>>
+  >; // ✅ true
+
+  type Test2 = Expect<
+    Equal<
+      typeof result2,
+      ObjectWithUnusedConfig<{ forUi: boolean; forParent: boolean }, number>
+    >
+  >; // ✅ true
+
+  type Test3 = Expect<
+    Equal<
+      typeof result3,
+      ObjectWithUnusedConfig<{ forUi: true; forParent: false }, boolean>
+    >
+  >; // ✅ true
 }

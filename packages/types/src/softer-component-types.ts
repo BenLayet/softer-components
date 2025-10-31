@@ -23,7 +23,7 @@ export type OptionalValue = Value | undefined;
 /***************************************************************************************************************
  *                         COMPONENT CONTRACTS
  ***************************************************************************************************************/
-type ForUiContract = {
+export type ForUiContract = {
   readonly uiValues: Record<string, OptionalValue>;
   readonly uiEvents: Record<string, { payload: OptionalValue }>;
   readonly children: Record<string, { isCollection: boolean }>;
@@ -37,7 +37,7 @@ type ForDependencyContract = {
 type ConstructorContract = {
   readonly constructWith: OptionalValue;
 };
-type ForParentContract = ForDependencyContract & ConstructorContract;
+export type ForParentContract = ForDependencyContract & ConstructorContract;
 
 export type ComponentContract = {
   readonly forUi: ForUiContract;
@@ -86,28 +86,30 @@ export type State = Value;
  ***************************************************************************************************************/
 
 /**
- * Selectors take state and return a value
+ * A selector takes a state and returns a value, possibly undefined.
  * @example
  * ```ts
  * (state: {counter:number}) => state.counter
  * ```
  */
-export type Selector<TState extends State, TValue extends OptionalValue> = (
-  state: TState
-) => TValue;
-
-type _Selectors<
+export type Selector<
   TState extends State,
-  TValues extends Record<string, OptionalValue>,
+  TValue extends OptionalValue = OptionalValue,
+> = (state: TState) => TValue;
+
+export type Selectors<
+  TState extends State,
+  TValues extends Record<string, OptionalValue> = Record<string, OptionalValue>,
 > = {
   [key in keyof TValues]: Selector<TState, TValues[key]>;
 };
 
-export type Selectors<TComponentConstraints extends ComponentConstraints> =
-  _Selectors<
-    TComponentConstraints["state"],
-    ExtractAllValuesFromComponentConstraints<TComponentConstraints>
-  >;
+type SelectorsFromConstraints<
+  TComponentConstraints extends ComponentConstraints,
+> = Selectors<
+  TComponentConstraints["state"],
+  ExtractAllValuesFromComponentConstraints<TComponentConstraints>
+>;
 /***************************************************************************************************************
  *                         EVENTS
  ***************************************************************************************************************/
@@ -238,10 +240,14 @@ type StateUpdater<TState extends State, TPayload extends Payload> = (
 type EventHandler<
   TState extends State,
   TEvent extends Event,
-  TEventUnion extends Event,
+  TForwardDestinationEventUnion extends Event,
 > = {
   readonly stateUpdater?: StateUpdater<TState, TEvent["payload"]>;
-  readonly forwarders?: EventForwarderDef<TState, TEvent, TEventUnion>[];
+  readonly forwarders?: EventForwarderDef<
+    TState,
+    TEvent,
+    TForwardDestinationEventUnion
+  >[];
 };
 type _EventHandlers<TState extends State, TEventsDef extends EventsDef> = {
   [TEventName in keyof TEventsDef]?: EventHandler<
@@ -250,12 +256,27 @@ type _EventHandlers<TState extends State, TEventsDef extends EventsDef> = {
     EventsDefToEventUnion<TEventsDef>
   >;
 };
-type EventHandlers<TComponentConstraints extends ComponentConstraints> =
+export type EventHandlers<TComponentConstraints extends ComponentConstraints> =
   _EventHandlers<
     TComponentConstraints["state"],
     ExtractAllEventsFromComponentConstraints<TComponentConstraints>
   >;
-
+/********
+ * new event handlers
+ * *********/
+type _NewEventHandler<TState extends State, TEventsDef extends EventsDef> = {
+  [TEventName in Exclude<string, keyof TEventsDef>]?: EventHandler<
+    TState,
+    Event<TEventName & string, any>,
+    EventsDefToEventUnion<TEventsDef>
+  >;
+};
+export type NewEventHandlers<
+  TComponentConstraints extends ComponentConstraints,
+> = _NewEventHandler<
+  TComponentConstraints["state"],
+  ExtractAllEventsFromComponentConstraints<TComponentConstraints>
+>;
 /***************************************************************************************************************
  *                         CHILDREN
  ***************************************************************************************************************/
@@ -358,7 +379,20 @@ export type ComponentDef<
   TComponentConstraints extends ComponentConstraints = ComponentConstraints,
 > = {
   readonly initialState: TComponentConstraints["state"];
-  readonly selectors: Selectors<TComponentConstraints>;
+  readonly selectors: SelectorsFromConstraints<TComponentConstraints>;
   readonly eventHandlers: EventHandlers<TComponentConstraints>;
   readonly children: ChildrenDef<TComponentConstraints>;
 };
+
+/***************************************************************************************************************
+ *                         EXTRACT CONTRACTS FROM COMPONENT DEFINITION
+ ***************************************************************************************************************/
+export type ExtractUiContract<TComponentDef extends ComponentDef<any>> =
+  TComponentDef extends ComponentDef<infer TComponentConstraints>
+    ? TComponentConstraints["contract"]["forUi"]
+    : never;
+
+export type ExtractForParentContract<TComponentDef extends ComponentDef<any>> =
+  TComponentDef extends ComponentDef<infer TComponentConstraints>
+    ? TComponentConstraints["contract"]["forParent"]
+    : never;
