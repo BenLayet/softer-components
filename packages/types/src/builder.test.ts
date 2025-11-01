@@ -12,6 +12,7 @@ import {
   ExtractContract,
   NewEventHandlers,
   OptionalValue,
+  Payload,
   Selector,
   Selectors,
 } from "./softer-component-types";
@@ -146,18 +147,14 @@ describe("componentDefBuilder", () => {
     const name = componentDef.selectors.name({ count: 42, name: "test" });
     expect(name).toBe("test");
   });
-
-  it("allows setting one event handler", () => {
+  it("allows setting one event handler without a handler", () => {
     // GIVEN
     const initialState = { count: 0 };
     let builder1 = componentDefBuilder().withInitialState(initialState);
 
     // WHEN
-    let builder2 = builder1.withStateUpdater(
-      "incrementByAmountRequested",
-      (state, amount: number) => ({
-        count: state.count + amount,
-      })
+    let builder2 = builder1.withEvent(
+      "btnClicked"
     );
     const componentDef = builder2.build();
 
@@ -168,7 +165,48 @@ describe("componentDefBuilder", () => {
     ignore.unread as Expect<NotEqual<ActualContract, never>>;
 
     type ExpectedEventPayload = {
-      incrementByAmountRequested: { payload: number };
+      btnClicked: { payload: Payload };
+    };
+    ignore.unread as Expect<Equal<ActualEventPayload, ExpectedEventPayload>>;
+    type ExpectedContract = {
+      constructorArgument: undefined;
+      selectorValues: {};
+      eventPayloads: ExpectedEventPayload;
+      children: {};
+    };
+    ignore.unread as Expect<Equal<ActualContract, ExpectedContract>>;
+
+    // Runtime check
+    expect(componentDef.initialState).toBe(initialState);
+    expect(componentDef.selectors).toEqual({});
+    expect(componentDef.eventHandlers).toEqual({});
+    expect(componentDef.children).toEqual({});
+  });
+
+  it("allows setting one event without a handler, but a payload type", () => {
+    // GIVEN
+    const initialState = { count: 0 };
+    let builder1 = componentDefBuilder().withInitialState(initialState);
+
+    // WHEN
+    let builder2 = builder1.withEvent( //TODO find a way to infer the event name
+      "numberReceived",
+      {
+        stateUpdater: (state, _:number) => state
+      }
+    );
+    const componentDef = builder2.build();
+
+    type ActualContract = ExtractContract<typeof componentDef>;
+    type ActualEventPayload = ActualContract["eventPayloads"];
+
+    // THEN
+    ignore.unread as Expect<NotEqual<ActualContract, never>>;
+    // THEN
+    ignore.unread as Expect<NotEqual<ActualContract, never>>;
+
+    type ExpectedEventPayload = {
+      numberReceived: { payload: number };
     };
     ignore.unread as Expect<Equal<ActualEventPayload, ExpectedEventPayload>>;
     type ExpectedContract = {
@@ -194,13 +232,43 @@ describe("componentDefBuilder", () => {
     const componentDef = componentDefBuilder()
       .withInitialState(initialState)
       .withEvent("incrementRequested")
-      .updatingState((state: MyState, _p: string) => ({
-        count: state.count + 1,
-      }))
-      .forwardingTo("incrementByAmountRequested", {
-        withPayloadFrom: (_p: string) => 1,
-        onCondition: () => true,
-      })
+      .build();
+
+    type ActualContract = ExtractContract<typeof componentDef>;
+
+    // THEN
+    ignore.unread as Expect<
+      NotEqual<
+        ActualContract["eventPayloads"]["incrementRequested"]["payload"],
+        never
+      >
+    >;
+
+    type ExpectedContract = {
+      constructorArgument: undefined;
+      selectorValues: {};
+      eventPayloads: { incrementRequested: number };
+      children: {};
+    };
+    ignore.unread as Expect<Equal<ActualContract, ExpectedContract>>;
+
+    // Runtime check
+    expect(componentDef.initialState).toBe(initialState);
+    expect(componentDef.selectors).toEqual({});
+    expect(componentDef.eventHandlers).toEqual({});
+    expect(componentDef.children).toEqual({});
+  });
+  it("allows setting two event handlers with a forwarder", () => {
+    // GIVEN
+    const initialState = { count: 0 };
+    type MyState = typeof initialState;
+
+    // WHEN
+    const componentDef = componentDefBuilder()
+      .withInitialState(initialState)
+      .withEvent((eventBuilder) =>
+        eventBuilder.named("incrementRequested").withPayload<number>()
+      .build()))
       .build();
 
     type ActualContract = ExtractContract<typeof componentDef>;

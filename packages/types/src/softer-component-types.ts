@@ -118,7 +118,7 @@ type EventDef = {
 export type EventsDef = {
   [TEventName in string]: EventDef;
 };
-type EventsDefToEventUnion<TEventsDef extends EventsDef> = {
+export type EventsDefToEventUnion<TEventsDef extends EventsDef> = {
   [TEventName in keyof TEventsDef]: Event<
     TEventName & string,
     TEventsDef[TEventName]["payload"]

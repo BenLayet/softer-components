@@ -1,18 +1,15 @@
-import { D } from "vitest/dist/chunks/reporters.d.BFLkQcL6.js";
 import {
   ComponentConstraints,
   ComponentDef,
+  Event,
   EventHandler,
-  EventHandlers,
-  NewEventHandlers,
+  EventsDefToEventUnion,
   NewSelectors,
+  OptionalValue,
+  Payload,
   Selector,
   State,
-  Event,
-  StateUpdater,
-  OptionalValue,
 } from "./softer-component-types";
-import { T } from "vitest/dist/chunks/environment.d.cL3nLXbE.js";
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // componentDefBuilder
@@ -38,7 +35,7 @@ export const defaultComponentDef: ComponentDef<DefaultConstraints> = {
 //TODO remove () => if not needed
 export const componentDefBuilder = () => ({
   withInitialState,
-  withEventHandlers: withStateUpdater<DefaultConstraints>(defaultComponentDef),
+  withEvent: withEvent<DefaultConstraints>(defaultComponentDef),
   build: () => defaultComponentDef,
 });
 
@@ -61,9 +58,7 @@ const withInitialState = <TState extends State>(initialState: TState) => {
 
   return {
     withSelectors: withSelectors<NewComponentConstraints>(newBeingBuilt),
-    withStateUpdater: withStateUpdater<NewComponentConstraints>(
-      newBeingBuilt as any
-    ),
+    withEvent: withEvent<NewComponentConstraints>(newBeingBuilt as any),
     build: () => newBeingBuilt,
   };
 };
@@ -105,64 +100,68 @@ const withSelectors =
       withSelectors: withSelectors<NewComponentConstraints>(
         newBeingBuilt as any
       ),
-      withStateUpdater: withStateUpdater<NewComponentConstraints>(
-        newBeingBuilt as any
-      ),
+      withEvent: withEvent<NewComponentConstraints>(newBeingBuilt as any),
       build: () =>
         newBeingBuilt as any as ComponentDef<NewComponentConstraints>,
     };
   };
+
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-// withStateUpdater
+// withEvent
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-export type AddStateUpdaterToConstraints<
+export type AddEventHandlerToConstraints<
   TConstraints extends ComponentConstraints,
   TEventName extends string,
-  TStateUpdater extends StateUpdater<
-    TConstraints["internal"]["state"],
-    OptionalValue
-  >,
+  TEventHandler extends EventHandler<any, any, any>,
 > = TConstraints & {
   contract: {
-    eventPayloads: TConstraints["contract"]["eventPayloads"] & {
-      [K in TEventName]: TStateUpdater extends StateUpdater<any, infer TPayload>
-        ? { payload: TPayload }
-        : { payload: OptionalValue };
-    };
+    eventPayloads: TConstraints["contract"]["eventPayloads"] &
+      TEventHandler extends EventHandler<
+      any,
+      Event<TEventName & string, infer TPayload>,
+      any
+    >
+      ? {
+          [K in TEventName]: { payload: TPayload };
+        }
+      : {
+          [K in TEventName]: { payload: OptionalValue };
+        };
   };
 };
 
-const withStateUpdater =
+const withEvent =
   <TConstraints extends ComponentConstraints>(
     componentDef: ComponentDef<TConstraints>
   ) =>
-  <
-    TEventName extends string,
-    TStateUpdater extends StateUpdater<TConstraints["internal"]["state"], any>,
-  >(
+  <TPayload extends Payload, TEventName extends string>(
     eventName: TEventName,
-    stateUpdater: TStateUpdater
+    eventHandler = {} as EventHandler<
+      TConstraints["internal"]["state"],
+      Event<TEventName & string, TPayload>,
+      EventsDefToEventUnion<TConstraints["contract"]["eventPayloads"]>
+    >
   ) => {
-    type NewComponentConstraints = AddStateUpdaterToConstraints<
+    type TEventHandler = EventHandler<
+      TConstraints["internal"]["state"],
+      Event<TEventName & string, TPayload>,
+      EventsDefToEventUnion<TConstraints["contract"]["eventPayloads"]>
+    >;
+    type NewComponentConstraints = AddEventHandlerToConstraints<
       TConstraints,
       TEventName,
-      TStateUpdater
+      TEventHandler
     >;
     const newBeingBuilt = {
       ...componentDef,
       eventHandlers: {
         ...componentDef.eventHandlers,
-        [eventName]: {
-          ...componentDef.eventHandlers[eventName],
-          stateUpdater,
-        },
+        [eventName]: eventHandler ?? {}, //TODO set defaults for stateUpdater and forwarding
       },
     };
 
     return {
-      withStateUpdater: withStateUpdater<NewComponentConstraints>(
-        newBeingBuilt as any
-      ),
+      withEvent: withEvent<NewComponentConstraints>(newBeingBuilt as any),
       build: () => newBeingBuilt as ComponentDef<NewComponentConstraints>,
     };
   };
