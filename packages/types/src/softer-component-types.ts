@@ -21,57 +21,22 @@ export type Value =
 export type OptionalValue = Value | undefined;
 
 /***************************************************************************************************************
- *                         COMPONENT CONTRACTS
- ***************************************************************************************************************/
-export type ForUiContract = {
-  readonly uiValues: Record<string, OptionalValue>;
-  readonly uiEvents: Record<string, { payload: OptionalValue }>;
-  readonly children: Record<string, { isCollection: boolean }>;
-};
-
-type ForDependencyContract = {
-  readonly outputValues: Record<string, OptionalValue>;
-  readonly outputEvents: Record<string, { payload: OptionalValue }>;
-  readonly inputCommandEvents: Record<string, { payload: OptionalValue }>;
-};
-type ConstructorContract = {
-  readonly constructWith: OptionalValue;
-};
-export type ForParentContract = ForDependencyContract & ConstructorContract;
-
-export type ComponentContract = {
-  readonly forUi: ForUiContract;
-  readonly forParent: ForParentContract;
-};
-//TODO
-export type ContextContract = {
-  readonly forContextUser: ForDependencyContract;
-};
-/***************************************************************************************************************
  *                         COMPONENT CONSTRAINTS
  ***************************************************************************************************************/
-export type ComponentConstraints = {
-  readonly contract: ComponentContract;
-  readonly state: State;
-  readonly internalEvents: Record<string, { payload: OptionalValue }>;
-  //TODO add internal selectors (used in event handlers and child definitions)
+type ComponentContract = {
+  readonly constructorArgument: OptionalValue;
+  readonly selectorValues: Record<string, OptionalValue>;
+  readonly eventPayloads: EventsDef; //TODO rename EventsDef to event payload or event contract
+  readonly children: Record<string, { isCollection: boolean }>;
 };
-type AnyComponentDefWithForParentContract<
-  TForParentContract extends ForParentContract,
-> = ComponentDef<
-  ComponentConstraints & { contract: { forParent: TForParentContract } }
->;
-type ExtractAllEventsFromComponentConstraints<
-  TComponentConstraints extends ComponentConstraints,
-> = TComponentConstraints["internalEvents"] &
-  TComponentConstraints["contract"]["forUi"]["uiEvents"] &
-  TComponentConstraints["contract"]["forParent"]["outputEvents"] &
-  TComponentConstraints["contract"]["forParent"]["inputCommandEvents"];
+type InternalConstraints = {
+  readonly state: State;
+};
 
-type ExtractAllValuesFromComponentConstraints<
-  TComponentConstraints extends ComponentConstraints,
-> = TComponentConstraints["contract"]["forUi"]["uiValues"] &
-  TComponentConstraints["contract"]["forParent"]["outputValues"];
+export type ComponentConstraints = {
+  readonly internal: InternalConstraints;
+  readonly contract: ComponentContract;
+};
 
 /***************************************************************************************************************
  *                         STATE
@@ -97,19 +62,19 @@ export type Selector<
   TValue extends OptionalValue = OptionalValue,
 > = (state: TState) => TValue;
 
-export type Selectors<
-  TState extends State,
-  TValues extends Record<string, OptionalValue> = Record<string, OptionalValue>,
-> = {
-  [key in keyof TValues]: Selector<TState, TValues[key]>;
+export type Selectors<TConstraints extends ComponentConstraints> = {
+  [key in keyof TConstraints["contract"]["selectorValues"]]: Selector<
+    TConstraints["internal"]["state"],
+    TConstraints["contract"]["selectorValues"][key]
+  >;
 };
 
-type SelectorsFromConstraints<
-  TComponentConstraints extends ComponentConstraints,
-> = Selectors<
-  TComponentConstraints["state"],
-  ExtractAllValuesFromComponentConstraints<TComponentConstraints>
->;
+export type NewSelectors<TPreviousConstraints extends ComponentConstraints> = {
+  [key in Exclude<
+    string,
+    keyof TPreviousConstraints["contract"]["selectorValues"]
+  >]: Selector<TPreviousConstraints["internal"]["state"], OptionalValue>;
+};
 /***************************************************************************************************************
  *                         EVENTS
  ***************************************************************************************************************/
@@ -150,7 +115,7 @@ export type Event<
 type EventDef = {
   readonly payload: Payload;
 };
-type EventsDef = {
+export type EventsDef = {
   [TEventName in string]: EventDef;
 };
 type EventsDefToEventUnion<TEventsDef extends EventsDef> = {
@@ -159,12 +124,6 @@ type EventsDefToEventUnion<TEventsDef extends EventsDef> = {
     TEventsDef[TEventName]["payload"]
   >;
 }[keyof TEventsDef];
-
-export type EventConfig = EventDef & {
-  readonly uiEvent?: true; //TODO check if we can use boolean type here, and still build type in component builder dynamically
-  readonly outputEvent?: true;
-  readonly inputCommandEvent?: true;
-};
 
 /***************************************************************************************************************
  *                         EVENT FORWARDING DEFINITIONS
@@ -237,7 +196,7 @@ type StateUpdater<TState extends State, TPayload extends Payload> = (
   payload: TPayload
 ) => TState;
 
-type EventHandler<
+export type EventHandler<
   TState extends State,
   TEvent extends Event,
   TForwardDestinationEventUnion extends Event,
@@ -249,33 +208,37 @@ type EventHandler<
     TForwardDestinationEventUnion
   >[];
 };
-type _EventHandlers<TState extends State, TEventsDef extends EventsDef> = {
+export type EventHandlers<
+  TState extends State,
+  TEventsDef extends EventsDef,
+> = {
   [TEventName in keyof TEventsDef]?: EventHandler<
     TState,
     Event<TEventName & string, TEventsDef[TEventName]["payload"]>,
     EventsDefToEventUnion<TEventsDef>
   >;
 };
-export type EventHandlers<TComponentConstraints extends ComponentConstraints> =
-  _EventHandlers<
-    TComponentConstraints["state"],
-    ExtractAllEventsFromComponentConstraints<TComponentConstraints>
-  >;
 /********
  * new event handlers
  * *********/
-type _NewEventHandler<TState extends State, TEventsDef extends EventsDef> = {
-  [TEventName in Exclude<string, keyof TEventsDef>]?: EventHandler<
+type _NewEventHandler<
+  TState extends State,
+  TPreviousEventsDef extends EventsDef,
+  TNewEventsDef extends EventsDef = EventsDef,
+> = {
+  //TODO exclude keys that are already defined
+  [TEventName in keyof TNewEventsDef]: EventHandler<
     TState,
-    Event<TEventName & string, any>,
-    EventsDefToEventUnion<TEventsDef>
+    Event<TEventName & string, TNewEventsDef[TEventName]["payload"]>,
+    | EventsDefToEventUnion<TPreviousEventsDef>
+    | EventsDefToEventUnion<TNewEventsDef>
   >;
 };
 export type NewEventHandlers<
-  TComponentConstraints extends ComponentConstraints,
+  TPreviousConstraints extends ComponentConstraints,
 > = _NewEventHandler<
-  TComponentConstraints["state"],
-  ExtractAllEventsFromComponentConstraints<TComponentConstraints>
+  TPreviousConstraints["internal"]["state"],
+  TPreviousConstraints["contract"]["eventPayloads"]
 >;
 /***************************************************************************************************************
  *                         CHILDREN
@@ -319,11 +282,9 @@ type WithChildListeners<
   TChildEventsDef extends EventsDef,
 > = {
   readonly listeners?: ChildListener<
-    TOwnConstraints["state"],
+    TOwnConstraints["internal"]["state"],
     EventsDefToEventUnion<TChildEventsDef>, //from child
-    EventsDefToEventUnion<
-      ExtractAllEventsFromComponentConstraints<TOwnConstraints>
-    > //to parent
+    EventsDefToEventUnion<TOwnConstraints["contract"]["eventPayloads"]> //to parent
   >[];
 };
 type WithChildCommands<
@@ -331,41 +292,39 @@ type WithChildCommands<
   TChildCommandsDef extends EventsDef,
 > = {
   readonly commands?: EventForwarderDef<
-    TOwnConstraints["state"],
-    EventsDefToEventUnion<
-      ExtractAllEventsFromComponentConstraints<TOwnConstraints>
-    >, //from parent
+    TOwnConstraints["internal"]["state"],
+    EventsDefToEventUnion<TOwnConstraints["contract"]["eventPayloads"]>, //from parent
     EventsDefToEventUnion<TChildCommandsDef> //to child
   >[];
 };
 
 type ChildDef<
   TOwnConstraints extends ComponentConstraints,
-  TForParentContract extends ForParentContract,
-> = AnyComponentDefWithForParentContract<TForParentContract> &
-  WithChildListeners<TOwnConstraints, TForParentContract["outputEvents"]> &
-  WithChildCommands<TOwnConstraints, TForParentContract["inputCommandEvents"]>;
+  TForParentContract extends ComponentConstraints["contract"],
+> = ComponentDef<{ internal: any; contract: TForParentContract }> & // no internal constraints for child component
+  WithChildListeners<TOwnConstraints, TForParentContract["eventPayloads"]> & // but their contract need to match parent's listeners and commands
+  WithChildCommands<TOwnConstraints, TForParentContract["eventPayloads"]>;
 
 type SingleChildDef<
   TOwnConstraints extends ComponentConstraints,
-  TForParentContract extends ForParentContract = ForParentContract,
+  TForParentContract extends ComponentContract = ComponentContract,
 > = SingleChildFactory<
-  TOwnConstraints["state"],
-  TForParentContract["constructWith"]
+  TOwnConstraints["internal"]["state"],
+  TForParentContract["constructorArgument"]
 > &
   ChildDef<TOwnConstraints, TForParentContract>;
 
 type ChildCollectionDef<
   TOwnConstraints extends ComponentConstraints,
-  TForParentContract extends ForParentContract = ForParentContract,
+  TForParentContract extends ComponentContract = ComponentContract,
 > = ChildCollectionFactory<
-  TOwnConstraints["state"],
-  TForParentContract["constructWith"]
+  TOwnConstraints["internal"]["state"],
+  TForParentContract["constructorArgument"]
 > &
   ChildDef<TOwnConstraints, TForParentContract>;
 
 export type ChildrenDef<TOwnConstraints extends ComponentConstraints> = {
-  [childName in keyof TOwnConstraints["contract"]["forUi"]["children"]]: TOwnConstraints["contract"]["forUi"]["children"][childName] extends {
+  [childName in keyof TOwnConstraints["contract"]["children"]]: TOwnConstraints["contract"]["children"][childName] extends {
     isCollection: true;
   }
     ? ChildCollectionDef<TOwnConstraints>
@@ -376,23 +335,20 @@ export type ChildrenDef<TOwnConstraints extends ComponentConstraints> = {
  *                         COMPONENT DEFINITION
  ***************************************************************************************************************/
 export type ComponentDef<
-  TComponentConstraints extends ComponentConstraints = ComponentConstraints,
+  TConstraints extends ComponentConstraints = ComponentConstraints,
 > = {
-  readonly initialState: TComponentConstraints["state"];
-  readonly selectors: SelectorsFromConstraints<TComponentConstraints>;
-  readonly eventHandlers: EventHandlers<TComponentConstraints>;
-  readonly children: ChildrenDef<TComponentConstraints>;
+  readonly initialState: TConstraints["internal"]["state"];
+  readonly selectors: Selectors<TConstraints>;
+  readonly eventHandlers: EventHandlers<
+    TConstraints["internal"]["state"],
+    TConstraints["contract"]["eventPayloads"]
+  >;
+  readonly children: ChildrenDef<TConstraints>;
 };
 
-/***************************************************************************************************************
- *                         EXTRACT CONTRACTS FROM COMPONENT DEFINITION
- ***************************************************************************************************************/
-export type ExtractUiContract<TComponentDef extends ComponentDef<any>> =
-  TComponentDef extends ComponentDef<infer TComponentConstraints>
-    ? TComponentConstraints["contract"]["forUi"]
-    : never;
+// Extract contract from component definition
+export type ExtractConstraints<TComponentDef extends ComponentDef<any>> =
+  TComponentDef extends ComponentDef<infer TConstraints> ? TConstraints : never;
 
-export type ExtractForParentContract<TComponentDef extends ComponentDef<any>> =
-  TComponentDef extends ComponentDef<infer TComponentConstraints>
-    ? TComponentConstraints["contract"]["forParent"]
-    : never;
+export type ExtractContract<TComponentDef extends ComponentDef<any>> =
+  ExtractConstraints<TComponentDef>["contract"];

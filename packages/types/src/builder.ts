@@ -1,15 +1,37 @@
+import { D } from "vitest/dist/chunks/reporters.d.BFLkQcL6.js";
 import {
   ComponentConstraints,
   ComponentDef,
+  EventHandler,
   EventHandlers,
   NewEventHandlers,
-  Selectors,
+  NewSelectors,
+  Selector,
   State,
+  Event,
 } from "./softer-component-types";
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // componentDefBuilder
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+export type DefaultContract = {
+  constructorArgument: undefined;
+  selectorValues: {};
+  eventPayloads: {};
+  children: {};
+};
+export type DefaultConstraints = {
+  internal: { state: {} };
+  contract: DefaultContract;
+};
+export const defaultComponentDef: ComponentDef<DefaultConstraints> = {
+  initialState: {},
+  selectors: {},
+  eventHandlers: {},
+  children: {},
+};
+
 //TODO remove () => if not needed
 export const componentDefBuilder = () => ({
   withInitialState,
@@ -17,33 +39,16 @@ export const componentDefBuilder = () => ({
   build: () => defaultComponentDef,
 });
 
-type DefaultConstraints = {
-  state: {};
-  internalEvents: {};
-  contract: {
-    forUi: { uiEvents: {}; uiValues: {}; children: {} };
-    forParent: {
-      outputValues: {};
-      outputEvents: {};
-      inputCommandEvents: {};
-      constructWith: undefined;
-    };
-  };
-};
-const defaultComponentDef: ComponentDef<DefaultConstraints> = {
-  initialState: {},
-  selectors: {},
-  eventHandlers: {},
-  children: {},
-};
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // withInitialState
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+export type DefaultConstraintsWithState<TState extends State> = {
+  internal: { state: TState };
+  contract: DefaultContract;
+};
+
 const withInitialState = <TState extends State>(initialState: TState) => {
-  type NewComponentConstraints = AddStateToConstraints<
-    DefaultConstraints,
-    TState
-  >;
+  type NewComponentConstraints = DefaultConstraintsWithState<TState>;
   const newBeingBuilt: ComponentDef<NewComponentConstraints> = {
     initialState,
     selectors: {},
@@ -59,68 +64,31 @@ const withInitialState = <TState extends State>(initialState: TState) => {
     build: () => newBeingBuilt,
   };
 };
-type AddStateToConstraints<
-  TConstraints extends ComponentConstraints,
-  TState extends State,
-> = Assign<
-  TConstraints,
-  {
-    state: TState;
-  }
->;
-
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // withSelector
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 export type AddSelectorsToConstraints<
   TConstraints extends ComponentConstraints,
-  TSelectors extends Selectors<TConstraints["state"]>,
-  TSelectorConfig extends { forUi?: boolean; forParent?: boolean },
-> = Assign<
-  TConstraints,
+  TSelectors extends NewSelectors<TConstraints>,
+> = TConstraints & {
+  contract: {
+    selectorValues: ValuesOfSelectors<TSelectors>;
+  };
+};
+type ValuesOfSelectors<TSelectors extends Record<string, Selector<any, any>>> =
   {
-    contract: {
-      forUi: TConstraints["contract"]["forUi"] &
-        (TSelectorConfig extends { forUi: true }
-          ? {
-              uiValues: TConstraints["contract"]["forUi"]["uiValues"] & {
-                [K in keyof TSelectors]: ReturnType<TSelectors[K]>;
-              };
-            }
-          : {});
-      forParent: TConstraints["contract"]["forParent"] &
-        (TSelectorConfig extends { forParent: true }
-          ? {
-              outputValues: TConstraints["contract"]["forParent"]["outputValues"] & {
-                [K in keyof TSelectors]: ReturnType<TSelectors[K]>;
-              };
-            }
-          : {});
-    };
-  }
->;
-
+    [K in keyof TSelectors]: TSelectors[K] extends Selector<any, infer V>
+      ? V
+      : never;
+  };
 const withSelectors =
   <TConstraints extends ComponentConstraints>(
     componentDef: ComponentDef<TConstraints>
   ) =>
-  <
-    TSelectorConfig extends { forUi?: boolean; forParent?: boolean } = {
-      forUi: true;
-      forParent: true;
-    },
-    TSelectors extends Selectors<TConstraints["state"], any> = Selectors<
-      TConstraints["state"],
-      any
-    >,
-  >(
-    selectors: TSelectors,
-    _config?: TSelectorConfig
-  ) => {
+  <TSelectors extends NewSelectors<TConstraints>>(selectors: TSelectors) => {
     type NewComponentConstraints = AddSelectorsToConstraints<
       TConstraints,
-      TSelectors,
-      TSelectorConfig
+      TSelectors
     >;
     const newBeingBuilt = {
       ...componentDef,
@@ -132,12 +100,13 @@ const withSelectors =
 
     return {
       withSelectors: withSelectors<NewComponentConstraints>(
-        newBeingBuilt as any //TODO check with EXPERT why 'as any' is needed here;
+        newBeingBuilt as any
       ),
       withEventHandlers: withEventHandlers<NewComponentConstraints>(
         newBeingBuilt as any
       ),
-      build: () => newBeingBuilt as ComponentDef<NewComponentConstraints>,
+      build: () =>
+        newBeingBuilt as any as ComponentDef<NewComponentConstraints>,
     };
   };
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -145,21 +114,34 @@ const withSelectors =
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 export type AddEventHandlersToConstraints<
   TConstraints extends ComponentConstraints,
-  TEventHandlers extends NewEventHandlers<TConstraints>,
+  TEventHandlers extends Record<string, EventHandler<any, any, any>>,
 > = TConstraints & {
-  internalEvents: TEventHandlers;
+  contract: {
+    eventPayloads: EventHandlersToEventsDef<TEventHandlers>;
+  };
+};
+export type EventHandlersToEventsDef<
+  TEventHandlers extends EventHandlers<any, any>,
+> = {
+  [TEventName in keyof TEventHandlers]: TEventHandlers[TEventName] extends EventHandler<
+    any,
+    Event<TEventName & string, infer TPayload>,
+    any
+  >
+    ? TPayload
+    : never;
 };
 
 const withEventHandlers =
   <TConstraints extends ComponentConstraints>(
     componentDef: ComponentDef<TConstraints>
   ) =>
-  <TEventHandler extends NewEventHandlers<TConstraints>>(
-    eventHandlers: TEventHandler
+  <TNewEventHandlers extends NewEventHandlers<TConstraints>>(
+    eventHandlers: TNewEventHandlers
   ) => {
     type NewComponentConstraints = AddEventHandlersToConstraints<
       TConstraints,
-      TEventHandler
+      TNewEventHandlers
     >;
     const newBeingBuilt = {
       ...componentDef,

@@ -1,34 +1,21 @@
 import { describe, expect, it } from "vitest";
 import {
+  AddEventHandlersToConstraints,
   AddSelectorsToConstraints,
   componentDefBuilder,
+  DefaultConstraintsWithState,
+  EventHandlersToEventsDef,
 } from "../../types/src/builder";
 import {
-  ComponentConstraints,
-  ComponentDef,
-  ExtractForParentContract,
-  ExtractUiContract as ExtractForUiContract,
+  EventHandlers,
+  ExtractConstraints,
+  ExtractContract,
   NewEventHandlers,
+  OptionalValue,
   Selector,
   Selectors,
 } from "./softer-component-types";
-
-const defaultComponentDef = {
-  initialState: {},
-  selectors: {},
-  eventHandlers: {},
-  children: {},
-};
-///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-// Type testing utilities
-///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-export type Equal<X, Y> = X extends Y ? (Y extends X ? true : false) : false;
-export type NotEqual<X, Y> = X extends Y ? (Y extends X ? false : true) : true;
-export type Expect<T extends true> = T; // Test that two types are equal
-let ignoreUnread: any;
-if (ignoreUnread) {
-  console.log(ignoreUnread);
-}
+import { Equal, Expect, ignore } from "./type-testing-utiliy.test";
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // Type testing utilities
@@ -37,29 +24,17 @@ describe("componentDefBuilder", () => {
   it("returns a builder with withStateConstructor and build", () => {
     // WHEN
     const componentDef = componentDefBuilder().build();
-    type ActualForUiContract = ExtractForUiContract<typeof componentDef>;
-    type ActualForParentContract = ExtractForParentContract<
-      typeof componentDef
-    >;
+    type ActualContract = ExtractContract<typeof componentDef>;
 
-    // THEN
-    // Type check
-    let v1: Equal<
-      ActualForUiContract,
-      { uiValues: {}; uiEvents: {}; children: {} }
-    > = true;
-    ignoreUnread = v1;
-
-    let v2: Equal<
-      ActualForParentContract,
-      {
-        outputValues: {};
-        outputEvents: {};
-        inputCommandEvents: {};
-        constructWith: undefined;
-      }
-    > = true;
-    ignoreUnread = v2;
+    //THEN
+    type ExpectedContract = {
+      constructorArgument: undefined;
+      selectorValues: {};
+      eventPayloads: {};
+      children: {};
+    };
+    type t1 = Expect<Equal<ActualContract, ExpectedContract>>;
+    ignore.unread as t1;
 
     // Runtime check
     expect(componentDef.initialState).toEqual({}); // default state is empty object
@@ -71,33 +46,32 @@ describe("componentDefBuilder", () => {
   it("allows setting initialState with withInitialState", () => {
     // GIVEN
     const initialState = { count: 0 };
+    type MyState = typeof initialState;
+
     // WHEN
     const componentDef = componentDefBuilder()
       .withInitialState(initialState)
       .build();
-    type ActualForUiContract = ExtractForUiContract<typeof componentDef>;
-    type ActualForParentContract = ExtractForParentContract<
-      typeof componentDef
-    >;
+
+    type ActualContract = ExtractContract<typeof componentDef>;
+    type ActualConstraints = ExtractConstraints<typeof componentDef>;
 
     // THEN
-    // Type check
-    let v1: Equal<
-      ActualForUiContract,
-      { uiValues: {}; uiEvents: {}; children: {} }
-    > = true;
-    ignoreUnread = v1;
+    type ExpectedContract = {
+      constructorArgument: undefined;
+      selectorValues: {};
+      eventPayloads: {};
+      children: {};
+    };
+    type t1 = Expect<Equal<ActualContract, ExpectedContract>>;
+    ignore.unread as t1;
 
-    let v2: Equal<
-      ActualForParentContract,
-      {
-        outputValues: {};
-        outputEvents: {};
-        inputCommandEvents: {};
-        constructWith: undefined;
-      }
-    > = true;
-    ignoreUnread = v2;
+    type ExpectedConstraints = {
+      internal: { state: MyState };
+      contract: ExpectedContract;
+    };
+    type t2 = Expect<Equal<ActualConstraints, ExpectedConstraints>>;
+    ignore.unread as t2;
 
     // Runtime check
     expect(componentDef.initialState).toBe(initialState);
@@ -109,8 +83,9 @@ describe("componentDefBuilder", () => {
   it("allows adding one selector with withSelectors", () => {
     // GIVEN
     const initialState = { count: 0 };
+    type MyState = typeof initialState;
     const selectors = {
-      count: (state: typeof initialState) => state.count,
+      count: (state: MyState) => state.count,
     };
 
     // WHEN
@@ -118,112 +93,21 @@ describe("componentDefBuilder", () => {
       .withInitialState(initialState)
       .withSelectors(selectors)
       .build();
-    type ActualComponentDef = typeof componentDef;
-
-    type ActualForParentContract = ExtractForParentContract<
-      typeof componentDef
-    >;
-    type ActualForUiContract = ExtractForUiContract<typeof componentDef>;
+    type ActualContract = ExtractContract<typeof componentDef>;
 
     //THEN
-    type ExpectedUIContract = {
-      uiValues: { count: number };
-      uiEvents: {};
+    type ExpectedContract = {
+      constructorArgument: undefined;
+      selectorValues: { count: number };
+      eventPayloads: {};
       children: {};
     };
-    ignoreUnread as Expect<Equal<ActualForUiContract, ExpectedUIContract>>;
+    ignore.unread as Expect<Equal<ActualContract, ExpectedContract>>;
 
-    type ExpectedForParentContract = {
-      outputValues: { count: number };
-      outputEvents: {};
-      inputCommandEvents: {};
-      constructWith: undefined;
-    };
-    ignoreUnread as Expect<
-      Equal<ActualForParentContract, ExpectedForParentContract>
-    >;
-
-    type ExpectedComponentDef = ComponentDef<{
-      state: typeof initialState;
-      internalEvents: {};
-      contract: {
-        forUi: {
-          uiValues: { count: number };
-          children: {};
-          uiEvents: {};
-        };
-        forParent: {
-          outputValues: { count: number };
-          outputEvents: {};
-          inputCommandEvents: {};
-          constructWith: undefined;
-        };
-      };
-    }>;
-    ignoreUnread as Expect<Equal<ActualComponentDef, ExpectedComponentDef>>;
     // Runtime check
     const selected = componentDef.selectors.count({ count: 42 });
     expect(selected).toBe(42);
   });
-
-  it("allows adding one selector forUi with withSelectors", () => {
-    // GIVEN
-    const initialState = { count: 0 };
-    const selectors = {
-      count: (state: typeof initialState) => state.count,
-    };
-
-    // WHEN
-    const componentDef = componentDefBuilder()
-      .withInitialState(initialState)
-      .withSelectors(selectors, { forUi: true })
-      .build();
-    type ActualComponentDef = typeof componentDef;
-    type ActualForParentContract = ExtractForParentContract<
-      typeof componentDef
-    >;
-    type ActualForUiContract = ExtractForUiContract<typeof componentDef>;
-
-    //THEN
-
-    ignoreUnread as Expect<
-      Equal<ActualForUiContract["uiValues"], { count: number }>
-    >;
-    ignoreUnread as Expect<
-      Equal<
-        ActualForParentContract,
-        {
-          outputValues: {};
-          outputEvents: {};
-          inputCommandEvents: {};
-          constructWith: undefined;
-        }
-      >
-    >;
-
-    type ExpectedComponentDef = ComponentDef<{
-      state: typeof initialState;
-      internalEvents: {};
-      contract: {
-        forUi: {
-          uiValues: { count: number };
-          children: {};
-          uiEvents: {};
-        };
-        forParent: {
-          outputValues: {};
-          outputEvents: {};
-          inputCommandEvents: {};
-          constructWith: undefined;
-        };
-      };
-    }>;
-    ignoreUnread as Expect<Equal<ActualComponentDef, ExpectedComponentDef>>;
-    // Runtime check
-    const selected = componentDef.selectors.count({ count: 42 });
-    expect(selected).toBe(42);
-  });
-
   it("allows adding 3 selectors with withSelectors", () => {
     // GIVEN
     const initialState = { count: 0, name: "" };
@@ -241,31 +125,21 @@ describe("componentDefBuilder", () => {
     // WHEN
     const componentDef = componentDefBuilder()
       .withInitialState(initialState)
-      .withSelectors(selector1, { forParent: true })
-      .withSelectors(selector2, { forUi: true })
+      .withSelectors(selector1)
+      .withSelectors(selector2)
       .withSelectors(selector3)
       .build();
-    type ActualComponentDef = typeof componentDef;
+    type ActualContract = ExtractContract<typeof componentDef>;
 
     //THEN
-    type ExpectedComponentDef = ComponentDef<{
-      state: typeof initialState;
-      internalEvents: {};
-      contract: {
-        forUi: {
-          uiValues: { name: string; both: MyState };
-          children: {};
-          uiEvents: {};
-        };
-        forParent: {
-          outputValues: { count: number; both: MyState };
-          outputEvents: {};
-          inputCommandEvents: {};
-          constructWith: undefined;
-        };
-      };
-    }>;
-    ignoreUnread as Expect<Equal<ActualComponentDef, ExpectedComponentDef>>;
+    type ExpectedContract = {
+      constructorArgument: undefined;
+      selectorValues: { count: number; name: string; both: MyState };
+      eventPayloads: {};
+      children: {};
+    };
+    ignore.unread as Expect<Equal<ActualContract, ExpectedContract>>;
+
     // Runtime check
     const count = componentDef.selectors.count({ count: 42, name: "test" });
     expect(count).toBe(42);
@@ -276,43 +150,77 @@ describe("componentDefBuilder", () => {
   it("allows setting one event handler", () => {
     // GIVEN
     const initialState = { count: 0 };
-    const eventHandlers = {
+    type MyState = typeof initialState;
+    let builder1 = componentDefBuilder().withInitialState(initialState);
+
+    const eventHandlers: NewEventHandlers<
+      DefaultConstraintsWithState<MyState>
+    > = {
       incrementByAmount: {
-        stateUpdater: (state: typeof initialState, amount: number) => ({
+        stateUpdater: (state: MyState, amount: number) => ({
           count: state.count + amount,
         }),
       },
     };
 
     // WHEN
-    const componentDef = componentDefBuilder()
-      .withInitialState(initialState)
-      .withEventHandlers<typeof eventHandlers>(eventHandlers)
-      .build();
+    let builder2 = builder1.withEventHandlers(eventHandlers);
+    const componentDef = builder2.build();
 
-    type ActualForUiContract = ExtractForUiContract<typeof componentDef>;
-    type ActualForParentContract = ExtractForParentContract<
-      typeof componentDef
-    >;
+    type ActualContract = ExtractContract<typeof componentDef>;
+    type ActualEventPayload = ActualContract["eventPayloads"];
 
     // THEN
-    // Type check
-    let v1: Equal<
-      ActualForUiContract,
-      { uiValues: {}; uiEvents: {}; children: {} }
-    > = true;
-    ignoreUnread = v1;
+    type ExpectedContract = {
+      constructorArgument: undefined;
+      selectorValues: {};
+      eventPayloads: { incrementByAmount: { payload: number } };
+      children: {};
+    };
+    ignore.unread as Expect<Equal<ActualContract, ExpectedContract>>;
 
-    let v2: Equal<
-      ActualForParentContract,
-      {
-        outputValues: {};
-        outputEvents: {};
-        inputCommandEvents: {};
-        constructWith: undefined;
-      }
-    > = true;
-    ignoreUnread = v2;
+    // Runtime check
+    expect(componentDef.initialState).toBe(initialState);
+    expect(componentDef.selectors).toEqual({});
+    expect(componentDef.eventHandlers).toEqual({});
+    expect(componentDef.children).toEqual({});
+  });
+  it("allows setting two event handlers with a forwarder", () => {
+    // GIVEN
+    const initialState = { count: 0 };
+    type MyState = typeof initialState;
+
+    // WHEN
+    const componentDef = componentDefBuilder()
+      .withInitialState(initialState)
+      .withStateUpdater(
+        "incrementByAmount",
+        (state: MyState, amount: number) => ({
+          count: state.count + amount,
+        })
+      )
+      .withEventForwarder("buttonClicked", "incrementByAmount")
+
+      .withEventHandlers({
+        incrementRequested: {
+          stateUpdater: (state) => ({ count: state.count + 1 }),
+        },
+        buttonClicked: {
+          forwarders: [{ to: "incrementRequested" }],
+        },
+      })
+      .build();
+
+    type ActualContract = ExtractContract<typeof componentDef>;
+
+    // THEN
+    type ExpectedContract = {
+      constructorArgument: undefined;
+      selectorValues: {};
+      eventPayloads: { incrementByAmount: number };
+      children: {};
+    };
+    ignore.unread as Expect<Equal<never, ExpectedContract>>;
 
     // Runtime check
     expect(componentDef.initialState).toBe(initialState);
@@ -329,16 +237,12 @@ type MyState = { count: number };
 type MyNumberSelector = (state: MyState) => number;
 type MyStringSelector = (state: MyState) => string;
 type MyConstraints = {
-  state: MyState;
-  internalEvents: {};
+  internal: { state: MyState };
   contract: {
-    forUi: { uiEvents: {}; uiValues: {}; children: {} };
-    forParent: {
-      outputValues: {};
-      outputEvents: {};
-      inputCommandEvents: {};
-      constructWith: undefined;
-    };
+    constructorArgument: undefined;
+    selectorValues: {};
+    eventPayloads: {};
+    children: {};
   };
 };
 //////////////////////////////////////////////
@@ -349,20 +253,18 @@ type MyConstraints = {
   type T1 = Expect<MyNumberSelector extends Selector<MyState> ? true : false>; // OK
   type T2 = Expect<MyStringSelector extends Selector<MyState> ? true : false>; // OK
   type T3 = Expect<
-    { count: MyNumberSelector } extends Selectors<MyState> ? true : false
+    { count: MyNumberSelector } extends Selectors<MyConstraints> ? true : false
   >; // OK
   type T4 = Expect<
     {
       count: MyNumberSelector;
       str: MyStringSelector;
-    } extends Selectors<MyState>
+    } extends Selectors<MyConstraints>
       ? true
       : false
   >; // OK
   type T5 = Expect<
-    { count: MyNumberSelector } extends Selectors<MyConstraints["state"]>
-      ? true
-      : false
+    { count: MyNumberSelector } extends Selectors<MyConstraints> ? true : false
   >; // OK
 }
 //////////////////////////////////////////////
@@ -371,8 +273,7 @@ type MyConstraints = {
 {
   type C1 = AddSelectorsToConstraints<
     MyConstraints,
-    { count: MyNumberSelector },
-    { forUi: true; forParent: true }
+    { count: MyNumberSelector }
   >;
 }
 
@@ -380,36 +281,47 @@ type MyConstraints = {
 // AddEventHandlersToConstraints tests
 //////////////////////////////////////////////
 {
-  type AddEventHandlersToConstraints<
-    TConstraints extends ComponentConstraints,
-    TEventHandlers extends NewEventHandlers<TConstraints>,
-  > = Assign<
-    TConstraints,
-    {
-      internalEvents: TEventHandlers;
-    }
-  >;
-
-  type C2 = AddEventHandlersToConstraints<
+  type N1 = NewEventHandlers<MyConstraints>;
+  const newEventHandlers: N1 = {
+    incrementByAmount: {
+      stateUpdater: (state: MyState, amount: number) => ({
+        count: state.count + amount,
+      }),
+    },
+  };
+  ignore.unread = newEventHandlers;
+  type C1 = AddEventHandlersToConstraints<
     MyConstraints,
-    {
-      incrementByAmount: {
-        stateUpdater: (state: MyState, amount: number) => MyState;
-      };
-    }
+    typeof newEventHandlers
   >;
-  type T1 = Expect<
-    C2["internalEvents"] extends ComponentConstraints["internalEvents"]
-      ? true
-      : false
-  >; // OK
-  type T2 = Expect<
-    MyConstraints["internalEvents"] extends ComponentConstraints["internalEvents"]
-      ? true
-      : false
-  >; // OK
 }
-
+//////////////////////////////////////////////
+// EventHandlersToEventsDef tests
+//////////////////////////////////////////////
+{
+  const eventHandlers = {
+    incrementByAmountRequested: {
+      stateUpdater: (state: MyState, amount: number) => ({
+        count: state.count + amount,
+      }),
+    },
+    incrementRequested: {
+      stateUpdater: (state: MyState) => ({
+        count: state.count + 1,
+      }),
+      forwarders: [{ to: "incrementByAmountRequested" }],
+    },
+  } satisfies EventHandlers<MyState, any>;
+  // CHECK
+  type Actual = EventHandlersToEventsDef<typeof eventHandlers>;
+  //payload of incrementByAmountRequested has the be a number
+  //payload of incrementRequested does NOT have to be undefined, a Value is OK and would be ignored by the updater
+  type Expected = {
+    incrementByAmountRequested: number;
+    incrementRequested: OptionalValue;
+  };
+  type T = Expect<Equal<Actual, Expected>>;
+}
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // Utility Types
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////

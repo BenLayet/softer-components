@@ -1,11 +1,4 @@
-//type DoNothing<T> = { a:string};
-///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-// test utilities
-///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-let ignoreUnread: unknown = undefined;
-export type Equal<X, Y> = X extends Y ? (Y extends X ? true : false) : false;
-export type NotEqual<X, Y> = X extends Y ? (Y extends X ? false : true) : true;
-export type Expect<T extends true> = T; // Test that two types are equal
+import { Equal, Expect, ignore, NotEqual } from "./type-testing-utiliy.test";
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // Covariant, Contravariant, Invariant type tests
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -92,6 +85,7 @@ oneTwoThreeArray = stringArray; // Error
     b: never;
   };
   type T = Expect<NotEqual<A, never>>; // never does not propagate through object types
+  ignore.unread as T;
 }
 {
   // Object types preserve structure, even with never properties
@@ -109,7 +103,7 @@ oneTwoThreeArray = stringArray; // Error
     validProp: "hello",
     // impossibleProp: // Cannot assign anything here
   };
-  ignoreUnread = obj;
+  ignore.unread = obj;
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -318,4 +312,13 @@ oneTwoThreeArray = stringArray; // Error
       ObjectWithUnusedConfig<{ forUi: true; forParent: false }, boolean>
     >
   >; // ✅ true
+}
+////////////////////////////////////////////////////////////////////////////////////////////////
+// withInitialState
+////////////////////////////////////////////////////////////////////////////////////////////////
+{
+  const test: Exclude<string, "one"> = "one" as const;
+  ignore.unread = test;
+  type Test3 = Expect<Equal<Exclude<string, "one">, string>>;
+  ignore.unread as Test3;
 }
