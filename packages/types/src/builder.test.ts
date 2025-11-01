@@ -15,7 +15,7 @@ import {
   Selector,
   Selectors,
 } from "./softer-component-types";
-import { Equal, Expect, ignore } from "./type-testing-utiliy.test";
+import { Equal, Expect, ignore, NotEqual } from "./type-testing-utiliy.test";
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // Type testing utilities
@@ -150,31 +150,31 @@ describe("componentDefBuilder", () => {
   it("allows setting one event handler", () => {
     // GIVEN
     const initialState = { count: 0 };
-    type MyState = typeof initialState;
     let builder1 = componentDefBuilder().withInitialState(initialState);
 
-    const eventHandlers: NewEventHandlers<
-      DefaultConstraintsWithState<MyState>
-    > = {
-      incrementByAmount: {
-        stateUpdater: (state: MyState, amount: number) => ({
-          count: state.count + amount,
-        }),
-      },
-    };
-
     // WHEN
-    let builder2 = builder1.withEventHandlers(eventHandlers);
+    let builder2 = builder1.withStateUpdater(
+      "incrementByAmountRequested",
+      (state, amount: number) => ({
+        count: state.count + amount,
+      })
+    );
     const componentDef = builder2.build();
 
     type ActualContract = ExtractContract<typeof componentDef>;
     type ActualEventPayload = ActualContract["eventPayloads"];
 
     // THEN
+    ignore.unread as Expect<NotEqual<ActualContract, never>>;
+
+    type ExpectedEventPayload = {
+      incrementByAmountRequested: { payload: number };
+    };
+    ignore.unread as Expect<Equal<ActualEventPayload, ExpectedEventPayload>>;
     type ExpectedContract = {
       constructorArgument: undefined;
       selectorValues: {};
-      eventPayloads: { incrementByAmount: { payload: number } };
+      eventPayloads: ExpectedEventPayload;
       children: {};
     };
     ignore.unread as Expect<Equal<ActualContract, ExpectedContract>>;
@@ -193,34 +193,33 @@ describe("componentDefBuilder", () => {
     // WHEN
     const componentDef = componentDefBuilder()
       .withInitialState(initialState)
-      .withStateUpdater(
-        "incrementByAmount",
-        (state: MyState, amount: number) => ({
-          count: state.count + amount,
-        })
-      )
-      .withEventForwarder("buttonClicked", "incrementByAmount")
-
-      .withEventHandlers({
-        incrementRequested: {
-          stateUpdater: (state) => ({ count: state.count + 1 }),
-        },
-        buttonClicked: {
-          forwarders: [{ to: "incrementRequested" }],
-        },
+      .withEvent("incrementRequested")
+      .updatingState((state: MyState, _p: string) => ({
+        count: state.count + 1,
+      }))
+      .forwardingTo("incrementByAmountRequested", {
+        withPayloadFrom: (_p: string) => 1,
+        onCondition: () => true,
       })
       .build();
 
     type ActualContract = ExtractContract<typeof componentDef>;
 
     // THEN
+    ignore.unread as Expect<
+      NotEqual<
+        ActualContract["eventPayloads"]["incrementRequested"]["payload"],
+        never
+      >
+    >;
+
     type ExpectedContract = {
       constructorArgument: undefined;
       selectorValues: {};
-      eventPayloads: { incrementByAmount: number };
+      eventPayloads: { incrementRequested: number };
       children: {};
     };
-    ignore.unread as Expect<Equal<never, ExpectedContract>>;
+    ignore.unread as Expect<Equal<ActualContract, ExpectedContract>>;
 
     // Runtime check
     expect(componentDef.initialState).toBe(initialState);

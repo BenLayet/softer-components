@@ -191,7 +191,7 @@ export type EventForwarderDef<
  * (state: {counter:number}) => ({counter: state.counter + 1})
  * ```
  */
-type StateUpdater<TState extends State, TPayload extends Payload> = (
+export type StateUpdater<TState extends State, TPayload extends Payload> = (
   state: TState,
   payload: TPayload
 ) => TState;
