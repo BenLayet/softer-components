@@ -322,3 +322,37 @@ oneTwoThreeArray = stringArray; // Error
   type Test3 = Expect<Equal<Exclude<string, "one">, string>>;
   ignore.unread as Test3;
 }
+
+////////////////////////////////////////////////////////////////////////////////////////////////
+// satisfies
+////////////////////////////////////////////////////////////////////////////////////////////////
+{
+  type ComponentDef<TState = {}> = {
+    initialState: TState;
+    selector: (state: TState) => any;
+  };
+
+  const componentDef = {
+    initialState: { count: 0 },
+    selector: (state) => state.count,
+  } satisfies ComponentDef<{ count: number }>;
+}
+
+////////////////////////////////////////////////////////////////////////////////////////////////
+// Partial type parameter resolution
+////////////////////////////////////////////////////////////////////////////////////////////////
+{
+  type ComponentContract = {
+    a: string;
+    b: number;
+  };
+  const test: Partial<ComponentContract> = { a: "hello" };
+  ignore.unread = test;
+  type ComponentDef<TPartialContract extends Partial<ComponentContract>> = {
+    readonly contract: TPartialContract;
+  };
+
+  const def: ComponentDef<{}> = {
+    contract: {},
+  };
+}

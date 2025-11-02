@@ -1,7 +1,7 @@
 import {
   ChildrenDef,
   ComponentDef,
-  EventsDef,
+  EventsContract,
   ExtractEventsDef,
   Selector,
   SelectorsFromConstraints,
@@ -15,8 +15,8 @@ import { SofterStore } from "./softer-store";
 /////////////////////
 // useSofterDispatchers
 /////////////////////
-type EventsDefToUiDispatchers<TEventsDef extends EventsDef | undefined> =
-  TEventsDef extends EventsDef
+type EventsDefToUiDispatchers<TEventsDef extends EventsContract | undefined> =
+  TEventsDef extends EventsContract
     ? {
         [K in keyof TEventsDef &
           string]: TEventsDef[K]["payload"] extends undefined
