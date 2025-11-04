@@ -16,7 +16,7 @@ export const shoppingListComponentDef: ComponentDef<
   typeof initialState,
   ShoppingListEvents
 > = {
-  initialState,
+  constructor: () => initialState,
   events: {
     newItemSubmitted: {},
   },

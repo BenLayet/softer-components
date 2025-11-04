@@ -4,7 +4,7 @@ import {
   extractEventName,
   findComponentDef,
 } from "./component-def-map";
-import { reinitialiseStateTree } from "./state";
+import { reinstanciateStateRecursively } from "./state";
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // REDUCER
@@ -23,7 +23,7 @@ export function newGlobalState(
   if (newGlobalState === previousGlobalState) {
     return previousGlobalState;
   }
-  return reinitialiseStateTree(newGlobalState, "/", rootComponentDef);
+  return reinstanciateStateRecursively(newGlobalState, "/", rootComponentDef);
 }
 
 function updateStateOfComponentOfAction(

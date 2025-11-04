@@ -1,13 +1,19 @@
-import { isNotNull, not } from "@softer-components/utils";
 import {
+  ComponentDef,
   ExtractChildrenContract,
+  ExtractConstructorContract,
   ExtractSelectorContract,
-  StateUpdaters,
 } from "@softer-components/types";
-import { List } from "../../model/List.ts";
-import { listSelectComponentDef } from "../list-select/list-select.component.ts";
-import { shoppingListComponentDef } from "../shopping-list/shopping-list.component.ts";
+import { isNotNull } from "@softer-components/utils";
 import { flow } from "lodash-es";
+import { Component } from "react";
+import { List } from "../../model/List.ts";
+import { shoppingListComponentDef } from "../shopping-list/shopping-list.component.ts";
+// Events
+type AppEventContract = {
+  listSelected: { payload: List };
+};
+
 // State
 const initialState = {
   selectedList: null as List | null,
@@ -23,36 +29,27 @@ const selectors = {
   isListSelected,
 };
 
-// Events
-type AppEventContract = {
-  listSelected: { payload: List };
-};
-
-const stateUpdaters: StateUpdaters<AppState, AppEventContract> = {
-  listSelected: (state, selectedList) => ({
-    ...state,
-    selectedList,
-  }),
-};
-// Children
-const children = {
-  shoppingList: { ...shoppingListComponentDef, exists: isListSelected },
-  listSelect: {
-    ...listSelectComponentDef,
-    exists: not(isListSelected),
-  },
-};
-
 // Component definition
 export const appComponentDef = {
-  initialState,
+  constructor: () => initialState,
   selectors,
-  stateUpdaters,
-  children,
-};
+  stateUpdaters: {
+    listSelected: (state, selectedList) => ({
+      ...state,
+      selectedList,
+    }),
+  },
+  children: {
+    shoppingList: { ...shoppingListComponentDef, exists: isListSelected },
+    //listSelect: { ...listSelectComponentDef, exists: not(isListSelected) },
+  },
+} satisfies ComponentDef<AppState, AppEventContract>;
 
-type AppSelectorContract = ExtractSelectorContract<typeof selectors>;
-type AppChildrenContract = ExtractChildrenContract<typeof children>;
+type AppSelectorContract = ExtractSelectorContract<typeof appComponentDef>;
+type AppChildrenContract = ExtractChildrenContract<typeof appComponentDef>;
+type AppConstructorContract = ExtractConstructorContract<
+  typeof appComponentDef
+>;
 
 export type AppUi = {
   selectors: AppSelectorContract;
@@ -60,6 +57,6 @@ export type AppUi = {
   children: AppChildrenContract;
 };
 export type AppForParentContract = {
-  constructor: undefined;
+  constructor: AppConstructorContract;
   events: AppEventContract;
 };

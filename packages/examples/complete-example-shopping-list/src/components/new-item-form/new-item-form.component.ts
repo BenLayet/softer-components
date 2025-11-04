@@ -13,26 +13,19 @@ type NewItemFormEvents = {
 };
 
 // Component definition
-export const newItemFormDef: ComponentDef<
-  typeof initialState,
-  NewItemFormEvents
-> = {
-  initialState,
+export const newItemFormDef = {
+  constructor: () => initialState,
   selectors: {
     name: state => state.name,
   },
-  events: {
-    nameChanged: {
-      stateUpdater: (state, name) => ({ ...state, name }),
-    },
-    submitted: {
-      forwarders: [
-        {
-          to: "newItemSubmitted",
-          withPayload: state => state.name,
-        },
-      ],
-    },
-    newItemSubmitted: {},
+  stateUpdaters: {
+    nameChanged: (state, name) => ({ ...state, name }),
   },
-};
+  eventForwarders: [
+    {
+      from: "submitted",
+      to: "newItemSubmitted",
+      withPayload: state => state.name,
+    },
+  ],
+} satisfies ComponentDef<typeof initialState, NewItemFormEvents>;
