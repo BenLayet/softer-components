@@ -6,16 +6,20 @@ import { ComponentDef } from "@softer-components/types";
 describe("createComponentDefMap", () => {
   it("generates an event from a simple event forwarder", () => {
     //GIVEN a simple component forwarding events
-    const rootComponentDef = {
-      events: {
-        clicked: {
-          forwarders: [
-            {
-              to: "processed",
-            },
-          ],
-        },
+    const rootComponentDef: ComponentDef<
+      undefined,
+      {
+        clicked: { payload: undefined };
+        processed: { payload: undefined };
       },
+      {}
+    > = {
+      eventForwarders: [
+        {
+          from: "clicked",
+          to: "processed",
+        },
+      ],
     };
     const globalState = {
       "/": {},
@@ -39,17 +43,21 @@ describe("createComponentDefMap", () => {
 
   it("generates an event from a conditional event forwarder", () => {
     //GIVEN a simple component forwarding events
-    const rootComponentDef = {
-      events: {
-        clicked: {
-          forwarders: [
-            {
-              to: "processed",
-              onCondition: (_, payload) => payload === true,
-            },
-          ],
-        },
+    const rootComponentDef: ComponentDef<
+      undefined,
+      {
+        clicked: { payload: boolean };
+        processed: { payload: boolean };
       },
+      {}
+    > = {
+      eventForwarders: [
+        {
+          from: "clicked",
+          to: "processed",
+          onCondition: (_, payload) => payload === true,
+        },
+      ],
     };
     const globalState = {
       "/": {},
@@ -73,17 +81,21 @@ describe("createComponentDefMap", () => {
 
   it("does not generate an event when the condition is not met", () => {
     //GIVEN a simple component forwarding events
-    const rootComponentDef = {
-      events: {
-        clicked: {
-          forwarders: [
-            {
-              to: "processed",
-              onCondition: (_, payload) => payload === true,
-            },
-          ],
-        },
+    const rootComponentDef: ComponentDef<
+      undefined,
+      {
+        clicked: { payload: boolean };
+        processed: { payload: boolean };
       },
+      {}
+    > = {
+      eventForwarders: [
+        {
+          from: "clicked",
+          to: "processed",
+          onCondition: (_, payload) => payload === true,
+        },
+      ],
     };
     const globalState = {
       "/": {},
@@ -104,18 +116,20 @@ describe("createComponentDefMap", () => {
     //GIVEN a simple component with one child
     const child1Def: ComponentDef<
       {},
-      {},
-      { doSomething: { payload: undefined } }
+      { doSomething: { payload: undefined } },
+      {}
     > = {};
     const rootComponentDef: ComponentDef<
-      {},
-      { clicked: { payload: undefined } },
+      undefined,
+      {
+        clicked: { payload: undefined };
+      },
       {}
     > = {
       children: {
         child1: {
           ...child1Def,
-          commands: [{ from: "clicked", to: "doSomething" as const }], //TODO fix type error
+          commands: [{ from: "clicked", to: "doSomething" }],
         },
       },
     };
@@ -150,7 +164,6 @@ describe("createComponentDefMap", () => {
     > = {
       children: {
         child1: {
-          // TODO fix error
           ...child1Def,
           listeners: [{ from: "clicked", to: "child1Selected" }],
         },

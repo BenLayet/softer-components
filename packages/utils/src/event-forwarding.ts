@@ -1,10 +1,4 @@
-import {
-  ComponentDef,
-  Event,
-  Payload,
-  State,
-  Value,
-} from "@softer-components/types";
+import { ComponentDef, Event, Payload, State } from "@softer-components/types";
 import {
   extractEventName,
   findComponentDefFromPathArray,
@@ -14,7 +8,7 @@ import {
 // FORWARDING EVENTS
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 export function generateEventsToForward(
-  rootComponentDef: ComponentDef<any, any>,
+  rootComponentDef: ComponentDef<any, any, any>,
   globalState: Record<string, State>,
   triggeringEvent: Event
 ) {
@@ -101,8 +95,9 @@ function generateEventsFromForwarders(
   payload: Payload,
   componentPath: string
 ) {
-  const forwarders = componentDef.events?.[eventName]?.forwarders ?? [];
+  const forwarders = componentDef.eventForwarders ?? [];
   return forwarders
+    .filter((forwarder) => forwarder.from === eventName)
     .filter(
       (forwarder) =>
         !forwarder.onCondition || forwarder.onCondition(componentState, payload)
@@ -136,7 +131,7 @@ function generateCommandsToChildren(
           type: `${componentPath}${childName}/${command.to}`,
           payload:
             typeof command.withPayload === "function"
-              ? command.withPayload(componentState, payload)
+              ? command.withPayload(componentState, payload as never)
               : payload,
         }))
   );

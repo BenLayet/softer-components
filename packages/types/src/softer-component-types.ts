@@ -94,7 +94,12 @@ type WithPayloadDef<
   TFromPayload extends Payload,
   TToPayload extends Payload,
 > = TToPayload extends undefined
-  ? {}
+  ? {
+      readonly withPayload?: (
+        state: TState & {},
+        payload: TFromPayload
+      ) => TToPayload;
+    }
   : TFromPayload extends TToPayload
     ? {
         readonly withPayload?: (
@@ -125,6 +130,7 @@ export type EventForwarderDef<
   TFromEvent extends Event, //not expecting a union (but tolerates 'any')
   TToEvent extends Event, //not expecting a union (but tolerates 'any')
 > = {
+  readonly from: TFromEvent["type"];
   readonly to: string extends TFromEvent["type"]
     ? TToEvent["type"] //allow any type if TFromEvent type is not precise
     : Exclude<TToEvent["type"], TFromEvent["type"]>; //prevent forwarding to same event type
@@ -171,7 +177,7 @@ export type EventForwarders<
     Event<TEventName & string, TEventsContract[TEventName]["payload"]>,
     EventsContractToEventUnion<TEventsContract>
   >;
-};
+}[keyof TEventsContract][]; //array of forwarders per event
 /***************************************************************************************************************
  *                         CHILDREN DEFINITION
  ***************************************************************************************************************/
