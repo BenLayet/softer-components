@@ -6,7 +6,7 @@ import {
   ExtractConstructorContract,
 } from "@softer-components/types";
 
-describe("initialStateTree", () => {
+describe("state tests", () => {
   it("should create initial state tree for component with no constructor", () => {
     // GIVEN a simple component definition with initial state
     const componentDef = {};

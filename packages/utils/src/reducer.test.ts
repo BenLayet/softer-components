@@ -3,7 +3,7 @@ import { describe, expect, it } from "vitest";
 import { newGlobalState } from "./reducer";
 import { ComponentDef } from "@softer-components/types";
 
-describe("initialStateTree", () => {
+describe("reducer tests", () => {
   it("should update simple state", () => {
     // GIVEN a simple component definition with initial state
     const initialState = { count: 0, name: "test" };

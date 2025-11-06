@@ -3,7 +3,7 @@ import { describe, it, expect } from "vitest";
 import { generateEventsToForward } from "./event-forwarding";
 import { ComponentDef } from "@softer-components/types";
 
-describe("createComponentDefMap", () => {
+describe("event forwarding tests", () => {
   it("generates an event from a simple event forwarder", () => {
     //GIVEN a simple component forwarding events
     const rootComponentDef: ComponentDef<
