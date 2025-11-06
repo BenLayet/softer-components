@@ -25,7 +25,7 @@ export function initialStateTree(componentDef: ComponentDef<any, any>): State {
 export function reinstanciateStateRecursively(
   mutableGlobalState: Record<string, State>,
   componentPath: string,
-  componentDef: ComponentDef<any, any>,
+  componentDef: ComponentDef<any, any, any>,
   protoState?: OptionalValue
 ): Record<string, State> {
   // if state does not already exist
@@ -59,7 +59,7 @@ function instantiateChildrenState(
         mutableGlobalState,
         componentPath,
         childName,
-        childDef as ChildCollectionDef<any, any, any>,
+        childDef,
         componentState
       );
     } else {

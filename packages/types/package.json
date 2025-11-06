@@ -17,6 +17,7 @@
   "scripts": {
     "clean": "rm -rf dist & rm tsconfig.tsbuildinfo",
     "build": "tsc -b",
+    "build:watch": "tsc -b --watch",
     "lint": "eslint src/",
     "format": "prettier --write .",
     "test": "vitest"

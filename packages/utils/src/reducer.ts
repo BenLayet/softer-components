@@ -1,4 +1,4 @@
-import { ComponentDef, State } from "@softer-components/types";
+import { ComponentDef, State, Event } from "@softer-components/types";
 import {
   extractComponentPathStr,
   extractEventName,
@@ -11,13 +11,13 @@ import { reinstanciateStateRecursively } from "./state";
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 export function newGlobalState(
-  rootComponentDef: ComponentDef<any, any>,
-  action: any,
+  rootComponentDef: ComponentDef<any, any, any>,
+  event: Event,
   previousGlobalState: Record<string, State>
 ): Record<string, State> {
-  const newGlobalState = updateStateOfComponentOfAction(
+  const newGlobalState = updateStateOfComponentOfEvent(
     rootComponentDef,
-    action,
+    event,
     previousGlobalState
   );
   if (newGlobalState === previousGlobalState) {
@@ -26,7 +26,7 @@ export function newGlobalState(
   return reinstanciateStateRecursively(newGlobalState, "/", rootComponentDef);
 }
 
-function updateStateOfComponentOfAction(
+function updateStateOfComponentOfEvent(
   rootComponentDef: ComponentDef<any, any>,
   action: any,
   previousGlobalState: Record<string, State>
@@ -54,5 +54,5 @@ const findStateUpdater = (
     extractComponentPathStr(absoluteEventType)
   );
   const eventName = extractEventName(absoluteEventType);
-  return componentDef?.events?.[eventName]?.stateUpdater;
+  return componentDef.stateUpdaters?.[eventName];
 };

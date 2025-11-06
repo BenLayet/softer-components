@@ -1,6 +1,10 @@
 // packages/utils/src/state.test.ts
 import { describe, expect, it } from "vitest";
 import { initialStateTree, reinstanciateStateRecursively } from "./state";
+import {
+  ComponentDef,
+  ExtractConstructorContract,
+} from "@softer-components/types";
 
 describe("initialStateTree", () => {
   it("should create initial state tree for component with no constructor", () => {
@@ -32,7 +36,7 @@ describe("initialStateTree", () => {
     // GIVEN a component with child components
     const childDef = { initialState: () => ({ value: "child" }) };
 
-    const parentDef = {
+    const parentDef: ComponentDef = {
       initialState: () => ({ count: 1 }),
       children: { child: childDef },
     };
@@ -218,10 +222,14 @@ describe("initialStateTree", () => {
 
   it("should create state tree for component with child collection", () => {
     // GIVEN a component with a child collection
-    const leafDef = {
+    const leafDef: ComponentDef<{ key: string; color: string }, {}, string> = {
       initialState: (key: string) => ({ key, color: "green" }),
     };
-    const branchDef = {
+    const branchDef: ComponentDef<
+      { id: string; leaves: number; type: string },
+      {},
+      { id: string; leaves: number }
+    > = {
       initialState: (protoState: { id: string; leaves: number }) => ({
         ...protoState,
         type: "wooden",
@@ -238,7 +246,7 @@ describe("initialStateTree", () => {
     };
     const trunkState = { branches: [1, 2], leavesPerBranch: 2 };
     type TrunkState = typeof trunkState;
-    const trunkDef = {
+    const trunkDef: ComponentDef<TrunkState, {}, undefined> = {
       initialState: () => trunkState,
       children: {
         branch: {
@@ -294,10 +302,14 @@ describe("initialStateTree", () => {
 
   it("should remove branch and leaves when a branch is removed", () => {
     // GIVEN a component with a child collection
-    const leafDef = {
+    const leafDef: ComponentDef<{ key: string; color: string }, {}, string> = {
       initialState: (key: string) => ({ key, color: "green" }),
     };
-    const branchDef = {
+    const branchDef: ComponentDef<
+      { id: string; leaves: number; type: string },
+      {},
+      { id: string; leaves: number }
+    > = {
       initialState: (protoState: { id: string; leaves: number }) => ({
         ...protoState,
         type: "wooden",
@@ -314,7 +326,7 @@ describe("initialStateTree", () => {
     };
     const trunkState = { branches: [1, 2], leavesPerBranch: 2 };
     type TrunkState = typeof trunkState;
-    const trunkDef = {
+    const trunkDef: ComponentDef<TrunkState, {}, undefined> = {
       initialState: () => trunkState,
       children: {
         branch: {
