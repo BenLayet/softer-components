@@ -1,4 +1,7 @@
-import { ComponentDef } from "@softer-components/types";
+import {
+  ComponentDef,
+  ExtractChildrenContract,
+} from "@softer-components/types";
 import { newItemFormDef } from "../new-item-form/new-item-form.component";
 import { itemListDef } from "../item-list/item-list.component";
 import { Item } from "../../model/Item.ts";
@@ -12,37 +15,36 @@ type ShoppingListEvents = {
 };
 
 // Component definition
-export const shoppingListComponentDef: ComponentDef<
-  typeof initialState,
-  ShoppingListEvents
-> = {
-  constructor: () => initialState,
+export const shoppingListDef = {
+  initialState: () => initialState,
   events: {
-    newItemSubmitted: {},
+    newItemSubmitted: {
+      payloadFactory: (item: Item) => item,
+    },
   },
   children: {
     newItemForm: {
-      ...newItemFormDef,
+      componentDef: newItemFormDef,
       listeners: [
         {
-          from: "submitted",
+          from: "newItemSubmitted",
           to: "newItemSubmitted",
-          withPayload: (_: {}, name: string) => ({
-            id: new Date().getTime().toString(),
-            name,
-          }),
         },
       ],
     },
     itemList: {
-      ...itemListDef,
+      componentDef: itemListDef,
       commands: [
         {
           from: "newItemSubmitted",
           to: "addItemRequested",
-          withPayload: (_: {}, item: Item) => item,
+          withPayload: (_: {}, item: Item) => ({ ...item, quantity: 1 }),
         },
       ],
     },
   },
-};
+} satisfies ComponentDef<typeof initialState, ShoppingListEvents>;
+
+export type ShoppingListChildren = ExtractChildrenContract<
+  typeof shoppingListDef
+>;

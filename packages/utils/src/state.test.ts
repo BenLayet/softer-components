@@ -38,7 +38,7 @@ describe("state tests", () => {
 
     const parentDef: ComponentDef = {
       initialState: () => ({ count: 1 }),
-      children: { child: childDef },
+      children: { child: { componentDef: childDef } },
     };
 
     // WHEN creating initial state tree
@@ -57,14 +57,12 @@ describe("state tests", () => {
 
     const childDef = {
       initialState: () => ({ level: 2 }),
-      children: { grandChild: grandChildDef },
+      children: { grandChild: { componentDef: grandChildDef } },
     };
 
     const rootDef = {
       initialState: () => ({ level: 1 }),
-      children: {
-        child: childDef,
-      },
+      children: { child: { componentDef: childDef } },
     };
 
     // WHEN creating initial state tree
@@ -84,7 +82,7 @@ describe("state tests", () => {
 
     const parentDef = {
       // no initialState
-      children: { child: { ...childDef } },
+      children: { child: { componentDef: childDef } },
     };
 
     // WHEN creating initial state tree
@@ -108,7 +106,7 @@ describe("state tests", () => {
       // no initialState
       children: {
         child: {
-          ...childDef,
+          componentDef: childDef,
           protoState: (state: { version: number }) =>
             state.version === 1
               ? "What is the answer to the ultimate question of life, the universe, and everything?"
@@ -141,7 +139,7 @@ describe("state tests", () => {
         type: "wooden",
       }),
       children: {
-        leaf: leafDef,
+        leaf: { componentDef: leafDef },
       },
     };
     const trunkState = { hasOneBranch: true };
@@ -150,7 +148,7 @@ describe("state tests", () => {
       initialState: () => trunkState,
       children: {
         branch: {
-          ...branchDef,
+          componentDef: branchDef,
           exists: (state: TrunkState) => state.hasOneBranch,
         },
       },
@@ -181,7 +179,7 @@ describe("state tests", () => {
         type: "wooden",
       }),
       children: {
-        leaf: leafDef,
+        leaf: { componentDef: leafDef },
       },
     };
     const trunkState = { hasOneBranch: true };
@@ -190,7 +188,7 @@ describe("state tests", () => {
       initialState: () => trunkState,
       children: {
         branch: {
-          ...branchDef,
+          componentDef: branchDef,
           exists: (state: TrunkState) => state.hasOneBranch,
         },
       },
@@ -236,7 +234,7 @@ describe("state tests", () => {
       }),
       children: {
         leaf: {
-          ...leafDef,
+          componentDef: leafDef,
           isCollection: true,
           getKeys: (state: { leaves: number }) =>
             new Array(state.leaves).fill(0).map((_, i) => (i + 1).toString()),
@@ -250,7 +248,7 @@ describe("state tests", () => {
       initialState: () => trunkState,
       children: {
         branch: {
-          ...branchDef,
+          componentDef: branchDef,
           isCollection: true,
           getKeys: (state: TrunkState) =>
             state.branches.map((b) => b.toString()),
@@ -316,7 +314,7 @@ describe("state tests", () => {
       }),
       children: {
         leaf: {
-          ...leafDef,
+          componentDef: leafDef,
           isCollection: true,
           getKeys: (state: { leaves: number }) =>
             new Array(state.leaves).fill(0).map((_, i) => (i + 1).toString()),
@@ -330,7 +328,7 @@ describe("state tests", () => {
       initialState: () => trunkState,
       children: {
         branch: {
-          ...branchDef,
+          componentDef: branchDef,
           isCollection: true,
           getKeys: (state: TrunkState) =>
             state.branches.map((b) => b.toString()),

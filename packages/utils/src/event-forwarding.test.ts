@@ -164,7 +164,7 @@ describe("event forwarding tests", () => {
     > = {
       children: {
         child1: {
-          ...child1Def,
+          componentDef: child1Def,
           listeners: [{ from: "clicked", to: "child1Selected" }],
         },
       },
@@ -186,6 +186,46 @@ describe("event forwarding tests", () => {
       {
         type: "/child1Selected",
         payload: undefined,
+      },
+    ]);
+  });
+
+  it("generates an event from a child collection listener", () => {
+    //GIVEN a simple component with one child
+    const childDef: ComponentDef<{}, { clicked: { payload: undefined } }, {}> =
+      {};
+    const rootComponentDef: ComponentDef<
+      {},
+      { childSelected: { payload: undefined } },
+      {}
+    > = {
+      children: {
+        child: {
+          componentDef: childDef,
+          isCollection: true,
+          getKeys: () => ["one", "two"],
+          listeners: [{ from: "clicked", to: "childSelected" }],
+        },
+      },
+    };
+    const globalState = {
+      "/": {},
+      "/child:one/": {},
+      "/child:two/": {},
+    };
+    const event = { type: "/child:one/clicked", payload: undefined };
+
+    //WHEN  generating events to forward
+    const result = generateEventsToForward(
+      rootComponentDef,
+      globalState,
+      event
+    );
+
+    expect(result).toEqual([
+      {
+        payload: undefined,
+        type: "/childSelected",
       },
     ]);
   });

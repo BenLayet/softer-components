@@ -14,8 +14,9 @@
   "scripts": {
     "clean": "rm -rf dist & rm tsconfig.tsbuildinfo",
     "build": "tsc -b",
+    "build:watch": "tsc -b --watch",
     "test": "vitest",
-    "test-no-timeout": "vitest --testTimeout=100000",
+    "test-for-debug": "vitest --testTimeout=100000 --bail=1",
     "format": "pnpx prettier --write ."
   },
   "dependencies": {

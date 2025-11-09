@@ -16,11 +16,13 @@ const childDef: ComponentDef<
   undefined
 > = {
   initialState: () => initialState,
-  stateUpdaters: {
-    incrementRequested: (state: MyState) => ({
-      ...state,
-      count: state.count + 1,
-    }),
+  events: {
+    incrementRequested: {
+      stateUpdater: (state: MyState) => ({
+        ...state,
+        count: state.count + 1,
+      }),
+    },
   },
 };
 type MyComponentDef = typeof childDef;

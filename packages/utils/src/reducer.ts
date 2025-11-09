@@ -28,14 +28,14 @@ export function newGlobalState(
 
 function updateStateOfComponentOfEvent(
   rootComponentDef: ComponentDef<any, any>,
-  action: any,
+  event: any,
   previousGlobalState: Record<string, State>
 ): Record<string, State> {
-  const stateUpdater = findStateUpdater(rootComponentDef, action.type);
+  const stateUpdater = findStateUpdater(rootComponentDef, event.type);
   if (!stateUpdater) return previousGlobalState;
-  const componentPath = extractComponentPathStr(action.type);
+  const componentPath = extractComponentPathStr(event.type);
   const componentState = previousGlobalState[componentPath];
-  const nextComponentState = stateUpdater(componentState, action.payload);
+  const nextComponentState = stateUpdater(componentState, event.payload);
   if (nextComponentState === componentState) {
     return previousGlobalState;
   }
@@ -54,5 +54,5 @@ const findStateUpdater = (
     extractComponentPathStr(absoluteEventType)
   );
   const eventName = extractEventName(absoluteEventType);
-  return componentDef.stateUpdaters?.[eventName];
+  return componentDef.stateUpdaters?.[eventName] || null;
 };

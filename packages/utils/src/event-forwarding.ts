@@ -1,7 +1,7 @@
 import { ComponentDef, Event, Payload, State } from "@softer-components/types";
 import {
   extractEventName,
-  findComponentDefFromPathArray,
+  findComponentDefFromComponentPathArray,
 } from "./component-def-map";
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -16,7 +16,9 @@ export function generateEventsToForward(
 
   const eventName = extractEventName(triggeringEvent.type);
   //remove first slash and last slash + event name to get component path array of non empty strings
-  const componentPathArray = triggeringEvent.type.split("/").slice(1, -1);
+  const componentPathArray = extractComponentPathArrayFromEventType(
+    triggeringEvent.type
+  );
   const [componentPath, componentState, componentDef] =
     findStateAndComponentDef(rootComponentDef, globalState, componentPathArray);
 
@@ -72,14 +74,14 @@ function findStateAndComponentDef(
     `/${componentPathArray.join("/")}` +
     (componentPathArray.length > 0 ? "/" : "");
   const componentState = globalState[componentPath];
-  const componentDef = findComponentDefFromPathArray(
+  const componentDef = findComponentDefFromComponentPathArray(
     rootComponentDef,
     componentPathArray
   );
 
-  if (!componentState || !componentDef) {
+  if (!componentDef) {
     throw new Error(
-      `Could not find component state or definition for path: ${componentPath}`
+      `Could not find component definition for path: ${componentPath}`
     );
   }
   return [componentPath, componentState, componentDef];
@@ -105,7 +107,7 @@ function generateEventsFromForwarders(
     .map((forwarder) => ({
       type: `${componentPath}${forwarder.to}`,
       payload: forwarder.withPayload
-        ? forwarder.withPayload(componentState, payload)
+        ? forwarder.withPayload(componentState, payload as never) //TODO ask expert if we can remove 'as never'
         : payload,
     }));
 }
@@ -144,14 +146,16 @@ function generateEventFromChildListeners(
   parentComponentDef: ComponentDef,
   parentComponentState: State,
   parentComponentPath: string,
-  childName: string,
+  childInstanceName: string,
   eventName: string,
   payload: Payload
 ) {
   return Object.entries(parentComponentDef.children ?? {})
-    .filter(([name]) => name === childName)
-    .flatMap(([_name, childDef]) =>
-      (childDef.listeners ?? [])
+    .filter(
+      ([childDefName]) => childDefName === childInstanceName.split(":")[0]
+    )
+    .flatMap(([_name, childNode]) =>
+      (childNode.listeners ?? [])
         .filter((listener) => listener.from === eventName)
         .filter(
           (listener) =>
@@ -166,4 +170,7 @@ function generateEventFromChildListeners(
               : payload,
         }))
     );
+}
+function extractComponentPathArrayFromEventType(type: string): string[] {
+  return type.split("/").slice(1, -1);
 }

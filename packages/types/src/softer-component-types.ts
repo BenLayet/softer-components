@@ -82,6 +82,49 @@ type EventsContractToEventUnion<TEventsDef extends EventsContract> = {
 }[keyof TEventsDef];
 
 /***************************************************************************************************************
+ *                    STATE UPDATERS
+ ***************************************************************************************************************/
+/**
+ * State Updater takes no payload or only one type of payload.
+ * A state updater is called when a specific event is dispatched with a specific payload.
+ * (equivalent to a case reducer for a specific action in Redux)
+ *
+ * @example
+ * ```ts
+ * // With payload:
+ * (state: {counter:number}, payload:number) => ({counter: state.counter + payload})
+ * // Without payload:
+ * (state: {counter:number}) => ({counter: state.counter + 1})
+ * ```
+ */
+export type StateUpdater<TState extends State, TPayload extends Payload> = (
+  state: TState,
+  payload: TPayload
+) => TState;
+
+export type StateUpdaters<
+  TState extends State,
+  TEventsContract extends EventsContract,
+> = {
+  [TEventName in keyof TEventsContract]?: StateUpdater<
+    TState,
+    TEventsContract[TEventName]["payload"]
+  >;
+};
+
+/***************************************************************************************************************
+ *                   EVENT DEFINITIONS
+ ***************************************************************************************************************/
+export type EventDef<TEventContract extends EventContract> = {
+  payloadFactory: (
+    payload: TEventContract["payload"]
+  ) => TEventContract["payload"];
+};
+
+export type EventsDef<TEventsContract extends EventsContract> = {
+  [TEventName in keyof TEventsContract]: EventDef<TEventsContract[TEventName]>;
+};
+/***************************************************************************************************************
  *                         EVENT FORWARDING DEFINITIONS
  ***************************************************************************************************************/
 
@@ -137,37 +180,6 @@ export type EventForwarderDef<
 } & WithPayloadDef<TState, TFromEvent["payload"], TToEvent["payload"]> &
   OnConditionDef<TState, TFromEvent["payload"]>;
 
-/***************************************************************************************************************
- *                    STATE UPDATERS
- ***************************************************************************************************************/
-/**
- * State Updater takes no payload or only one type of payload.
- * A state updater is called when a specific event is dispatched with a specific payload.
- * (equivalent to a case reducer for a specific action in Redux)
- *
- * @example
- * ```ts
- * // With payload:
- * (state: {counter:number}, payload:number) => ({counter: state.counter + payload})
- * // Without payload:
- * (state: {counter:number}) => ({counter: state.counter + 1})
- * ```
- */
-export type StateUpdater<TState extends State, TPayload extends Payload> = (
-  state: TState,
-  payload: TPayload
-) => TState;
-
-export type StateUpdaters<
-  TState extends State,
-  TEventsContract extends EventsContract,
-> = {
-  [TEventName in keyof TEventsContract]?: StateUpdater<
-    TState,
-    TEventsContract[TEventName]["payload"]
-  >;
-};
-
 export type EventForwarders<
   TState extends State,
   TEventsContract extends EventsContract,
@@ -178,6 +190,7 @@ export type EventForwarders<
     EventsContractToEventUnion<TEventsContract>
   >;
 }[keyof TEventsContract][]; //array of forwarders per event
+
 /***************************************************************************************************************
  *                         CHILDREN DEFINITION
  ***************************************************************************************************************/
@@ -239,27 +252,23 @@ type WithChildCommands<
   >[];
 };
 
-export type ChildDef<
+export type ChildNode<
   TParentState extends State,
   TParentEventsContract extends EventsContract,
-  TChildComponentDef extends ComponentDef<any, any, any> = ComponentDef<
-    any,
-    any,
-    any
-  >,
-> = TChildComponentDef & // no internal constraints for child component
-  WithChildListeners<
-    TParentState,
-    TParentEventsContract,
-    ExtractEventContract<TChildComponentDef>
-  > & // but their contract need to match parent's listeners and commands
+  // no internal constraints for child component
+  TChildComponentDef extends ComponentDef<any, any, any>,
+> = { componentDef: TChildComponentDef } & WithChildListeners<
+  TParentState,
+  TParentEventsContract,
+  ExtractEventContractFromDeclaration<TChildComponentDef>
+> & // but their contract need to match parent's listeners and commands
   WithChildCommands<
     TParentState,
     TParentEventsContract,
-    ExtractEventContract<TChildComponentDef>
+    ExtractEventContractFromDeclaration<TChildComponentDef>
   >;
 
-export type SingleChildDef<
+export type SingleNode<
   TParentState extends State,
   TParentEventsContract extends EventsContract,
   TChildComponentDef extends ComponentDef<any, any, any> = ComponentDef<
@@ -271,9 +280,9 @@ export type SingleChildDef<
   TParentState,
   ExtractConstructorContract<TChildComponentDef>
 > &
-  ChildDef<TParentState, TParentEventsContract, TChildComponentDef>;
+  ChildNode<TParentState, TParentEventsContract, TChildComponentDef>;
 
-export type ChildCollectionDef<
+export type MultiNodes<
   TParentState extends State,
   TParentEventsContract extends EventsContract,
   TChildComponentDef extends ComponentDef<any, any, any> = ComponentDef<
@@ -285,15 +294,15 @@ export type ChildCollectionDef<
   TParentState,
   ExtractConstructorContract<TChildComponentDef>
 > &
-  ChildDef<TParentState, TParentEventsContract, TChildComponentDef>;
+  ChildNode<TParentState, TParentEventsContract, TChildComponentDef>;
 
-export type ChildrenDef<
+export type ChildrenNodes<
   TParentState extends State,
   TParentEventsContract extends EventsContract,
 > = {
   [childName in string]:
-    | ChildCollectionDef<TParentState, TParentEventsContract>
-    | SingleChildDef<TParentState, TParentEventsContract>;
+    | MultiNodes<TParentState, TParentEventsContract>
+    | SingleNode<TParentState, TParentEventsContract>;
 };
 
 /***************************************************************************************************************
@@ -302,13 +311,14 @@ export type ChildrenDef<
 export type ComponentDef<
   TState extends State = State,
   TEventsContract extends EventsContract = EventsContract,
-  TProtoState extends OptionalValue = never,
+  TProtoState extends OptionalValue = any,
 > = {
-  readonly initialState?: (protoState: TProtoState) => TState;
+  readonly initialState?: (protoState: TProtoState) => TState; //TODO use event to complete initialState and remove protoState
   readonly selectors?: Selectors<TState>;
+  readonly events?: EventsDef<TEventsContract>; //TODO declare only names of ui events as strings ?
   readonly stateUpdaters?: StateUpdaters<TState, TEventsContract>;
   readonly eventForwarders?: EventForwarders<TState, TEventsContract>;
-  readonly children?: ChildrenDef<TState, TEventsContract>;
+  readonly children?: ChildrenNodes<TState, TEventsContract>;
 };
 
 /***************************************************************************************************************
@@ -349,11 +359,7 @@ export type ExtractChildrenContract<
   TComponentDef extends ComponentDef<any, any, any>,
 > = {
   [K in keyof TComponentDef["children"]]: {
-    isCollection: TComponentDef["children"][K] extends ChildCollectionDef<
-      any,
-      any,
-      any
-    >
+    isCollection: TComponentDef["children"][K] extends MultiNodes<any, any, any>
       ? true
       : false;
   };
@@ -369,16 +375,37 @@ export type ExtractSelectorContract<
     : never;
 };
 
-export type ExtractEventContract<
+type ExtractEventContractFromDeclaration<
   TComponentDef extends ComponentDef<any, any, any>,
 > =
   TComponentDef extends ComponentDef<any, infer TEventsContract, any>
     ? TEventsContract
     : never;
 
-export type ExtractConstructorContract<
+export type ExtractEventContract<
+  TComponentDef extends ComponentDef<any, any, any>,
+> =
+  TComponentDef["events"] extends EventsDef<any>
+    ? {
+        [K in keyof TComponentDef["events"]]: TComponentDef["events"][K]["payloadFactory"] extends (
+          payload: any
+        ) => infer TPayload
+          ? { payload: TPayload }
+          : never;
+      }
+    : {};
+
+type ExtractConstructorContract<
   TComponentDef extends ComponentDef<any, any, any>,
 > =
   TComponentDef extends ComponentDef<any, any, infer TProtoState>
     ? TProtoState
     : never;
+
+export type ExtractUiContract<
+  TComponentDef extends ComponentDef<any, any, any>,
+> = {
+  readonly selectors: ExtractSelectorContract<TComponentDef>;
+  readonly events: ExtractEventContract<TComponentDef>;
+  readonly children: ExtractChildrenContract<TComponentDef>;
+};

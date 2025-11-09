@@ -3,7 +3,12 @@ import {
   createListenerMiddleware,
   ListenerMiddlewareInstance,
 } from "@reduxjs/toolkit";
-import { ComponentDef } from "@softer-components/types";
+import {
+  ComponentDef,
+  EventsContract,
+  OptionalValue,
+  State,
+} from "@softer-components/types";
 import {
   generateEventsToForward,
   initialStateTree,
@@ -11,11 +16,15 @@ import {
 } from "@softer-components/utils";
 
 export type SofterStore = ReturnType<typeof configureStore> & {
-  rootComponentDef: ComponentDef;
+  rootComponentDef: ComponentDef<any, any, any>;
 };
 
-export function configureSofterStore(
-  rootComponentDef: ComponentDef<any>
+export function configureSofterStore<
+  TState extends State = State,
+  TEventsContract extends EventsContract = EventsContract,
+  TProtoState extends OptionalValue = never,
+>(
+  rootComponentDef: ComponentDef<TState, TEventsContract, TProtoState>
 ): SofterStore {
   const listenerMiddleware = createListenerMiddleware();
   startListeningForEventForwarders(rootComponentDef, listenerMiddleware);

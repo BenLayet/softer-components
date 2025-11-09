@@ -1,8 +1,8 @@
 import {
-  ChildCollectionDef,
+  MultiNodes,
   ComponentDef,
   OptionalValue,
-  SingleChildDef,
+  SingleNode,
   State,
 } from "@softer-components/types";
 
@@ -51,15 +51,15 @@ function instantiateChildrenState(
 ): void {
   const componentState = mutableGlobalState[componentPath];
 
-  for (const [childName, childDef] of Object.entries(
+  for (const [childName, childNode] of Object.entries(
     componentDef.children ?? {}
   )) {
-    if (childDef.isCollection) {
+    if (childNode.isCollection) {
       instantiateChildCollectionStates(
         mutableGlobalState,
         componentPath,
         childName,
-        childDef,
+        childNode,
         componentState
       );
     } else {
@@ -67,7 +67,7 @@ function instantiateChildrenState(
         mutableGlobalState,
         componentPath,
         childName,
-        childDef as SingleChildDef<any, any, any>,
+        childNode as SingleNode<any, any, any>,
         componentState
       );
     }
@@ -81,23 +81,23 @@ function instantiateSingleChildState(
   mutableGlobalState: Record<string, State>,
   componentPath: string,
   childName: string,
-  childDef: SingleChildDef<any, any, any>,
+  childNode: SingleNode<any, any, any>,
   parentComponentState: State
 ): void {
   const childPath = `${componentPath}${childName}/`;
 
   // Check if child should exist
-  if (childDef.exists && !childDef.exists(parentComponentState)) {
+  if (childNode.exists && !childNode.exists(parentComponentState)) {
     pruneChildStates(mutableGlobalState, childPath);
     return;
   }
 
   // Instantiate child state
-  const protoState = childDef.protoState?.(parentComponentState);
+  const protoState = childNode.protoState?.(parentComponentState);
   reinstanciateStateRecursively(
     mutableGlobalState,
     childPath,
-    childDef,
+    childNode.componentDef,
     protoState
   );
 }
@@ -127,10 +127,10 @@ function instantiateChildCollectionStates(
   mutableGlobalState: Record<string, State>,
   componentPath: string,
   childName: string,
-  childDef: ChildCollectionDef<any, any, any>,
+  childNode: MultiNodes<any, any, any>,
   parentComponentState: State
 ): void {
-  const newKeys = childDef.getKeys(parentComponentState);
+  const newKeys = childNode.getKeys(parentComponentState);
   const childPathPrefix = `${componentPath}${childName}:`;
 
   // Prunes state for children that no longer exist
@@ -139,11 +139,11 @@ function instantiateChildCollectionStates(
   // Instantiate state for each child in collection
   for (const key of newKeys) {
     const childPath = `${childPathPrefix}${key}/`;
-    const protoState = childDef.protoState?.(parentComponentState, key);
+    const protoState = childNode.protoState?.(parentComponentState, key);
     reinstanciateStateRecursively(
       mutableGlobalState,
       childPath,
-      childDef,
+      childNode.componentDef,
       protoState
     );
   }

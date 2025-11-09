@@ -112,38 +112,6 @@ oneTwoThreeArray = stringArray; // Error
 {
   type Value = number | string;
   type State = Value;
-
-  type ComponentDef<T extends State = State> = {
-    stateConstructor: (constructWith: any) => T;
-  };
-
-  function withStateConstructor<
-    TStateConstructor extends (constructWith: Value) => State,
-  >(stateConstructor: TStateConstructor) {
-    type S = ReturnType<TStateConstructor>;
-    const newBeingBuilt: ComponentDef<S> = {
-      stateConstructor,
-    };
-
-    return {
-      build: () => newBeingBuilt,
-    };
-  }
-
-  type Test1 = Expect<string extends State ? true : false>; // ✅ true
-  type Test2 = Expect<
-    string extends ReturnType<(constructWith: any) => State> ? true : false
-  >; // ✅ true
-  type Test3 = Expect<
-    Value extends ReturnType<(constructWith: any) => State> ? true : false
-  >; // ✅ true
-}
-///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-// withStateConstructor
-///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-{
-  type Value = number | string;
-  type State = Value;
   type StateConstructor = (constructWith: Value) => State;
   const constructor: (constructWith: string) => number = parseInt;
 
@@ -354,5 +322,186 @@ oneTwoThreeArray = stringArray; // Error
 
   const def: ComponentDef<{}> = {
     contract: {},
+  };
+}
+
+////////////////////////////////////////////////////////////////////////////////////////////////
+// Bounded fields type check with satisfies
+////////////////////////////////////////////////////////////////////////////////////////////////
+{
+  type EventsContract = Record<
+    string,
+    { payload: string | number | undefined }
+  >;
+  type ComponentDef<TEventContract extends EventsContract = EventsContract> = {
+    payloadFactories: {
+      [K in keyof TEventContract]: (
+        payload: TEventContract[K]["payload"]
+      ) => TEventContract[K]["payload"];
+    };
+    stateUpdater?: {
+      [K in keyof TEventContract]?: (
+        state: {},
+        payload: TEventContract[K]["payload"]
+      ) => {};
+    };
+    eventForwarders?: {
+      from: keyof TEventContract;
+      to: keyof TEventContract;
+      withPayload?: (state: {}) => TEventContract[keyof TEventContract]["payload"];
+    };
+  };
+
+  function componentDefConsumer<TComponentDef extends ComponentDef<any>>(
+    def: TComponentDef
+  ) {
+    ignore.unread = def;
+  }
+
+  const componentDef: ComponentDef<{
+    eventA: { payload: string };
+    eventB: { payload: number };
+  }> = {
+    payloadFactories: {
+      eventA: (payload: string) => payload,
+      eventB: (payload: number) => payload,
+    },
+    stateUpdater: {
+      eventA: (state: {}, payload: string) => ({ ...state, payload }),
+      // eventB: (state, payload: string) => state, // This would cause a type error
+    },
+  };
+  componentDefConsumer(componentDef);
+}
+
+////////////////////////////////////////////////////////////////////////////////////////////////
+// Children event matching listeners
+////////////////////////////////////////////////////////////////////////////////////////////////
+{
+  type EventsContract = Record<
+    string,
+    { payload: string | number | undefined }
+  >;
+  type ChildrenEventContract = Record<string, EventsContract>;
+  type ComponentDef<
+    TEventContract extends EventsContract,
+    TChildrenEventContract extends ChildrenEventContract = {},
+  > = {
+    payloadFactories: {
+      [K in keyof TEventContract]: (
+        payload: TEventContract[K]["payload"]
+      ) => TEventContract[K]["payload"];
+    };
+    children: {
+      [childName in keyof TChildrenEventContract]: {
+        componentDef: ComponentDef<TChildrenEventContract[childName], any>;
+        listeners: Array<{
+          from: keyof TChildrenEventContract[childName];
+          to: keyof TEventContract;
+          withPayload?: (state: {}) => TEventContract[keyof TEventContract]["payload"];
+        }>;
+      };
+    };
+  };
+
+  const childComponentDef: ComponentDef<{
+    eventA: { payload: string };
+  }> = {
+    payloadFactories: {
+      eventA: (payload: string) => payload,
+    },
+    children: {},
+  };
+
+  const parentComponentDef: ComponentDef<
+    {
+      eventB: { payload: string };
+    },
+    {
+      childComponent: {
+        eventA: { payload: string };
+      };
+    }
+  > = {
+    payloadFactories: {
+      eventB: (payload: string) => payload,
+    },
+    children: {
+      childComponent: {
+        componentDef: childComponentDef,
+        listeners: [
+          {
+            from: "eventA",
+            to: "eventB",
+            withPayload: (state: {}) => "forwarded payload",
+          },
+        ],
+      },
+    },
+  };
+}
+
+////////////////////////////////////////////////////////////////////////////////////////////////
+// Children event matching listeners - simplified
+////////////////////////////////////////////////////////////////////////////////////////////////
+type ChildDef<S = {}> = {
+  a: S;
+  b: S;
+};
+
+type ExtractS<C> = C extends ChildDef<infer S> ? S : never;
+
+type ChildWithContext<TChildDef extends ChildDef<any>> = {
+  def: TChildDef;
+  context: ExtractS<TChildDef>;
+};
+
+type ComponentDef = {
+  children: {
+    [childName in string]: ChildWithContext<ChildDef<any>>;
+  };
+};
+
+const componentDef: ComponentDef = {
+  children: {
+    child1: { def: { a: 1, b: 2 }, context: 1 }, // ✅ context is number
+    child2: { def: { a: "hello", b: "world" }, context: 12 }, // ✅ context is string
+  },
+};
+{
+  type ChildDef<S = {}> = {
+    a: S;
+    b: S;
+  };
+
+  type ExtractS<C> = C extends ChildDef<infer S> ? S : never;
+
+  type ComponentDef = {
+    children: {
+      [childName in string]: {
+        def: ChildDef<any>;
+        context: any;
+      } & { def: ChildDef<infer S>; context: S };
+    };
+  };
+
+  // Or more simply with a helper:
+  type ChildEntry<S> = {
+    def: ChildDef<S>;
+    context: S;
+  };
+
+  type ComponentDef2 = {
+    children: {
+      [childName in string]: ChildEntry<any>;
+    };
+  };
+
+  const componentDef2: ComponentDef2 = {
+    children: {
+      child1: { def: { a: 1, b: 2 }, context: 1 }, // ✅ context is number
+      child2: { def: { a: "hello", b: "world" }, context: "hi" }, // ✅ context is string
+      // child3: { def: { a: 1, b: 2 }, context: "wrong" },     // ❌ Type error
+    },
   };
 }

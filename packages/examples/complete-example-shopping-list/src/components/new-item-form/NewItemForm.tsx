@@ -1,11 +1,8 @@
-import { newItemFormDef } from "./new-item-form.component";
 import { useSofter } from "@softer-components/redux-adapter";
+import { NewItemFormUi } from "./new-item-form.component";
 
-export const AddItemForm = ({ path = "/" }) => {
-  const [{ name }, { nameChanged, submitted }] = useSofter(
-    path,
-    newItemFormDef,
-  );
+export const NewItemForm = ({ path = "/" }) => {
+  const [{ name }, { nameChanged, submitted }] = useSofter<NewItemFormUi>(path);
   return (
     <form
       onSubmit={e => {

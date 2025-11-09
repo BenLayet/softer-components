@@ -7,11 +7,14 @@ export function createComponentDefMap(
     [parentPath]: componentDef,
   };
 
-  for (const [childKey, childDef] of Object.entries(
+  for (const [childKey, childNode] of Object.entries(
     componentDef.children ?? {}
   )) {
     const childPath = `${parentPath}${childKey}/`;
-    Object.assign(map, createComponentDefMap(childDef, childPath));
+    Object.assign(
+      map,
+      createComponentDefMap(childNode.componentDef, childPath)
+    );
   }
 
   return map;
@@ -36,29 +39,32 @@ export const extractEventName = (fullType: string): string => {
   return fullType.slice(lastSlashIndex + 1);
 };
 
-export const findComponentDefFromPathArray = (
+export const findComponentDefFromComponentPathArray = (
   componentDef: ComponentDef<any, any>,
-  path: string[]
+  path: string[] //includes :key parts
 ): ComponentDef<any, any> => {
   if (path.length === 0) {
     return componentDef;
   }
   const children = componentDef.children ?? {};
-  const childName = path[0];
+  const childName = path[0].split(":")[0];
   const child = children[childName];
   if (!child) {
     throw new Error(
       `invalid path: childName = '${childName}' not found in children = ${JSON.stringify(Object.keys(children))}`
     );
   }
-  return findComponentDefFromPathArray(child, path.slice(1));
+  return findComponentDefFromComponentPathArray(
+    child.componentDef,
+    path.slice(1)
+  );
 };
 
 export const findComponentDef = (
   rootComponentDef: ComponentDef,
   componentPath: string
 ): ComponentDef =>
-  findComponentDefFromPathArray(
+  findComponentDefFromComponentPathArray(
     rootComponentDef,
     extractComponentDefPath(componentPath)
   );

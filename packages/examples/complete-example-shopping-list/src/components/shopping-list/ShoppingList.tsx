@@ -1,16 +1,14 @@
-import { AddItemForm } from "../new-item-form/NewItemForm.tsx";
+import { NewItemForm } from "../new-item-form/NewItemForm.tsx";
 import { ItemList } from "../item-list/ItemList.tsx";
-import { shoppingListComponentDef } from "./shopping-list.component.ts";
 import { useSofterChildrenPath } from "@softer-components/redux-adapter";
+import { ShoppingListChildren } from "./shopping-list.component.ts";
 
 export const ShoppingList = ({ path = "/" }) => {
-  const { newItemForm, itemList } = useSofterChildrenPath(
-    path,
-    shoppingListComponentDef,
-  );
+  const { newItemForm, itemList } =
+    useSofterChildrenPath<ShoppingListChildren>(path);
   return (
     <div>
-      <AddItemForm path={newItemForm} />
+      <NewItemForm path={newItemForm} />
       <ItemList path={itemList} />
     </div>
   );

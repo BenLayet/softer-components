@@ -15,6 +15,11 @@ describe("reducer tests", () => {
       undefined
     > = {
       initialState: () => initialState,
+      events: {
+        incrementRequested: {
+          payloadFactory: () => {},
+        },
+      },
       stateUpdaters: {
         incrementRequested: (state) => ({
           ...state,
@@ -84,6 +89,11 @@ describe("reducer tests", () => {
       undefined
     > = {
       initialState: () => initialState,
+      events: {
+        incrementRequested: {
+          payloadFactory: () => {},
+        },
+      },
       stateUpdaters: {
         incrementRequested: (state) => ({
           ...state,
@@ -94,7 +104,9 @@ describe("reducer tests", () => {
 
     const componentDef: ComponentDef<undefined, {}, undefined> = {
       children: {
-        child1: childDef,
+        child1: {
+          componentDef: childDef,
+        },
       },
     };
     const previousGlobalState = {

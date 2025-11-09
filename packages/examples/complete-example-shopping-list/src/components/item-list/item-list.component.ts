@@ -1,4 +1,7 @@
-import { ComponentDef } from "@softer-components/types";
+import {
+  ComponentDef,
+  ExtractChildrenContract,
+} from "@softer-components/types";
 import { Item } from "../../model/Item.ts";
 import { itemRowDef } from "../item-row/item-row.component.ts";
 
@@ -10,45 +13,44 @@ const initialState = {
 
 // Events type declaration
 type ItemListEvents = {
+  addItemRequested: { payload: Item };
   removeItemRequested: { payload: Item };
-};
-// Commands type declaration
-type ItemListCommands = {
   addItem: { payload: Item };
 };
 
 // Component definition
-export const itemListDef: ComponentDef<
-  typeof initialState,
-  ItemListEvents,
-  ItemListCommands
-> = {
-  initialState,
+export const itemListDef = {
+  initialState: () => initialState,
   selectors: {
     name: state => state.name,
   },
   events: {
     addItemRequested: {
-      stateUpdater: (state, item) => ({
-        ...state,
-        items: [item, ...state.items],
-      }),
+      payloadFactory: (item: Item) => item,
     },
     removeItemRequested: {
-      stateUpdater: (state, item) => ({
-        ...state,
-        items: state.items.filter(i => i.id !== item.id),
-      }),
+      payloadFactory: (item: Item) => item,
     },
+    addItem: {
+      payloadFactory: (item: Item) => item,
+    },
+  },
+  stateUpdaters: {
+    addItemRequested: (state, item: Item) => ({
+      ...state,
+      items: [item, ...state.items],
+    }),
+    removeItemRequested: (state, item: Item) => ({
+      ...state,
+      items: state.items.filter(i => i.id !== item.id),
+    }),
   },
   children: {
     itemRows: {
-      ...itemRowDef,
+      componentDef: itemRowDef,
       isCollection: true,
       getKeys: state => state.items.map(item => item.id),
-      initialStateFactoryWithKey: (state, id) => ({
-        item: state.items.find(i => i.id == id) as Item,
-      }),
+      protoState: (state, id) => state.items.find(i => i.id == id),
       listeners: [
         {
           from: "removeItemRequested",
@@ -57,4 +59,6 @@ export const itemListDef: ComponentDef<
       ],
     },
   },
-};
+} satisfies ComponentDef<typeof initialState, ItemListEvents>;
+
+export type ItemListChildren = ExtractChildrenContract<typeof itemListDef>;
