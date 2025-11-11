@@ -1,45 +1,177 @@
 import {
-  ChildDef,
   ComponentDef,
-  ForParentContract,
-  SingleChildDef,
-  SingleChildFactory,
-} from "../dist";
+  ExtractComponentChildrenContract,
+  ExtractComponentValuesContract,
+  Selectors,
+} from "./softer-component-types";
+import { Equal, Expect, ignore } from "./type-testing-utiliy-test";
 
-let ignore;
-const initialState = { count: 0 };
-type MyState = typeof initialState;
+/////////////////////
+// ITEM
+////////////////////
 
-const childDef: ComponentDef<
-  MyState,
-  { incrementRequested: { payload: undefined } },
-  undefined
-> = {
-  initialState: () => initialState,
-  events: {
-    incrementRequested: {
-      stateUpdater: (state: MyState) => ({
-        ...state,
-        count: state.count + 1,
-      }),
-    },
-  },
+type ItemState = {
+  name: string;
+  quantity: number;
 };
-type MyComponentDef = typeof childDef;
 
-const child1: SingleChildDef<undefined, {}, MyComponentDef> = childDef;
-ignore = child1;
-const child2: ChildDef<undefined, {}, MyComponentDef> = childDef;
-ignore = child2;
-const child3: SingleChildFactory<undefined, undefined> = {};
-ignore = child3;
-const childAsComponentDef: MyComponentDef = childDef;
-ignore = childAsComponentDef;
+type ItemEvents = {
+  removeRequested: { payload: string };
+  incrementQuantityRequested: { payload: undefined };
+  decrementQuantityRequested: { payload: undefined };
+};
 
-/* WithChildListeners<TState, TEventsContract, TForParentContract["events"]> & // but their contract need to match parent's listeners and commands
-WithChildCommands<TState, TEventsContract, TForParentContract["events"]>; */
-const componentDef: ComponentDef<undefined, {}, undefined> = {
-  children: {
-    child1,
+const selectors = {
+  name: (state) => state.name,
+  quantity: (state) => state.quantity,
+} satisfies Selectors<ItemState>;
+
+export type ItemContract = {
+  values: ExtractComponentValuesContract<typeof selectors>;
+  events: ItemEvents;
+  children: {};
+  state: ItemState;
+};
+
+// Type tests
+ignore.unread as Expect<
+  Equal<ItemContract["values"], { name: string; quantity: number }>
+>;
+
+const itemDef: ComponentDef<ItemContract> = {
+  selectors,
+  uiEvents: ["incrementQuantityRequested", "decrementQuantityRequested"],
+  stateUpdaters: {
+    incrementQuantityRequested: (state: ItemState) => ({
+      ...state,
+      quantity: state.quantity + 1,
+    }),
+    decrementQuantityRequested: (state: ItemState) => ({
+      ...state,
+      quantity: state.quantity - 1,
+    }),
+  },
+  eventForwarders: [
+    {
+      from: "decrementQuantityRequested",
+      to: "removeRequested",
+      withPayload: (state: ItemState) => state.name,
+      onCondition: (state: ItemState) => state.quantity <= 1,
+    },
+  ],
+};
+
+/////////////////////
+// List
+////////////////////
+const initialState = {
+  listName: "My Shopping List",
+  nextItemName: "",
+};
+
+type ListState = typeof initialState;
+type ListEvents = {
+  nextItemNameChanged: { payload: string };
+  nextItemSubmitted: { payload: undefined };
+  addItemRequested: { payload: string };
+  resetItemNameRequested: { payload: undefined };
+  incrementItemQuantityRequested: { payload: string };
+  createItemRequested: { payload: string };
+  removeItemRequested: { payload: string };
+};
+
+const childrenComponents = {
+  items: itemDef,
+};
+
+const listSelectors: Selectors<ListState> = {
+  listName: (state) => state.listName,
+  nextItemName: (state) => state.nextItemName,
+};
+
+export type ListContract = {
+  values: ExtractComponentValuesContract<typeof listSelectors>;
+  events: ListEvents;
+  state: ListState;
+  children: ExtractComponentChildrenContract<
+    typeof childrenComponents,
+    { items: "isCollection" }
+  >;
+};
+
+export const listDef: ComponentDef<ListContract> = {
+  initialState,
+  selectors: listSelectors,
+  uiEvents: ["nextItemNameChanged", "addItemRequested"],
+  stateUpdaters: {
+    nextItemNameChanged: (state: ListState, payload: string) => ({
+      ...state,
+      nextItemName: payload,
+    }),
+    addItemRequested: (state: ListState) => ({
+      ...state,
+      nextItemName: "",
+    }),
+  },
+  eventForwarders: [
+    {
+      from: "nextItemSubmitted",
+      to: "addItemRequested",
+      withPayload: (state) => state.nextItemName.trim(),
+      onCondition: (state) => state.nextItemName.trim() !== "",
+    },
+    {
+      from: "addItemRequested",
+      to: "createItemRequested",
+      onCondition: (_, itemName, { items }) => !items[itemName],
+    },
+    {
+      from: "addItemRequested",
+      to: "incrementItemQuantityRequested",
+      onCondition: (_, itemName, { items }) => !!items[itemName],
+    },
+    {
+      from: "addItemRequested",
+      to: "resetItemNameRequested",
+    },
+  ],
+  childrenComponents,
+  childrenConfig: {
+    items: {
+      isCollection: true,
+      initialChildrenStates: {},
+      updateOnEvents: [
+        {
+          type: "addItemRequested",
+          newChildrenStates: (_, nextItemName) => ({
+            [nextItemName]: {
+              action: "create",
+              initialState: { name: nextItemName, quantity: 1 },
+            },
+          }),
+        },
+        {
+          type: "removeItemRequested", //TODO we could ask for theses events to have a payload of type of return value of newChildrenStates (and remove newChildrenStates)
+          newChildrenStates: (_, itemName) => ({
+            [itemName]: { action: "remove" },
+          }),
+        },
+      ],
+      commands: [
+        {
+          from: "incrementItemQuantityRequested",
+          to: "incrementQuantityRequested", //TODO to: (_, itemName) => `items:${itemName}/incrementQuantityRequested`,
+          childKey: (_, itemName) => itemName,
+        },
+      ],
+      listeners: [
+        {
+          from: "removeRequested",
+          to: "removeItemRequested",
+          onCondition: (_, itemName) => !!itemName,
+          withPayload: () => "test",
+        },
+      ],
+    },
   },
 };

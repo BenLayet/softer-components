@@ -1,4 +1,4 @@
-import { Equal, Expect, ignore, NotEqual } from "./type-testing-utiliy.test";
+import { Equal, Expect, ignore, NotEqual } from "./type-testing-utiliy-test";
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // Covariant, Contravariant, Invariant type tests
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -474,17 +474,6 @@ const componentDef: ComponentDef = {
     b: S;
   };
 
-  type ExtractS<C> = C extends ChildDef<infer S> ? S : never;
-
-  type ComponentDef = {
-    children: {
-      [childName in string]: {
-        def: ChildDef<any>;
-        context: any;
-      } & { def: ChildDef<infer S>; context: S };
-    };
-  };
-
   // Or more simply with a helper:
   type ChildEntry<S> = {
     def: ChildDef<S>;
@@ -504,4 +493,120 @@ const componentDef: ComponentDef = {
       // child3: { def: { a: 1, b: 2 }, context: "wrong" },     // ❌ Type error
     },
   };
+}
+//////////////////////////////////////////////////////////////////////////////////////////////////
+// EventsContractToEventUnion
+//////////////////////////////////////////////////////////////////////////////////////////////////
+{
+  type Value =
+    | string
+    | number
+    | boolean
+    | Date
+    | null
+    | { readonly [key: string]: Value }
+    | readonly Value[];
+
+  type OptionalValue = Value | undefined;
+  type Payload = OptionalValue;
+
+  type Event<
+    TEventName extends string = string,
+    TPayload extends Payload = Payload,
+  > = {
+    readonly type: TEventName;
+    readonly payload: TPayload;
+  };
+
+  type ComponentEventsContract = Record<string, { payload: OptionalValue }>;
+  type EventsContractToEventUnion<
+    TComponentEventsContract extends ComponentEventsContract,
+  > = {
+    [TEventName in keyof TComponentEventsContract & string]: Event<
+      TEventName,
+      TComponentEventsContract[TEventName]["payload"]
+    >;
+  }[keyof TComponentEventsContract & string];
+  type ListEventUnion =
+    | { type: "nextItemNameChanged"; payload: string }
+    | { type: "nextItemSubmitted"; payload: undefined };
+  type ListEvents = {
+    nextItemNameChanged: { payload: string };
+    nextItemSubmitted: { payload: undefined };
+  };
+
+  let event1: EventsContractToEventUnion<ListEvents> = {
+    type: "nextItemNameChanged",
+    payload: "milk",
+  };
+  let event2: EventsContractToEventUnion<ListEvents> = {
+    type: "nextItemSubmitted",
+    payload: undefined,
+  };
+  let event1b: ListEventUnion = {
+    type: "nextItemNameChanged",
+    payload: "milk",
+  };
+  let event2b: ListEventUnion = {
+    type: "nextItemSubmitted",
+    payload: undefined,
+  };
+  ignore.unread = event1 = event1b = event2 = event2b;
+
+  type Extracted = EventsContractToEventUnion<ListEvents>;
+
+  ignore.unread as Expect<Extracted extends ListEventUnion ? true : false>;
+  ignore.unread as Expect<ListEventUnion extends Extracted ? true : false>;
+  ignore.unread as Expect<Equal<ListEventUnion, Extracted>>;
+  ignore.unread as Expect<Equal<Extracted, ListEventUnion>>;
+  ignore.unread as Expect<Equal<ListEventUnion, ListEventUnion>>;
+  ignore.unread as Expect<Equal<ListEventUnion, ListEventUnion>>;
+}
+///////////////////////////////////////////////////////////////////////////////////////////////////
+// Distibution EventUnionToEventUnion
+///////////////////////////////////////////////////////////////////////////////////////////////////
+{
+  type Value =
+    | string
+    | number
+    | boolean
+    | Date
+    | null
+    | { readonly [key: string]: Value }
+    | readonly Value[];
+
+  type OptionalValue = Value | undefined;
+  type Payload = OptionalValue;
+  type State = OptionalValue;
+  type WithPayloadDef<
+    TState extends State,
+    TFromPayload extends Payload,
+    TToPayload extends Payload,
+  > = TToPayload extends undefined
+    ? {
+        readonly withPayload?: never;
+      }
+    : TFromPayload extends TToPayload
+      ? {
+          readonly withPayload?: (
+            state: TState & {},
+            payload: TFromPayload
+          ) => TToPayload;
+        }
+      : {
+          readonly withPayload: (
+            state: TState & {}, //TODO use ResolvedSelectors instead of TState
+            payload: TFromPayload
+          ) => TToPayload;
+        };
+
+  type T1 = WithPayloadDef<string, string, string>;
+  ignore.unread as T1;
+  type T2 = WithPayloadDef<string, number, string>;
+  ignore.unread as T2;
+  type T3 = WithPayloadDef<string, number, undefined>;
+  ignore.unread as T3;
+  const c1: T3 = {}; // withPayload is optional
+  ignore.unread = c1;
+  //const c2: T3 = { withPayload: () => {} }; // withPayload cannot be provided)};
 }

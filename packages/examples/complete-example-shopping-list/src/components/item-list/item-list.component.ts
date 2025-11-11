@@ -18,6 +18,11 @@ type ItemListEvents = {
   addItem: { payload: Item };
 };
 
+// children
+const children = {
+  itemRows: itemRowDef,
+};
+
 // Component definition
 export const itemListDef = {
   initialState: () => initialState,
@@ -45,20 +50,32 @@ export const itemListDef = {
       items: state.items.filter(i => i.id !== item.id),
     }),
   },
-  children: {
+  children,
+  childrenConfig: {
     itemRows: {
-      componentDef: itemRowDef,
       isCollection: true,
-      getKeys: state => state.items.map(item => item.id),
-      protoState: (state, id) => state.items.find(i => i.id == id),
+      addOnEvent: {
+        type: "addItemRequested",
+        key: (state, payload) => payload.id,
+      },
+      removeOnEvent: {
+        type: "removeItemRequested",
+        key: (state, payload) => payload.id,
+      },
       listeners: [
         {
           from: "removeItemRequested",
           to: "removeItemRequested",
         },
       ],
+      commands: [
+        {
+          from: "addItemRequested",
+          to: "addItemRequested",
+        },
+      ],
     },
   },
-} satisfies ComponentDef<typeof initialState, ItemListEvents>;
+} satisfies ComponentDef<typeof initialState, ItemListEvents, typeof children>;
 
 export type ItemListChildren = ExtractChildrenContract<typeof itemListDef>;
