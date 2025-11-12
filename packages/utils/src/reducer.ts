@@ -4,14 +4,13 @@ import {
   extractEventName,
   findComponentDef,
 } from "./component-def-map";
-import { reinstanciateStateRecursively } from "./state";
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // REDUCER
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 export function newGlobalState(
-  rootComponentDef: ComponentDef<any, any, any>,
+  rootComponentDef: ComponentDef<any>,
   event: Event,
   previousGlobalState: Record<string, State>
 ): Record<string, State> {
@@ -23,7 +22,6 @@ export function newGlobalState(
   if (newGlobalState === previousGlobalState) {
     return previousGlobalState;
   }
-  return reinstanciateStateRecursively(newGlobalState, "/", rootComponentDef);
 }
 
 function updateStateOfComponentOfEvent(

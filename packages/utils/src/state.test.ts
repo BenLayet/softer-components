@@ -1,10 +1,7 @@
 // packages/utils/src/state.test.ts
 import { describe, expect, it } from "vitest";
-import { initialStateTree, reinstanciateStateRecursively } from "./state";
-import {
-  ComponentDef,
-  ExtractConstructorContract,
-} from "@softer-components/types";
+import { initialStateTree } from "./state";
+import { ComponentDef } from "@softer-components/types";
 
 describe("state tests", () => {
   it("should create initial state tree for component with no constructor", () => {
@@ -21,7 +18,7 @@ describe("state tests", () => {
   });
   it("should create initial state tree for simple component", () => {
     // GIVEN a simple component definition with initial state
-    const componentDef = { initialState: () => ({ count: 0, name: "test" }) };
+    const componentDef = { initialState: { count: 0, name: "test" } };
 
     // WHEN creating initial state tree
     const result = initialStateTree(componentDef);
@@ -34,15 +31,15 @@ describe("state tests", () => {
 
   it("should create state tree for component with 1 child", () => {
     // GIVEN a component with child components
-    const childDef = { initialState: () => ({ value: "child" }) };
+    const child: ComponentDef = { initialState: { value: "child" } };
 
-    const parentDef: ComponentDef = {
-      initialState: () => ({ count: 1 }),
-      children: { child: { componentDef: childDef } },
+    const parent: ComponentDef = {
+      initialState: { count: 1 },
+      childrenComponents: { child },
     };
 
     // WHEN creating initial state tree
-    const result = initialStateTree(parentDef);
+    const result = initialStateTree(parent);
 
     // THEN it should create state for parent and child
     expect(result).toEqual({
@@ -53,16 +50,16 @@ describe("state tests", () => {
 
   it("should create state tree for nested children", () => {
     // GIVEN deeply nested component structure
-    const grandChildDef = { initialState: () => ({ level: 3 }) };
+    const grandChildDef: ComponentDef = { initialState: { level: 3 } };
 
-    const childDef = {
-      initialState: () => ({ level: 2 }),
-      children: { grandChild: { componentDef: grandChildDef } },
+    const childDef: ComponentDef = {
+      initialState: { level: 2 },
+      childrenComponents: { grandChild: grandChildDef },
     };
 
-    const rootDef = {
-      initialState: () => ({ level: 1 }),
-      children: { child: { componentDef: childDef } },
+    const rootDef: ComponentDef = {
+      initialState: { level: 1 },
+      childrenComponents: { child: childDef },
     };
 
     // WHEN creating initial state tree
@@ -78,11 +75,11 @@ describe("state tests", () => {
 
   it("should handle components without initialState", () => {
     // GIVEN a component without a initialState
-    const childDef = { initialState: () => ({ value: 42 }) };
+    const childDef = { initialState: { answer: 42 } };
 
     const parentDef = {
       // no initialState
-      children: { child: { componentDef: childDef } },
+      childrenComponents: { child: childDef },
     };
 
     // WHEN creating initial state tree
@@ -91,26 +88,31 @@ describe("state tests", () => {
     // THEN it should create state only for the child
     expect(result).toEqual({
       "/": undefined,
-      "/child/": { value: 42 },
+      "/child/": { answer: 42 },
     });
   });
 
   it("should handle components with protoState", () => {
     // GIVEN a component without a initialState
-    const childDef = {
-      initialState: (question: string) => ({ value: 42, question }),
+    const initialState = { answer: 42, question: "" };
+    const child: ComponentDef<{
+      state: typeof initialState;
+      events: {};
+      children: {};
+      values: {};
+    }> = {
+      initialState: { answer: 42, question: "" },
     };
 
-    const parentDef = {
-      initialState: () => ({ version: 1 }),
+    const parentDef: ComponentDef = {
+      childrenComponents: { child },
       // no initialState
-      children: {
+      childrenConfig: {
         child: {
-          componentDef: childDef,
-          protoState: (state: { version: number }) =>
-            state.version === 1
-              ? "What is the answer to the ultimate question of life, the universe, and everything?"
-              : "What was the question again?",
+          initialChildState: {
+            question:
+              "What is the answer to the ultimate question of life, the universe, and everything?",
+          },
         },
       },
     };
@@ -120,285 +122,66 @@ describe("state tests", () => {
 
     // THEN it should create state only for the child
     expect(result).toEqual({
-      "/": { version: 1 },
+      "/": undefined,
       "/child/": {
-        value: 42,
+        answer: 42,
         question:
           "What is the answer to the ultimate question of life, the universe, and everything?",
       },
     });
   });
 
-  it("should have one branch and one leaf", () => {
-    // GIVEN a component with a child collection
-    const leafDef = {
-      initialState: () => ({ color: "green" }),
+  it("should handle components with initialChildrenState for child collections", () => {
+    // GIVEN a component without a initialState
+    const initialState = { answer: 42, question: "" };
+    type ChildContract = {
+      state: typeof initialState;
+      events: {};
+      children: {};
+      values: {};
     };
-    const branchDef = {
-      initialState: () => ({
-        type: "wooden",
-      }),
-      children: {
-        leaf: { componentDef: leafDef },
-      },
+    const child: ComponentDef<ChildContract> = {
+      initialState: { answer: 42, question: "" },
     };
-    const trunkState = { hasOneBranch: true };
-    type TrunkState = typeof trunkState;
-    const trunkDef = {
-      initialState: () => trunkState,
-      children: {
-        branch: {
-          componentDef: branchDef,
-          exists: (state: TrunkState) => state.hasOneBranch,
+
+    const parentDef: ComponentDef<{
+      state: undefined;
+      events: {};
+      values: {};
+      children: { child: ChildContract & { isCollection: true } };
+    }> = {
+      childrenComponents: { child },
+      // no initialState
+      childrenConfig: {
+        child: {
+          isCollection: true,
+          initialChildrenStates: {
+            v1: {
+              question:
+                "What is the answer to the ultimate question of life, the universe, and everything?",
+            },
+            v2: {
+              question: "What is 9x6?",
+            },
+          },
         },
       },
     };
 
     // WHEN creating initial state tree
-    const result = initialStateTree(trunkDef);
+    const result = initialStateTree(parentDef);
 
-    // THEN it should create state for parent and child collection
+    // THEN it should create state only for the child
     expect(result).toEqual({
-      "/": { hasOneBranch: true },
-      "/branch/": {
-        type: "wooden",
+      "/": undefined,
+      "/child:v1/": {
+        answer: 42,
+        question:
+          "What is the answer to the ultimate question of life, the universe, and everything?",
       },
-      "/branch/leaf/": {
-        color: "green",
-      },
-    });
-  });
-
-  it("should have one branch and one leaf", () => {
-    // GIVEN a component with a child collection
-    const leafDef = {
-      initialState: () => ({ color: "green" }),
-    };
-    const branchDef = {
-      initialState: () => ({
-        type: "wooden",
-      }),
-      children: {
-        leaf: { componentDef: leafDef },
-      },
-    };
-    const trunkState = { hasOneBranch: true };
-    type TrunkState = typeof trunkState;
-    const trunkDef = {
-      initialState: () => trunkState,
-      children: {
-        branch: {
-          componentDef: branchDef,
-          exists: (state: TrunkState) => state.hasOneBranch,
-        },
-      },
-    };
-
-    //current state
-    const mutableGlobalState = {
-      "/": { hasOneBranch: false },
-      "/branch/": {
-        type: "wooden",
-      },
-      "/branch/leaf/": {
-        color: "green",
-      },
-    };
-
-    // WHEN creating initial state tree
-    const result = reinstanciateStateRecursively(
-      mutableGlobalState,
-      "/",
-      trunkDef
-    );
-
-    // THEN it should create state for parent and child collection
-    expect(result).toEqual({
-      "/": { hasOneBranch: false },
-    });
-  });
-
-  it("should create state tree for component with child collection", () => {
-    // GIVEN a component with a child collection
-    const leafDef: ComponentDef<{ key: string; color: string }, {}, string> = {
-      initialState: (key: string) => ({ key, color: "green" }),
-    };
-    const branchDef: ComponentDef<
-      { id: string; leaves: number; type: string },
-      {},
-      { id: string; leaves: number }
-    > = {
-      initialState: (protoState: { id: string; leaves: number }) => ({
-        ...protoState,
-        type: "wooden",
-      }),
-      children: {
-        leaf: {
-          componentDef: leafDef,
-          isCollection: true,
-          getKeys: (state: { leaves: number }) =>
-            new Array(state.leaves).fill(0).map((_, i) => (i + 1).toString()),
-          protoState: (_: {}, key: string) => key,
-        },
-      },
-    };
-    const trunkState = { branches: [1, 2], leavesPerBranch: 2 };
-    type TrunkState = typeof trunkState;
-    const trunkDef: ComponentDef<TrunkState, {}, undefined> = {
-      initialState: () => trunkState,
-      children: {
-        branch: {
-          componentDef: branchDef,
-          isCollection: true,
-          getKeys: (state: TrunkState) =>
-            state.branches.map((b) => b.toString()),
-          protoState: (parentState: TrunkState, key: string) => ({
-            id: key,
-            leaves: parentState.leavesPerBranch,
-          }),
-        },
-      },
-    };
-
-    // WHEN creating initial state tree
-    const result = initialStateTree(trunkDef);
-
-    // THEN it should create state for parent and child collection
-    expect(result).toEqual({
-      "/": {
-        branches: [1, 2],
-        leavesPerBranch: 2,
-      },
-      "/branch:1/": {
-        id: "1",
-        leaves: 2,
-        type: "wooden",
-      },
-      "/branch:1/leaf:1/": {
-        key: "1",
-        color: "green",
-      },
-      "/branch:1/leaf:2/": {
-        key: "2",
-        color: "green",
-      },
-      "/branch:2/": {
-        id: "2",
-        leaves: 2,
-        type: "wooden",
-      },
-      "/branch:2/leaf:1/": {
-        key: "1",
-        color: "green",
-      },
-      "/branch:2/leaf:2/": {
-        key: "2",
-        color: "green",
-      },
-    });
-  });
-
-  it("should remove branch and leaves when a branch is removed", () => {
-    // GIVEN a component with a child collection
-    const leafDef: ComponentDef<{ key: string; color: string }, {}, string> = {
-      initialState: (key: string) => ({ key, color: "green" }),
-    };
-    const branchDef: ComponentDef<
-      { id: string; leaves: number; type: string },
-      {},
-      { id: string; leaves: number }
-    > = {
-      initialState: (protoState: { id: string; leaves: number }) => ({
-        ...protoState,
-        type: "wooden",
-      }),
-      children: {
-        leaf: {
-          componentDef: leafDef,
-          isCollection: true,
-          getKeys: (state: { leaves: number }) =>
-            new Array(state.leaves).fill(0).map((_, i) => (i + 1).toString()),
-          protoState: (_: {}, key: string) => key,
-        },
-      },
-    };
-    const trunkState = { branches: [1, 2], leavesPerBranch: 2 };
-    type TrunkState = typeof trunkState;
-    const trunkDef: ComponentDef<TrunkState, {}, undefined> = {
-      initialState: () => trunkState,
-      children: {
-        branch: {
-          componentDef: branchDef,
-          isCollection: true,
-          getKeys: (state: TrunkState) =>
-            state.branches.map((b) => b.toString()),
-          protoState: (parentState: TrunkState, key: string) => ({
-            id: key,
-            leaves: parentState.leavesPerBranch,
-          }),
-        },
-      },
-    };
-
-    //current state
-    const mutableGlobalState = {
-      "/": {
-        branches: [2],
-        leavesPerBranch: 2,
-      },
-      "/branch:1/": {
-        id: "1",
-        leaves: 2,
-        type: "wooden",
-      },
-      "/branch:1/leaf:1/": {
-        key: "1",
-        color: "green",
-      },
-      "/branch:1/leaf:2/": {
-        key: "2",
-        color: "green",
-      },
-      "/branch:2/": {
-        id: "2",
-        leaves: 2,
-        type: "wooden",
-      },
-      "/branch:2/leaf:1/": {
-        key: "1",
-        color: "green",
-      },
-      "/branch:2/leaf:2/": {
-        key: "2",
-        color: "green",
-      },
-    };
-
-    // WHEN creating initial state tree
-    const result = reinstanciateStateRecursively(
-      mutableGlobalState,
-      "/",
-      trunkDef
-    );
-
-    // THEN it should create state for parent and child collection
-    expect(result).toEqual({
-      "/": {
-        branches: [2],
-        leavesPerBranch: 2,
-      },
-      "/branch:2/": {
-        id: "2",
-        leaves: 2,
-        type: "wooden",
-      },
-      "/branch:2/leaf:1/": {
-        key: "1",
-        color: "green",
-      },
-      "/branch:2/leaf:2/": {
-        key: "2",
-        color: "green",
+      "/child:v2/": {
+        answer: 42,
+        question: "What is 9x6?",
       },
     });
   });

@@ -8,8 +8,8 @@ type Value =
   | readonly Value[];
 
 export type OptionalValue = Value | undefined;
-type State = OptionalValue;
-type Payload = OptionalValue;
+export type State = OptionalValue;
+export type Payload = OptionalValue;
 
 type ComponentValuesContract = { [SelectorName in string]: OptionalValue };
 type ComponentEventsContract = {
@@ -17,7 +17,7 @@ type ComponentEventsContract = {
 };
 type ComponentChildrenContract = Record<
   string,
-  ComponentContract & { isCollection: boolean }
+  ComponentContract & { isCollection?: boolean }
 >;
 
 type ComponentContract = {
@@ -27,7 +27,9 @@ type ComponentContract = {
   children: ComponentChildrenContract;
 };
 
-export type ComponentDef<TComponentContract extends ComponentContract> = {
+export type ComponentDef<
+  TComponentContract extends ComponentContract = ComponentContract,
+> = {
   initialState?: TComponentContract["state"];
   selectors?: {
     [SelectorName in keyof TComponentContract["values"]]: (
@@ -48,14 +50,16 @@ export type ComponentDef<TComponentContract extends ComponentContract> = {
     >;
   };
   childrenConfig?: {
-    [ChildName in keyof TComponentContract["children"]]?: TComponentContract["children"][ChildName]["isCollection"] extends true
+    [ChildName in keyof TComponentContract["children"] &
+      string]?: TComponentContract["children"][ChildName &
+      string]["isCollection"] extends true
       ? CollectionChildConfig<
           TComponentContract,
-          TComponentContract["children"][ChildName]
+          TComponentContract["children"][ChildName & string]
         >
       : SingleChildConfig<
           TComponentContract,
-          TComponentContract["children"][ChildName]
+          TComponentContract["children"][ChildName & string]
         >;
   };
 };
@@ -232,31 +236,30 @@ type SingleChildFactoryEvent<
 > = {
   [ParentEventName in keyof TParentContract["events"] & string]: {
     readonly type: ParentEventName;
-    readonly createdChildState?: (
+    readonly initialChildState?: (
       state: TParentContract["state"],
       payload: TParentContract["events"][ParentEventName]["payload"]
-    ) => TChildContract["state"];
+    ) => Partial<TChildContract["state"]>;
   };
 }[keyof TParentContract["events"] & string];
 export type SingleChildFactory<
   TParentContract extends ComponentContract,
   TChildContract extends ComponentContract,
 > = {
-  readonly isCollection?: false;
   readonly initiallyCreated?: boolean;
-  readonly initialChildState?: TChildContract["state"];
-  readonly createOnEvent?: SingleChildFactoryEvent<
-    TParentContract,
-    TChildContract
-  >;
-  readonly removeOnEvent?: { type: keyof TParentContract["events"] & string };
+  readonly initialChildState?: Partial<TChildContract["state"]>;
+  readonly createOn?: SingleChildFactoryEvent<TParentContract, TChildContract>;
+  readonly removeOn?: { type: keyof TParentContract["events"] & string };
 };
-type SingleChildConfig<
-  TParentContract extends ComponentContract,
-  TChildContract extends ComponentContract,
-> = WithChildListeners<TParentContract, TChildContract["events"]> &
+export type SingleChildConfig<
+  TParentContract extends ComponentContract = ComponentContract,
+  TChildContract extends ComponentContract = ComponentContract,
+> = {
+  readonly isCollection?: false;
+} & WithChildListeners<TParentContract, TChildContract["events"]> &
   WithChildCommands<TParentContract, TChildContract["events"]> &
   SingleChildFactory<TParentContract, TChildContract>;
+
 /********************************************
  *      COLLECTION CHILD DEFINITION
  ********************************************/
@@ -270,7 +273,7 @@ type Keep = {
 type Create<TState extends State> = {
   readonly action: "create";
   readonly beforeIndex?: number; //defaults to end
-  readonly initialState?: TState;
+  readonly initialState?: Partial<TState>;
 };
 
 type CollectionChildFactoryEvent<
@@ -281,8 +284,27 @@ type CollectionChildFactoryEvent<
     readonly type: ParentEventName;
     readonly newChildrenStates: (
       state: TParentContract["state"],
-      payload: TParentContract["events"][ParentEventName]["payload"]
-    ) => Record<string, Create<TChildContract["state"]> | Keep | Remove>; //can reorder / add / remove children
+      payload: TParentContract["events"][ParentEventName]["payload"],
+      childrenStates: Record<string, TChildContract["state"]>
+    ) => {
+      childrenStates: Record<string, Partial<TChildContract["state"]>>;
+      beforeIndex?: number; //defaults to end
+    }; //reorder is done by removing and adding keys
+  };
+}[keyof TParentContract["events"] & string];
+
+type CollectionChildRemoveEvent<
+  TParentContract extends ComponentContract,
+  TChildContract extends ComponentContract,
+> = {
+  [ParentEventName in keyof TParentContract["events"] & string]: {
+    readonly type: ParentEventName;
+    readonly newChildrenStates: (
+      state: TParentContract["state"],
+      payload: TParentContract["events"][ParentEventName]["payload"],
+      childrenStates: Record<string, TChildContract["state"]>,
+      beforeIndex?: number //defaults to end
+    ) => Record<string, Partial<TParentContract["state"]>>; //reorder is done by removing and adding keys
   };
 }[keyof TParentContract["events"] & string];
 
@@ -291,17 +313,31 @@ export type CollectionChildFactory<
   TChildContract extends ComponentContract,
 > = {
   readonly isCollection: true;
-  readonly initialChildrenStates?: Record<string, TChildContract["state"]>;
-  readonly updateOnEvents?: CollectionChildFactoryEvent<
+  readonly initialChildrenStates?: Record<
+    string,
+    Partial<TChildContract["state"]>
+  >;
+  readonly createOn?: CollectionChildFactoryEvent<
     TParentContract,
     TChildContract
-  >[];
+  >;
+  readonly removeOn?: {
+    type: keyof TParentContract["events"] & string;
+    readonly keysToRemove: (
+      state: TParentContract["state"],
+      payload: TParentContract["events"][ParentEventName]["payload"],
+      childrenStates: Record<string, TChildContract["state"]>,
+      beforeIndex?: number //defaults to end
+    ) => string[]; //reorder is done by removing and adding keys};
+  };
 };
 
-type CollectionChildConfig<
-  TParentContract extends ComponentContract,
-  TChildContract extends ComponentContract,
-> = WithChildListeners<TParentContract, TChildContract["events"]> &
+export type CollectionChildConfig<
+  TParentContract extends ComponentContract = ComponentContract,
+  TChildContract extends ComponentContract = ComponentContract,
+> = {
+  readonly isCollection: true;
+} & WithChildListeners<TParentContract, TChildContract["events"]> &
   WithChildCommands<TParentContract, TChildContract["events"], true> &
   CollectionChildFactory<TParentContract, TChildContract>;
 

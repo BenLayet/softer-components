@@ -9,17 +9,13 @@ describe("reducer tests", () => {
     const initialState = { count: 0, name: "test" };
     type MyState = typeof initialState;
 
-    const componentDef: ComponentDef<
-      MyState,
-      { incrementRequested: { payload: undefined } },
-      undefined
-    > = {
-      initialState: () => initialState,
-      events: {
-        incrementRequested: {
-          payloadFactory: () => {},
-        },
-      },
+    const componentDef: ComponentDef<{
+      state: MyState;
+      events: { incrementRequested: { payload: undefined } };
+      values: {};
+      children: {};
+    }> = {
+      initialState,
       stateUpdaters: {
         incrementRequested: (state) => ({
           ...state,
@@ -50,12 +46,13 @@ describe("reducer tests", () => {
     const initialState = { count: 0, name: "test" };
     type MyState = typeof initialState;
 
-    const componentDef: ComponentDef<
-      MyState,
-      { incrementRequested: { payload: undefined } },
-      undefined
-    > = {
-      initialState: () => initialState,
+    const componentDef: ComponentDef<{
+      state: MyState;
+      events: { incrementRequested: { payload: undefined } };
+      values: {};
+      children: {};
+    }> = {
+      initialState,
       stateUpdaters: {
         incrementRequested: (state) => ({
           ...state,
@@ -78,22 +75,18 @@ describe("reducer tests", () => {
     expect(result).toBe(previousGlobalState);
   });
 
-  it("should update nested component state", () => {
-    // GIVEN a nested component definition with initial state
-    const initialState = { count: 0 };
-    type MyState = typeof initialState;
-
-    const childDef: ComponentDef<
-      MyState,
-      { incrementRequested: { payload: undefined } },
-      undefined
-    > = {
-      initialState: () => initialState,
-      events: {
-        incrementRequested: {
-          payloadFactory: () => {},
-        },
-      },
+  it("should update child component state", () => {
+    // GIVEN a simple component definition with initial state
+    const initialState = { count: 0, name: "test" };
+    type ChildState = typeof initialState;
+    type ChildComponentContract = {
+      state: ChildState;
+      events: { incrementRequested: { payload: undefined } };
+      values: {};
+      children: {};
+    };
+    const child: ComponentDef<ChildComponentContract> = {
+      initialState,
       stateUpdaters: {
         incrementRequested: (state) => ({
           ...state,
@@ -101,30 +94,197 @@ describe("reducer tests", () => {
         }),
       },
     };
-
-    const componentDef: ComponentDef<undefined, {}, undefined> = {
-      children: {
-        child1: {
-          componentDef: childDef,
-        },
-      },
+    const componentDef: ComponentDef<{
+      state: undefined;
+      events: {};
+      values: {};
+      children: { child: ChildComponentContract };
+    }> = {
+      childrenComponents: { child },
     };
     const previousGlobalState = {
       "/": undefined,
-      "/child1/": { count: 0 },
+      "/child/": { count: 0 },
     };
 
     // WHEN creating initial state tree with action for nested component
     const result = newGlobalState(
       componentDef,
-      { type: "/child1/incrementRequested", payload: null },
+      { type: "/child/incrementRequested", payload: null },
       previousGlobalState
     );
 
     // THEN it should update the nested component state correctly
     expect(result).toEqual({
       "/": undefined,
-      "/child1/": { count: 1 },
+      "/child/": { count: 1, name: "test" },
+    });
+  });
+
+  it("should create child component state", () => {
+    // GIVEN a simple component definition with initial state
+    const initialState = { count: 0, name: "test" };
+    type ChildState = typeof initialState;
+    type ChildComponentContract = {
+      state: ChildState;
+      events: {};
+      values: {};
+      children: {};
+    };
+    const child: ComponentDef<ChildComponentContract> = {
+      initialState,
+    };
+    const componentDef: ComponentDef<{
+      state: undefined;
+      events: { createChildRequested: { payload: undefined } };
+      values: {};
+      children: { child: ChildComponentContract };
+    }> = {
+      childrenComponents: { child },
+      childrenConfig: {
+        child: {
+          createOnEvent: { type: "createChildRequested" },
+        },
+      },
+    };
+    const previousGlobalState = {
+      "/": undefined,
+    };
+
+    // WHEN creating initial state tree with action for nested component
+    const result = newGlobalState(
+      componentDef,
+      { type: "/child/incrementRequested", payload: null },
+      previousGlobalState
+    );
+
+    // THEN it should update the nested component state correctly
+    expect(result).toEqual({
+      "/": undefined,
+      "/child/": { count: 0, name: "test" },
+    });
+  });
+  it("should create child component state with given state", () => {
+    // GIVEN a simple component definition with initial state
+    const initialState = { count: 0, name: "test" };
+    type ChildState = typeof initialState;
+    type ChildComponentContract = {
+      state: ChildState;
+      events: {};
+      values: {};
+      children: {};
+    };
+    const child: ComponentDef<ChildComponentContract> = {
+      initialState,
+    };
+    const componentDef: ComponentDef<{
+      state: undefined;
+      events: {
+        createChildRequested: { payload: undefined };
+        removeChildRequested: { payload: undefined };
+      };
+      values: {};
+      children: { child: ChildComponentContract };
+    }> = {
+      childrenComponents: { child },
+      childrenConfig: {
+        child: {
+          createOn: {
+            type: "createChildRequested",
+            initialChildState: () => ({ count: 42 }),
+          },
+          removeOn: {
+            type: "removeChildRequested",
+          },
+        },
+      },
+    };
+    const previousGlobalState = {
+      "/": undefined,
+    };
+
+    // WHEN creating initial state tree with action for nested component
+    const result = newGlobalState(
+      componentDef,
+      { type: "/child/incrementRequested", payload: null },
+      previousGlobalState
+    );
+
+    // THEN it should update the nested component state correctly
+    expect(result).toEqual({
+      "/": undefined,
+      "/child/": { count: 42, name: "test" },
+    });
+  });
+
+  it("should create children component states with given states", () => {
+    // GIVEN a simple component definition with initial state
+    const initialState = { count: 0, name: "test" };
+    type ChildState = typeof initialState;
+    type ChildComponentContract = {
+      state: ChildState;
+      events: {};
+      values: {};
+      children: {};
+    };
+    const child: ComponentDef<ChildComponentContract> = {
+      initialState,
+    };
+    const componentDef: ComponentDef<{
+      state: undefined;
+      events: {
+        create2ChildrenRequested: { payload: undefined };
+        swapChildrenRequested: { payload: undefined };
+        removeTopChildrenRequested: { payload: number };
+      };
+      values: {};
+      children: { child: ChildComponentContract & { isCollection: true } };
+    }> = {
+      childrenComponents: { child },
+      childrenConfig: {
+        child: {
+          isCollection: true,
+          updateAllOn: [
+            {
+              type: "create2ChildrenRequested",
+              newChildrenStates: () => ({
+                a: { action: "create", initialState: { count: 42 } },
+                b: { action: "create", initialState: { count: 7 } },
+              }),
+            },
+            {
+              type: "swapChildrenRequested",
+              newChildrenStates: () => ({
+                b: { action: "keep" },
+                a: { action: "keep" },
+              }),
+            },
+            {
+              type: "removeTopChildrenRequested",
+              newChildrenStates: (_, count) => ({
+                b: { action: "keep" },
+                a: { action: "keep" },
+              }),
+            },
+          ],
+        },
+      },
+    };
+    const previousGlobalState = {
+      "/": undefined,
+    };
+
+    // WHEN creating initial state tree with action for nested component
+    const result = newGlobalState(
+      componentDef,
+      { type: "/child/incrementRequested", payload: null },
+      previousGlobalState
+    );
+
+    // THEN it should update the nested component state correctly
+    expect(result).toEqual({
+      "/": undefined,
+      "/child/": { count: 42, name: "test" },
     });
   });
 });
