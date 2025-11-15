@@ -1,10 +1,10 @@
 import {
+  ComponentContract,
   ComponentDef,
   ExtractComponentChildrenContract,
   ExtractComponentValuesContract,
   Selectors,
 } from "./softer-component-types";
-import { Equal, Expect, ignore } from "./type-testing-utiliy-test";
 
 /////////////////////
 // ITEM
@@ -16,14 +16,16 @@ type ItemState = {
 };
 
 type ItemEvents = {
-  removeRequested: { payload: string };
+  removeRequested: { payload: undefined };
   incrementQuantityRequested: { payload: undefined };
   decrementQuantityRequested: { payload: undefined };
+  initialize: { payload: string };
 };
 
 const selectors = {
   name: (state) => state.name,
   quantity: (state) => state.quantity,
+  isEmpty: (state) => state.quantity < 1,
 } satisfies Selectors<ItemState>;
 
 export type ItemContract = {
@@ -33,30 +35,26 @@ export type ItemContract = {
   state: ItemState;
 };
 
-// Type tests
-ignore.unread as Expect<
-  Equal<ItemContract["values"], { name: string; quantity: number }>
->;
-
 const itemDef: ComponentDef<ItemContract> = {
   selectors,
   uiEvents: ["incrementQuantityRequested", "decrementQuantityRequested"],
-  stateUpdaters: {
-    incrementQuantityRequested: (state: ItemState) => ({
-      ...state,
-      quantity: state.quantity + 1,
+  updaters: {
+    initialize: ({ payload: name }) => ({
+      name: name,
+      quantity: 1,
     }),
-    decrementQuantityRequested: (state: ItemState) => ({
-      ...state,
-      quantity: state.quantity - 1,
-    }),
+    incrementQuantityRequested: ({ state }) => {
+      state.quantity++;
+    },
+    decrementQuantityRequested: ({ state }) => {
+      state.quantity--;
+    },
   },
   eventForwarders: [
     {
       from: "decrementQuantityRequested",
       to: "removeRequested",
-      withPayload: (state: ItemState) => state.name,
-      onCondition: (state: ItemState) => state.quantity <= 1,
+      onCondition: ({ selectors }) => selectors.isEmpty(),
     },
   ],
 };
@@ -67,6 +65,7 @@ const itemDef: ComponentDef<ItemContract> = {
 const initialState = {
   listName: "My Shopping List",
   nextItemName: "",
+  lastItemId: 0,
 };
 
 type ListState = typeof initialState;
@@ -75,24 +74,25 @@ type ListEvents = {
   nextItemSubmitted: { payload: undefined };
   addItemRequested: { payload: string };
   resetItemNameRequested: { payload: undefined };
-  incrementItemQuantityRequested: { payload: string };
-  createItemRequested: { payload: string };
-  removeItemRequested: { payload: string };
+  incrementItemQuantityRequested: { payload: number };
+  createItemRequested: { payload: { itemName: string; itemId: number } };
+  removeItemRequested: { payload: number };
 };
 
 const childrenComponents = {
   items: itemDef,
 };
 
-const listSelectors: Selectors<ListState> = {
+const listSelectors = {
   listName: (state) => state.listName,
-  nextItemName: (state) => state.nextItemName,
-};
+  nextItemName: (state) => state.nextItemName.trim(),
+  nextItemId: (state) => state.lastItemId + 1,
+} satisfies Selectors<ListState>;
 
 export type ListContract = {
+  state: ListState;
   values: ExtractComponentValuesContract<typeof listSelectors>;
   events: ListEvents;
-  state: ListState;
   children: ExtractComponentChildrenContract<
     typeof childrenComponents,
     { items: "isCollection" }
@@ -103,32 +103,56 @@ export const listDef: ComponentDef<ListContract> = {
   initialState,
   selectors: listSelectors,
   uiEvents: ["nextItemNameChanged", "addItemRequested"],
-  stateUpdaters: {
-    nextItemNameChanged: (state: ListState, payload: string) => ({
-      ...state,
-      nextItemName: payload,
-    }),
-    addItemRequested: (state: ListState) => ({
-      ...state,
-      nextItemName: "",
-    }),
+  updaters: {
+    nextItemNameChanged: ({ state, payload: nextItemName }) => {
+      state.nextItemName = nextItemName;
+    },
+    addItemRequested: ({ state }) => {
+      state.nextItemName = "";
+    },
+    createItemRequested: ({
+      childrenNodes: { items },
+      payload: { itemId },
+      state,
+    }) => {
+      items.push(`${itemId}`);
+      state.lastItemId = itemId;
+    },
+    removeItemRequested: ({
+      childrenNodes: { items },
+      payload: idToRemove,
+    }) => {
+      items.splice(items.indexOf(`${idToRemove}`), 1);
+    },
   },
   eventForwarders: [
     {
       from: "nextItemSubmitted",
       to: "addItemRequested",
-      withPayload: (state) => state.nextItemName.trim(),
-      onCondition: (state) => state.nextItemName.trim() !== "",
+      withPayload: ({ selectors }) => selectors.nextItemName().trim(),
+      onCondition: ({ selectors }) => selectors.nextItemName().trim() !== "",
     },
     {
       from: "addItemRequested",
       to: "createItemRequested",
-      onCondition: (_, itemName, { items }) => !items[itemName],
+      onCondition: ({ children: { items }, payload: itemName }) =>
+        Object.values(items).every(
+          (item) => item.selectors.name() !== itemName
+        ),
+      withPayload: ({ selectors, payload: itemName }) => ({
+        itemName,
+        itemId: selectors.nextItemId(),
+      }),
     },
     {
       from: "addItemRequested",
       to: "incrementItemQuantityRequested",
-      onCondition: (_, itemName, { items }) => !!items[itemName],
+      onCondition: ({ children: { items }, payload: itemName }) =>
+        Object.values(items).some((item) => item.selectors.name() === itemName),
+      withPayload: ({ children: { items }, payload: itemName }) =>
+        Object.entries(items)
+          .filter(([, item]) => item.selectors.name() === itemName)
+          .map(([key]) => parseInt(key))[0],
     },
     {
       from: "addItemRequested",
@@ -139,37 +163,24 @@ export const listDef: ComponentDef<ListContract> = {
   childrenConfig: {
     items: {
       isCollection: true,
-      initialChildrenStates: {},
-      updateOnEvents: [
-        {
-          type: "addItemRequested",
-          newChildrenStates: (_, nextItemName) => ({
-            [nextItemName]: {
-              action: "create",
-              initialState: { name: nextItemName, quantity: 1 },
-            },
-          }),
-        },
-        {
-          type: "removeItemRequested", //TODO we could ask for theses events to have a payload of type of return value of newChildrenStates (and remove newChildrenStates)
-          newChildrenStates: (_, itemName) => ({
-            [itemName]: { action: "remove" },
-          }),
-        },
-      ],
       commands: [
         {
           from: "incrementItemQuantityRequested",
-          to: "incrementQuantityRequested", //TODO to: (_, itemName) => `items:${itemName}/incrementQuantityRequested`,
-          childKey: (_, itemName) => itemName,
+          to: "incrementQuantityRequested",
+          toKeys: ({ payload: itemId }) => [`${itemId}`],
+        },
+        {
+          from: "createItemRequested",
+          to: "initialize",
+          withPayload: ({ payload: { itemName } }) => itemName,
+          toKeys: ({ payload: { itemId } }) => [`${itemId}`],
         },
       ],
       listeners: [
         {
           from: "removeRequested",
           to: "removeItemRequested",
-          onCondition: (_, itemName) => !!itemName,
-          withPayload: () => "test",
+          withPayload: ({ fromChildKey }) => parseInt(fromChildKey),
         },
       ],
     },

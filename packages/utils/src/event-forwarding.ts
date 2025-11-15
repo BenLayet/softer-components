@@ -1,176 +1,230 @@
-import { ComponentDef, Event, Payload, State } from "@softer-components/types";
+import { ComponentDef, Payload, State } from "@softer-components/types";
 import {
-  extractEventName,
-  findComponentDefFromComponentPathArray,
-} from "./component-def-map";
+  createValuesProvider,
+  findComponentDef,
+  findSubStateTree,
+} from "./component-def-tree";
+import { GlobalEvent, StateTree } from "./constants";
+import { assertIsNotUndefined } from "./predicate.functions";
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // FORWARDING EVENTS
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 export function generateEventsToForward(
-  rootComponentDef: ComponentDef<any, any, any>,
-  globalState: Record<string, State>,
-  triggeringEvent: Event
+  rootComponentDef: ComponentDef,
+  globalStateTree: StateTree,
+  triggeringEvent: GlobalEvent
 ) {
-  const result: Event[] = [];
+  const result: GlobalEvent[] = [];
 
-  const eventName = extractEventName(triggeringEvent.type);
-  //remove first slash and last slash + event name to get component path array of non empty strings
-  const componentPathArray = extractComponentPathArrayFromEventType(
-    triggeringEvent.type
+  const componentStateTree = findSubStateTree(
+    globalStateTree,
+    triggeringEvent.componentPath
   );
-  const [componentPath, componentState, componentDef] =
-    findStateAndComponentDef(rootComponentDef, globalState, componentPathArray);
+  const componentDef = findComponentDef(
+    rootComponentDef,
+    triggeringEvent.componentPath
+  );
 
   // Create events to forward for the component that the event was dispatched to
   result.push(
-    ...generateEventsFromForwarders(
+    ...generateEventsFromOwnComponent(
       componentDef,
-      eventName,
-      componentState,
-      triggeringEvent.payload,
-      componentPath
+      componentStateTree,
+      triggeringEvent
     )
   );
-  if (componentPathArray.length > 0) {
-    // Create events to forward for the parent component listening to child events
-    const parentPathArray = componentPathArray.slice(0, -1);
-    const [parentComponentPath, parentComponentState, parentComponentDef] =
-      findStateAndComponentDef(rootComponentDef, globalState, parentPathArray);
-    const childName = componentPathArray[componentPathArray.length - 1];
 
-    result.push(
-      ...generateEventFromChildListeners(
-        parentComponentDef,
-        parentComponentState,
-        parentComponentPath,
-        childName,
-        eventName,
-        triggeringEvent.payload
-      )
-    );
-  }
+  // Create events to forward from the parent component listening to child events
+  result.push(
+    ...generateEventsFromParentChildListeners(
+      rootComponentDef,
+      globalStateTree,
+      triggeringEvent
+    )
+  );
 
   // Create events to forward for the component that the event was dispatched to
   result.push(
     ...generateCommandsToChildren(
       componentDef,
-      eventName,
-      componentState,
-      triggeringEvent.payload,
-      componentPath
+      componentStateTree,
+      triggeringEvent
     )
   );
 
   return result;
 }
 
-function findStateAndComponentDef(
-  rootComponentDef: ComponentDef<any, any>,
-  globalState: Record<string, State>,
-  componentPathArray: string[]
-): [string, State, ComponentDef] {
-  const componentPath =
-    `/${componentPathArray.join("/")}` +
-    (componentPathArray.length > 0 ? "/" : "");
-  const componentState = globalState[componentPath];
-  const componentDef = findComponentDefFromComponentPathArray(
-    rootComponentDef,
-    componentPathArray
+/** *
+ * @param componentDef
+ * @param componentStateTree
+ * @param triggeringEvent
+ * @returns events generated from the own component event forwarders
+ */
+function generateEventsFromOwnComponent(
+  componentDef: ComponentDef,
+  componentStateTree: StateTree,
+  triggeringEvent: GlobalEvent
+): GlobalEvent[] {
+  const forwarders = (componentDef.eventForwarders ?? []).filter(
+    (forwarder) => forwarder.from === triggeringEvent.name
   );
 
-  if (!componentDef) {
-    throw new Error(
-      `Could not find component definition for path: ${componentPath}`
-    );
+  //no forwarders, no events to generate, no need to walk the whole state tree
+  if (forwarders.length === 0) {
+    return [];
   }
-  return [componentPath, componentState, componentDef];
-}
+  const callBackParams = prepareCallBackParams(
+    componentDef,
+    componentStateTree,
+    triggeringEvent
+  );
 
-////////////////////////////
-// Internal event forwarders
-////////////////////////////
-function generateEventsFromForwarders(
-  componentDef: ComponentDef,
-  eventName: string,
-  componentState: State,
-  payload: Payload,
-  componentPath: string
-) {
-  const forwarders = componentDef.eventForwarders ?? [];
   return forwarders
-    .filter((forwarder) => forwarder.from === eventName)
     .filter(
       (forwarder) =>
-        !forwarder.onCondition || forwarder.onCondition(componentState, payload)
+        !forwarder.onCondition || forwarder.onCondition(callBackParams)
     )
     .map((forwarder) => ({
-      type: `${componentPath}${forwarder.to}`,
+      name: forwarder.to,
+      componentPath: triggeringEvent.componentPath, // same component path as the triggering event
       payload: forwarder.withPayload
-        ? forwarder.withPayload(componentState, payload as never) //TODO ask expert if we can remove 'as never'
-        : payload,
+        ? forwarder.withPayload(callBackParams)
+        : triggeringEvent.payload,
     }));
 }
-////////////////////////////
-// Commands to children
-////////////////////////////
-function generateCommandsToChildren(
-  componentDef: ComponentDef,
-  eventName: string,
-  componentState: State,
-  payload: Payload,
-  componentPath: string
-) {
-  return Object.entries(componentDef.children ?? {}).flatMap(
-    ([childName, childDef]) =>
-      (childDef.commands ?? [])
-        .filter((command) => command.from === eventName)
-        .filter(
-          (command) =>
-            !command.onCondition || command.onCondition(componentState, payload)
-        )
-        .map((command) => ({
-          type: `${componentPath}${childName}/${command.to}`,
-          payload:
-            typeof command.withPayload === "function"
-              ? command.withPayload(componentState, payload as never)
-              : payload,
-        }))
+/**
+ *
+ * @param rootComponentDef root component def
+ * @param globalStateTree global state tree (with same root as rootComponentDef)
+ * @param triggeringEvent global event
+ * @returns events generated from parent component listening to child events
+ */
+function generateEventsFromParentChildListeners(
+  rootComponentDef: ComponentDef,
+  globalStateTree: StateTree,
+  triggeringEvent: GlobalEvent
+): GlobalEvent[] {
+  if (!triggeringEvent.componentPath?.length) {
+    //no parent component, no child listeners
+    return [];
+  }
+  const parentComponentPath = triggeringEvent.componentPath.slice(0, -1);
+  const parentComponentDef = findComponentDef(
+    rootComponentDef,
+    parentComponentPath
   );
+  const childName =
+    triggeringEvent.componentPath[
+      triggeringEvent.componentPath.length - 1
+    ]?.[0];
+  assertIsNotUndefined(childName);
+
+  const childListeners = parentComponentDef.childrenConfig?.[
+    childName
+  ]?.listeners?.filter((listener) => listener.from === triggeringEvent.name);
+
+  if (!childListeners || childListeners.length === 0) {
+    //no parent component, no child listeners
+    return [];
+  }
+  const parentStateTree = findSubStateTree(
+    globalStateTree,
+    parentComponentPath
+  );
+  const callBackParams = prepareCallBackParams(
+    parentComponentDef,
+    parentStateTree,
+    triggeringEvent
+  );
+  return childListeners
+    .filter(
+      (listener) =>
+        !listener.onCondition || listener.onCondition(callBackParams)
+    )
+    .map((listener) => ({
+      name: listener.to,
+      componentPath: parentComponentPath, // new event is generated from the parent component
+      payload: listener.withPayload
+        ? listener.withPayload(callBackParams)
+        : triggeringEvent.payload,
+    }));
 }
 
-////////////////////////////
-// Child listeners
-////////////////////////////
-function generateEventFromChildListeners(
-  parentComponentDef: ComponentDef,
-  parentComponentState: State,
-  parentComponentPath: string,
-  childInstanceName: string,
-  eventName: string,
-  payload: Payload
-) {
-  return Object.entries(parentComponentDef.children ?? {})
+/**
+ *
+ * @param componentDef
+ * @param componentStateTree
+ * @param triggeringEvent
+ * @returns commands to children (as events generated from specific children components, ie with a child key for collection children)
+ */
+function generateCommandsToChildren(
+  componentDef: ComponentDef,
+  componentStateTree: StateTree,
+  triggeringEvent: GlobalEvent
+): GlobalEvent[] {
+  const childrenCommands = Object.entries(
+    componentDef.childrenConfig ?? {}
+  ).flatMap(([childName, childConfig]) =>
+    (childConfig.commands ?? [])
+      .filter((command) => command.from === triggeringEvent.name)
+      .map((command) => ({ childName, command }))
+  );
+
+  if (childrenCommands.length === 0) {
+    //no commands matching the event, no events to generate
+    return [];
+  }
+  const callBackParams = prepareCallBackParams(
+    componentDef,
+    componentStateTree,
+    triggeringEvent
+  );
+  return childrenCommands
     .filter(
-      ([childDefName]) => childDefName === childInstanceName.split(":")[0]
+      ({ command }) =>
+        !command.onCondition || command.onCondition(callBackParams)
     )
-    .flatMap(([_name, childNode]) =>
-      (childNode.listeners ?? [])
-        .filter((listener) => listener.from === eventName)
-        .filter(
-          (listener) =>
-            !listener.onCondition ||
-            listener.onCondition(parentComponentState, payload)
-        )
-        .map((listener) => ({
-          type: `${parentComponentPath}${listener.to}`,
-          payload:
-            typeof listener.withPayload === "function"
-              ? listener.withPayload(parentComponentState, payload)
-              : payload,
-        }))
-    );
+    .flatMap(({ childName, command }) =>
+      (command.toKeys ? command.toKeys(callBackParams) : [undefined]).map(
+        (key) => ({ childName, command, key })
+      )
+    )
+    .map(({ childName, command, key }) => ({
+      name: command.to,
+      componentPath: [...triggeringEvent.componentPath, [childName, key]],
+      payload: command.withPayload
+        ? command.withPayload(callBackParams)
+        : triggeringEvent.payload,
+    }));
 }
-function extractComponentPathArrayFromEventType(type: string): string[] {
-  return type.split("/").slice(1, -1);
+
+/**
+ * @param componentDef - Component definition with selectors and children
+ * @param stateTree - Current state tree for the component
+ * @param event - Event being processed
+ * @returns Parameters for the onCondition  and withPayload functions
+ */
+function prepareCallBackParams(
+  componentDef: ComponentDef,
+  stateTree: StateTree,
+  event: GlobalEvent
+) {
+  // Same structure as the state tree, but with values providers instead of states
+  const { selectors, children } = createValuesProvider(componentDef, stateTree);
+
+  // Event payload
+  const payload = event.payload;
+
+  // child key
+  const fromChildKey =
+    event.componentPath?.[event.componentPath?.length - 1]?.[1];
+
+  return {
+    selectors,
+    children,
+    payload,
+    fromChildKey,
+  };
 }

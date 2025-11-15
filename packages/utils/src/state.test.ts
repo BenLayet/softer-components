@@ -2,6 +2,7 @@
 import { describe, expect, it } from "vitest";
 import { initialStateTree } from "./state";
 import { ComponentDef } from "@softer-components/types";
+import { listDef } from "../../types/src/softer-component-types.test"; // TODO ask expert about this import
 
 describe("state tests", () => {
   it("should create initial state tree for component with no constructor", () => {
@@ -12,39 +13,45 @@ describe("state tests", () => {
     const result = initialStateTree(componentDef);
 
     // THEN it should create correct state structure
-    expect(result).toEqual({
-      "/": undefined,
-    });
+    expect(result).toEqual({});
   });
   it("should create initial state tree for simple component", () => {
-    // GIVEN a simple component definition with initial state
-    const componentDef = { initialState: { count: 0, name: "test" } };
+    // GIVEN a simple component
+    const rootDef: ComponentDef = {
+      initialState: { level: 1 },
+    };
 
     // WHEN creating initial state tree
-    const result = initialStateTree(componentDef);
+    const result = initialStateTree(rootDef);
 
     // THEN it should create correct state structure
     expect(result).toEqual({
-      "/": { count: 0, name: "test" },
+      "@": { level: 1 },
     });
   });
 
   it("should create state tree for component with 1 child", () => {
     // GIVEN a component with child components
-    const child: ComponentDef = { initialState: { value: "child" } };
+    const childDef: ComponentDef = {
+      initialState: { level: 2 },
+    };
 
-    const parent: ComponentDef = {
-      initialState: { count: 1 },
-      childrenComponents: { child },
+    const rootDef: ComponentDef = {
+      initialState: { level: 1 },
+      childrenComponents: { child: childDef },
     };
 
     // WHEN creating initial state tree
-    const result = initialStateTree(parent);
+    const result = initialStateTree(rootDef);
 
     // THEN it should create state for parent and child
     expect(result).toEqual({
-      "/": { count: 1 },
-      "/child/": { value: "child" },
+      "@": { level: 1 },
+      "#": {
+        child: {
+          "@": { level: 2 },
+        },
+      },
     });
   });
 
@@ -67,122 +74,143 @@ describe("state tests", () => {
 
     // THEN it should create state for all levels
     expect(result).toEqual({
-      "/": { level: 1 },
-      "/child/": { level: 2 },
-      "/child/grandChild/": { level: 3 },
-    });
-  });
-
-  it("should handle components without initialState", () => {
-    // GIVEN a component without a initialState
-    const childDef = { initialState: { answer: 42 } };
-
-    const parentDef = {
-      // no initialState
-      childrenComponents: { child: childDef },
-    };
-
-    // WHEN creating initial state tree
-    const result = initialStateTree(parentDef);
-
-    // THEN it should create state only for the child
-    expect(result).toEqual({
-      "/": undefined,
-      "/child/": { answer: 42 },
-    });
-  });
-
-  it("should handle components with protoState", () => {
-    // GIVEN a component without a initialState
-    const initialState = { answer: 42, question: "" };
-    const child: ComponentDef<{
-      state: typeof initialState;
-      events: {};
-      children: {};
-      values: {};
-    }> = {
-      initialState: { answer: 42, question: "" },
-    };
-
-    const parentDef: ComponentDef = {
-      childrenComponents: { child },
-      // no initialState
-      childrenConfig: {
+      "@": { level: 1 },
+      "#": {
         child: {
-          initialChildState: {
-            question:
-              "What is the answer to the ultimate question of life, the universe, and everything?",
-          },
+          "@": { level: 2 },
+          "#": { grandChild: { "@": { level: 3 } } },
         },
       },
-    };
-
-    // WHEN creating initial state tree
-    const result = initialStateTree(parentDef);
-
-    // THEN it should create state only for the child
-    expect(result).toEqual({
-      "/": undefined,
-      "/child/": {
-        answer: 42,
-        question:
-          "What is the answer to the ultimate question of life, the universe, and everything?",
-      },
     });
   });
 
-  it("should handle components with initialChildrenState for child collections", () => {
-    // GIVEN a component without a initialState
-    const initialState = { answer: 42, question: "" };
+  it("should create state tree for component with 1 single child with initial node", () => {
+    // GIVEN a component with child components
     type ChildContract = {
-      state: typeof initialState;
+      state: {};
       events: {};
-      children: {};
       values: {};
+      children: {};
     };
     const child: ComponentDef<ChildContract> = {
-      initialState: { answer: 42, question: "" },
+      initialState: { level: 2 },
     };
 
-    const parentDef: ComponentDef<{
-      state: undefined;
+    const rootDef: ComponentDef<{
+      state: {};
+      events: {};
+      values: {};
+      children: { child: ChildContract };
+    }> = {
+      initialState: { level: 1 },
+      initialChildrenNodes: { child: false },
+      childrenComponents: { child },
+    };
+
+    // WHEN creating initial state tree
+    const result = initialStateTree(rootDef);
+
+    // THEN it should create state for parent and no child
+    expect(result).toEqual({
+      "@": { level: 1 },
+      "#": {},
+    });
+  });
+
+  it("should create state tree for component with 1 collection child with no initial node", () => {
+    // GIVEN a component with child components
+    type ChildContract = {
+      state: {};
+      events: {};
+      values: {};
+      children: {};
+    };
+    const child: ComponentDef<ChildContract> = {
+      initialState: { level: 2 },
+    };
+
+    const rootDef: ComponentDef<{
+      state: {};
       events: {};
       values: {};
       children: { child: ChildContract & { isCollection: true } };
     }> = {
+      initialState: { level: 1 },
       childrenComponents: { child },
-      // no initialState
       childrenConfig: {
         child: {
           isCollection: true,
-          initialChildrenStates: {
-            v1: {
-              question:
-                "What is the answer to the ultimate question of life, the universe, and everything?",
-            },
-            v2: {
-              question: "What is 9x6?",
-            },
-          },
         },
       },
     };
 
     // WHEN creating initial state tree
-    const result = initialStateTree(parentDef);
+    const result = initialStateTree(rootDef);
 
-    // THEN it should create state only for the child
+    // THEN it should create state for parent and child
     expect(result).toEqual({
-      "/": undefined,
-      "/child:v1/": {
-        answer: 42,
-        question:
-          "What is the answer to the ultimate question of life, the universe, and everything?",
-      },
-      "/child:v2/": {
-        answer: 42,
-        question: "What is 9x6?",
+      "@": { level: 1 },
+      "#": {
+        child: {},
       },
     });
+  });
+
+  it("should create state tree for component with 1 collection child with initial node", () => {
+    // GIVEN a component with child components
+    type ChildContract = {
+      state: {};
+      events: {};
+      values: {};
+      children: {};
+    };
+    const child: ComponentDef<ChildContract> = {
+      initialState: { level: 2 },
+    };
+
+    const rootDef: ComponentDef<{
+      state: {};
+      events: {};
+      values: {};
+      children: { child: ChildContract & { isCollection: true } };
+    }> = {
+      initialState: { level: 1 },
+      initialChildrenNodes: { child: ["42", "9", "6"] },
+      childrenComponents: { child },
+      childrenConfig: {
+        child: {
+          isCollection: true,
+        },
+      },
+    };
+
+    // WHEN creating initial state tree
+    const result = initialStateTree(rootDef);
+
+    // THEN it should create state for parent and child
+    expect(result).toEqual({
+      "@": { level: 1 },
+      "#": {
+        child: {
+          42: { "@": { level: 2 } },
+          9: { "@": { level: 2 } },
+          6: { "@": { level: 2 } },
+        },
+      },
+    });
+  });
+
+  it("should initialize listDef", () => {
+    // WHEN creating initial state tree
+    const result = initialStateTree(listDef);
+    const expectedState = {
+      "@": {
+        lastItemId: 0,
+        listName: "My Shopping List",
+        nextItemName: "",
+      },
+      "#": { items: {} },
+    };
+    expect(result).toEqual(expectedState);
   });
 });

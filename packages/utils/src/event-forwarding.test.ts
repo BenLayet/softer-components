@@ -2,230 +2,255 @@ import { describe, it, expect } from "vitest";
 
 import { generateEventsToForward } from "./event-forwarding";
 import { ComponentDef } from "@softer-components/types";
+import { GlobalEvent } from "./constants";
 
 describe("event forwarding tests", () => {
   it("generates an event from a simple event forwarder", () => {
-    //GIVEN a simple component forwarding events
-    const rootComponentDef: ComponentDef<
-      undefined,
-      {
-        clicked: { payload: undefined };
-        processed: { payload: undefined };
-      },
-      {}
-    > = {
+    // GIVEN
+    const componentDef = {
       eventForwarders: [
         {
-          from: "clicked",
-          to: "processed",
+          from: "btnClicked",
+          to: "incrementRequested",
         },
       ],
     };
-    const globalState = {
-      "/": {},
+    const event: GlobalEvent = {
+      name: "btnClicked",
+      payload: undefined,
+      componentPath: [],
     };
-    const event = { type: "/clicked", payload: undefined };
 
-    //WHEN  generating events to forward
+    // WHEN
+    const result = generateEventsToForward(componentDef, {}, event);
+
+    // THEN
+    expect(result).toEqual([
+      {
+        name: "incrementRequested",
+        payload: undefined,
+        componentPath: [],
+      },
+    ]);
+  });
+  it("generates an event from a parent listener", () => {
+    // GIVEN
+    const child = {};
+    const componentDef = {
+      childrenComponents: {
+        child,
+      },
+      childrenConfig: {
+        child: {
+          listeners: [
+            {
+              from: "btnClicked",
+              to: "incrementRequested",
+            },
+          ],
+        },
+      },
+    };
+    const event: GlobalEvent = {
+      name: "btnClicked",
+      payload: undefined,
+      componentPath: [["child"]],
+    };
+    const globalStateTree = {
+      "#": {
+        child: {}, //child needs to exist in state tree
+      },
+    };
+
+    // WHEN
     const result = generateEventsToForward(
-      rootComponentDef,
-      globalState,
+      componentDef,
+      globalStateTree,
       event
     );
 
+    // THEN
     expect(result).toEqual([
       {
-        type: "/processed",
+        name: "incrementRequested",
         payload: undefined,
+        componentPath: [],
+      },
+    ]);
+  });
+  it("generates a command event to a child", () => {
+    // GIVEN
+    const child = {};
+    const componentDef = {
+      childrenComponents: {
+        child,
+      },
+      childrenConfig: {
+        child: {
+          commands: [
+            {
+              from: "btnClicked",
+              to: "incrementRequested",
+            },
+          ],
+        },
+      },
+    };
+    const event: GlobalEvent = {
+      name: "btnClicked",
+      payload: undefined,
+      componentPath: [],
+    };
+    const globalStateTree = {
+      "#": {
+        child: {}, //child needs to exist in state tree
+      },
+    };
+
+    // WHEN
+    const result = generateEventsToForward(
+      componentDef,
+      globalStateTree,
+      event
+    );
+
+    // THEN
+    expect(result).toEqual([
+      {
+        name: "incrementRequested",
+        payload: undefined,
+        componentPath: [["child", undefined]],
       },
     ]);
   });
 
   it("generates an event from a conditional event forwarder", () => {
-    //GIVEN a simple component forwarding events
-    const rootComponentDef: ComponentDef<
-      undefined,
-      {
-        clicked: { payload: boolean };
-        processed: { payload: boolean };
-      },
-      {}
-    > = {
+    // GIVEN
+    const componentDef = {
+      selectors: { isPassing: (state) => state.isPassing },
       eventForwarders: [
         {
-          from: "clicked",
-          to: "processed",
-          onCondition: (_, payload) => payload === true,
+          from: "btnClicked",
+          to: "incrementRequested",
+          onCondition: ({ selectors }) => selectors.isPassing(),
         },
       ],
     };
-    const globalState = {
-      "/": {},
+    const event: GlobalEvent = {
+      name: "btnClicked",
+      payload: undefined,
+      componentPath: [],
     };
-    const event = { type: "/clicked", payload: true };
 
-    //WHEN  generating events to forward
-    const result = generateEventsToForward(
-      rootComponentDef,
-      globalState,
+    // WHEN passing condition met
+    const result1 = generateEventsToForward(
+      componentDef,
+      { "@": { isPassing: true } },
       event
     );
 
-    expect(result).toEqual([
+    // THEN
+    expect(result1).toEqual([
       {
-        type: "/processed",
-        payload: true,
+        name: "incrementRequested",
+        payload: undefined,
+        componentPath: [],
       },
     ]);
-  });
+    // WHEN passing condition NOT met
+    const result2 = generateEventsToForward(
+      componentDef,
+      { "@": { isPassing: false } },
+      event
+    );
 
-  it("does not generate an event when the condition is not met", () => {
-    //GIVEN a simple component forwarding events
-    const rootComponentDef: ComponentDef<
-      undefined,
-      {
-        clicked: { payload: boolean };
-        processed: { payload: boolean };
-      },
-      {}
-    > = {
+    // THEN
+    expect(result2).toEqual([]);
+  });
+  it("generates an event with a different payload", () => {
+    // GIVEN
+    const componentDef = {
+      selectors: { nextPayload: (state) => state.nextPayload },
       eventForwarders: [
         {
-          from: "clicked",
-          to: "processed",
-          onCondition: (_, payload) => payload === true,
+          from: "btnClicked",
+          to: "incrementRequested",
+          withPayload: ({ selectors }) => selectors.nextPayload(),
         },
       ],
     };
-    const globalState = {
-      "/": {},
+    const event: GlobalEvent = {
+      name: "btnClicked",
+      payload: undefined,
+      componentPath: [],
     };
-    const event = { type: "/clicked", payload: false };
 
-    //WHEN  generating events to forward
-    const result = generateEventsToForward(
-      rootComponentDef,
-      globalState,
+    // WHEN passing condition met
+    const result1 = generateEventsToForward(
+      componentDef,
+      { "@": { nextPayload: 42 } },
       event
     );
 
-    expect(result).toEqual([]);
-  });
-
-  it("generates simple command to child", () => {
-    //GIVEN a simple component with one child
-    const child1Def: ComponentDef<
-      {},
-      { doSomething: { payload: undefined } },
-      {}
-    > = {};
-    const rootComponentDef: ComponentDef<
-      undefined,
+    // THEN
+    expect(result1).toEqual([
       {
-        clicked: { payload: undefined };
-      },
-      {}
-    > = {
-      children: {
-        child1: {
-          ...child1Def,
-          commands: [{ from: "clicked", to: "doSomething" }],
-        },
-      },
-    };
-    const globalState = {
-      "/": {},
-    };
-    const event = { type: "/clicked", payload: undefined };
-
-    //WHEN  generating events to forward
-    const result = generateEventsToForward(
-      rootComponentDef,
-      globalState,
-      event
-    );
-
-    expect(result).toEqual([
-      {
-        type: "/child1/doSomething",
-        payload: undefined,
+        name: "incrementRequested",
+        payload: 42,
+        componentPath: [],
       },
     ]);
   });
 
-  it("generates an event from a child listener", () => {
-    //GIVEN a simple component with one child
-    const child1Def: ComponentDef<{}, { clicked: { payload: undefined } }, {}> =
-      {};
-    const rootComponentDef: ComponentDef<
-      {},
-      { child1Selected: { payload: undefined } },
-      {}
-    > = {
-      children: {
-        child1: {
-          componentDef: child1Def,
-          listeners: [{ from: "clicked", to: "child1Selected" }],
-        },
+  it("generates a command event to a specific child with a key", () => {
+    // GIVEN
+    const child = {};
+    const componentDef = {
+      childrenComponents: {
+        child,
       },
-    };
-    const globalState = {
-      "/": {},
-      "/child1/": {},
-    };
-    const event = { type: "/child1/clicked", payload: undefined };
-
-    //WHEN  generating events to forward
-    const result = generateEventsToForward(
-      rootComponentDef,
-      globalState,
-      event
-    );
-
-    expect(result).toEqual([
-      {
-        type: "/child1Selected",
-        payload: undefined,
-      },
-    ]);
-  });
-
-  it("generates an event from a child collection listener", () => {
-    //GIVEN a simple component with one child
-    const childDef: ComponentDef<{}, { clicked: { payload: undefined } }, {}> =
-      {};
-    const rootComponentDef: ComponentDef<
-      {},
-      { childSelected: { payload: undefined } },
-      {}
-    > = {
-      children: {
+      childrenConfig: {
         child: {
-          componentDef: childDef,
           isCollection: true,
-          getKeys: () => ["one", "two"],
-          listeners: [{ from: "clicked", to: "childSelected" }],
+          commands: [
+            {
+              from: "btnClicked",
+              to: "incrementRequested",
+              toKeys: () => ["key1", "key2"],
+            },
+          ],
         },
       },
     };
-    const globalState = {
-      "/": {},
-      "/child:one/": {},
-      "/child:two/": {},
+    const event: GlobalEvent = {
+      name: "btnClicked",
+      payload: undefined,
+      componentPath: [],
     };
-    const event = { type: "/child:one/clicked", payload: undefined };
+    const globalStateTree = {
+      "#": {
+        child: {}, //child needs to exist in state tree
+      },
+    };
 
-    //WHEN  generating events to forward
+    // WHEN
     const result = generateEventsToForward(
-      rootComponentDef,
-      globalState,
+      componentDef,
+      globalStateTree,
       event
     );
 
+    // THEN
     expect(result).toEqual([
       {
+        name: "incrementRequested",
         payload: undefined,
-        type: "/childSelected",
+        componentPath: [["child", "key1"]],
+      },
+      {
+        name: "incrementRequested",
+        payload: undefined,
+        componentPath: [["child", "key2"]],
       },
     ]);
   });

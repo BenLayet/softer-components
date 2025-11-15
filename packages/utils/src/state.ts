@@ -1,10 +1,6 @@
-import {
-  CollectionChildConfig,
-  ComponentDef,
-  OptionalValue,
-  SingleChildConfig,
-  State,
-} from "@softer-components/types";
+import { ComponentDef, State } from "@softer-components/types";
+import { CHILDREN_STATE_KEY, OWN_STATE_KEY, StateTree } from "./constants";
+import { isNotUndefined } from "./predicate.functions";
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // STATE INITIALISATION
@@ -14,131 +10,51 @@ import {
  * Initialize the complete state tree for a component hierarchy
  */
 export function initialStateTree(
-  rootComponentDef: ComponentDef<any>,
-  rootPath = "/"
+  rootComponentDef: ComponentDef
 ): Record<string, State> {
   // TODO: Add listeners to children to optimize event forwarding performance
-  return instanciateStateRecursively({}, rootPath, rootComponentDef);
+  return instanciateStateRecursively({}, rootComponentDef);
 }
 
 /**
  * Recursively instantiate state for a component and its children
  */
 function instanciateStateRecursively(
-  mutableGlobalState: Record<string, State>,
-  componentPath: string,
-  componentDef: ComponentDef,
-  protoState?: OptionalValue
-): Record<string, State> {
-  // Initialize component state
-  mutableGlobalState[componentPath] = computeInitialState(
-    componentDef.initialState,
-    protoState
-  );
-  // Recursively initialize children
-  instantiateChildrenState(mutableGlobalState, componentPath, componentDef);
-  return mutableGlobalState;
-}
-
-/**
- * Initialize state for all children of a component
- */
-function instantiateChildrenState(
-  mutableGlobalState: Record<string, State>,
-  componentPath: string,
+  mutableGlobalState: StateTree,
   componentDef: ComponentDef
-): void {
-  for (const [childName, childComponentDef] of Object.entries(
-    componentDef.childrenComponents ?? {}
-  )) {
-    const childConfig = (componentDef.childrenConfig?.[childName] ?? {}) as
-      | (SingleChildConfig & { isCollection: false })
-      | (CollectionChildConfig & { isCollection: true });
-    if (childConfig.isCollection) {
-      instantiateChildCollectionStates(
-        mutableGlobalState,
-        componentPath,
-        childName,
-        childComponentDef,
-        childConfig
-      );
-    } else {
-      instantiateSingleChildState(
-        mutableGlobalState,
-        componentPath,
-        childName,
-        childComponentDef,
-        childConfig as SingleChildConfig
-      );
-    }
+): StateTree {
+  // Initialize component state
+  if (isNotUndefined(componentDef.initialState)) {
+    mutableGlobalState[OWN_STATE_KEY] = componentDef.initialState;
   }
-}
-
-/**
- * Initialize state for a single child component
- */
-function instantiateSingleChildState(
-  mutableGlobalState: Record<string, State>,
-  componentPath: string,
-  childName: string,
-  childComponentDef: ComponentDef,
-  childConfig: SingleChildConfig
-): void {
-  const childPath = `${componentPath}${childName}/`;
-  // Instantiate child state
-  const givenState = childConfig.initialChildState;
-  instanciateStateRecursively(
-    mutableGlobalState,
-    childPath,
-    childComponentDef,
-    givenState
-  );
-}
-
-/**
- * Initialize state for a collection of child components
- */
-function instantiateChildCollectionStates(
-  mutableGlobalState: Record<string, State>,
-  componentPath: string,
-  childName: string,
-  childComponentDef: ComponentDef,
-  childConfig: CollectionChildConfig
-): void {
-  const childPathPrefix = `${componentPath}${childName}:`;
-  // Instantiate state for each child in collection
-  for (const [key, givenState] of Object.entries(
-    childConfig.initialChildrenStates
-  )) {
-    const childPath = `${childPathPrefix}${key}/`;
-    instanciateStateRecursively(
-      mutableGlobalState,
-      childPath,
-      childComponentDef,
-      givenState
+  // Initialize children state
+  if (isNotUndefined(componentDef.childrenComponents)) {
+    mutableGlobalState[CHILDREN_STATE_KEY] = {};
+    Object.entries(componentDef.childrenComponents).forEach(
+      ([childName, childDef]) => {
+        const childConfig = componentDef.childrenConfig?.[childName] ?? {};
+        if (childConfig.isCollection) {
+          const keys = (componentDef.initialChildrenNodes?.[childName] ??
+            []) as string[];
+          mutableGlobalState[CHILDREN_STATE_KEY][childName] = keys.reduce(
+            (childrenState, childKey) => {
+              childrenState[childKey] = instanciateStateRecursively(
+                {},
+                childDef
+              );
+              return childrenState;
+            },
+            {}
+          );
+        } else {
+          if (componentDef.initialChildrenNodes?.[childName] ?? true) {
+            mutableGlobalState[CHILDREN_STATE_KEY][childName] =
+              instanciateStateRecursively({}, childDef);
+          }
+        }
+      }
     );
   }
-}
-
-function computeInitialState(
-  defaultInitialState: OptionalValue,
-  givenInitialState: OptionalValue
-) {
-  if (typeof defaultInitialState === "undefined") {
-    return givenInitialState;
-  }
-  if (typeof givenInitialState === "undefined") {
-    return defaultInitialState;
-  }
-  if (typeof givenInitialState !== "object") {
-    return givenInitialState;
-  }
-  if (typeof defaultInitialState !== "object") {
-    return defaultInitialState;
-  }
-  //both are defined objects : patch initialState with given state
-  return {
-    ...defaultInitialState,
-    ...givenInitialState,
-  };
+  // Return the state tree
+  return mutableGlobalState;
 }

@@ -1,4 +1,4 @@
-export * from "./component-def-map";
+export * from "./component-def-tree";
 export * from "./event-forwarding";
 export * from "./state";
 export * from "./reducer";

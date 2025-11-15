@@ -610,3 +610,13 @@ const componentDef: ComponentDef = {
   ignore.unread = c1;
   //const c2: T3 = { withPayload: () => {} }; // withPayload cannot be provided)};
 }
+////////////////////////////////////////////////////////////////////////////////////////////////////////
+// Circular type references in type tests
+////////////////////////////////////////////////////////////////////////////////////////////////////////
+{
+  type A = { b: B };
+  type B = { a: A };
+
+  const a: A = { b: { a: { b: { a: { b: {} as B } } } } };
+  ignore.unread = a;
+}

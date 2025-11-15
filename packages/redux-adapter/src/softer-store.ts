@@ -12,7 +12,7 @@ import {
 import {
   generateEventsToForward,
   initialStateTree,
-  newGlobalState,
+  updateGlobalState,
 } from "@softer-components/utils";
 
 export type SofterStore = ReturnType<typeof configureStore> & {
@@ -35,7 +35,7 @@ export function configureSofterStore<
     ...configureStore({
       preloadedState: initialStateTree(rootComponentDef),
       reducer: (state: any, action: any) =>
-        newGlobalState(rootComponentDef, action, state),
+        updateGlobalState(rootComponentDef, action, state),
       middleware: (getDefaultMiddleware) =>
         getDefaultMiddleware().prepend(listenerMiddleware.middleware),
     }),

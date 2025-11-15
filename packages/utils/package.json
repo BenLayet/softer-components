@@ -21,6 +21,7 @@
   },
   "dependencies": {
     "@softer-components/types": "workspace:*",
+    "immer": "^10.2.0",
     "lodash": "^4.17.21"
   },
   "devDependencies": {
