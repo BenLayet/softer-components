@@ -126,7 +126,15 @@ describe("event forwarding tests", () => {
 
   it("generates an event from a conditional event forwarder", () => {
     // GIVEN
-    const componentDef = {
+    const componentDef: ComponentDef<{
+      state: { isPassing: boolean };
+      events: {
+        btnClicked: { payload: undefined };
+        incrementRequested: { payload: undefined };
+      };
+      children: {};
+      values: { isPassing: boolean };
+    }> = {
       selectors: { isPassing: (state) => state.isPassing },
       eventForwarders: [
         {
@@ -169,7 +177,15 @@ describe("event forwarding tests", () => {
   });
   it("generates an event with a different payload", () => {
     // GIVEN
-    const componentDef = {
+    const componentDef: ComponentDef<{
+      state: { nextPayload: number };
+      events: {
+        btnClicked: { payload: undefined };
+        incrementRequested: { payload: number };
+      };
+      children: {};
+      values: { nextPayload: number };
+    }> = {
       selectors: { nextPayload: (state) => state.nextPayload },
       eventForwarders: [
         {

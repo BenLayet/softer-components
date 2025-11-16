@@ -3,7 +3,7 @@ import { describe, expect, it } from "vitest";
 import { updateGlobalState } from "./reducer";
 import { ComponentDef } from "@softer-components/types";
 import { GlobalEvent } from "./constants";
-import { listDef } from "../../types/src/softer-component-types.test";
+import { listDef } from "../../types/src/softer-component-types.test"; // TODO ask expert
 
 describe("reducer tests", () => {
   it("should update simple state", () => {

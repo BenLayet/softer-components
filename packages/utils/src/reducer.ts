@@ -46,7 +46,7 @@ function updateStateOfComponentOfEvent(
   const originalChildrenNodesStr = JSON.stringify(childrenNodes);
 
   const nextComponentState = updater({
-    selectors,
+    values: selectors,
     children,
     payload,
     childrenNodes, // for update
@@ -77,7 +77,10 @@ function prepareUpdaterParams(
   event: GlobalEvent
 ) {
   // Same structure as the state tree, but with values providers instead of states
-  const { selectors, children } = createValuesProvider(componentDef, stateTree);
+  const { values: selectors, children } = createValuesProvider(
+    componentDef,
+    stateTree
+  );
 
   // Just one level - children nodes for mutation
   const childrenNodes = extractChildrenNodes(componentDef, stateTree);

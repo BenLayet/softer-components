@@ -12,7 +12,7 @@ export type Payload = OptionalValue;
 
 export type ComponentValuesContract = { [SelectorName in string]: any };
 export type ComponentEventsContract = {
-  [EventName in string]: { payload: OptionalValue };
+  [EventName: string]: { payload: OptionalValue };
 };
 export type ComponentChildContract = ComponentContract & {
   isCollection?: boolean;
@@ -38,14 +38,10 @@ export type ComponentDef<
   } & TPartialContract,
 > =
 */
-export type ComponentDef<
-  TComponentContract extends ComponentContract = {
-    state: any;
-    values: any;
-    events: any;
-    children: any;
-  },
-> = {
+/**
+ * Definition of a component including its initial state, selectors, updaters, event forwarders, and child components
+ */
+export type ComponentDef<TComponentContract extends ComponentContract = any> = {
   initialState?: TComponentContract["state"];
   initialChildrenNodes?: ChildrenNodes<TComponentContract["children"]>;
   selectors?: {
@@ -87,7 +83,7 @@ export type Values<
   TComponentContract extends ComponentContract = ComponentContract,
 > = {
   /** Computed values from selectors - call these functions to get current values */
-  selectors: {
+  values: {
     [K in keyof TComponentContract["values"]]: () => TComponentContract["values"][K];
   };
   /** Child component values - access nested component values here */
@@ -247,7 +243,6 @@ export type ChildrenNode<TChildContract extends ComponentChildContract> = {
   readonly values: Values<TChildContract>;
 };
 
-type T = ChildrenNodes[string];
 /***************************************************************************************************************
  *                         CHILDREN DEFINITION
  ***************************************************************************************************************/

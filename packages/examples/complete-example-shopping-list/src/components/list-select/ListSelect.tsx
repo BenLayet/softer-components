@@ -1,11 +1,11 @@
 import { useSofter } from "@softer-components/redux-adapter";
-import { ListSelectUi } from "./list-select.component.ts";
+import { ListSelectContract } from "./list-select.component";
 
-export const ListSelect = ({ path = "/" }) => {
+export const ListSelect = ({ path = "" }) => {
   const [
     { name },
     { listNameChanged, createNewListClicked, openPreviousListRequested },
-  ] = useSofter<ListSelectUi>(path);
+  ] = useSofter<ListSelectContract>(path);
 
   return (
     <div>

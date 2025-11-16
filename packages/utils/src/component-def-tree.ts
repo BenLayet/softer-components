@@ -69,17 +69,17 @@ export const findSubStateTree = (
  * Create Values provider for a component given its definition and state tree
  * @param componentDef
  * @param componentStateTree
- * @returns Values that provides access to all selectors of the state tree,
+ * @returns Provider for all values from all selectors of the state tree,
  *  without exposing the state directly
  */
 export function createValuesProvider(
   componentDef: ComponentDef,
   componentStateTree: StateTree
 ): Values {
-  // Create own selectors
-  const selectors = createOwnSelectors(componentDef, componentStateTree);
+  // Create own values
+  const values = createOwnValues(componentDef, componentStateTree);
 
-  // Create children selectors
+  // Create children values
   const childrenState = componentStateTree[CHILDREN_STATE_KEY] || {};
   const children = Object.fromEntries(
     Object.entries(childrenState).map(([childName, childState]) => {
@@ -112,13 +112,13 @@ export function createValuesProvider(
     })
   );
   // Return the values tree
-  return { selectors, children };
+  return { values, children };
 }
 
-function createOwnSelectors(
+function createOwnValues(
   componentDef: ComponentDef,
   componentStateTree: StateTree
-): Values["selectors"] {
+): Values["values"] {
   const ownState = componentStateTree[OWN_STATE_KEY] || {};
   const selectorsDef = componentDef.selectors || {};
   return Object.fromEntries(

@@ -1,16 +1,16 @@
 import { ListSelect } from "../list-select/ListSelect.tsx";
-import { ShoppingList } from "../shopping-list/ShoppingList.tsx";
 import { useSofterChildrenPath } from "@softer-components/redux-adapter";
-import { AppChildrenContract } from "./app.component.ts";
+import { AppComponentContract } from "./app.component.ts";
+import { List } from "../list/List.tsx";
 
-export const App = ({ path }: { path: string }) => {
-  const { listSelect, shoppingList } =
-    useSofterChildrenPath<AppChildrenContract>(path);
+export const App = ({ path = "" }) => {
+  const { listSelect, list } =
+    useSofterChildrenPath<AppComponentContract["children"]>(path);
 
   return (
     <div>
       <h1>Shopping List</h1>
-      {shoppingList && <ShoppingList path={shoppingList} />}
+      {list && <List path={list} />}
       {listSelect && <ListSelect path={listSelect} />}
     </div>
   );

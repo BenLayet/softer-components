@@ -102,7 +102,7 @@ function generateEventsFromOwnComponent(
  * @returns events generated from parent component listening to child events
  */
 function generateEventsFromParentChildListeners(
-  rootComponentDef: ComponentDef,
+  rootComponentDef: ComponentDef<any>,
   globalStateTree: StateTree,
   triggeringEvent: GlobalEvent
 ): GlobalEvent[] {
@@ -212,7 +212,7 @@ function prepareCallBackParams(
   event: GlobalEvent
 ) {
   // Same structure as the state tree, but with values providers instead of states
-  const { selectors, children } = createValuesProvider(componentDef, stateTree);
+  const { values, children } = createValuesProvider(componentDef, stateTree);
 
   // Event payload
   const payload = event.payload;
@@ -222,7 +222,7 @@ function prepareCallBackParams(
     event.componentPath?.[event.componentPath?.length - 1]?.[1];
 
   return {
-    selectors,
+    values,
     children,
     payload,
     fromChildKey,

@@ -1,48 +1,39 @@
-import { ComponentDef, ExtractUiContract } from "@softer-components/types";
+import {
+  ComponentDef,
+  ExtractComponentValuesContract,
+} from "@softer-components/types";
 import { Item } from "../../model/Item.ts";
 // Initial state definition
-type ItemRowState = { item?: Item };
+type ItemRowState = { item?: Item; quantity: number };
 
 // Events type declaration
 type ItemRowEvents = {
-  addItemRequested: { payload: Item };
-  itemRowClicked: { payload: undefined };
-  removeItemRequested: { payload: Item };
+  initialize: { payload: Item };
+  removeItemRequested: { payload: undefined };
+  incrementRequested: { payload: undefined };
+  decrementRequested: { payload: undefined };
 };
 
 const selectors = {
   name: (state: ItemRowState) => state.item?.name,
-  quantity: (state: ItemRowState) => state.item?.quantity,
+  quantity: (state: ItemRowState) => state.quantity,
+};
+
+export type ItemRowContract = {
+  state: ItemRowState;
+  events: ItemRowEvents;
+  children: {};
+  values: ExtractComponentValuesContract<typeof selectors>;
 };
 
 // Component definition
-export const itemRowDef = {
-  initialState,
+export const itemRowDef: ComponentDef<ItemRowContract> = {
   selectors,
-  events: {
-    addItemRequested: {
-      payloadFactory: (item: Item) => item,
-    },
-    itemRowClicked: {
-      payloadFactory: () => undefined,
-    },
-    removeItemRequested: {
-      payloadFactory: (item: Item) => item,
+  uiEvents: ["removeItemRequested", "incrementRequested", "decrementRequested"],
+  updaters: {
+    initialize: ({ state, payload: item }) => {
+      state.item = item;
+      state.quantity = 1;
     },
   },
-  stateUpdaters: {
-    addItemRequested: (state, item: Item) => ({
-      ...state,
-      item: item,
-    }),
-  },
-  eventForwarders: [
-    {
-      from: "itemRowClicked",
-      to: "removeItemRequested",
-      withPayload: (state: ItemRowState) => state.item,
-    },
-  ],
-} satisfies ComponentDef<ItemRowState, ItemRowEvents, Item>;
-
-export type ItemRowUi = ExtractUiContract<typeof itemRowDef>;
+};

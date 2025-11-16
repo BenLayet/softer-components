@@ -1,3 +1,4 @@
+import { OptionalValue } from "../dist";
 import { Equal, Expect, ignore, NotEqual } from "./type-testing-utiliy-test";
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // Covariant, Contravariant, Invariant type tests
@@ -619,4 +620,26 @@ const componentDef: ComponentDef = {
 
   const a: A = { b: { a: { b: { a: { b: {} as B } } } } };
   ignore.unread = a;
+}
+
+////////////////////////////////////////////////////////////////////////////////////////////////////////
+// Bivariant type parameters, with permissive defaults
+////////////////////////////////////////////////////////////////////////////////////////////////////////
+{
+  //
+  type ComponentDef<TValue extends {} = any> = {
+    selector: () => TValue;
+    updater: (values: TValue) => void;
+  };
+
+  const t1: ComponentDef<string> extends ComponentDef ? true : false = true;
+  ignore.unread = a;
+
+  const t2: ComponentDef = {
+    selector: () => 42,
+    updater: (values) => {
+      console.log(values);
+    },
+  };
+  ignore.unread = t2;
 }

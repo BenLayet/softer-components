@@ -13,7 +13,12 @@ import {
   OWN_STATE_KEY,
 } from "@softer-components/utils";
 import { useDispatch, useSelector, useStore } from "react-redux";
-import { eventToAction, softerRootState } from "./softer-mappers";
+import {
+  componentPathToString,
+  eventToAction,
+  softerRootState,
+  stringToComponentPath,
+} from "./softer-mappers";
 import { SofterStore } from "./softer-store";
 
 /////////////////////
@@ -23,9 +28,10 @@ import { SofterStore } from "./softer-store";
 export const useSofterSelectors = <
   TValueContract extends ComponentValuesContract,
 >(
-  componentPath: ComponentPath
+  pathStr: string
 ): TValueContract => {
   const store = useStore() as SofterStore;
+  const componentPath = stringToComponentPath(pathStr);
   const componentDef = findComponentDef(store.rootComponentDef, componentPath);
   const selectors = componentDef.selectors ?? {};
   return Object.fromEntries(
@@ -66,8 +72,9 @@ type EventsContractToUiDispatchers<
 export const useSofterEvents = <
   TEventsContract extends ComponentEventsContract,
 >(
-  componentPath: ComponentPath
+  pathStr: string
 ): EventsContractToUiDispatchers<TEventsContract> => {
+  const componentPath = stringToComponentPath(pathStr);
   const dispatch = useDispatch();
   const store = useStore() as SofterStore;
   const componentDef = findComponentDef(store.rootComponentDef, componentPath);
@@ -96,36 +103,42 @@ type ExtractChildrenPath<TChildrenContract extends ComponentChildrenContract> =
     [K in keyof TChildrenContract]: TChildrenContract[K] extends {
       isCollection: true;
     }
-      ? ComponentPath[]
-      : ComponentPath | null;
+      ? string[]
+      : string | null;
   };
 export const useSofterChildrenPath = <
   TChildrenContract extends ComponentChildrenContract,
 >(
-  componentPath: ComponentPath
+  pathStr: string
 ): ExtractChildrenPath<TChildrenContract> => {
-  const componentState = useSelector((globalState) =>
-    findSubStateTree(softerRootState(globalState), componentPath)
-  );
+  const componentPath = stringToComponentPath(pathStr);
   const store = useStore() as SofterStore;
+  const componentState = findSubStateTree(
+    softerRootState(store.getState()),
+    componentPath
+  );
   const componentDef = findComponentDef(store.rootComponentDef, componentPath);
   const childrenNodes = extractChildrenNodes(componentDef, componentState);
   return Object.fromEntries(
     Object.entries(childrenNodes).map(([childName, childNode]) => {
       if (componentDef.childrenConfig?.[childName]?.isCollection) {
         const keys = childNode as string[];
-        return keys.map(
-          (key) =>
-            [...componentPath, [childName, key] as const] as ComponentPath
-        );
+        const paths = keys
+          .map(
+            (key) =>
+              [...componentPath, [childName, key] as const] as ComponentPath
+          )
+          .map(componentPathToString);
+        return [childName, paths];
       } else {
         const exists = childNode as boolean;
-        return exists
-          ? ([
+        const path = exists
+          ? componentPathToString([
               ...componentPath,
               [childName, undefined] as const,
             ] as ComponentPath)
           : null;
+        return [childName, path];
       }
     })
   ) as any;
@@ -135,13 +148,13 @@ export const useSofterChildrenPath = <
 // useSofter
 /////////////////////
 export const useSofter = <TComponentContract extends ComponentContract>(
-  path: ComponentPath
+  pathStr: string
 ): [
   TComponentContract["values"],
   EventsContractToUiDispatchers<TComponentContract["events"]>,
   ExtractChildrenPath<TComponentContract["children"]>,
 ] => [
-  useSofterSelectors<TComponentContract["values"]>(path),
-  useSofterEvents<TComponentContract["events"]>(path),
-  useSofterChildrenPath<TComponentContract["children"]>(path),
+  useSofterSelectors<TComponentContract["values"]>(pathStr),
+  useSofterEvents<TComponentContract["events"]>(pathStr),
+  useSofterChildrenPath<TComponentContract["children"]>(pathStr),
 ];

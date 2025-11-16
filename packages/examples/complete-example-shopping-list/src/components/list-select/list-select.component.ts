@@ -1,10 +1,19 @@
-import { ComponentDef, ExtractUiContract } from "@softer-components/types";
+import {
+  ComponentDef,
+  ExtractComponentChildrenContract,
+  ExtractComponentValuesContract,
+  Selectors,
+} from "@softer-components/types";
 import { List } from "../../model/List";
+import { listDef } from "../list/list.component";
 
 // Initial state definition
 const initialState = {
   listName: "",
 };
+const selectors = {
+  name: state => state.listName,
+} satisfies Selectors<typeof initialState>;
 
 // Events type declaration
 type ListSelectEvents = {
@@ -15,42 +24,34 @@ type ListSelectEvents = {
   listSelected: { payload: List };
 };
 
+const childrenComponents = {
+  list: listDef,
+};
+
+export type ListSelectContract = {
+  state: typeof initialState;
+  values: ExtractComponentValuesContract<typeof selectors>;
+  events: ListSelectEvents;
+  children: ExtractComponentChildrenContract<typeof childrenComponents>;
+};
+
 // Component definition
-export const listSelectDef = {
-  initialState: () => initialState,
-  selectors: {
-    name: state => state.listName,
-  },
-  events: {
-    listNameChanged: {
-      payloadFactory: (listName: string) => listName,
+export const listSelectDef: ComponentDef<ListSelectContract> = {
+  initialState,
+  selectors,
+  updaters: {
+    listNameChanged: ({ state, payload: listName }) => {
+      state.listName = listName;
     },
-    createNewListClicked: {
-      payloadFactory: () => undefined,
-    },
-    createNewListRequested: {
-      payloadFactory: (listName: string) => listName,
-    },
-    openPreviousListRequested: {
-      payloadFactory: () => undefined,
-    },
-    listSelected: {
-      payloadFactory: (list: List) => list,
-    },
-  },
-  stateUpdaters: {
-    listNameChanged: (state, listName: string) => ({
-      ...state,
-      listName,
-    }),
   },
   eventForwarders: [
     {
       from: "createNewListClicked",
       to: "listSelected",
-      withPayload: state => ({ name: state.listName, items: [] }),
+      withPayload: ({ values: selectors }) => ({
+        name: selectors.name(),
+        items: [],
+      }),
     },
   ],
-} satisfies ComponentDef<typeof initialState, ListSelectEvents>;
-
-export type ListSelectUi = ExtractUiContract<typeof listSelectDef>;
+};
