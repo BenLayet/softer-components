@@ -1,4 +1,9 @@
-import { ComponentDef, Values } from "@softer-components/types";
+import {
+  ComponentDef,
+  OptionalValue,
+  State,
+  Values,
+} from "@softer-components/types";
 import {
   CHILDREN_STATE_KEY,
   ComponentPath,
@@ -72,13 +77,7 @@ export function createValuesProvider(
   componentStateTree: StateTree
 ): Values {
   // Create own selectors
-  const ownState = componentStateTree[OWN_STATE_KEY] || {};
-  const selectorsDef = componentDef.selectors || {};
-  const selectors = Object.fromEntries(
-    Object.entries(selectorsDef).map(([selectorName, selector]) => {
-      return [selectorName, () => selector(ownState)];
-    })
-  );
+  const selectors = createOwnSelectors(componentDef, componentStateTree);
 
   // Create children selectors
   const childrenState = componentStateTree[CHILDREN_STATE_KEY] || {};
@@ -115,3 +114,32 @@ export function createValuesProvider(
   // Return the values tree
   return { selectors, children };
 }
+
+function createOwnSelectors(
+  componentDef: ComponentDef,
+  componentStateTree: StateTree
+): Values["selectors"] {
+  const ownState = componentStateTree[OWN_STATE_KEY] || {};
+  const selectorsDef = componentDef.selectors || {};
+  return Object.fromEntries(
+    Object.entries(selectorsDef).map(([selectorName, selector]) => {
+      return [selectorName, () => selector(ownState)];
+    })
+  );
+}
+
+export const extractChildrenNodes = (
+  componentDef: ComponentDef,
+  stateTree: StateTree
+) =>
+  Object.fromEntries(
+    Object.entries(stateTree[CHILDREN_STATE_KEY] || {}).map(
+      ([childName, childState]) => {
+        const childDef = componentDef.childrenComponents?.[childName];
+        const isCollection =
+          componentDef.childrenConfig?.[childName].isCollection ?? false;
+        assertIsNotUndefined(childDef);
+        return [childName, isCollection ? Object.keys(childState) : true];
+      }
+    )
+  );

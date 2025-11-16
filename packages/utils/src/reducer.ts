@@ -2,6 +2,7 @@ import { ComponentDef, Values } from "@softer-components/types";
 
 import {
   createValuesProvider,
+  extractChildrenNodes,
   findComponentDef,
   findSubStateTree,
 } from "./component-def-tree";
@@ -62,22 +63,6 @@ function updateStateOfComponentOfEvent(
     updateChildrenState(componentDef, stateTree, childrenNodes);
   }
 }
-
-const extractChildrenNodes = (
-  componentDef: ComponentDef,
-  stateTree: StateTree
-) =>
-  Object.fromEntries(
-    Object.entries(stateTree[CHILDREN_STATE_KEY] || {}).map(
-      ([childName, childState]) => {
-        const childDef = componentDef.childrenComponents?.[childName];
-        const isCollection =
-          componentDef.childrenConfig?.[childName].isCollection ?? false;
-        assertIsNotUndefined(childDef);
-        return [childName, isCollection ? Object.keys(childState) : true];
-      }
-    )
-  );
 /**
  * Prepare updater parameters from component definition and state tree
  *

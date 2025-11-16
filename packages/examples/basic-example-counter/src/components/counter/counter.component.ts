@@ -1,4 +1,4 @@
-import { ComponentDef, ExtractUiContract } from "@softer-components/types";
+import { ComponentDef } from "@softer-components/types";
 
 // Initial state definition
 const initialState = {
@@ -10,25 +10,25 @@ type CounterEvents = {
   incrementRequested: { payload: undefined };
   decrementRequested: { payload: undefined };
 };
-
+export type CounterContract = {
+  state: typeof initialState;
+  events: CounterEvents;
+  values: { count: number };
+  children: {};
+};
 // Component definition
-export const counterComponentDef = {
-  initialState: () => initialState,
+export const counterComponentDef: ComponentDef<CounterContract> = {
+  initialState,
   selectors: {
     count: state => state.count,
   },
-  events: {
-    incrementRequested: {
-      payloadFactory: () => undefined,
+  uiEvents: ["decrementRequested", "incrementRequested"],
+  updaters: {
+    incrementRequested: ({ state }) => {
+      state.count++;
     },
-    decrementRequested: {
-      payloadFactory: () => undefined,
+    decrementRequested: ({ state }) => {
+      state.count--;
     },
   },
-  stateUpdaters: {
-    incrementRequested: state => ({ ...state, count: state.count + 1 }),
-    decrementRequested: state => ({ ...state, count: state.count - 1 }),
-  },
-} satisfies ComponentDef<typeof initialState, CounterEvents>;
-
-export type CounterUiContract = ExtractUiContract<typeof counterComponentDef>;
+};

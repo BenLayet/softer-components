@@ -25,5 +25,15 @@
     "types": ["vitest/globals"]
   },
   "include": ["src"],
-  "references": [{ "path": "../../types" }, { "path": "../../redux-adapter" }]
+  "references": [
+    {
+      "path": "../../types"
+    },
+    {
+      "path": "../../utils"
+    },
+    {
+      "path": "../../redux-adapter"
+    }
+  ]
 }

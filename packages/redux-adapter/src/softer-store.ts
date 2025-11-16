@@ -1,41 +1,59 @@
 import {
   configureStore,
   createListenerMiddleware,
+  createReducer,
   ListenerMiddlewareInstance,
 } from "@reduxjs/toolkit";
-import {
-  ComponentDef,
-  EventsContract,
-  OptionalValue,
-  State,
-} from "@softer-components/types";
+import { ComponentDef } from "@softer-components/types";
 import {
   generateEventsToForward,
   initialStateTree,
   updateGlobalState,
 } from "@softer-components/utils";
+import {
+  actionToEvent,
+  initialReduxGlobalState,
+  isSofterEvent,
+  softerRootState,
+} from "./softer-mappers";
 
 export type SofterStore = ReturnType<typeof configureStore> & {
-  rootComponentDef: ComponentDef<any, any, any>;
+  rootComponentDef: ComponentDef;
 };
 
-export function configureSofterStore<
-  TState extends State = State,
-  TEventsContract extends EventsContract = EventsContract,
-  TProtoState extends OptionalValue = never,
->(
-  rootComponentDef: ComponentDef<TState, TEventsContract, TProtoState>
+export function configureSofterStore(
+  rootComponentDef: ComponentDef
 ): SofterStore {
   const listenerMiddleware = createListenerMiddleware();
   startListeningForEventForwarders(rootComponentDef, listenerMiddleware);
-  //TODO build a map of state updaters at the time of registration for better performance
-  //TODO build a map of event forwarders at the time of registration for better performance
 
+  // ✅ Use createReducer which has built-in Immer support
+  const softerReducer = createReducer(
+    initialReduxGlobalState(initialStateTree(rootComponentDef)),
+    (builder: any) => {
+      builder.addDefaultCase((state, action) => {
+        if (!isSofterEvent(action)) {
+          return state;
+        }
+
+        const globalStateTree = softerRootState(state);
+        if (!globalStateTree) {
+          return state;
+        }
+
+        const event = actionToEvent(action);
+
+        // ✅ updateGlobalState returns new state tree using Immer
+        updateGlobalState(rootComponentDef, globalStateTree, event);
+      });
+    }
+  );
   return {
     ...configureStore({
-      preloadedState: initialStateTree(rootComponentDef),
-      reducer: (state: any, action: any) =>
-        updateGlobalState(rootComponentDef, action, state),
+      preloadedState: initialReduxGlobalState(
+        initialStateTree(rootComponentDef)
+      ),
+      reducer: softerReducer,
       middleware: (getDefaultMiddleware) =>
         getDefaultMiddleware().prepend(listenerMiddleware.middleware),
     }),
@@ -44,15 +62,22 @@ export function configureSofterStore<
 }
 
 function startListeningForEventForwarders(
-  rootComponentDef: ComponentDef<any, any>,
+  rootComponentDef: ComponentDef,
   listenerMiddleware: ListenerMiddlewareInstance
 ) {
   listenerMiddleware.startListening({
     predicate: () => true,
     effect: (action: any, listenerApi: any) => {
+      if (!isSofterEvent(action)) {
+        return;
+      }
+      const globalStateTree = softerRootState(listenerApi.getState());
+      if (!globalStateTree) {
+        return;
+      }
       const nextActions = generateEventsToForward(
         rootComponentDef,
-        listenerApi.getState(),
+        globalStateTree,
         action
       );
       nextActions.forEach((a) => listenerApi.dispatch(a));

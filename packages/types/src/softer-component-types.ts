@@ -10,14 +10,14 @@ export type OptionalValue = Value | undefined;
 export type State = OptionalValue;
 export type Payload = OptionalValue;
 
-type ComponentValuesContract = { [SelectorName in string]: any };
-type ComponentEventsContract = {
+export type ComponentValuesContract = { [SelectorName in string]: any };
+export type ComponentEventsContract = {
   [EventName in string]: { payload: OptionalValue };
 };
-type ComponentChildContract = ComponentContract & {
+export type ComponentChildContract = ComponentContract & {
   isCollection?: boolean;
 };
-type ComponentChildrenContract = Record<string, ComponentChildContract>;
+export type ComponentChildrenContract = Record<string, ComponentChildContract>;
 
 export type ComponentContract = {
   state: OptionalValue;
@@ -25,7 +25,19 @@ export type ComponentContract = {
   events: ComponentEventsContract;
   children: ComponentChildrenContract;
 };
-
+/*
+TODO ask expert about letting client declare only partial contract in ComponentDef
+e.g.
+export type ComponentDef<
+  TPartialContract extends Partial<ComponentContract> = {},
+  TComponentContract extends ComponentContract = {
+    state: any;
+    values: any;
+    events: any;
+    children: any;
+  } & TPartialContract,
+> =
+*/
 export type ComponentDef<
   TComponentContract extends ComponentContract = {
     state: any;

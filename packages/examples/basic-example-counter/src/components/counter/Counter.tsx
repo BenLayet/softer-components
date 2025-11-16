@@ -1,9 +1,9 @@
-import { CounterUiContract } from "./counter.component.ts";
 import { useSofter } from "@softer-components/redux-adapter";
+import { CounterContract } from "./counter.component.ts";
 
-export const Counter = ({ path = "/" }) => {
+export const Counter = ({ path = [] }) => {
   const [{ count }, { incrementRequested, decrementRequested }] =
-    useSofter<CounterUiContract>(path);
+    useSofter<CounterContract>(path);
   return (
     <div className="horizontal">
       <button aria-label="Decrement value" onClick={() => decrementRequested()}>
