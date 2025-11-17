@@ -8,6 +8,7 @@ import { listDef } from "../list/list.component.ts";
 // Events
 type AppEvents = {
   listSelected: { payload: List };
+  backClicked: { payload: undefined };
 };
 const childrenComponents = {
   listSelect: listSelectDef,
@@ -22,9 +23,15 @@ export type AppComponentContract = {
 };
 // Component definition
 export const appDef: ComponentDef<AppComponentContract> = {
+  uiEvents: ["backClicked"],
   updaters: {
     listSelected: ({ childrenNodes }) => {
-      ((childrenNodes.list = true), (childrenNodes.listSelect = false));
+      childrenNodes.list = true;
+      childrenNodes.listSelect = false;
+    },
+    backClicked: ({ childrenNodes }) => {
+      childrenNodes.list = false;
+      childrenNodes.listSelect = true;
     },
   },
   initialChildrenNodes: { listSelect: true, list: false },

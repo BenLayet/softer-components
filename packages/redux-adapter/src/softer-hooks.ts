@@ -113,35 +113,42 @@ export const useSofterChildrenPath = <
 ): ExtractChildrenPath<TChildrenContract> => {
   const componentPath = stringToComponentPath(pathStr);
   const store = useStore() as SofterStore;
-  const componentState = findSubStateTree(
-    softerRootState(store.getState()),
-    componentPath
-  );
-  const componentDef = findComponentDef(store.rootComponentDef, componentPath);
-  const childrenNodes = extractChildrenNodes(componentDef, componentState);
-  return Object.fromEntries(
-    Object.entries(childrenNodes).map(([childName, childNode]) => {
-      if (componentDef.childrenConfig?.[childName]?.isCollection) {
-        const keys = childNode as string[];
-        const paths = keys
-          .map(
-            (key) =>
-              [...componentPath, [childName, key] as const] as ComponentPath
-          )
-          .map(componentPathToString);
-        return [childName, paths];
-      } else {
-        const exists = childNode as boolean;
-        const path = exists
-          ? componentPathToString([
-              ...componentPath,
-              [childName, undefined] as const,
-            ] as ComponentPath)
-          : null;
-        return [childName, path];
-      }
-    })
-  ) as any;
+  // TODO make sure this is not re-created on each render
+  const selector = (globalState) => {
+    const componentState = findSubStateTree(
+      softerRootState(globalState),
+      componentPath
+    );
+    const componentDef = findComponentDef(
+      store.rootComponentDef,
+      componentPath
+    );
+    const childrenNodes = extractChildrenNodes(componentDef, componentState);
+    return Object.fromEntries(
+      Object.entries(childrenNodes).map(([childName, childNode]) => {
+        if (componentDef.childrenConfig?.[childName]?.isCollection) {
+          const keys = childNode as string[];
+          const paths = keys
+            .map(
+              (key) =>
+                [...componentPath, [childName, key] as const] as ComponentPath
+            )
+            .map(componentPathToString);
+          return [childName, paths];
+        } else {
+          const exists = childNode as boolean;
+          const path = exists
+            ? componentPathToString([
+                ...componentPath,
+                [childName, undefined] as const,
+              ] as ComponentPath)
+            : null;
+          return [childName, path];
+        }
+      })
+    ) as any;
+  };
+  return useSelector(selector);
 };
 
 /////////////////////

@@ -1,7 +1,11 @@
 import { describe, expect, it } from "vitest";
 
 import { configureSofterStore } from "./softer-store";
-import { listDef } from "../../types/src/softer-component-types.test"; // TODO ask expert
+import {
+  ListContract,
+  listDef,
+} from "../../types/src/softer-component-types.test"; // TODO ask expert
+import { useSofter } from "./softer-hooks";
 
 describe("configureSofterStore", () => {
   it("should create a store with initial state", () => {
@@ -18,9 +22,23 @@ describe("configureSofterStore", () => {
 
   it("should create a working app", () => {
     //WHEN the store is configured
-    const store = configureSofterStore(listDef);
+    const store = configureSofterStore(listDef); //TODO ask expert why this is sometimes red underlined
 
     //THEN the store should have the initial state
-    expect(store.getState()).toEqual({ "☁️": { "@": { count: 0 } } });
+    const actualState = store.getState();
+    expect(actualState).toEqual({
+      "☁️": {
+        "@": {
+          listName: "My Shopping List",
+          nextItemName: "",
+          lastItemId: 0,
+        },
+        "#": {
+          items: {},
+        },
+      },
+    });
+
+    //TODO ask expert to use useSofter (that calls useStore and useSelector) in a test component to verify it works
   });
 });

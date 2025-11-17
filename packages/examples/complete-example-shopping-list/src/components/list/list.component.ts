@@ -44,11 +44,11 @@ export type ListContract = {
 
 export const listDef: ComponentDef<ListContract> = {
   selectors: listSelectors,
-  uiEvents: ["nextItemNameChanged", "addItemRequested"],
+  uiEvents: ["nextItemNameChanged", "nextItemSubmitted"],
   updaters: {
-    initialize: ({ state, payload: list, childrenNodes }) => {
-      state.listName = list.name;
+    initialize: ({ payload: list, childrenNodes }) => {
       childrenNodes.items = list.items.map(item => `${item.id}`);
+      return { listName: list.name, nextItemName: "" };
     },
     nextItemNameChanged: ({ state, payload: nextItemName }) => {
       state.nextItemName = nextItemName;

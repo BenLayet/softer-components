@@ -12,7 +12,7 @@ const initialState = {
   listName: "",
 };
 const selectors = {
-  name: state => state.listName,
+  listName: state => state.listName,
 } satisfies Selectors<typeof initialState>;
 
 // Events type declaration
@@ -39,6 +39,11 @@ export type ListSelectContract = {
 export const listSelectDef: ComponentDef<ListSelectContract> = {
   initialState,
   selectors,
+  uiEvents: [
+    "createNewListClicked",
+    "listNameChanged",
+    "openPreviousListRequested",
+  ],
   updaters: {
     listNameChanged: ({ state, payload: listName }) => {
       state.listName = listName;
@@ -49,7 +54,7 @@ export const listSelectDef: ComponentDef<ListSelectContract> = {
       from: "createNewListClicked",
       to: "listSelected",
       withPayload: ({ values: selectors }) => ({
-        name: selectors.name(),
+        name: selectors.listName(),
         items: [],
       }),
     },

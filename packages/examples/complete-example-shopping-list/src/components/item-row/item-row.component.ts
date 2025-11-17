@@ -17,6 +17,7 @@ type ItemRowEvents = {
 const selectors = {
   name: (state: ItemRowState) => state.item?.name,
   quantity: (state: ItemRowState) => state.quantity,
+  isQuantityZero: (state: ItemRowState) => state.quantity === 0,
 };
 
 export type ItemRowContract = {
@@ -31,9 +32,24 @@ export const itemRowDef: ComponentDef<ItemRowContract> = {
   selectors,
   uiEvents: ["removeItemRequested", "incrementRequested", "decrementRequested"],
   updaters: {
-    initialize: ({ state, payload: item }) => {
-      state.item = item;
-      state.quantity = 1;
+    initialize: ({ payload: item }) => ({
+      item,
+      quantity: 1,
+    }),
+    incrementRequested: ({ state }) => {
+      state.quantity += 1;
+    },
+    decrementRequested: ({ state }) => {
+      if (state.quantity > 0) {
+        state.quantity -= 1;
+      }
     },
   },
+  eventForwarders: [
+    {
+      from: "decrementRequested",
+      to: "removeItemRequested",
+      onCondition: ({ values }) => values.isQuantityZero(),
+    },
+  ],
 };

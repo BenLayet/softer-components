@@ -12,6 +12,7 @@ import {
 } from "@softer-components/utils";
 import {
   actionToEvent,
+  eventToAction,
   initialReduxGlobalState,
   isSofterEvent,
   softerRootState,
@@ -78,8 +79,8 @@ function startListeningForEventForwarders(
       const nextActions = generateEventsToForward(
         rootComponentDef,
         globalStateTree,
-        action
-      );
+        actionToEvent(action)
+      ).map(eventToAction);
       nextActions.forEach((a) => listenerApi.dispatch(a));
     },
   });

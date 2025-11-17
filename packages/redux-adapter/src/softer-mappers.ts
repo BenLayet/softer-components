@@ -43,11 +43,7 @@ export function actionToEvent({ type, payload }: ReduxAction): GlobalEvent {
 }
 
 export function eventToAction(event: GlobalEvent): ReduxAction {
-  const type =
-    SOFTER_SOFTER_PREFIX +
-    COMPONENT_SEPARATOR +
-    componentPathToString(event.componentPath) +
-    event.name;
+  const type = componentPathToString(event.componentPath) + event.name;
   return {
     type,
     payload: event.payload,
@@ -64,16 +60,25 @@ export function componentPathToString(componentPath: ComponentPath): string {
           ? `${componentName}${KEY_SEPARATOR}${instanceKey}`
           : componentName
       )
-      .join(COMPONENT_SEPARATOR) +
-    COMPONENT_SEPARATOR
+      .map((segment) => segment + COMPONENT_SEPARATOR)
+      .join("")
   );
 }
 
 export function stringToComponentPath(pathString: string): ComponentPath {
-  const parts = pathString.split(COMPONENT_SEPARATOR);
-  if (!parts.pop()) {
+  if (!pathString) {
     return []; // tolerates empty string as root path
   }
+
+  const parts = pathString.split(COMPONENT_SEPARATOR);
+  if (parts.length < 2) {
+    throw new Error(`invalid component path string: '${pathString}'`);
+  }
+  if (parts[0] !== SOFTER_SOFTER_PREFIX) {
+    throw new Error(`Not a softer component path: '${pathString}'`);
+  }
+  parts.shift(); // remove prefix
+  parts.pop(); // remove trailing empty part due to trailing separator
   return parts.map((part) => {
     const [componentName, instanceKey] = part.split(KEY_SEPARATOR);
     return [componentName, instanceKey ?? undefined] as const;

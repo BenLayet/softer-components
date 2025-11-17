@@ -60,7 +60,12 @@ function updateStateOfComponentOfEvent(
 
   // If children nodes have changed, update the state tree accordingly
   if (JSON.stringify(childrenNodes) !== originalChildrenNodesStr) {
-    updateChildrenState(componentDef, stateTree, childrenNodes);
+    updateChildrenState(
+      componentDef,
+      stateTree,
+      JSON.parse(originalChildrenNodesStr),
+      childrenNodes
+    );
   }
 }
 /**
@@ -110,41 +115,44 @@ function prepareUpdaterParams(
 function updateChildrenState(
   componentDef: ComponentDef,
   stateTree: StateTree,
+  previousChildrenNodes: Record<string, string[] | boolean>,
   desiredChildrenNodes: Record<string, string[] | boolean>
 ) {
   // Current children state
-  const currentChildrenState = stateTree[CHILDREN_STATE_KEY] || {};
+  const previousChildrenState = stateTree[CHILDREN_STATE_KEY] || {};
 
   // Add new children / remove old children
   Object.entries(desiredChildrenNodes).forEach(([childName, childNode]) => {
     const childConfig = componentDef.childrenConfig?.[childName] ?? {};
-    const currentChildState = currentChildrenState[childName] ?? {};
+    const previousChildNode = previousChildrenNodes[childName];
     const childDef = componentDef.childrenComponents?.[childName];
     assertIsNotUndefined(childDef);
 
     if (childConfig.isCollection) {
+      const previousKeys = (previousChildNode ?? []) as string[];
       const desiredKeys = childNode as string[];
       assertIsNotUndefined(desiredKeys);
 
       // Keep previous / initialize state of desired keys
-      currentChildrenState[childName] = Object.fromEntries(
+      previousChildrenState[childName] = Object.fromEntries(
         desiredKeys.map((key) => [
           key,
-          currentChildState[key] ??
-            initialStateTree(componentDef.childrenComponents?.[childName]),
+          previousKeys.includes(key)
+            ? previousChildrenState[childName][key]
+            : initialStateTree(componentDef.childrenComponents?.[childName]),
         ])
       );
     } else {
       if (childNode) {
-        if (isUndefined(currentChildState)) {
-          currentChildrenState[childName] = initialStateTree(childDef);
+        if (!previousChildNode) {
+          previousChildrenState[childName] = initialStateTree(childDef);
         }
       } else {
-        delete currentChildrenState[childName];
+        delete previousChildrenState[childName];
       }
     }
   });
 
   // Update the state tree
-  stateTree[CHILDREN_STATE_KEY] = currentChildrenState;
+  stateTree[CHILDREN_STATE_KEY] = previousChildrenState;
 }

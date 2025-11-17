@@ -3,22 +3,29 @@ import { ListSelectContract } from "./list-select.component";
 
 export const ListSelect = ({ path = "" }) => {
   const [
-    { name },
+    { listName },
     { listNameChanged, createNewListClicked, openPreviousListRequested },
   ] = useSofter<ListSelectContract>(path);
 
   return (
     <div>
       <div className="horizontal">
-        <input
-          type="text"
-          placeholder="New list name"
-          value={name}
-          onChange={e => listNameChanged(e.target.value)}
-        />
-        <button onClick={() => createNewListClicked()}>Create new list</button>
+        <form
+          onSubmit={e => {
+            e.preventDefault();
+            createNewListClicked();
+          }}
+        >
+          <input
+            type="text"
+            placeholder="New list name"
+            value={listName}
+            onChange={e => listNameChanged(e.target.value)}
+          />
+          <button type="submit">Create new list</button>
+        </form>
       </div>
-      <button onClick={() => openPreviousListRequested}>
+      <button onClick={() => openPreviousListRequested()}>
         Open previous list
       </button>
     </div>
