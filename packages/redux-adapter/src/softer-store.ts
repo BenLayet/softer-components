@@ -7,7 +7,7 @@ import {
 import { ComponentDef } from "@softer-components/types";
 import {
   generateEventsToForward,
-  initialStateTree,
+  initializeRootState,
   updateGlobalState,
 } from "@softer-components/utils";
 import {
@@ -17,22 +17,26 @@ import {
   isSofterEvent,
   softerRootState,
 } from "./softer-mappers";
+import { StateManager } from "node_modules/@softer-components/utils/src/state-manager";
 
 export type SofterStore = ReturnType<typeof configureStore> & {
   rootComponentDef: ComponentDef;
 };
+
+class ReduxStateManager implements StateManager {}
 
 export function configureSofterStore(
   rootComponentDef: ComponentDef
 ): SofterStore {
   const listenerMiddleware = createListenerMiddleware();
   startListeningForEventForwarders(rootComponentDef, listenerMiddleware);
+  initializeRootState(rootComponentDef);
 
   // ✅ Use createReducer which has built-in Immer support
   const softerReducer = createReducer(
-    initialReduxGlobalState(initialStateTree(rootComponentDef)),
+    initialReduxGlobalState(),
     (builder: any) => {
-      builder.addDefaultCase((state, action) => {
+      builder.addDefaultCase((state: any, action: any) => {
         if (!isSofterEvent(action)) {
           return state;
         }
@@ -52,7 +56,7 @@ export function configureSofterStore(
   return {
     ...configureStore({
       preloadedState: initialReduxGlobalState(
-        initialStateTree(rootComponentDef)
+        initializeStateTree(rootComponentDef)
       ),
       reducer: softerReducer,
       middleware: (getDefaultMiddleware) =>

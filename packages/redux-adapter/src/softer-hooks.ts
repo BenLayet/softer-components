@@ -7,12 +7,12 @@ import {
 } from "@softer-components/types";
 import {
   ComponentPath,
-  extractChildrenNodes,
+  getChildrenNodes,
   findComponentDef,
   findSubStateTree,
   OWN_STATE_KEY,
 } from "@softer-components/utils";
-import { useDispatch, useSelector, useStore } from "react-redux";
+import { useDispatch, useSelector, useStore, shallowEqual } from "react-redux";
 import {
   componentPathToString,
   eventToAction,
@@ -20,6 +20,8 @@ import {
   stringToComponentPath,
 } from "./softer-mappers";
 import { SofterStore } from "./softer-store";
+import { useMemo } from "react";
+import { createSelector } from "reselect";
 
 /////////////////////
 // useSofterSelectors
@@ -29,26 +31,30 @@ export const useSofterSelectors = <
   TValueContract extends ComponentValuesContract,
 >(
   pathStr: string
-): TValueContract => {
-  const store = useStore() as SofterStore;
-  const componentPath = stringToComponentPath(pathStr);
-  const componentDef = findComponentDef(store.rootComponentDef, componentPath);
-  const selectors = componentDef.selectors ?? {};
-  return Object.fromEntries(
-    Object.entries(selectors)
-      .map(
-        ([selectorName, localSelector]) =>
-          [
-            selectorName,
-            toGlobalStateSelector(componentPath)(localSelector),
-          ] as const
-      )
-      .map(([selectorName, globalSelector]) => [
-        selectorName,
-        useSelector(globalSelector),
-      ])
-  ) as any;
-};
+): TValueContract =>
+  useSelector((globalState) => {
+    const store = useStore() as SofterStore;
+    const componentPath = stringToComponentPath(pathStr);
+    const componentDef = findComponentDef(
+      store.rootComponentDef,
+      componentPath
+    );
+    const selectors = componentDef.selectors ?? {};
+    return Object.fromEntries(
+      Object.entries(selectors)
+        .map(
+          ([selectorName, localSelector]) =>
+            [
+              selectorName,
+              toGlobalStateSelector(componentPath)(localSelector),
+            ] as const
+        )
+        .map(([selectorName, globalSelector]) => [
+          selectorName,
+          useSelector(globalSelector),
+        ])
+    ) as any;
+  });
 const toGlobalStateSelector =
   (path: ComponentPath) =>
   (selector: (componentState: State) => any) =>
@@ -123,7 +129,7 @@ export const useSofterChildrenPath = <
       store.rootComponentDef,
       componentPath
     );
-    const childrenNodes = extractChildrenNodes(componentDef, componentState);
+    const childrenNodes = getChildrenNodes(componentDef, componentState);
     return Object.fromEntries(
       Object.entries(childrenNodes).map(([childName, childNode]) => {
         if (componentDef.childrenConfig?.[childName]?.isCollection) {

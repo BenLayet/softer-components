@@ -1,6 +1,6 @@
 import {
   ComponentDef,
-  ExtractComponentChildrenContract,
+  CreateComponentChildrenContract,
 } from "@softer-components/types";
 import { List } from "../../model/List.ts";
 import { listSelectDef } from "../list-select/list-select.component.ts";
@@ -18,7 +18,7 @@ const childrenComponents = {
 export type AppComponentContract = {
   state: undefined;
   events: AppEvents;
-  children: ExtractComponentChildrenContract<typeof childrenComponents>;
+  children: CreateComponentChildrenContract<typeof childrenComponents>;
   values: {};
 };
 // Component definition

@@ -1,8 +1,9 @@
-import { describe, it, expect } from "vitest";
+import { describe, it, expect, vi } from "vitest";
 
 import { generateEventsToForward } from "./event-forwarding";
-import { ComponentDef } from "@softer-components/types";
-import { GlobalEvent } from "./constants";
+import { ComponentDef, State } from "@softer-components/types";
+import { GlobalEvent } from "./utils.type";
+import { StateManager } from "./state-manager";
 
 describe("event forwarding tests", () => {
   it("generates an event from a simple event forwarder", () => {
@@ -20,9 +21,11 @@ describe("event forwarding tests", () => {
       payload: undefined,
       componentPath: [],
     };
+    const stateManager = {} as StateManager;
+    stateManager.getChildrenNodes = vi.fn().mockReturnValue({});
 
     // WHEN
-    const result = generateEventsToForward(componentDef, {}, event);
+    const result = generateEventsToForward(componentDef, event, stateManager);
 
     // THEN
     expect(result).toEqual([
@@ -56,18 +59,13 @@ describe("event forwarding tests", () => {
       payload: undefined,
       componentPath: [["child"]],
     };
-    const globalStateTree = {
-      "#": {
-        child: {}, //child needs to exist in state tree
-      },
-    };
+    const stateManager = {} as StateManager;
+    stateManager.getChildrenNodes = vi
+      .fn()
+      .mockImplementation((path) => (path.length === 0 ? { child: true } : {}));
 
     // WHEN
-    const result = generateEventsToForward(
-      componentDef,
-      globalStateTree,
-      event
-    );
+    const result = generateEventsToForward(componentDef, event, stateManager);
 
     // THEN
     expect(result).toEqual([
@@ -101,18 +99,13 @@ describe("event forwarding tests", () => {
       payload: undefined,
       componentPath: [],
     };
-    const globalStateTree = {
-      "#": {
-        child: {}, //child needs to exist in state tree
-      },
-    };
+    const stateManager = {} as StateManager;
+    stateManager.getChildrenNodes = vi
+      .fn()
+      .mockImplementation((path) => (path.length === 0 ? { child: true } : {}));
 
     // WHEN
-    const result = generateEventsToForward(
-      componentDef,
-      globalStateTree,
-      event
-    );
+    const result = generateEventsToForward(componentDef, event, stateManager);
 
     // THEN
     expect(result).toEqual([
@@ -124,57 +117,68 @@ describe("event forwarding tests", () => {
     ]);
   });
 
-  it("generates an event from a conditional event forwarder", () => {
-    // GIVEN
-    const componentDef: ComponentDef<{
-      state: { isPassing: boolean };
-      events: {
-        btnClicked: { payload: undefined };
-        incrementRequested: { payload: undefined };
-      };
-      children: {};
-      values: { isPassing: boolean };
-    }> = {
-      selectors: { isPassing: (state) => state.isPassing },
-      eventForwarders: [
+  const conditions = [
+    {
+      isPassing: true,
+      expectsEvents: [
         {
-          from: "btnClicked",
-          to: "incrementRequested",
-          onCondition: ({ selectors }) => selectors.isPassing(),
+          name: "incrementRequested",
+          payload: undefined,
+          componentPath: [],
         },
       ],
-    };
-    const event: GlobalEvent = {
-      name: "btnClicked",
-      payload: undefined,
-      componentPath: [],
-    };
+    },
+    { isPassing: false, expectsEvents: [] },
+  ];
+  conditions.forEach(({ isPassing, expectsEvents }) =>
+    it(
+      "generates an event from a conditional event forwarder, isPassing=" +
+        isPassing,
+      () => {
+        // GIVEN
+        const componentDef: ComponentDef<{
+          state: { isPassing: boolean };
+          events: {
+            btnClicked: { payload: undefined };
+            incrementRequested: { payload: undefined };
+          };
+          children: {};
+          values: { isPassing: boolean };
+        }> = {
+          selectors: {
+            isPassing: (state) => state.isPassing,
+          },
+          eventForwarders: [
+            {
+              from: "btnClicked",
+              to: "incrementRequested",
+              onCondition: ({ values }) => values.isPassing(),
+            },
+          ],
+        };
+        const event: GlobalEvent = {
+          name: "btnClicked",
+          payload: undefined,
+          componentPath: [],
+        };
 
-    // WHEN passing condition met
-    const result1 = generateEventsToForward(
-      componentDef,
-      { "@": { isPassing: true } },
-      event
-    );
+        const stateManager = {} as StateManager;
+        stateManager.selectValue = vi.fn().mockReturnValue(isPassing);
+        stateManager.getChildrenNodes = vi.fn().mockReturnValue({});
 
-    // THEN
-    expect(result1).toEqual([
-      {
-        name: "incrementRequested",
-        payload: undefined,
-        componentPath: [],
-      },
-    ]);
-    // WHEN passing condition NOT met
-    const result2 = generateEventsToForward(
-      componentDef,
-      { "@": { isPassing: false } },
-      event
-    );
+        // WHEN
+        const result = generateEventsToForward(
+          componentDef,
+          event,
+          stateManager
+        );
 
-    // THEN
-    expect(result2).toEqual([]);
-  });
+        // THEN
+        expect(result).toEqual(expectsEvents);
+      }
+    )
+  );
+
   it("generates an event with a different payload", () => {
     // GIVEN
     const componentDef: ComponentDef<{
@@ -191,7 +195,7 @@ describe("event forwarding tests", () => {
         {
           from: "btnClicked",
           to: "incrementRequested",
-          withPayload: ({ selectors }) => selectors.nextPayload(),
+          withPayload: ({ values }) => values.nextPayload(),
         },
       ],
     };
@@ -201,15 +205,14 @@ describe("event forwarding tests", () => {
       componentPath: [],
     };
 
-    // WHEN passing condition met
-    const result1 = generateEventsToForward(
-      componentDef,
-      { "@": { nextPayload: 42 } },
-      event
-    );
+    const stateManager = {} as StateManager;
+    stateManager.selectValue = vi.fn().mockReturnValue(42);
+    stateManager.getChildrenNodes = vi.fn().mockReturnValue({});
+    // WHEN
+    const result = generateEventsToForward(componentDef, event, stateManager);
 
     // THEN
-    expect(result1).toEqual([
+    expect(result).toEqual([
       {
         name: "incrementRequested",
         payload: 42,
@@ -243,18 +246,11 @@ describe("event forwarding tests", () => {
       payload: undefined,
       componentPath: [],
     };
-    const globalStateTree = {
-      "#": {
-        child: {}, //child needs to exist in state tree
-      },
-    };
+    const stateManager = {} as StateManager;
+    stateManager.getChildrenNodes = vi.fn().mockReturnValue({});
 
     // WHEN
-    const result = generateEventsToForward(
-      componentDef,
-      globalStateTree,
-      event
-    );
+    const result = generateEventsToForward(componentDef, event, stateManager);
 
     // THEN
     expect(result).toEqual([

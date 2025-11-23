@@ -294,9 +294,11 @@ export type ExtractComponentValuesContract<
     : never;
 };
 
-export type ExtractComponentChildrenContract<
+export type CreateComponentChildrenContract<
   TChildren extends Record<string, ComponentDef<any>>,
-  TIsCollection extends { [key in keyof TChildren]?: "isCollection" } = {},
+  TIsCollection extends {
+    [ChildName in keyof TChildren]?: "isCollection";
+  } = {},
 > = {
   [ChildName in keyof TChildren]: (TChildren[ChildName] extends ComponentDef<
     infer TComponentContract

@@ -1,13 +1,11 @@
 import { OptionalValue } from "@softer-components/types";
 import {
-  ComponentPath,
   GlobalEvent,
   StateTree,
 } from "node_modules/@softer-components/utils/src/constants";
 
 const COMPONENT_SEPARATOR = "/";
 const KEY_SEPARATOR = ":";
-const SOFTER_SOFTER_PREFIX = "☁️";
 type ReduxAction = {
   type: string;
   payload: OptionalValue;

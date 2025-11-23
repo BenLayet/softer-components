@@ -1,6 +1,6 @@
 import {
   ComponentDef,
-  ExtractComponentChildrenContract,
+  CreateComponentChildrenContract,
   ExtractComponentValuesContract,
   Selectors,
 } from "@softer-components/types";
@@ -32,7 +32,7 @@ export type ListSelectContract = {
   state: typeof initialState;
   values: ExtractComponentValuesContract<typeof selectors>;
   events: ListSelectEvents;
-  children: ExtractComponentChildrenContract<typeof childrenComponents>;
+  children: CreateComponentChildrenContract<typeof childrenComponents>;
 };
 
 // Component definition

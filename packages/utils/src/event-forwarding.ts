@@ -1,26 +1,22 @@
-import { ComponentDef, Payload, State } from "@softer-components/types";
-import {
-  createValuesProvider,
-  findComponentDef,
-  findSubStateTree,
-} from "./component-def-tree";
-import { GlobalEvent, StateTree } from "./constants";
+import { ComponentDef } from "@softer-components/types";
+import { findSubStateTree } from "./state-tree";
+import { GlobalEvent } from "./utils.type";
 import { assertIsNotUndefined } from "./predicate.functions";
+import { StateManager } from "./state-manager";
+import { findComponentDef } from "./component-def-tree";
+import { createValueProviders } from "./value-providers";
+import { RelativePathStateManager } from "./relative-path-state-manager";
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // FORWARDING EVENTS
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 export function generateEventsToForward(
   rootComponentDef: ComponentDef,
-  globalStateTree: StateTree,
-  triggeringEvent: GlobalEvent
+  triggeringEvent: GlobalEvent,
+  stateManager: StateManager
 ) {
   const result: GlobalEvent[] = [];
 
-  const componentStateTree = findSubStateTree(
-    globalStateTree,
-    triggeringEvent.componentPath
-  );
   const componentDef = findComponentDef(
     rootComponentDef,
     triggeringEvent.componentPath
@@ -30,8 +26,8 @@ export function generateEventsToForward(
   result.push(
     ...generateEventsFromOwnComponent(
       componentDef,
-      componentStateTree,
-      triggeringEvent
+      triggeringEvent,
+      stateManager
     )
   );
 
@@ -39,18 +35,14 @@ export function generateEventsToForward(
   result.push(
     ...generateEventsFromParentChildListeners(
       rootComponentDef,
-      globalStateTree,
-      triggeringEvent
+      triggeringEvent,
+      stateManager
     )
   );
 
   // Create events to forward for the component that the event was dispatched to
   result.push(
-    ...generateCommandsToChildren(
-      componentDef,
-      componentStateTree,
-      triggeringEvent
-    )
+    ...generateCommandsToChildren(componentDef, triggeringEvent, stateManager)
   );
 
   return result;
@@ -64,8 +56,8 @@ export function generateEventsToForward(
  */
 function generateEventsFromOwnComponent(
   componentDef: ComponentDef,
-  componentStateTree: StateTree,
-  triggeringEvent: GlobalEvent
+  triggeringEvent: GlobalEvent,
+  stateManager: StateManager
 ): GlobalEvent[] {
   const forwarders = (componentDef.eventForwarders ?? []).filter(
     (forwarder) => forwarder.from === triggeringEvent.name
@@ -77,8 +69,8 @@ function generateEventsFromOwnComponent(
   }
   const callBackParams = prepareCallBackParams(
     componentDef,
-    componentStateTree,
-    triggeringEvent
+    triggeringEvent,
+    stateManager
   );
 
   return forwarders
@@ -103,8 +95,8 @@ function generateEventsFromOwnComponent(
  */
 function generateEventsFromParentChildListeners(
   rootComponentDef: ComponentDef<any>,
-  globalStateTree: StateTree,
-  triggeringEvent: GlobalEvent
+  triggeringEvent: GlobalEvent,
+  stateManager: StateManager
 ): GlobalEvent[] {
   if (!triggeringEvent.componentPath?.length) {
     //no parent component, no child listeners
@@ -129,14 +121,10 @@ function generateEventsFromParentChildListeners(
     //no parent component, no child listeners
     return [];
   }
-  const parentStateTree = findSubStateTree(
-    globalStateTree,
-    parentComponentPath
-  );
   const callBackParams = prepareCallBackParams(
     parentComponentDef,
-    parentStateTree,
-    triggeringEvent
+    triggeringEvent,
+    stateManager
   );
   return childListeners
     .filter(
@@ -161,8 +149,8 @@ function generateEventsFromParentChildListeners(
  */
 function generateCommandsToChildren(
   componentDef: ComponentDef,
-  componentStateTree: StateTree,
-  triggeringEvent: GlobalEvent
+  triggeringEvent: GlobalEvent,
+  stateManager: StateManager
 ): GlobalEvent[] {
   const childrenCommands = Object.entries(
     componentDef.childrenConfig ?? {}
@@ -178,8 +166,8 @@ function generateCommandsToChildren(
   }
   const callBackParams = prepareCallBackParams(
     componentDef,
-    componentStateTree,
-    triggeringEvent
+    triggeringEvent,
+    stateManager
   );
   return childrenCommands
     .filter(
@@ -208,12 +196,14 @@ function generateCommandsToChildren(
  */
 function prepareCallBackParams(
   componentDef: ComponentDef,
-  stateTree: StateTree,
-  event: GlobalEvent
+  event: GlobalEvent,
+  stateManager: StateManager
 ) {
   // Same structure as the state tree, but with values providers instead of states
-  const { values, children } = createValuesProvider(componentDef, stateTree);
-
+  const { values, children } = createValueProviders(
+    componentDef,
+    new RelativePathStateManager(stateManager, event.componentPath)
+  );
   // Event payload
   const payload = event.payload;
 
