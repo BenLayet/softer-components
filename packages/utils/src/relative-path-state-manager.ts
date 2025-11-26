@@ -1,12 +1,17 @@
 import { ChildrenNodes, State } from "@softer-components/types";
-import { ComponentPath } from "./utils.type";
+import { ComponentPath, GlobalState } from "./utils.type";
 import { StateManager } from "./state-manager";
 
+/**
+ * Wrapper around StateManager that manages relative paths.
+ * All state operations are delegated with the absolute path.
+ */
 export class RelativePathStateManager {
   constructor(
     private readonly absolutePathStateManager: StateManager,
     private readonly currentPath: ComponentPath = []
   ) {}
+
   childStateManager(
     childName: string,
     childKey?: string
@@ -16,27 +21,59 @@ export class RelativePathStateManager {
       [childName, childKey],
     ]);
   }
-  readState(): State {
-    return this.absolutePathStateManager.readState(this.currentPath);
+
+  readState(globalState: GlobalState): State {
+    return this.absolutePathStateManager.readState(
+      globalState,
+      this.currentPath
+    );
   }
-  createState(state: State): void {
+
+  createState(globalState: GlobalState, state: State): void {
     if (this.currentPath.length === 0) {
-      this.absolutePathStateManager.updateState(this.currentPath, state);
+      this.absolutePathStateManager.updateState(
+        globalState,
+        this.currentPath,
+        state
+      );
     } else {
-      this.absolutePathStateManager.createState(this.currentPath, state);
+      this.absolutePathStateManager.createState(
+        globalState,
+        this.currentPath,
+        state
+      );
     }
   }
-  updateState(state: State): void {
-    this.absolutePathStateManager.updateState(this.currentPath, state);
+
+  updateState(globalState: GlobalState, state: State): void {
+    this.absolutePathStateManager.updateState(
+      globalState,
+      this.currentPath,
+      state
+    );
   }
-  getChildrenNodes(): ChildrenNodes {
-    return this.absolutePathStateManager.getChildrenNodes(this.currentPath);
+
+  getChildrenNodes(globalState: GlobalState): ChildrenNodes {
+    return this.absolutePathStateManager.getChildrenNodes(
+      globalState,
+      this.currentPath
+    );
   }
-  removeStateTree(): void {
-    this.absolutePathStateManager.removeStateTree(this.currentPath);
+
+  removeStateTree(globalState: GlobalState): void {
+    this.absolutePathStateManager.removeStateTree(
+      globalState,
+      this.currentPath
+    );
   }
-  selectValue<T>(selectorName: string, selector: (state: State) => T): T {
+
+  selectValue<T>(
+    globalState: GlobalState,
+    selectorName: string,
+    selector: (state: State) => T
+  ): T {
     return this.absolutePathStateManager.selectValue(
+      globalState,
       this.currentPath,
       selectorName,
       selector

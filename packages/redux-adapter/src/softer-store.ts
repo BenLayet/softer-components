@@ -12,15 +12,17 @@ import {
   updateGlobalState,
 } from "@softer-components/utils";
 import { actionToEvent, eventToAction, isSofterEvent } from "./softer-mappers";
-import { ReselectStateManager, SOFTER_PREFIX } from "./reselect-state-manager";
+import { ReselectStateManager } from "./reselect-state-manager";
 import { OWN_KEY, Tree } from "./tree";
+import { SOFTER_PREFIX } from "./constants";
+import { L } from "vitest/dist/chunks/reporters.d.BFLkQcL6.js";
 
 export type SofterStore = ReturnType<typeof configureStore> & {
   rootComponentDef: ComponentDef;
   stateManager: StateManager;
 };
 const rootTree: Tree<State> = { [OWN_KEY]: {} };
-const stateManager = new ReselectStateManager(rootTree);
+const stateManager = new ReselectStateManager();
 const globalState = { [SOFTER_PREFIX]: rootTree };
 
 export function configureSofterStore(
@@ -28,7 +30,7 @@ export function configureSofterStore(
 ): SofterStore {
   const listenerMiddleware = createListenerMiddleware();
   startListeningForEventForwarders(rootComponentDef, listenerMiddleware);
-  initializeRootState(rootComponentDef, stateManager);
+  initializeRootState(rootTree, rootComponentDef, stateManager);
 
   const softerReducer = createReducer(globalState, (builder: any) => {
     builder.addDefaultCase((state: any, action: any) => {
@@ -37,14 +39,8 @@ export function configureSofterStore(
       }
       const event = actionToEvent(action);
 
-      // TODO find a better way to sync the stateManager rootState with the Redux store state
-      stateManager.rootState = state[SOFTER_PREFIX];
       // updateGlobalState updates the globalStateTree in place
-      updateGlobalState(rootComponentDef, event, stateManager);
-
-      // ensure the Redux state has the updated globalStateTree
-      // can be updated in place due to Immer
-      state[SOFTER_PREFIX] = stateManager.rootState;
+      updateGlobalState(state, rootComponentDef, event, stateManager);
     });
   });
 
@@ -71,18 +67,12 @@ function startListeningForEventForwarders(
         return;
       }
       const nextActions = generateEventsToForward(
+        listenerApi.getState(),
         rootComponentDef,
         actionToEvent(action),
         stateManager
       ).map(eventToAction);
       nextActions.forEach((a) => listenerApi.dispatch(a));
-    },
-  });
-  listenerMiddleware.startListening({
-    predicate: () => true,
-    effect: (_: any, listenerApi: any) => {
-      // TODO find a better way to sync the stateManager rootState with the Redux store state
-      stateManager.rootState = listenerApi.getState()[SOFTER_PREFIX];
     },
   });
 }

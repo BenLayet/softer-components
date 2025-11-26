@@ -5,13 +5,28 @@ import {
   ComponentValuesContract,
 } from "@softer-components/types";
 import { findComponentDef } from "@softer-components/utils";
-import { useDispatch, useStore } from "react-redux";
+import { useDispatch, useStore, useSelector, shallowEqual } from "react-redux";
 import { eventToAction, stringToComponentPath } from "./softer-mappers";
 import { SofterStore } from "./softer-store";
+import { SOFTER_PREFIX } from "./constants";
 
-/////////////////////
-// useSofterSelectors
-/////////////////////
+type EventsContractToUiDispatchers<
+  TEventsContract extends ComponentEventsContract,
+> = {
+  [K in keyof TEventsContract &
+    string]: TEventsContract[K]["payload"] extends undefined
+    ? () => void
+    : (payload: TEventsContract[K]["payload"]) => void;
+};
+
+type ExtractChildrenPath<TChildrenContract extends ComponentChildrenContract> =
+  {
+    [K in keyof TChildrenContract]: TChildrenContract[K] extends {
+      isCollection: true;
+    }
+      ? string[]
+      : string | null;
+  };
 
 export const useSofterSelectors = <
   TValueContract extends ComponentValuesContract,
@@ -21,29 +36,26 @@ export const useSofterSelectors = <
   const store = useStore() as SofterStore;
   const componentPath = stringToComponentPath(pathStr);
   const componentDef = findComponentDef(store.rootComponentDef, componentPath);
-  const stateManager = store.stateManager;
   const localSelectors = componentDef.selectors ?? {};
-  return Object.fromEntries(
-    Object.entries(localSelectors).map(
-      ([selectorName, localSelector]) =>
-        [
-          selectorName,
-          stateManager.selectValue(componentPath, selectorName, localSelector),
-        ] as const
-    )
-  ) as any;
-};
 
-/////////////////////
-// useSofterDispatchers
-/////////////////////
-type EventsContractToUiDispatchers<
-  TEventsContract extends ComponentEventsContract,
-> = {
-  [K in keyof TEventsContract &
-    string]: TEventsContract[K]["payload"] extends undefined
-    ? () => void
-    : (payload: TEventsContract[K]["payload"]) => void;
+  // Subscribe to Redux state with useSelector
+  return useSelector(
+    (globalState: any) =>
+      Object.fromEntries(
+        Object.entries(localSelectors).map(([selectorName, localSelector]) => {
+          return [
+            selectorName,
+            store.stateManager.selectValue(
+              globalState[SOFTER_PREFIX],
+              componentPath,
+              selectorName,
+              localSelector
+            ),
+          ];
+        })
+      ),
+    shallowEqual
+  ) as TValueContract;
 };
 
 export const useSofterEvents = <
@@ -55,6 +67,7 @@ export const useSofterEvents = <
   const dispatch = useDispatch();
   const store = useStore() as SofterStore;
   const componentDef = findComponentDef(store.rootComponentDef, componentPath);
+
   return Object.fromEntries(
     (componentDef.uiEvents ?? []).map((eventName) => {
       return [
@@ -66,17 +79,6 @@ export const useSofterEvents = <
   ) as any;
 };
 
-/////////////////////
-// useSofterChildrenPath
-/////////////////////
-type ExtractChildrenPath<TChildrenContract extends ComponentChildrenContract> =
-  {
-    [K in keyof TChildrenContract]: TChildrenContract[K] extends {
-      isCollection: true;
-    }
-      ? string[]
-      : string | null;
-  };
 export const useSofterChildrenPath = <
   TChildrenContract extends ComponentChildrenContract,
 >(
@@ -84,13 +86,16 @@ export const useSofterChildrenPath = <
 ): ExtractChildrenPath<TChildrenContract> => {
   const store = useStore() as SofterStore;
   const componentPath = stringToComponentPath(pathStr);
-  const stateManager = store.stateManager;
-  return stateManager.getChildrenPath(componentPath) as any;
+
+  // Subscribe to Redux state with useSelector
+  return useSelector((globalState: any) =>
+    store.stateManager.getChildrenPaths(
+      globalState[SOFTER_PREFIX],
+      componentPath
+    )
+  ) as ExtractChildrenPath<TChildrenContract>;
 };
 
-/////////////////////
-// useSofter
-/////////////////////
 export const useSofter = <TComponentContract extends ComponentContract>(
   pathStr: string
 ): [

@@ -1,43 +1,34 @@
 import { ComponentDef } from "@softer-components/types";
 import { isNotUndefined } from "./predicate.functions";
-import { StateManager } from "./state-manager";
 import { RelativePathStateManager } from "./relative-path-state-manager";
-
-//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-// STATE INITIALISATION
-//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+import { GlobalState } from "./utils.type";
+import { StateManager } from "./state-manager";
 
 /**
  * Initialize the complete state tree from the root component definition
  */
 export function initializeRootState(
+  globalState: GlobalState,
   rootComponentDef: ComponentDef,
   stateManager: StateManager
 ) {
-  return initializeStateTree(
+  return initializeStateRecursively(
+    globalState,
     rootComponentDef,
-    new RelativePathStateManager(stateManager)
+    new RelativePathStateManager(stateManager, [])
   );
 }
-/**
- * Initialize the complete state tree for a component hierarchy
- */
-export const initializeStateTree = (
-  rootComponentDef: ComponentDef,
-  stateManager: RelativePathStateManager
-) => {
-  return initializeStateRecursively(rootComponentDef, stateManager);
-};
 
 /**
  * Recursively instantiate state for a component and its children
  */
-function initializeStateRecursively(
+export function initializeStateRecursively(
+  globalState: GlobalState,
   componentDef: ComponentDef,
   stateManager: RelativePathStateManager
 ) {
   // Initialize component state, even if undefined
-  stateManager.createState(componentDef.initialState);
+  stateManager.createState(globalState, componentDef.initialState);
 
   // Initialize children state
   if (isNotUndefined(componentDef.childrenComponents)) {
@@ -50,11 +41,16 @@ function initializeStateRecursively(
           keys
             .map((key) => stateManager.childStateManager(childName, key))
             .forEach((childStateManager) => {
-              initializeStateTree(childDef, childStateManager);
+              initializeStateRecursively(
+                globalState,
+                childDef,
+                childStateManager
+              );
             });
         } else {
           if (componentDef.initialChildrenNodes?.[childName] ?? true) {
-            initializeStateTree(
+            initializeStateRecursively(
+              globalState,
               childDef,
               stateManager.childStateManager(childName)
             );

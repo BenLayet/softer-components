@@ -2,28 +2,27 @@ import {
   ComponentDef,
   Values as ValueProviders,
 } from "@softer-components/types";
-import {
-  assertIsNotUndefined,
-  assertValueIsNotUndefined,
-} from "./predicate.functions";
+import { assertValueIsNotUndefined } from "./predicate.functions";
 import { RelativePathStateManager } from "./relative-path-state-manager";
+import { GlobalState } from "./utils.type";
 
 /**
  * Create Values provider for a component given its definition and state
- * @param componentDef
- * @param stateManager
- * @returns Provider for all values from their selectors and their children selectors,
- *  without exposing the state directly
  */
 export function createValueProviders(
+  globalState: GlobalState,
   componentDef: ComponentDef,
   stateManager: RelativePathStateManager
 ): ValueProviders {
   // Create own values
-  const values = createOwnValueProviders(componentDef, stateManager);
+  const values = createOwnValueProviders(
+    globalState,
+    componentDef,
+    stateManager
+  );
 
   // Create children values
-  const childrenNodes = stateManager.getChildrenNodes();
+  const childrenNodes = stateManager.getChildrenNodes(globalState);
   const children = Object.fromEntries(
     Object.entries(childrenNodes).map(([childName, childNode]) => {
       const childDef = componentDef.childrenComponents?.[childName];
@@ -37,6 +36,7 @@ export function createValueProviders(
         const collectionChildValueProviders = Object.fromEntries(
           keys.map((key) => {
             const childValueProviders = createValueProviders(
+              globalState,
               childDef,
               stateManager.childStateManager(childName, key)
             );
@@ -48,6 +48,7 @@ export function createValueProviders(
         return [
           childName,
           createValueProviders(
+            globalState,
             childDef,
             stateManager.childStateManager(childName)
           ),
@@ -55,11 +56,12 @@ export function createValueProviders(
       }
     })
   );
-  // Return the values tree
+
   return { values, children };
 }
 
 function createOwnValueProviders(
+  globalState: GlobalState,
   componentDef: ComponentDef,
   stateManager: RelativePathStateManager
 ): ValueProviders["values"] {
@@ -67,7 +69,7 @@ function createOwnValueProviders(
   return Object.fromEntries(
     Object.entries(selectorsDef).map(([selectorName, selector]) => [
       selectorName,
-      () => stateManager.selectValue(selectorName, selector),
+      () => stateManager.selectValue(globalState, selectorName, selector),
     ])
   );
 }
