@@ -3,12 +3,15 @@ import { ComponentPath } from "./utils.type";
 
 export interface StateManager {
   readState: (path: ComponentPath) => State;
-  writeState: (path: ComponentPath, state: State) => void;
-  removeState(path: ComponentPath): void;
+  updateState: (path: ComponentPath, state: State) => void;
+  createState: (path: ComponentPath, state: State) => void;
+  removeStateTree(path: ComponentPath): void;
   getChildrenNodes(path: ComponentPath): ChildrenNodes;
+  getChildrenPath(path: ComponentPath): ChildrenPaths;
   selectValue<T>(
     path: ComponentPath,
     selectorName: string,
     selector: (state: State) => T
   ): T;
 }
+export type ChildrenPaths = Record<string, string[] | string>;

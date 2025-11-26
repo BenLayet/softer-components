@@ -1,5 +1,4 @@
 import { ComponentDef } from "@softer-components/types";
-import { findSubStateTree } from "./state-tree";
 import { GlobalEvent } from "./utils.type";
 import { assertIsNotUndefined } from "./predicate.functions";
 import { StateManager } from "./state-manager";

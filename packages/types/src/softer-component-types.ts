@@ -49,7 +49,7 @@ export type ComponentDef<TComponentContract extends ComponentContract = any> = {
       state: TComponentContract["state"]
     ) => TComponentContract["values"][SelectorName];
   };
-  uiEvents?: (keyof TComponentContract["events"])[];
+  uiEvents?: (keyof TComponentContract["events"] & string)[];
   updaters?: {
     [EventName in keyof TComponentContract["events"]]?: (
       params: Values<TComponentContract> & {

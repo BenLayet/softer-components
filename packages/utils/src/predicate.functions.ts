@@ -1,5 +1,5 @@
-export const not = (predicate: (value: any) => boolean) => {
-  return (value: any) => !predicate(value);
+export const not = <T = any>(predicate: (value: T) => boolean) => {
+  return (value: T) => !predicate(value);
 };
 export const and = (...predicates: Array<(value: any) => boolean>) => {
   return (value: any) => predicates.every((predicate) => predicate(value));

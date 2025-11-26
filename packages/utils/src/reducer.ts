@@ -1,7 +1,7 @@
 import { ComponentDef, State } from "@softer-components/types";
 
 import { assertIsNotUndefined, isNotUndefined } from "./predicate.functions";
-import { initializeStateTree } from "./state";
+import { initializeStateTree } from "./state-initializer";
 import { StateManager } from "./state-manager";
 import { findComponentDef } from "./component-def-tree";
 import { GlobalEvent } from "./utils.type";
@@ -58,7 +58,7 @@ function updateStateOfComponentOfEvent(
     }
   });
 
-  stateManager.writeState(next.state);
+  stateManager.updateState(next.state);
 
   // If children nodes have changed, update the state tree accordingly
   if (childrenNodes !== next.childrenNodes) {
@@ -132,7 +132,7 @@ function updateChildrenState(
       previousKeys
         .filter((key) => !desiredKeys.includes(key))
         .map((key) => stateManager.childStateManager(childName, key))
-        .forEach((childStateManager) => childStateManager.removeState());
+        .forEach((childStateManager) => childStateManager.removeStateTree());
 
       // initialize state of desired keys
       desiredKeys
@@ -151,7 +151,7 @@ function updateChildrenState(
           );
         }
       } else {
-        stateManager.childStateManager(childName).removeState();
+        stateManager.childStateManager(childName).removeStateTree();
       }
     }
   });

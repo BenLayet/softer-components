@@ -37,7 +37,7 @@ function initializeStateRecursively(
   stateManager: RelativePathStateManager
 ) {
   // Initialize component state, even if undefined
-  stateManager.writeState(componentDef.initialState);
+  stateManager.createState(componentDef.initialState);
 
   // Initialize children state
   if (isNotUndefined(componentDef.childrenComponents)) {

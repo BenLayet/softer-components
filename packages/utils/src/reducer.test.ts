@@ -246,7 +246,7 @@ describe("reducer tests", () => {
       },
       thenExpectsCalls: [
         {
-          method: "removeState",
+          method: "removeStateTree",
           args: {
             path: [["items", "1"]],
           },
@@ -275,8 +275,7 @@ describe("reducer tests", () => {
           return {};
         });
         stateManager.writeState = vi.fn();
-        stateManager.removeState = vi.fn();
-        stateManager.valueProvider = vi.fn();
+        stateManager.removeStateTree = vi.fn();
 
         //WHEN changing name
         updateGlobalState(listDef, event, stateManager);

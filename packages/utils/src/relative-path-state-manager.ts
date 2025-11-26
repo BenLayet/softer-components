@@ -19,14 +19,21 @@ export class RelativePathStateManager {
   readState(): State {
     return this.absolutePathStateManager.readState(this.currentPath);
   }
-  writeState(state: State): void {
-    this.absolutePathStateManager.writeState(this.currentPath, state);
+  createState(state: State): void {
+    if (this.currentPath.length === 0) {
+      this.absolutePathStateManager.updateState(this.currentPath, state);
+    } else {
+      this.absolutePathStateManager.createState(this.currentPath, state);
+    }
+  }
+  updateState(state: State): void {
+    this.absolutePathStateManager.updateState(this.currentPath, state);
   }
   getChildrenNodes(): ChildrenNodes {
     return this.absolutePathStateManager.getChildrenNodes(this.currentPath);
   }
-  removeState(): void {
-    this.absolutePathStateManager.removeState(this.currentPath);
+  removeStateTree(): void {
+    this.absolutePathStateManager.removeStateTree(this.currentPath);
   }
   selectValue<T>(selectorName: string, selector: (state: State) => T): T {
     return this.absolutePathStateManager.selectValue(
