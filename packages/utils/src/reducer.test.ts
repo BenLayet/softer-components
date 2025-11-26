@@ -1,6 +1,6 @@
 // packages/utils/src/state.test.ts
 import { describe, expect, it, test, vi } from "vitest";
-import { updateGlobalState } from "./reducer";
+import { updateSofterRootState } from "./reducer";
 import { ComponentDef } from "@softer-components/types";
 import { GlobalEvent } from "./utils.type";
 import { listDef } from "../../types/src/softer-component-types.test"; // TODO ask expert
@@ -39,7 +39,7 @@ describe("reducer tests", () => {
     stateManager.writeState = vi.fn();
 
     // WHEN creating initial state tree
-    updateGlobalState(componentDef, event, stateManager);
+    updateSofterRootState(componentDef, event, stateManager);
 
     // THEN it should create correct state structure
     expect(stateManager.writeState).toHaveBeenCalledWith([], {
@@ -76,7 +76,7 @@ describe("reducer tests", () => {
     stateManager.writeState = vi.fn();
 
     // WHEN creating initial state tree
-    updateGlobalState(componentDef, event, stateManager);
+    updateSofterRootState(componentDef, event, stateManager);
 
     // THEN it should create correct state structure
     // THEN it should create correct state structure
@@ -278,7 +278,7 @@ describe("reducer tests", () => {
         stateManager.removeStateTree = vi.fn();
 
         //WHEN changing name
-        updateGlobalState(listDef, event, stateManager);
+        updateSofterRootState(listDef, event, stateManager);
 
         // THEN it should create correct state structure
 

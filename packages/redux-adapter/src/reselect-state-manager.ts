@@ -29,11 +29,8 @@ type ComponentSelector = {
 };
 
 const createComponentSelector = (path: ComponentPath): ComponentSelector => {
-  const stateTreeSelector = createSelector(
-    [(rootStateTree: Tree<State>) => rootStateTree],
-    (rootStateTree: Tree<State>): Tree<State> =>
-      findSubTree(rootStateTree, path)
-  );
+  const stateTreeSelector = (rootStateTree: Tree<State>): Tree<State> =>
+    findSubTree(rootStateTree, path);
 
   const ownStateSelector = createSelector(
     [stateTreeSelector],

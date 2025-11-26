@@ -1,19 +1,19 @@
 import { ComponentDef } from "@softer-components/types";
 import { isNotUndefined } from "./predicate.functions";
 import { RelativePathStateManager } from "./relative-path-state-manager";
-import { GlobalState } from "./utils.type";
+import { SofterRootState } from "./utils.type";
 import { StateManager } from "./state-manager";
 
 /**
  * Initialize the complete state tree from the root component definition
  */
 export function initializeRootState(
-  globalState: GlobalState,
+  softerRootState: SofterRootState,
   rootComponentDef: ComponentDef,
   stateManager: StateManager
 ) {
   return initializeStateRecursively(
-    globalState,
+    softerRootState,
     rootComponentDef,
     new RelativePathStateManager(stateManager, [])
   );
@@ -23,12 +23,12 @@ export function initializeRootState(
  * Recursively instantiate state for a component and its children
  */
 export function initializeStateRecursively(
-  globalState: GlobalState,
+  softerRootState: SofterRootState,
   componentDef: ComponentDef,
   stateManager: RelativePathStateManager
 ) {
   // Initialize component state, even if undefined
-  stateManager.createState(globalState, componentDef.initialState);
+  stateManager.createState(softerRootState, componentDef.initialState);
 
   // Initialize children state
   if (isNotUndefined(componentDef.childrenComponents)) {
@@ -42,7 +42,7 @@ export function initializeStateRecursively(
             .map((key) => stateManager.childStateManager(childName, key))
             .forEach((childStateManager) => {
               initializeStateRecursively(
-                globalState,
+                softerRootState,
                 childDef,
                 childStateManager
               );
@@ -50,7 +50,7 @@ export function initializeStateRecursively(
         } else {
           if (componentDef.initialChildrenNodes?.[childName] ?? true) {
             initializeStateRecursively(
-              globalState,
+              softerRootState,
               childDef,
               stateManager.childStateManager(childName)
             );

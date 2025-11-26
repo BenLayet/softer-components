@@ -5,10 +5,13 @@ import {
   ComponentValuesContract,
 } from "@softer-components/types";
 import { findComponentDef } from "@softer-components/utils";
-import { useDispatch, useStore, useSelector, shallowEqual } from "react-redux";
-import { eventToAction, stringToComponentPath } from "./softer-mappers";
+import { shallowEqual, useDispatch, useSelector, useStore } from "react-redux";
+import {
+  eventToAction,
+  getSofterRootTree,
+  stringToComponentPath,
+} from "./softer-mappers";
 import { SofterStore } from "./softer-store";
-import { SOFTER_PREFIX } from "./constants";
 
 type EventsContractToUiDispatchers<
   TEventsContract extends ComponentEventsContract,
@@ -46,7 +49,7 @@ export const useSofterSelectors = <
           return [
             selectorName,
             store.stateManager.selectValue(
-              globalState[SOFTER_PREFIX],
+              getSofterRootTree(globalState),
               componentPath,
               selectorName,
               localSelector
@@ -90,7 +93,7 @@ export const useSofterChildrenPath = <
   // Subscribe to Redux state with useSelector
   return useSelector((globalState: any) =>
     store.stateManager.getChildrenPaths(
-      globalState[SOFTER_PREFIX],
+      getSofterRootTree(globalState),
       componentPath
     )
   ) as ExtractChildrenPath<TChildrenContract>;

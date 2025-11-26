@@ -1,20 +1,25 @@
 import { ComponentDef } from "@softer-components/types";
-import { GlobalEvent, GlobalState } from "./utils.type";
+import { GlobalEvent, SofterRootState } from "./utils.type";
 import { assertIsNotUndefined } from "./predicate.functions";
 import { findComponentDef } from "./component-def-tree";
 import { createValueProviders } from "./value-providers";
 import { RelativePathStateManager } from "./relative-path-state-manager";
+import { StateManager } from "./state-manager";
 
 /**
  * Generate events to forward based on the triggering event
  */
 export function generateEventsToForward(
-  globalState: GlobalState,
+  softerRootState: SofterRootState,
   rootComponentDef: ComponentDef,
   triggeringEvent: GlobalEvent,
-  stateManager: RelativePathStateManager
+  asboluteStateManager: StateManager
 ) {
   const result: GlobalEvent[] = [];
+  const stateManager = new RelativePathStateManager(
+    asboluteStateManager,
+    triggeringEvent.componentPath || []
+  );
 
   const componentDef = findComponentDef(
     rootComponentDef,
@@ -23,7 +28,7 @@ export function generateEventsToForward(
 
   result.push(
     ...generateEventsFromOwnComponent(
-      globalState,
+      softerRootState,
       componentDef,
       triggeringEvent,
       stateManager
@@ -32,7 +37,7 @@ export function generateEventsToForward(
 
   result.push(
     ...generateEventsFromParentChildListeners(
-      globalState,
+      softerRootState,
       rootComponentDef,
       triggeringEvent,
       stateManager
@@ -41,7 +46,7 @@ export function generateEventsToForward(
 
   result.push(
     ...generateCommandsToChildren(
-      globalState,
+      softerRootState,
       componentDef,
       triggeringEvent,
       stateManager
@@ -52,7 +57,7 @@ export function generateEventsToForward(
 }
 
 function generateEventsFromOwnComponent(
-  globalState: GlobalState,
+  softerRootState: SofterRootState,
   componentDef: ComponentDef,
   triggeringEvent: GlobalEvent,
   stateManager: RelativePathStateManager
@@ -66,7 +71,7 @@ function generateEventsFromOwnComponent(
   }
 
   const callBackParams = prepareCallBackParams(
-    globalState,
+    softerRootState,
     componentDef,
     triggeringEvent,
     stateManager
@@ -87,7 +92,7 @@ function generateEventsFromOwnComponent(
 }
 
 function generateEventsFromParentChildListeners(
-  globalState: GlobalState,
+  softerRootState: SofterRootState,
   rootComponentDef: ComponentDef<any>,
   triggeringEvent: GlobalEvent,
   stateManager: RelativePathStateManager
@@ -116,7 +121,7 @@ function generateEventsFromParentChildListeners(
   }
 
   const callBackParams = prepareCallBackParams(
-    globalState,
+    softerRootState,
     parentComponentDef,
     triggeringEvent,
     stateManager
@@ -137,7 +142,7 @@ function generateEventsFromParentChildListeners(
 }
 
 function generateCommandsToChildren(
-  globalState: GlobalState,
+  softerRootState: SofterRootState,
   componentDef: ComponentDef,
   triggeringEvent: GlobalEvent,
   stateManager: RelativePathStateManager
@@ -155,7 +160,7 @@ function generateCommandsToChildren(
   }
 
   const callBackParams = prepareCallBackParams(
-    globalState,
+    softerRootState,
     componentDef,
     triggeringEvent,
     stateManager
@@ -181,13 +186,13 @@ function generateCommandsToChildren(
 }
 
 function prepareCallBackParams(
-  globalState: GlobalState,
+  softerRootState: SofterRootState,
   componentDef: ComponentDef,
   event: GlobalEvent,
   stateManager: RelativePathStateManager
 ) {
   const { values, children } = createValueProviders(
-    globalState,
+    softerRootState,
     componentDef,
     stateManager
   );

@@ -4,25 +4,25 @@ import {
 } from "@softer-components/types";
 import { assertValueIsNotUndefined } from "./predicate.functions";
 import { RelativePathStateManager } from "./relative-path-state-manager";
-import { GlobalState } from "./utils.type";
+import { SofterRootState } from "./utils.type";
 
 /**
  * Create Values provider for a component given its definition and state
  */
 export function createValueProviders(
-  globalState: GlobalState,
+  softerRootState: SofterRootState,
   componentDef: ComponentDef,
   stateManager: RelativePathStateManager
 ): ValueProviders {
   // Create own values
   const values = createOwnValueProviders(
-    globalState,
+    softerRootState,
     componentDef,
     stateManager
   );
 
   // Create children values
-  const childrenNodes = stateManager.getChildrenNodes(globalState);
+  const childrenNodes = stateManager.getChildrenNodes(softerRootState);
   const children = Object.fromEntries(
     Object.entries(childrenNodes).map(([childName, childNode]) => {
       const childDef = componentDef.childrenComponents?.[childName];
@@ -36,7 +36,7 @@ export function createValueProviders(
         const collectionChildValueProviders = Object.fromEntries(
           keys.map((key) => {
             const childValueProviders = createValueProviders(
-              globalState,
+              softerRootState,
               childDef,
               stateManager.childStateManager(childName, key)
             );
@@ -48,7 +48,7 @@ export function createValueProviders(
         return [
           childName,
           createValueProviders(
-            globalState,
+            softerRootState,
             childDef,
             stateManager.childStateManager(childName)
           ),
@@ -61,7 +61,7 @@ export function createValueProviders(
 }
 
 function createOwnValueProviders(
-  globalState: GlobalState,
+  softerRootState: SofterRootState,
   componentDef: ComponentDef,
   stateManager: RelativePathStateManager
 ): ValueProviders["values"] {
@@ -69,7 +69,7 @@ function createOwnValueProviders(
   return Object.fromEntries(
     Object.entries(selectorsDef).map(([selectorName, selector]) => [
       selectorName,
-      () => stateManager.selectValue(globalState, selectorName, selector),
+      () => stateManager.selectValue(softerRootState, selectorName, selector),
     ])
   );
 }

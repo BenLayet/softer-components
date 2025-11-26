@@ -6,7 +6,7 @@ import {
   initializeStateRecursively,
 } from "./state-initializer";
 import { findComponentDef } from "./component-def-tree";
-import { GlobalEvent, GlobalState } from "./utils.type";
+import { GlobalEvent, SofterRootState } from "./utils.type";
 import { RelativePathStateManager } from "./relative-path-state-manager";
 import { createValueProviders } from "./value-providers";
 import { produce } from "immer";
@@ -15,19 +15,19 @@ import { StateManager } from "./state-manager";
 /**
  * Update the global state tree based on the given event
  *
- * @param globalState - Current global state
+ * @param softerRootState - Current global state
  * @param rootComponentDef - Root component definition
  * @param event - Event to process
  * @param stateManager - State manager to read/write state
  */
-export function updateGlobalState(
-  globalState: GlobalState,
+export function updateSofterRootState(
+  softerRootState: SofterRootState,
   rootComponentDef: ComponentDef,
   event: GlobalEvent,
   stateManager: StateManager
 ) {
   updateStateOfComponentOfEvent(
-    globalState,
+    softerRootState,
     rootComponentDef,
     event,
     new RelativePathStateManager(stateManager, [])
@@ -35,7 +35,7 @@ export function updateGlobalState(
 }
 
 function updateStateOfComponentOfEvent<State>(
-  globalState: GlobalState,
+  softerRootState: SofterRootState,
   rootComponentDef: ComponentDef,
   event: GlobalEvent,
   stateManager: RelativePathStateManager
@@ -45,7 +45,7 @@ function updateStateOfComponentOfEvent<State>(
   if (!updater) return;
 
   const { values, children, childrenNodes, state, payload } =
-    prepareUpdaterParams(globalState, componentDef, event, stateManager);
+    prepareUpdaterParams(softerRootState, componentDef, event, stateManager);
 
   const next = produce({ state, childrenNodes }, (draft: any) => {
     const returnedValue = updater({
@@ -61,12 +61,12 @@ function updateStateOfComponentOfEvent<State>(
     }
   });
 
-  stateManager.updateState(globalState, next.state);
+  stateManager.updateState(softerRootState, next.state);
 
   // If children nodes have changed, update the state tree accordingly
   if (childrenNodes !== next.childrenNodes) {
     updateChildrenState(
-      globalState,
+      softerRootState,
       componentDef,
       childrenNodes,
       next.childrenNodes,
@@ -79,19 +79,19 @@ function updateStateOfComponentOfEvent<State>(
  * Prepare updater parameters from component definition and state tree
  */
 function prepareUpdaterParams(
-  globalState: GlobalState,
+  softerRootState: SofterRootState,
   componentDef: ComponentDef,
   event: GlobalEvent,
   stateManager: RelativePathStateManager
 ) {
   const { values, children } = createValueProviders(
-    globalState,
+    softerRootState,
     componentDef,
     stateManager
   );
 
-  const childrenNodes = stateManager.getChildrenNodes(globalState);
-  const state = stateManager.readState(globalState);
+  const childrenNodes = stateManager.getChildrenNodes(softerRootState);
+  const state = stateManager.readState(softerRootState);
   const payload = event.payload;
 
   return {
@@ -107,7 +107,7 @@ function prepareUpdaterParams(
  * Update children state based on changed childrenNodes
  */
 function updateChildrenState(
-  globalState: GlobalState,
+  softerRootState: SofterRootState,
   componentDef: ComponentDef,
   previousChildrenNodes: Record<string, string[] | boolean>,
   desiredChildrenNodes: Record<string, string[] | boolean>,
@@ -128,7 +128,7 @@ function updateChildrenState(
         .filter((key) => !desiredKeys.includes(key))
         .map((key) => stateManager.childStateManager(childName, key))
         .forEach((childStateManager) =>
-          childStateManager.removeStateTree(globalState)
+          childStateManager.removeStateTree(softerRootState)
         );
 
       // Initialize state of desired keys
@@ -136,20 +136,26 @@ function updateChildrenState(
         .filter((key) => !previousKeys.includes(key))
         .map((key) => stateManager.childStateManager(childName, key))
         .forEach((childStateManager) =>
-          initializeStateRecursively(globalState, childDef, childStateManager)
+          initializeStateRecursively(
+            softerRootState,
+            childDef,
+            childStateManager
+          )
         );
     } else {
       // Single child
       if (childNode) {
         if (!previousChildNode) {
           initializeStateRecursively(
-            globalState,
+            softerRootState,
             childDef,
             stateManager.childStateManager(childName)
           );
         }
       } else {
-        stateManager.childStateManager(childName).removeStateTree(globalState);
+        stateManager
+          .childStateManager(childName)
+          .removeStateTree(softerRootState);
       }
     }
   });

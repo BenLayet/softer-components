@@ -1,6 +1,12 @@
-import { OptionalValue } from "@softer-components/types";
-import { SOFTER_PREFIX } from "./reselect-state-manager";
-import { ComponentPath, GlobalEvent } from "@softer-components/utils";
+import { OptionalValue, State } from "@softer-components/types";
+import {
+  assertIsNotUndefined,
+  assertValueIsUndefined,
+  ComponentPath,
+  GlobalEvent,
+  SofterRootState,
+} from "@softer-components/utils";
+import { OWN_KEY, Tree } from "./tree";
 
 type ReduxAction = {
   type: string;
@@ -38,8 +44,28 @@ export function eventToAction(event: GlobalEvent): ReduxAction {
 }
 
 //component path string conversion
+const SOFTER_PREFIX = "☁️";
 const COMPONENT_SEPARATOR = "/";
 const KEY_SEPARATOR = ":";
+export function addSofterRootTree(globalState: {
+  [SOFTER_PREFIX]?: Tree<State>;
+}): { [SOFTER_PREFIX]: Tree<State> } {
+  assertValueIsUndefined(
+    { softerRootTree: globalState[SOFTER_PREFIX] },
+    "Global state already has root tree"
+  );
+  globalState[SOFTER_PREFIX] = { [OWN_KEY]: {} };
+  return globalState as { [SOFTER_PREFIX]: Tree<State> };
+}
+export function getSofterRootTree(
+  softerRootState: SofterRootState & { [SOFTER_PREFIX]?: Tree<State> }
+): Tree<State> {
+  assertIsNotUndefined(
+    softerRootState[SOFTER_PREFIX],
+    "Global state does not have softer root tree"
+  );
+  return softerRootState[SOFTER_PREFIX];
+}
 
 export function componentPathToString(componentPath: ComponentPath): string {
   return (

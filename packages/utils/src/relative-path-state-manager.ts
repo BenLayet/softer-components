@@ -1,5 +1,5 @@
 import { ChildrenNodes, State } from "@softer-components/types";
-import { ComponentPath, GlobalState } from "./utils.type";
+import { ComponentPath, SofterRootState } from "./utils.type";
 import { StateManager } from "./state-manager";
 
 /**
@@ -22,58 +22,58 @@ export class RelativePathStateManager {
     ]);
   }
 
-  readState(globalState: GlobalState): State {
+  readState(softerRootState: SofterRootState): State {
     return this.absolutePathStateManager.readState(
-      globalState,
+      softerRootState,
       this.currentPath
     );
   }
 
-  createState(globalState: GlobalState, state: State): void {
+  createState(softerRootState: SofterRootState, state: State): void {
     if (this.currentPath.length === 0) {
       this.absolutePathStateManager.updateState(
-        globalState,
+        softerRootState,
         this.currentPath,
         state
       );
     } else {
       this.absolutePathStateManager.createState(
-        globalState,
+        softerRootState,
         this.currentPath,
         state
       );
     }
   }
 
-  updateState(globalState: GlobalState, state: State): void {
+  updateState(softerRootState: SofterRootState, state: State): void {
     this.absolutePathStateManager.updateState(
-      globalState,
+      softerRootState,
       this.currentPath,
       state
     );
   }
 
-  getChildrenNodes(globalState: GlobalState): ChildrenNodes {
+  getChildrenNodes(softerRootState: SofterRootState): ChildrenNodes {
     return this.absolutePathStateManager.getChildrenNodes(
-      globalState,
+      softerRootState,
       this.currentPath
     );
   }
 
-  removeStateTree(globalState: GlobalState): void {
+  removeStateTree(softerRootState: SofterRootState): void {
     this.absolutePathStateManager.removeStateTree(
-      globalState,
+      softerRootState,
       this.currentPath
     );
   }
 
   selectValue<T>(
-    globalState: GlobalState,
+    softerRootState: SofterRootState,
     selectorName: string,
     selector: (state: State) => T
   ): T {
     return this.absolutePathStateManager.selectValue(
-      globalState,
+      softerRootState,
       this.currentPath,
       selectorName,
       selector

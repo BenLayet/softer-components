@@ -1,5 +1,5 @@
 import { ChildrenNodes, State } from "@softer-components/types";
-import { ChildrenPaths, ComponentPath, GlobalState } from "./utils.type";
+import { ChildrenPaths, ComponentPath, SofterRootState } from "./utils.type";
 
 /**
  * StateManager interface - all methods receive state as parameter
@@ -8,13 +8,13 @@ export interface StateManager {
   /**
    * Read state at the given path
    */
-  readState(globalState: GlobalState, path: ComponentPath): State;
+  readState(softerRootState: SofterRootState, path: ComponentPath): State;
 
   /**
    * Update state at the given path
    */
   updateState(
-    globalState: GlobalState,
+    softerRootState: SofterRootState,
     path: ComponentPath,
     state: State
   ): void;
@@ -23,7 +23,7 @@ export interface StateManager {
    * Create state at the given path (path must not exist, parent must exist)
    */
   createState(
-    globalState: GlobalState,
+    softerRootState: SofterRootState,
     path: ComponentPath,
     state: State
   ): void;
@@ -31,13 +31,13 @@ export interface StateManager {
   /**
    * Remove entire state tree at the given path
    */
-  removeStateTree(globalState: GlobalState, path: ComponentPath): void;
+  removeStateTree(softerRootState: SofterRootState, path: ComponentPath): void;
 
   /**
    * Get children nodes structure at the given path
    */
   getChildrenNodes(
-    globalState: GlobalState,
+    softerRootState: SofterRootState,
     path: ComponentPath
   ): ChildrenNodes;
 
@@ -45,7 +45,7 @@ export interface StateManager {
    * Get children paths at the given path
    */
   getChildrenPaths(
-    globalState: GlobalState,
+    softerRootState: SofterRootState,
     path: ComponentPath
   ): ChildrenPaths;
 
@@ -53,7 +53,7 @@ export interface StateManager {
    * Select a value using a memoized selector
    */
   selectValue<T>(
-    globalState: GlobalState,
+    softerRootState: SofterRootState,
     path: ComponentPath,
     selectorName: string,
     selector: (state: State) => T
