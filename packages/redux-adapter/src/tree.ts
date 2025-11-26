@@ -105,10 +105,6 @@ export const removeSubTree = <T>(
     if (isBranchOfCollection(collectionBranches)) {
       delete collectionBranches[key];
     }
-    // If the collection is now empty, remove it
-    if (collectionBranches && Object.keys(collectionBranches).length === 0) {
-      delete childrenBranches[childName];
-    }
     return;
   } else {
     // Single child case
