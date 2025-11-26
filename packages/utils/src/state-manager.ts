@@ -34,6 +34,15 @@ export interface StateManager {
   removeStateTree(softerRootState: SofterRootState, path: ComponentPath): void;
 
   /**
+   * Create empty collection child at the given path
+   */
+  createEmptyCollectionChild(
+    softerRootState: SofterRootState,
+    parentPath: ComponentPath,
+    childName: string
+  ): void;
+
+  /**
    * Get children nodes structure at the given path
    */
   getChildrenNodes(

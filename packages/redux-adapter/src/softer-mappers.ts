@@ -58,13 +58,13 @@ export function addSofterRootTree(globalState: {
   return globalState as { [SOFTER_PREFIX]: Tree<State> };
 }
 export function getSofterRootTree(
-  softerRootState: SofterRootState & { [SOFTER_PREFIX]?: Tree<State> }
+  globalState: SofterRootState & { [SOFTER_PREFIX]?: Tree<State> }
 ): Tree<State> {
   assertIsNotUndefined(
-    softerRootState[SOFTER_PREFIX],
+    globalState[SOFTER_PREFIX],
     "Global state does not have softer root tree"
   );
-  return softerRootState[SOFTER_PREFIX];
+  return globalState[SOFTER_PREFIX];
 }
 
 export function componentPathToString(componentPath: ComponentPath): string {

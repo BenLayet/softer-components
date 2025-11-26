@@ -53,6 +53,17 @@ export class RelativePathStateManager {
     );
   }
 
+  createEmptyCollectionChild(
+    softerRootState: SofterRootState,
+    childName: string
+  ): void {
+    this.absolutePathStateManager.createEmptyCollectionChild(
+      softerRootState,
+      this.currentPath,
+      childName
+    );
+  }
+
   getChildrenNodes(softerRootState: SofterRootState): ChildrenNodes {
     return this.absolutePathStateManager.getChildrenNodes(
       softerRootState,

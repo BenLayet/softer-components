@@ -30,7 +30,7 @@ export function updateSofterRootState(
     softerRootState,
     rootComponentDef,
     event,
-    new RelativePathStateManager(stateManager, [])
+    new RelativePathStateManager(stateManager, event.componentPath)
   );
 }
 

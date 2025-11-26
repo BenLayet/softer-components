@@ -114,10 +114,6 @@ export const removeSubTree = <T>(
     // Single child case
     delete childrenBranches[childName];
   }
-  // If no more children, remove the children empty object
-  if (Object.keys(childrenBranches).length === 0) {
-    delete parentSubTree[CHILDREN_CONTAINER_KEY];
-  }
 };
 
 export const getValueAtPath = <T>(
@@ -197,6 +193,21 @@ export const getChildrenNodes = (tree: Tree<any>): ChildrenNodes =>
       }
     )
   ) as ChildrenNodes;
+
+export const createEmptyCollectionChildAtPath = <T>(
+  treeAtRootOfPath: Tree<T>,
+  parentPath: ComponentPath,
+  childName: string
+) => {
+  const parentSubTree = findSubTree(treeAtRootOfPath, parentPath);
+  if (!parentSubTree[CHILDREN_CONTAINER_KEY]) {
+    parentSubTree[CHILDREN_CONTAINER_KEY] = {};
+  }
+  const childrenContainer = parentSubTree[CHILDREN_CONTAINER_KEY];
+  if (!childrenContainer[childName]) {
+    childrenContainer[childName] = {};
+  }
+};
 
 const isBranchOfSingleChild = <T>(
   branch: SingleChildInstance<T> | CollectionChildInstances<T>

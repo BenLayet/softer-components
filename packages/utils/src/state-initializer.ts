@@ -36,6 +36,8 @@ export function initializeStateRecursively(
       ([childName, childDef]) => {
         const childConfig = componentDef.childrenConfig?.[childName] ?? {};
         if (childConfig.isCollection) {
+          stateManager.createEmptyCollectionChild(softerRootState, childName);
+
           const keys = (componentDef.initialChildrenNodes?.[childName] ??
             []) as string[];
           keys

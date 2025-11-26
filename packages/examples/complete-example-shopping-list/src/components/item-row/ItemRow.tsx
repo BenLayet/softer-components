@@ -16,15 +16,30 @@ export const ItemRow = ({ path = "" }) => {
         padding: "0 4px",
       }}
     >
-      {name}
-      <span style={{ marginLeft: "1em", fontSize: "0.7em" }}>x{quantity}</span>
-      <button aria-label="Decrement value" onClick={() => decrementRequested()}>
-        -
-      </button>
-      <button aria-label="Increment value" onClick={() => incrementRequested()}>
-        +
-      </button>
-      <button onClick={() => removeItemRequested()}>X</button>
+      <div
+        className="horizontal"
+        style={{ flexGrow: 1, justifyContent: "flex-start" }}
+      >
+        {name}
+        <span style={{ marginLeft: "1em", fontSize: "0.7em" }}>
+          x{quantity}
+        </span>
+      </div>
+      <div className="horizontal">
+        <button
+          aria-label="Decrement value"
+          onClick={() => decrementRequested()}
+        >
+          -
+        </button>
+        <button
+          aria-label="Increment value"
+          onClick={() => incrementRequested()}
+        >
+          +
+        </button>
+        <button onClick={() => removeItemRequested()}>X</button>
+      </div>
     </div>
   );
 };

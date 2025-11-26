@@ -83,7 +83,7 @@ export const listDef: ComponentDef<ListContract> = {
         name: itemName,
         id:
           Object.keys(items)
-            .map(parseInt)
+            .map(Number)
             .reduce((maxId, id) => (id > maxId ? id : maxId), 0) + 1,
       }),
     },
@@ -95,7 +95,8 @@ export const listDef: ComponentDef<ListContract> = {
       withPayload: ({ children: { items }, payload: itemName }) =>
         Object.entries(items)
           .filter(([, item]) => item.values.name() === itemName)
-          .map(([key]) => parseInt(key))[0],
+          .map(([key]) => key)
+          .map(Number)[0],
     },
     {
       from: "addItemRequested",

@@ -6,6 +6,7 @@ import {
   StateManager,
 } from "@softer-components/utils";
 import {
+  createEmptyCollectionChildAtPath,
   createValueAtPath,
   findSubTree,
   getChildrenNodes,
@@ -89,6 +90,18 @@ export class ReselectStateManager implements StateManager {
   ): void {
     createValueAtPath(rootStateTree, path, state);
     createValueAtPath(this.selectorsTree, path, createComponentSelector(path));
+  }
+
+  /**
+   * Create empty collection child at the given path
+   */
+  createEmptyCollectionChild(
+    rootStateTree: Tree<State>,
+    parentPath: ComponentPath,
+    childName: string
+  ): void {
+    createEmptyCollectionChildAtPath(rootStateTree, parentPath, childName);
+    createEmptyCollectionChildAtPath(this.selectorsTree, parentPath, childName);
   }
 
   removeStateTree(rootStateTree: Tree<State>, path: ComponentPath): void {

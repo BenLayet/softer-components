@@ -89,6 +89,7 @@ export const useSofterChildrenPath = <
 ): ExtractChildrenPath<TChildrenContract> => {
   const store = useStore() as SofterStore;
   const componentPath = stringToComponentPath(pathStr);
+  const componentDef = findComponentDef(store.rootComponentDef, componentPath);
 
   // Subscribe to Redux state with useSelector
   return useSelector((globalState: any) =>

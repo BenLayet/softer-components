@@ -23,7 +23,7 @@ export const List = ({ path = "" }) => {
         />
         <button type="submit">Add Item</button>
       </form>
-      <div style={{ maxWidth: "200px" }}>
+      <div style={{ maxWidth: "500px" }}>
         {items.map(path => (
           <ItemRow key={path} path={path} />
         ))}
