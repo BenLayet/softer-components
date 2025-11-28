@@ -1,4 +1,4 @@
-# 🧵 Softer Components
+# ☁️ Softer Components
 
 A state-manager-agnostic component library built with TypeScript in a monorepo structure, designed for creating reusable UI components.
 ## ✨ Features
@@ -6,7 +6,7 @@ A state-manager-agnostic component library built with TypeScript in a monorepo s
 - **🔒 Full Type Safety**: Complete TypeScript support with strict typing
 - **⚡ Minimal Runtime Dependencies**: Lightweight core types package
 - **🌐 State-Manager Agnostic**: Core types work with any state management solution
-- **🔄 Redux Integration**: Built-in Redux adapter, and React hooks 
+- **🔄 Redux Integration**: Built-in Redux adapter, and React hooks, using a 🪾 tree state  
 - **📖 Well Documented**: Comprehensive documentation with real examples
 - **🧩 Composable**: Build complex apps from simple components, that encapsulate their own logic
 - **♻️ Reusable**: Designed so components can be reused in different contexts
