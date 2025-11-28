@@ -1,6 +1,17 @@
 # 🧵 Softer Components
 
 A state-manager-agnostic component library built with TypeScript in a monorepo structure, designed for creating reusable UI components.
+## ✨ Features
+
+- **🔒 Full Type Safety**: Complete TypeScript support with strict typing
+- **⚡ Minimal Runtime Dependencies**: Lightweight core types package
+- **🌐 State-Manager Agnostic**: Core types work with any state management solution
+- **🔄 Redux Integration**: Built-in Redux adapter, and React hooks 
+- **📖 Well Documented**: Comprehensive documentation with real examples
+- **🧩 Composable**: Build complex apps from simple components, that encapsulate their own logic
+- **♻️ Reusable**: Designed so components can be reused in different contexts
+- **🔄 Event Forwarding**: Support for parent-child communication via listeners and commands
+
 
 ## 🤔 Why Softer Components?
 
@@ -17,42 +28,35 @@ The 1st step to address these challenges is to use a state manager:
 - but this brings new challenges:
   - yet another data model (store data model)
   - concentration of complexity in one place (reducers, selectors, and effects/thunks)
-  - components are less reusable, as their own behaviour logic is mixed up with all other component logic
-  - lazy loading of part of the application
-  - your codebase is tied into a library, and dependant of its evolutions (for better or worth)
+  - components are less reusable, as their own behavior logic is mixed up with all other components logic
+  - lazy loading of part of the application is more difficult
+  - the codebase is tied into a library, and dependant of its evolutions (for better or for worth)
 
-To address these new issues the 2nd step is to slice the global store into "feature stores":
+To address some these new issues the 2nd step is to slice the global store into "feature stores":
 
 - data model of each feature store is closer to the data model of form and display
 - lazy loading becomes simple
 - but again new challenges :
   - duplication of data between features stores
-  - communication between features adds boilerplate
-  - difficulties to know between features which one depends on which one, with risk of circular dependencies
-  - difficulties to know how to group components into features: risk of different developper using different practices, and an inconsistent codebase
+  - communication between features adds boilerplate, and dependencies between them can be challenging, with risk of circular dependencies
+  - grouping which components into which features is not straightforward: different developpers might use different practices, resulting in an inconsistent codebase
 
 Softer Components goes one step further:
-
-- Each 'softer component' declares the full behaviour logic of one UI component
-- Complete break down of application logic into simple component logic, while keeping a unique global state
-- The library enable one 'feature store' per component, without tying your whole codebase to a specific state manager and with minimal boilerplate
+- 1 UI component = 1 'softer component' managing its own slice of the store
+- Complete break down of application complexity into simple component logic, while keeping a unique global state
+  - a component is unware of its 'path' in the component tree, and can be reused anywhere, multiple times
+- minimum boilerplate
+  - a component is defined by a declarative 'description' of its behavior
+- maximum reusability: each component can potentially be shared and reused in any application
+  - no tie to a specific platform or state manager (a component used in React/Redux can be reused in Angular/NgRx)
 - Clear dependencies: a component only knows about the 'contract' of its children
   - it 'knows nothing' about its parent or the rest of the application
 - Strict separation of concerns:
   - Display logic in UI components
-  - Behaviour in 'softer component',
+  - Behaviour in 'softer component'
   - Interaction with external systems in effects (HTTP, localstorage, service worker etc...)
 
-## ✨ Features
-
-- **🔒 Full Type Safety**: Complete TypeScript support with strict typing
-- **⚡ Minimal Runtime Dependencies**: Lightweight core types package
-- **🌐 State-Manager Agnostic**: Core types work with any state management solution
-- **🔄 Redux Integration**: Built-in Redux adapter with Immer support
-- **📖 Well Documented**: Comprehensive documentation with real examples
-- **🧩 Composable**: Build complex apps from simple components, that encapsulate their own logic
-- **♻️ Reusable**: Designed so components can be reused in different contexts
-- **🔄 Event Forwarding**: Support for parent-child communication via listeners and commands
+The tradeoff is that a strict coding pattern needs to be applied.
 
 ## 🧠 Core Concepts
 
@@ -61,20 +65,24 @@ Softer Components goes one step further:
 Defines the behaviour and structure of a component type.
 
 - One `ComponentDef` can be used by multiple components at runtime
-- Each component have its own state:
-  - publishes views of its own state with selectors
+- Each component have its own state at runtime
 
 ### Events
 
 Each component communicates with the rest of the application through events, that can be triggered:
 
 - **by the UI**: e.g. `buttonClicked`, `inputChanged`
-- **by an effect**: e.g. `httpFetchSucceeded`, `timeoutExpired`
+- **by internal event chain**: e.g. `buttonClicked` => `submitRequested` to encourage separation of UI event and behavior events, and flexibility about UI interaction
+- **by listening to a child component**: e.g. if a table is listening to a a pager: `pageSelected` from the pager => `fetchPageRequested`
 - **by a parent component**: e.g. `selectAllRequested` from a checkboxList => `selectRequested` for each checkbox
-- **by listening to a child component**: e.g. `pageSelected` from a pager => `fetchPageRequested` from a table
-- **by internal event chain**: e.g. `buttonClicked` => `submitRequested` to encourage good event hygiene (separation of UI event and behaviour events), and flexibility about UI interaction
+- _coming in issue #4_: **by an effect**: e.g. `httpFetchSucceeded`, `timeoutExpired`
+- _coming in issue #11_: **by listening to a context**: e.g. if a basket component is listening to security context: `authenticationSuceeded` => `loadPreviouslySavedBasket`
+- _coming in issue #11_: **by a component to a context**: e.g. login component `loginSubmitted` => security context: `authenticationRequested`
 
-Events are not 'actions': they describe something that has happened (in the past), and they know nothing about who consumes them.
+Inspired by NgRx concept of Good Action Hygiene https://www.youtube.com/watch?v=JmnsEvoy-gY&themeRefresh=1, events in Softer Components:
+ - tell where they are dispatched from
+ - tell what event has occurred (in the past)
+ - are unaware about who will consume them
 
 ## 📦 Installation
 
@@ -389,190 +397,10 @@ export const listDef: ComponentDef<ListContract> = {
 };
 ```
 
-## 🎯 Complete Example: Shopping List
+## 🎯 Complete Examples 
 
-```typescript
-import { ComponentDef, ComponentContract } from "@softer-components/types";
-
-// 📝 Item Contract
-type ItemContract = {
-  state: {
-    name: string;
-    count: number;
-  };
-  values: {
-    displayName: string;
-  };
-  events: {
-    incremented: { payload: undefined };
-    removed: { payload: undefined };
-  };
-  children: {};
-};
-
-// 📝 List Contract
-type ListContract = {
-  state: {
-    listName: string;
-    nextItemName: string;
-    lastItemId: number;
-  };
-  values: {
-    listName: string;
-    nextItemName: string;
-    itemCount: number;
-  };
-  events: {
-    nextItemNameChanged: { payload: string };
-    nextItemSubmitted: { payload: undefined };
-    itemRemoved: { payload: string };
-  };
-  children: {
-    items: ItemContract & { isCollection: true };
-  };
-};
-
-// 🔧 Item Definition
-export const itemDef: ComponentDef<ItemContract> = {
-  initialState: {
-    name: "",
-    count: 0,
-  },
-
-  selectors: {
-    displayName: (state) => `${state.name} (${state.count})`,
-  },
-
-  uiEvents: ["incremented", "removed"],
-
-  updaters: {
-    incremented: ({ state }) => {
-      state.count += 1;
-    },
-  },
-};
-
-// 🔧 List Definition
-export const listDef: ComponentDef<ListContract> = {
-  initialState: {
-    listName: "My Shopping List",
-    nextItemName: "",
-    lastItemId: 0,
-  },
-
-  initialChildrenNodes: {
-    items: [],
-  },
-
-  selectors: {
-    listName: (state) => state.listName,
-    nextItemName: (state) => state.nextItemName,
-    itemCount: (state) => state.lastItemId,
-  },
-
-  uiEvents: ["nextItemNameChanged", "nextItemSubmitted"],
-
-  updaters: {
-    nextItemNameChanged: ({ state, payload }) => {
-      state.nextItemName = payload;
-    },
-
-    nextItemSubmitted: ({ state, childrenNodes }) => {
-      if (state.nextItemName.trim()) {
-        const newId = String(state.lastItemId + 1);
-        state.lastItemId += 1;
-
-        // Add new item
-        childrenNodes.items.push(newId);
-
-        // Clear input
-        state.nextItemName = "";
-      }
-    },
-
-    itemRemoved: ({ childrenNodes, payload }) => {
-      // Remove item from children
-      const index = childrenNodes.items.indexOf(payload);
-      if (index > -1) {
-        childrenNodes.items.splice(index, 1);
-      }
-    },
-  },
-
-  childrenComponents: {
-    items: itemDef,
-  },
-
-  childrenConfig: {
-    items: {
-      isCollection: true,
-
-      // Listen to item removal
-      listeners: [
-        {
-          from: "removed",
-          to: "itemRemoved",
-          withPayload: ({ fromChildKey }) => fromChildKey,
-        },
-      ],
-    },
-  },
-};
-```
-
-### Using the Shopping List
-
-```typescript
-import { useSofter } from "@softer-components/redux-adapter";
-
-export const List = ({ path = "" }: { path?: string }) => {
-  const [
-    { listName, nextItemName },
-    { nextItemNameChanged, nextItemSubmitted },
-    { items },
-  ] = useSofter<ListContract>(path);
-
-  return (
-    <div>
-      <h1>{listName}</h1>
-
-      <form
-        onSubmit={(e) => {
-          e.preventDefault();
-          nextItemSubmitted();
-        }}
-      >
-        <input
-          type="text"
-          value={nextItemName}
-          onChange={(e) => nextItemNameChanged(e.target.value)}
-          placeholder="Enter item name"
-        />
-        <button type="submit">Add Item</button>
-      </form>
-
-      <div>
-        {items.map((itemPath) => (
-          <ItemRow key={itemPath} path={itemPath} />
-        ))}
-      </div>
-    </div>
-  );
-};
-
-export const ItemRow = ({ path }: { path: string }) => {
-  const [{ displayName }, { incremented, removed }] =
-    useSofter<ItemContract>(path);
-
-  return (
-    <div>
-      <span>{displayName}</span>
-      <button onClick={incremented}>+</button>
-      <button onClick={removed}>Remove</button>
-    </div>
-  );
-};
-```
+- [app with single most basic component](./packages/examples/basic-example-counter)
+- [app with several components, event forwarding, listening and commands](./packages/examples/complete-example-shopping-list)
 
 ## 🏗️ Monorepo Structure
 
