@@ -542,29 +542,6 @@ Hook for accessing only children paths:
 const children = useSofterChildrenPath<CounterContract["children"]>("");
 ```
 
-## 🚀 Development
-
-### Validated Development Workflow (5.7 seconds total)
-
-```bash
-# Per package validation
-cd packages/redux-adapter
-
-npm run lint    # 1 second - Check code style
-npm run build   # 1.5 seconds - Verify compilation
-npm test        # 1.5 seconds - Run tests
-npx tsc --noEmit # 1.7 seconds - Type check
-```
-
-### Workspace-Level Commands
-
-```bash
-# From repository root
-pnpm run build --filter="@softer-components/*"  # Build all packages
-pnpm run test --filter="@softer-components/*"   # Test all packages
-pnpm run lint --filter="@softer-components/*"   # Lint all packages
-```
-
 ## 🤝 Contributing
 
 Contributions are welcome! Please feel free to submit a Pull Request.
