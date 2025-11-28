@@ -43,6 +43,7 @@ export type ListContract = {
 };
 
 export const listDef: ComponentDef<ListContract> = {
+  initialState: { listName: "", nextItemName: "" },
   selectors: listSelectors,
   uiEvents: ["nextItemNameChanged", "nextItemSubmitted"],
   updaters: {

@@ -34,7 +34,7 @@ export const appDef: ComponentDef<AppComponentContract> = {
       childrenNodes.listSelect = true;
     },
   },
-  initialChildrenNodes: { listSelect: true, list: false },
+  initialChildrenNodes: { listSelect: false, list: true },
   childrenComponents,
   childrenConfig: {
     list: { commands: [{ from: "listSelected", to: "initialize" }] },
