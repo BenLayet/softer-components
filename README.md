@@ -4,7 +4,7 @@ A state-manager-agnostic component library built with TypeScript in a monorepo s
 
 ## 🤔 Why Softer Components?
 
-Front-end application tend to become very complex very fast, as they have to tackle:
+Front-end applications tend to become very complex very fast, as they have to tackle:
 
 - handling many events in random order (user input, HTTP responses, timeout etc...)
 - interacting with the DOM (time consuming rendering, dependency to the rendering logic)
