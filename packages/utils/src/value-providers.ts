@@ -1,28 +1,23 @@
 import {
   ComponentDef,
+  Values,
   Values as ValueProviders,
 } from "@softer-components/types";
 import { assertValueIsNotUndefined } from "./predicate.functions";
-import { RelativePathStateManager } from "./relative-path-state-manager";
-import { SofterRootState } from "./utils.type";
+import { RelativePathStateReader } from "./relative-path-state-manager";
 
 /**
  * Create Values provider for a component given its definition and state
  */
 export function createValueProviders(
-  softerRootState: SofterRootState,
   componentDef: ComponentDef,
-  stateManager: RelativePathStateManager,
+  stateReader: RelativePathStateReader,
 ): ValueProviders {
   // Create own values
-  const values = createOwnValueProviders(
-    softerRootState,
-    componentDef,
-    stateManager,
-  );
+  const values = createOwnValueProviders(componentDef, stateReader);
 
   // Create children's values
-  const childrenNodes = stateManager.getChildrenNodes();
+  const childrenNodes = stateReader.getChildrenNodes();
   const children = Object.fromEntries(
     Object.entries(childrenNodes).map(([childName, childNode]) => {
       const childDef = componentDef.childrenComponents?.[childName];
@@ -36,9 +31,8 @@ export function createValueProviders(
         const collectionChildValueProviders = Object.fromEntries(
           keys.map((key) => {
             const childValueProviders = createValueProviders(
-              softerRootState,
               childDef,
-              stateManager.childStateManager(childName, key),
+              stateReader.childStateReader(childName, key),
             );
             return [key, childValueProviders];
           }),
@@ -48,9 +42,8 @@ export function createValueProviders(
         return [
           childName,
           createValueProviders(
-            softerRootState,
             childDef,
-            stateManager.childStateManager(childName),
+            stateReader.childStateReader(childName),
           ),
         ];
       }
@@ -61,15 +54,14 @@ export function createValueProviders(
 }
 
 function createOwnValueProviders(
-  softerRootState: SofterRootState,
   componentDef: ComponentDef,
-  stateManager: RelativePathStateManager,
-): ValueProviders["values"] {
+  stateReader: RelativePathStateReader,
+): Values["values"] {
   const selectorsDef = componentDef.selectors || {};
   return Object.fromEntries(
     Object.entries(selectorsDef).map(([selectorName, selector]) => [
       selectorName,
-      () => stateManager.selectValue(selectorName, selector),
+      () => stateReader.selectValue(selectorName, selector),
     ]),
   );
 }

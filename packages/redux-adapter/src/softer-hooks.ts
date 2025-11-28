@@ -4,13 +4,7 @@ import {
   ComponentEventsContract,
   ComponentValuesContract,
 } from "@softer-components/types";
-import { findComponentDef } from "@softer-components/utils";
-import { shallowEqual, useDispatch, useSelector, useStore } from "react-redux";
-import {
-  eventToAction,
-  getSofterRootTree,
-  stringToComponentPath,
-} from "./softer-mappers";
+import { useDispatch, useSelector, useStore } from "react-redux";
 import { SofterStore } from "./softer-store";
 
 type EventsContractToUiDispatchers<
@@ -34,74 +28,39 @@ type ExtractChildrenPath<TChildrenContract extends ComponentChildrenContract> =
 export const useSofterSelectors = <
   TValueContract extends ComponentValuesContract,
 >(
-  pathStr: string
+  pathStr: string,
 ): TValueContract => {
   const store = useStore() as SofterStore;
-  const componentPath = stringToComponentPath(pathStr);
-  const componentDef = findComponentDef(store.rootComponentDef, componentPath);
-  const localSelectors = componentDef.selectors ?? {};
-
   // Subscribe to Redux state with useSelector
-  return useSelector(
-    (globalState: any) =>
-      Object.fromEntries(
-        Object.entries(localSelectors).map(([selectorName, localSelector]) => {
-          return [
-            selectorName,
-            store.stateManager.selectValue(
-              getSofterRootTree(globalState),
-              componentPath,
-              selectorName,
-              localSelector
-            ),
-          ];
-        })
-      ),
-    shallowEqual
-  ) as TValueContract;
+  return useSelector(store.softerUi.valuesSelector(pathStr)) as TValueContract;
 };
 
 export const useSofterEvents = <
   TEventsContract extends ComponentEventsContract,
 >(
-  pathStr: string
+  pathStr: string,
 ): EventsContractToUiDispatchers<TEventsContract> => {
-  const componentPath = stringToComponentPath(pathStr);
-  const dispatch = useDispatch();
   const store = useStore() as SofterStore;
-  const componentDef = findComponentDef(store.rootComponentDef, componentPath);
-
-  return Object.fromEntries(
-    (componentDef.uiEvents ?? []).map((eventName) => {
-      return [
-        eventName,
-        (payload: any) =>
-          dispatch(eventToAction({ componentPath, name: eventName, payload })),
-      ];
-    })
-  ) as any;
+  return store.softerUi.dispatchers(
+    pathStr,
+    useDispatch(),
+  ) as EventsContractToUiDispatchers<TEventsContract>;
 };
 
 export const useSofterChildrenPath = <
   TChildrenContract extends ComponentChildrenContract,
 >(
-  pathStr: string
+  pathStr: string,
 ): ExtractChildrenPath<TChildrenContract> => {
   const store = useStore() as SofterStore;
-  const componentPath = stringToComponentPath(pathStr);
-  const componentDef = findComponentDef(store.rootComponentDef, componentPath);
-
   // Subscribe to Redux state with useSelector
-  return useSelector((globalState: any) =>
-    store.stateManager.getChildrenPaths(
-      getSofterRootTree(globalState),
-      componentPath
-    )
+  return useSelector(
+    store.softerUi.childrenPathsSelector(pathStr),
   ) as ExtractChildrenPath<TChildrenContract>;
 };
 
 export const useSofter = <TComponentContract extends ComponentContract>(
-  pathStr: string
+  pathStr: string,
 ): [
   TComponentContract["values"],
   EventsContractToUiDispatchers<TComponentContract["events"]>,

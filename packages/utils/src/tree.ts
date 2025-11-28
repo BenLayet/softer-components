@@ -1,14 +1,14 @@
 /**
- * Tree tree structure and utilities to manipulate it.
- * State Managers could use these utilities to read/write states at specific paths, or create their own structures.
+ * Tree structure and utilities to manipulate it.
+ * State Managers could use these utilities to read/write states at specific paths or create their own structures.
  */
 import { ChildrenNodes } from "@softer-components/types";
 import {
   assertIsNotUndefined,
   isNotUndefined,
   isUndefined,
-} from "../../utils/src/predicate.functions";
-import { ComponentPath } from "../../utils/src/utils.type";
+} from "./predicate.functions";
+import { ComponentPath } from "./utils.type";
 
 // state tree
 export const CHILDREN_CONTAINER_KEY = "🪾";
@@ -59,31 +59,6 @@ export const findSubTree = <T>(
   return findSubTree(subTree, componentPath.slice(1));
 };
 
-export const subTreeExistsAtPath = <T>(
-  treeAtRootOfPath: Tree<T>,
-  componentPath: ComponentPath
-): boolean => {
-  if (componentPath.length === 0) {
-    return true;
-  }
-  const pathSegment = componentPath[0];
-  assertIsNotUndefined(pathSegment);
-
-  const childName = pathSegment[0];
-  assertIsNotUndefined(childName);
-
-  const key = pathSegment[1];
-  const childrenBranches = treeAtRootOfPath[CHILDREN_CONTAINER_KEY];
-  assertIsNotUndefined(childrenBranches);
-
-  const subTree = isUndefined(key)
-    ? (childrenBranches[childName] as SingleChildInstance<T>)
-    : (childrenBranches[childName] as CollectionChildInstances<T>)[key];
-  assertIsNotUndefined(subTree);
-
-  return subTreeExistsAtPath(subTree, componentPath.slice(1));
-};
-
 export const removeSubTree = <T>(
   treeAtRootOfPath: Tree<T>,
   componentPath: ComponentPath
@@ -116,12 +91,7 @@ export const getValueAtPath = <T>(
   treeAtRootOfPath: Tree<T>,
   path: ComponentPath
 ): T => {
-  const value = findSubTree(treeAtRootOfPath, path)[OWN_KEY];
-  assertIsNotUndefined(
-    value,
-    `No value found at path: ${path.map((parts) => parts.join(":")).join("/")}`
-  );
-  return value;
+  return findSubTree(treeAtRootOfPath, path)[OWN_KEY];
 };
 
 export const updateValueAtPath = <T>(
@@ -178,9 +148,9 @@ export const createValueAtPath = <T>(
   }
 };
 
-export const getChildrenNodes = (tree: Tree<any>): ChildrenNodes =>
+export const getChildrenNodes = (subTree: Tree<any>): ChildrenNodes =>
   Object.fromEntries(
-    Object.entries(tree[CHILDREN_CONTAINER_KEY] || {}).map(
+    Object.entries(subTree[CHILDREN_CONTAINER_KEY] || {}).map(
       ([childName, childBranch]) => {
         return [
           childName,

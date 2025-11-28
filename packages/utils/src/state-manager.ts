@@ -1,15 +1,38 @@
 import { ChildrenNodes, State } from "@softer-components/types";
-import { ChildrenPaths, ComponentPath, SofterRootState } from "./utils.type";
+import { ComponentPath, SofterRootState } from "./utils.type";
 
 /**
- * StateManager interface - all methods receive state as a parameter and can modify it.
+ * StateReader - all methods receive state as a parameter
  */
-export interface StateManager {
+export interface StateReader {
   /**
    * Read state at the given path
    */
   readState(softerRootState: SofterRootState, path: ComponentPath): State;
 
+  /**
+   * Get children nodes structure at the given path
+   */
+  getChildrenNodes(
+    softerRootState: SofterRootState,
+    path: ComponentPath,
+  ): ChildrenNodes;
+
+  /**
+   * Select a value using a memoized selector
+   */
+  selectValue<T>(
+    softerRootState: SofterRootState,
+    path: ComponentPath,
+    selectorName: string,
+    selector: (state: State) => T,
+  ): T;
+}
+
+/**
+ * StateWriter - all methods receive state as a parameter and can modify it.
+ */
+export interface StateWriter {
   /**
    * Update state at the given path
    */
@@ -29,11 +52,6 @@ export interface StateManager {
   ): void;
 
   /**
-   * Remove the entire state at the given path
-   */
-  removeStateTree(softerRootState: SofterRootState, path: ComponentPath): void;
-
-  /**
    * Create an empty collection child at the given path
    */
   createEmptyCollectionChild(
@@ -43,28 +61,11 @@ export interface StateManager {
   ): void;
 
   /**
-   * Get children nodes structure at the given path
+   * Remove the entire state at the given path
    */
-  getChildrenNodes(
-    softerRootState: SofterRootState,
-    path: ComponentPath,
-  ): ChildrenNodes;
+  removeStateTree(softerRootState: SofterRootState, path: ComponentPath): void;
 
-  /**
-   * Get children paths at the given path
-   */
-  getChildrenPaths(
-    softerRootState: SofterRootState,
-    path: ComponentPath,
-  ): ChildrenPaths;
-
-  /**
-   * Select a value using a memoized selector
-   */
-  selectValue<T>(
-    softerRootState: SofterRootState,
-    path: ComponentPath,
-    selectorName: string,
-    selector: (state: State) => T,
-  ): T;
+  setRemoveStateTreeListener(listener: (path: ComponentPath) => void): void;
 }
+
+export interface StateManager extends StateReader, StateWriter {}

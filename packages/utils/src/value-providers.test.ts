@@ -1,6 +1,6 @@
 import { describe, it, expect, vi } from "vitest";
 import { createValueProviders } from "./value-providers";
-import { RelativePathStateManager } from "./relative-path-state-manager";
+import { RelativePathStateReader } from "./relative-path-state-manager";
 
 describe("createValuesProvider", () => {
   it("returns root selectors", () => {
@@ -10,12 +10,12 @@ describe("createValuesProvider", () => {
         answer: (state: { answer: number }) => state.answer,
       },
     };
-    const mockStateManager = {} as RelativePathStateManager;
-    mockStateManager.getChildrenNodes = vi.fn().mockReturnValue({});
-    mockStateManager.selectValue = vi.fn().mockReturnValue(42);
+    const mockStateReader = {} as RelativePathStateReader;
+    mockStateReader.getChildrenNodes = vi.fn().mockReturnValue({});
+    mockStateReader.selectValue = vi.fn().mockReturnValue(42);
 
     //WHEN
-    const result = createValueProviders({}, root, mockStateManager);
+    const result = createValueProviders(root, mockStateReader);
 
     //THEN
     expect(result.values.answer()).toEqual(42);
@@ -31,19 +31,17 @@ describe("createValuesProvider", () => {
     const root = {
       childrenComponents: { child },
     };
-    const mockStateManager = {} as RelativePathStateManager;
-    const mockChildStateManager = {} as RelativePathStateManager;
-    mockStateManager.getChildrenNodes = vi
+    const mockStateReader = {} as RelativePathStateReader;
+    const mockChildStateReader = {} as RelativePathStateReader;
+    mockStateReader.getChildrenNodes = vi.fn().mockReturnValue({ child: true });
+    mockStateReader.childStateReader = vi
       .fn()
-      .mockReturnValue({ child: true });
-    mockStateManager.childStateManager = vi
-      .fn()
-      .mockReturnValue(mockChildStateManager);
-    mockChildStateManager.getChildrenNodes = vi.fn().mockReturnValue({});
-    mockChildStateManager.selectValue = vi.fn().mockReturnValue(42);
+      .mockReturnValue(mockChildStateReader);
+    mockChildStateReader.getChildrenNodes = vi.fn().mockReturnValue({});
+    mockChildStateReader.selectValue = vi.fn().mockReturnValue(42);
 
     //WHEN
-    const result = createValueProviders({}, root, mockStateManager);
+    const result = createValueProviders(root, mockStateReader);
 
     //THEN
     expect(result.children.child.values.answer()).toEqual(42);

@@ -24,7 +24,6 @@ export function updateSofterRootState(
   stateManager: StateManager,
 ) {
   updateStateOfComponentOfEvent(
-    softerRootState,
     rootComponentDef,
     event,
     new RelativePathStateManager(
@@ -36,7 +35,6 @@ export function updateSofterRootState(
 }
 
 function updateStateOfComponentOfEvent(
-  softerRootState: SofterRootState,
   rootComponentDef: ComponentDef,
   event: GlobalEvent,
   stateManager: RelativePathStateManager,
@@ -46,7 +44,7 @@ function updateStateOfComponentOfEvent(
   if (!updater) return;
 
   const { values, children, childrenNodes, state, payload } =
-    prepareUpdaterParams(softerRootState, componentDef, event, stateManager);
+    prepareUpdaterParams(componentDef, event, stateManager);
 
   const next = produce({ state, childrenNodes }, (draft: any) => {
     const returnedValue = updater({
@@ -67,7 +65,6 @@ function updateStateOfComponentOfEvent(
   // If children nodes have changed, update the state accordingly
   if (childrenNodes !== next.childrenNodes) {
     updateChildrenState(
-      softerRootState,
       componentDef,
       childrenNodes,
       next.childrenNodes,
@@ -80,16 +77,11 @@ function updateStateOfComponentOfEvent(
  * Prepare updater parameters from the component definition and state, recursively
  */
 function prepareUpdaterParams(
-  softerRootState: SofterRootState,
   componentDef: ComponentDef,
   event: GlobalEvent,
   stateManager: RelativePathStateManager,
 ) {
-  const { values, children } = createValueProviders(
-    softerRootState,
-    componentDef,
-    stateManager,
-  );
+  const { values, children } = createValueProviders(componentDef, stateManager);
 
   const childrenNodes = stateManager.getChildrenNodes();
   const state = stateManager.readState();
@@ -108,7 +100,6 @@ function prepareUpdaterParams(
  * Update children state based on changed childrenNodes
  */
 function updateChildrenState(
-  softerRootState: SofterRootState,
   componentDef: ComponentDef,
   previousChildrenNodes: Record<string, string[] | boolean>,
   desiredChildrenNodes: Record<string, string[] | boolean>,
@@ -135,18 +126,13 @@ function updateChildrenState(
         .filter((key) => !previousKeys.includes(key))
         .map((key) => stateManager.childStateManager(childName, key))
         .forEach((childStateManager) =>
-          initializeStateRecursively(
-            softerRootState,
-            childDef,
-            childStateManager,
-          ),
+          initializeStateRecursively(childDef, childStateManager),
         );
     } else {
       // Single child
       if (childNode) {
         if (!previousChildNode) {
           initializeStateRecursively(
-            softerRootState,
             childDef,
             stateManager.childStateManager(childName),
           );

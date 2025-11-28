@@ -1,18 +1,17 @@
 import { describe, expect, it } from "vitest";
 import { renderHook, act } from "@testing-library/react";
 import { Provider } from "react-redux";
-
 import { configureSofterStore } from "./softer-store";
 import { useSofter, useSofterSelectors } from "./softer-hooks";
 import { ComponentDef } from "@softer-components/types";
 
-describe("🧵 useSofter with memoization", () => {
+describe("useSofter with memoization", () => {
   it("should memoize selectors and prevent unnecessary re-renders", () => {
     // GIVEN a component with computed values
     type CounterContract = {
       state: { count: number };
       values: { doubled: number; tripled: number };
-      events: { increment: { payload: undefined } };
+      events: { incrementRequested: { payload: undefined } };
       children: {};
     };
 
@@ -22,9 +21,9 @@ describe("🧵 useSofter with memoization", () => {
         doubled: (state) => state.count * 2,
         tripled: (state) => state.count * 3,
       },
-      uiEvents: ["increment"],
+      uiEvents: ["incrementRequested"],
       updaters: {
-        increment: ({ state }) => {
+        incrementRequested: ({ state }) => {
           state.count += 1;
         },
       },
@@ -39,7 +38,7 @@ describe("🧵 useSofter with memoization", () => {
 
     const { result, rerender } = renderHook(
       () => useSofterSelectors<CounterContract["values"]>(""),
-      { wrapper }
+      { wrapper },
     );
 
     const initialValues = result.current;
@@ -157,12 +156,12 @@ describe("🧵 useSofter with memoization", () => {
       wrapper,
     });
 
-    const [initialValues, , initialChildren] = result.current;
+    const [, , initialChildren] = result.current;
 
     // Force re-render
     rerender();
 
-    // THEN children paths should be memoized
+    // THEN
     expect(result.current[2]).toBe(initialChildren); // ✅ Same reference
   });
 });

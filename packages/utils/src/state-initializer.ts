@@ -13,7 +13,6 @@ export function initializeRootState(
   stateManager: StateManager,
 ) {
   return initializeStateRecursively(
-    softerRootState,
     rootComponentDef,
     new RelativePathStateManager(
       softerRootState,
@@ -27,7 +26,6 @@ export function initializeRootState(
  * Recursively instantiate state for a component and its children
  */
 export function initializeStateRecursively(
-  softerRootState: SofterRootState,
   componentDef: ComponentDef,
   stateManager: RelativePathStateManager,
 ) {
@@ -47,16 +45,11 @@ export function initializeStateRecursively(
           keys
             .map((key) => stateManager.childStateManager(childName, key))
             .forEach((childStateManager) => {
-              initializeStateRecursively(
-                softerRootState,
-                childDef,
-                childStateManager,
-              );
+              initializeStateRecursively(childDef, childStateManager);
             });
         } else {
           if (componentDef.initialChildrenNodes?.[childName] ?? true) {
             initializeStateRecursively(
-              softerRootState,
               childDef,
               stateManager.childStateManager(childName),
             );

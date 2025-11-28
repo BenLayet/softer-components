@@ -3,8 +3,8 @@ import { GlobalEvent, SofterRootState } from "./utils.type";
 import { assertIsNotUndefined } from "./predicate.functions";
 import { findComponentDef } from "./component-def-tree";
 import { createValueProviders } from "./value-providers";
-import { RelativePathStateManager } from "./relative-path-state-manager";
-import { StateManager } from "./state-manager";
+import { RelativePathStateReader } from "./relative-path-state-manager";
+import { StateReader } from "./state-manager";
 
 /**
  * Generate events to forward based on the triggering event
@@ -13,12 +13,12 @@ export function generateEventsToForward(
   softerRootState: SofterRootState,
   rootComponentDef: ComponentDef,
   triggeringEvent: GlobalEvent,
-  absoluteStateManager: StateManager,
+  absoluteStateReader: StateReader,
 ) {
   const result: GlobalEvent[] = [];
-  const stateManager = new RelativePathStateManager(
+  const stateReader = new RelativePathStateReader(
     softerRootState,
-    absoluteStateManager,
+    absoluteStateReader,
     triggeringEvent.componentPath || [],
   );
 
@@ -29,39 +29,31 @@ export function generateEventsToForward(
 
   result.push(
     ...generateEventsFromOwnComponent(
-      softerRootState,
       componentDef,
       triggeringEvent,
-      stateManager,
+      stateReader,
     ),
   );
 
   result.push(
     ...generateEventsFromParentChildListeners(
-      softerRootState,
       rootComponentDef,
       triggeringEvent,
-      stateManager,
+      stateReader,
     ),
   );
 
   result.push(
-    ...generateCommandsToChildren(
-      softerRootState,
-      componentDef,
-      triggeringEvent,
-      stateManager,
-    ),
+    ...generateCommandsToChildren(componentDef, triggeringEvent, stateReader),
   );
 
   return result;
 }
 
 function generateEventsFromOwnComponent(
-  softerRootState: SofterRootState,
   componentDef: ComponentDef,
   triggeringEvent: GlobalEvent,
-  stateManager: RelativePathStateManager,
+  stateReader: RelativePathStateReader,
 ): GlobalEvent[] {
   const forwarders = (componentDef.eventForwarders ?? []).filter(
     (forwarder) => forwarder.from === triggeringEvent.name,
@@ -72,10 +64,9 @@ function generateEventsFromOwnComponent(
   }
 
   const callBackParams = prepareCallBackParams(
-    softerRootState,
     componentDef,
     triggeringEvent,
-    stateManager,
+    stateReader,
   );
 
   return forwarders
@@ -93,10 +84,9 @@ function generateEventsFromOwnComponent(
 }
 
 function generateEventsFromParentChildListeners(
-  softerRootState: SofterRootState,
-  rootComponentDef: ComponentDef<any>,
+  rootComponentDef: ComponentDef,
   triggeringEvent: GlobalEvent,
-  stateManager: RelativePathStateManager,
+  stateReader: RelativePathStateReader,
 ): GlobalEvent[] {
   if (!triggeringEvent.componentPath?.length) {
     return [];
@@ -122,10 +112,9 @@ function generateEventsFromParentChildListeners(
   }
 
   const callBackParams = prepareCallBackParams(
-    softerRootState,
     parentComponentDef,
     triggeringEvent,
-    stateManager,
+    stateReader,
   );
 
   return childListeners
@@ -143,10 +132,9 @@ function generateEventsFromParentChildListeners(
 }
 
 function generateCommandsToChildren(
-  softerRootState: SofterRootState,
   componentDef: ComponentDef,
   triggeringEvent: GlobalEvent,
-  stateManager: RelativePathStateManager,
+  stateReader: RelativePathStateReader,
 ): GlobalEvent[] {
   const childrenCommands = Object.entries(
     componentDef.childrenConfig ?? {},
@@ -161,10 +149,9 @@ function generateCommandsToChildren(
   }
 
   const callBackParams = prepareCallBackParams(
-    softerRootState,
     componentDef,
     triggeringEvent,
-    stateManager,
+    stateReader,
   );
 
   return childrenCommands
@@ -187,16 +174,11 @@ function generateCommandsToChildren(
 }
 
 function prepareCallBackParams(
-  softerRootState: SofterRootState,
   componentDef: ComponentDef,
   event: GlobalEvent,
-  stateManager: RelativePathStateManager,
+  stateReader: RelativePathStateReader,
 ) {
-  const { values, children } = createValueProviders(
-    softerRootState,
-    componentDef,
-    stateManager,
-  );
+  const { values, children } = createValueProviders(componentDef, stateReader);
   const payload = event.payload;
   const fromChildKey =
     event.componentPath?.[event.componentPath?.length - 1]?.[1];

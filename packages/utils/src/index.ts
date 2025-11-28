@@ -5,3 +5,5 @@ export * from "./reducer";
 export * from "./predicate.functions";
 export * from "./state-manager";
 export * from "./utils.type";
+export * from "./tree-state-manager";
+export * from "./tree";

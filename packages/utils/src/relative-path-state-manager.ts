@@ -1,6 +1,6 @@
 import { ChildrenNodes, State } from "@softer-components/types";
 import { ComponentPath, SofterRootState } from "./utils.type";
-import { StateManager } from "./state-manager";
+import { StateManager, StateReader } from "./state-manager";
 
 /**
  * Wrapper around StateManager that manages relative paths.
@@ -8,12 +8,61 @@ import { StateManager } from "./state-manager";
  *
  * This state manager is meant to be shortly lived (a new instance for each event and each level while visiting the component tree).
  */
-export class RelativePathStateManager {
+export class RelativePathStateReader {
   constructor(
-    private readonly softerRootState: SofterRootState,
-    private readonly absolutePathStateManager: StateManager,
-    private readonly currentPath: ComponentPath = [],
+    protected readonly softerRootState: SofterRootState,
+    private readonly absolutePathStateReader: StateReader,
+    protected readonly currentPath: ComponentPath = [],
   ) {}
+
+  childStateReader(
+    childName: string,
+    childKey?: string,
+  ): RelativePathStateReader {
+    return new RelativePathStateReader(
+      this.softerRootState,
+      this.absolutePathStateReader,
+      [...this.currentPath, [childName, childKey]],
+    );
+  }
+
+  readState(): State {
+    return this.absolutePathStateReader.readState(
+      this.softerRootState,
+      this.currentPath,
+    );
+  }
+  getChildrenNodes(): ChildrenNodes {
+    return this.absolutePathStateReader.getChildrenNodes(
+      this.softerRootState,
+      this.currentPath,
+    );
+  }
+
+  selectValue<T>(selectorName: string, selector: (state: State) => T): T {
+    return this.absolutePathStateReader.selectValue(
+      this.softerRootState,
+      this.currentPath,
+      selectorName,
+      selector,
+    );
+  }
+}
+
+/**
+ * Wrapper around StateManager that manages relative paths.
+ * All state operations are delegated with the absolute path.
+ *
+ * This state manager is meant to be shortly lived (a new instance for each event and each level while visiting the component tree).
+ */
+export class RelativePathStateManager extends RelativePathStateReader {
+  constructor(
+    softerRootState: SofterRootState,
+    private readonly absolutePathStateManager: StateManager,
+    currentPath: ComponentPath = [],
+  ) {
+    super(softerRootState, absolutePathStateManager, currentPath);
+  }
 
   childStateManager(
     childName: string,
@@ -23,13 +72,6 @@ export class RelativePathStateManager {
       this.softerRootState,
       this.absolutePathStateManager,
       [...this.currentPath, [childName, childKey]],
-    );
-  }
-
-  readState(): State {
-    return this.absolutePathStateManager.readState(
-      this.softerRootState,
-      this.currentPath,
     );
   }
 
@@ -65,26 +107,10 @@ export class RelativePathStateManager {
     );
   }
 
-  getChildrenNodes(): ChildrenNodes {
-    return this.absolutePathStateManager.getChildrenNodes(
-      this.softerRootState,
-      this.currentPath,
-    );
-  }
-
   removeStateTree(): void {
     this.absolutePathStateManager.removeStateTree(
       this.softerRootState,
       this.currentPath,
-    );
-  }
-
-  selectValue<T>(selectorName: string, selector: (state: State) => T): T {
-    return this.absolutePathStateManager.selectValue(
-      this.softerRootState,
-      this.currentPath,
-      selectorName,
-      selector,
     );
   }
 }

@@ -9,7 +9,7 @@ import { ComponentPath } from "./utils.type";
  */
 export const findComponentDef = (
   componentDef: ComponentDef,
-  componentPath: ComponentPath
+  componentPath: ComponentPath,
 ): ComponentDef => {
   if (componentPath.length === 0) {
     return componentDef;
@@ -19,7 +19,7 @@ export const findComponentDef = (
   const child = children[childName];
   if (!child) {
     throw new Error(
-      `invalid path: childName = '${childName}' not found in children = ${JSON.stringify(Object.keys(children))}`
+      `invalid path: childName = '${childName}' not found. Valid children names = ${JSON.stringify(Object.keys(children))}`,
     );
   }
   return findComponentDef(child, componentPath.slice(1));
