@@ -1,240 +1,185 @@
 import {
   ComponentDef,
-  EventForwarderDef,
-  EventsDef,
-  Event,
-  PayloadsToEvent,
-  Selector,
-  InternalEventForwarderDef,
-  EventsDefToPayloads,
-  ChildrenDefToEvent,
-  AnyComponentDef,
-  ChildrenDef,
+  CreateComponentChildrenContract,
+  ExtractComponentValuesContract,
+  Selectors,
 } from "./softer-component-types";
-///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-// test utilities
-///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-let ignoreUnread: unknown = undefined;
-export type Equal<X, Y> = X extends Y ? (Y extends X ? true : false) : false;
-export type Expect<T extends true> = T; // Test that two types are equal
 
-///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-// GIVEN type definitions
-///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-type MyState = { count: number };
-type MySelectors = {
-  count: Selector<MyState, number>;
-};
-type MyPayloads = {
-  incrementRequested: number;
-  decrementRequested: number;
-};
-type MyChildrenDef = {
-  child1: {
-    componentDef: {
-      events: {
-        incrementRequested: {
-          stateUpdater: (state: MyState, payload: number) => MyState;
-        };
-        decrementRequested: {
-          stateUpdater: (state: MyState, payload: number) => MyState;
-        };
-      };
-    };
-  };
-};
-type MyComponentDef = ComponentDef<
-  MyState,
-  MySelectors,
-  MyPayloads,
-  MyChildrenDef
->;
+/////////////////////
+// ITEM
+////////////////////
 
-///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-// GIVEN constants of previously defined types
-///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-const initialState: MyState = { count: 0 };
-const selectors: MySelectors = {
-  count: (state) => state.count,
+type ItemState = {
+  name: string;
+  quantity: number;
 };
-const children: MyChildrenDef = {
-  child1: {
-    componentDef: {
-      events: {
-        incrementRequested: {
-          stateUpdater: (state, payload) => ({ count: state.count + payload }),
+
+type ItemEvents = {
+  removeRequested: { payload: undefined };
+  incrementQuantityRequested: { payload: undefined };
+  decrementQuantityRequested: { payload: undefined };
+  initialize: { payload: string };
+};
+
+const selectors = {
+  name: (state) => state.name,
+  quantity: (state) => state.quantity,
+  isEmpty: (state) => state.quantity < 1,
+} satisfies Selectors<ItemState>;
+
+export type ItemContract = {
+  values: ExtractComponentValuesContract<typeof selectors>;
+  events: ItemEvents;
+  children: {};
+  state: ItemState;
+};
+
+const itemDef: ComponentDef<ItemContract> = {
+  selectors,
+  uiEvents: ["incrementQuantityRequested", "decrementQuantityRequested"],
+  updaters: {
+    initialize: ({ payload: name }) => ({
+      name: name,
+      quantity: 1,
+    }),
+    incrementQuantityRequested: ({ state }) => {
+      state.quantity++;
+    },
+    decrementQuantityRequested: ({ state }) => {
+      state.quantity--;
+    },
+  },
+  eventForwarders: [
+    {
+      from: "decrementQuantityRequested",
+      to: "removeRequested",
+      onCondition: ({ values: selectors }) => selectors.isEmpty(),
+    },
+  ],
+};
+
+/////////////////////
+// List
+////////////////////
+const initialState = {
+  listName: "My Shopping List",
+  nextItemName: "",
+  lastItemId: 0,
+};
+
+type ListState = typeof initialState;
+type ListEvents = {
+  nextItemNameChanged: { payload: string };
+  nextItemSubmitted: { payload: undefined };
+  addItemRequested: { payload: string };
+  resetItemNameRequested: { payload: undefined };
+  incrementItemQuantityRequested: { payload: number };
+  createItemRequested: { payload: { itemName: string; itemId: number } };
+  removeItemRequested: { payload: number };
+};
+
+const childrenComponents = {
+  items: itemDef,
+};
+
+const listSelectors = {
+  listName: (state) => state.listName,
+  nextItemName: (state) => state.nextItemName.trim(),
+  nextItemId: (state) => state.lastItemId + 1,
+} satisfies Selectors<ListState>;
+
+export type ListContract = {
+  state: ListState;
+  values: ExtractComponentValuesContract<typeof listSelectors>;
+  events: ListEvents;
+  children: CreateComponentChildrenContract<
+    typeof childrenComponents,
+    { items: "isCollection" }
+  >;
+};
+export const listDef: ComponentDef<ListContract> = {
+  initialState,
+  selectors: listSelectors,
+  uiEvents: ["nextItemNameChanged", "addItemRequested"],
+  updaters: {
+    nextItemNameChanged: ({ state, payload: nextItemName }) => {
+      state.nextItemName = nextItemName;
+    },
+    addItemRequested: ({ state }) => {
+      state.nextItemName = "";
+    },
+    createItemRequested: ({
+      childrenNodes: { items },
+      payload: { itemId },
+      state,
+    }) => {
+      items.push(`${itemId}`);
+      state.lastItemId = itemId;
+    },
+    removeItemRequested: ({
+      childrenNodes: { items },
+      payload: idToRemove,
+    }) => {
+      items.splice(items.indexOf(`${idToRemove}`), 1);
+    },
+  },
+  eventForwarders: [
+    {
+      from: "nextItemSubmitted",
+      to: "addItemRequested",
+      withPayload: ({ values: selectors }) => selectors.nextItemName().trim(),
+      onCondition: ({ values: selectors }) =>
+        selectors.nextItemName().trim() !== "",
+    },
+    {
+      from: "addItemRequested",
+      to: "createItemRequested",
+      onCondition: ({ children: { items }, payload: itemName }) =>
+        Object.values(items).every((item) => item.values.name() !== itemName),
+      withPayload: ({ values: selectors, payload: itemName }) => ({
+        itemName,
+        itemId: selectors.nextItemId(),
+      }),
+    },
+    {
+      from: "addItemRequested",
+      to: "incrementItemQuantityRequested",
+      onCondition: ({ children: { items }, payload: itemName }) =>
+        Object.values(items).some((item) => item.values.name() === itemName),
+      withPayload: ({ children: { items }, payload: itemName }) =>
+        Object.entries(items)
+          .filter(([, item]) => item.values.name() === itemName)
+          .map(([key]) => parseInt(key))[0],
+    },
+    {
+      from: "addItemRequested",
+      to: "resetItemNameRequested",
+    },
+  ],
+  childrenComponents,
+  childrenConfig: {
+    items: {
+      isCollection: true,
+      commands: [
+        {
+          from: "incrementItemQuantityRequested",
+          to: "incrementQuantityRequested",
+          toKeys: ({ payload: itemId }) => [`${itemId}`],
         },
-        decrementRequested: {
-          stateUpdater: (state, payload) => ({ count: state.count - payload }),
+        {
+          from: "createItemRequested",
+          to: "initialize",
+          withPayload: ({ payload: { itemName } }) => itemName,
+          toKeys: ({ payload: { itemId } }) => [`${itemId}`],
         },
-      },
+      ],
+      listeners: [
+        {
+          from: "removeRequested",
+          to: "removeItemRequested",
+          withPayload: ({ fromChildKey }) => parseInt(fromChildKey),
+        },
+      ],
     },
   },
 };
-const ifd: InternalEventForwarderDef<
-  MyState,
-  Event<"incrementRequested", number>,
-  Event<"decrementRequested", number>
-> = {
-  to: "decrementRequested",
-  onCondition: (state) => state.count > 10,
-};
-const events: EventsDef<MyState, MyPayloads> = {
-  incrementRequested: {
-    forwarders: [ifd],
-  },
-  decrementRequested: {
-    forwarders: [
-      {
-        to: "incrementRequested",
-        onCondition: (state) => state.count < 0,
-      },
-    ],
-  },
-};
-///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-// Assert type of events is correct
-///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-const event1: ChildrenDefToEvent<MyChildrenDef> = {
-  type: "child1/incrementRequested",
-  payload: 42,
-};
-const event2: PayloadsToEvent<MyPayloads> = {
-  type: "decrementRequested",
-  payload: 42,
-};
-ignoreUnread = event1;
-ignoreUnread = event2;
-
-///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-// Assert EventForwarderDef onEvent and thenDispatch types are correct
-///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-const outputEventForwarder: EventForwarderDef<
-  MyState,
-  PayloadsToEvent<MyPayloads>,
-  ChildrenDefToEvent<MyChildrenDef>
-> = {
-  onEvent: "incrementRequested",
-  thenDispatch: "child1/incrementRequested",
-  withPayload: (_, previousPayload) => previousPayload + 1,
-};
-const inputEventForwarder: EventForwarderDef<
-  MyState,
-  ChildrenDefToEvent<MyChildrenDef>,
-  PayloadsToEvent<MyPayloads>
-> = {
-  onEvent: "child1/decrementRequested",
-  thenDispatch: "decrementRequested",
-  withPayload: (_, previousPayload) => previousPayload + 1,
-};
-
-///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-// Assert output type is correct
-///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-const output = [outputEventForwarder];
-const input = [inputEventForwarder];
-let myComponentDef: ComponentDef<
-  MyState,
-  MySelectors,
-  MyPayloads,
-  MyChildrenDef
-> = {
-  initialState,
-  selectors,
-  children,
-  events,
-  output,
-  input,
-};
-ignoreUnread = myComponentDef;
-///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-// Assert converting Payloads to Events and vice versa works
-///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-//Payload
-type Test1 = Expect<
-  Equal<MyPayloads, EventsDefToPayloads<EventsDef<any, MyPayloads>>>
->;
-ignoreUnread = null as any as Test1;
-
-///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-// Assert ComponentDef is unchanged when converting Payloads to Events and Payloads
-///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-//ComponentDef
-type T1 = MyComponentDef["input"];
-type T2 = ComponentDef<
-  MyComponentDef["initialState"] & {},
-  MyComponentDef["selectors"],
-  EventsDefToPayloads<MyComponentDef["events"]>,
-  MyComponentDef["children"]
->["input"];
-type Test3 = Expect<Equal<T1, T2>>;
-ignoreUnread = null as any as Test3;
-
-type Test4 = Expect<
-  Equal<
-    MyComponentDef["output"],
-    ComponentDef<
-      MyComponentDef["initialState"] & {},
-      MyComponentDef["selectors"],
-      EventsDefToPayloads<MyComponentDef["events"]>,
-      MyComponentDef["children"]
-    >["output"]
-  >
->;
-ignoreUnread = null as any as Test4;
-
-type Test5 = Expect<
-  Equal<
-    MyComponentDef,
-    ComponentDef<
-      MyComponentDef["initialState"] & {},
-      MyComponentDef["selectors"],
-      EventsDefToPayloads<MyComponentDef["events"]>,
-      MyComponentDef["children"]
-    >
-  >
->;
-ignoreUnread = null as any as Test5;
-
-const myComponentDef2: ComponentDef<
-  MyComponentDef["initialState"] & {},
-  MyComponentDef["selectors"],
-  EventsDefToPayloads<MyComponentDef["events"]>,
-  MyComponentDef["children"]
-> = myComponentDef;
-ignoreUnread = myComponentDef2;
-
-///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-// Assert selectors can be changed, building a new ComponentDef
-///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-type MySelectors2 = {
-  counterString: (state: MyState) => string;
-};
-const selectors2: MySelectors2 = {
-  counterString: (state) => state.count.toString(),
-};
-const componentWithNewSelector: ComponentDef<
-  MyComponentDef["initialState"] & {},
-  MySelectors2,
-  EventsDefToPayloads<MyComponentDef["events"]>,
-  MyComponentDef["children"]
-> = {
-  ...myComponentDef,
-  selectors: selectors2,
-};
-ignoreUnread = componentWithNewSelector;
-
-///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-// Assert AnyComponentDef accepts different ComponentDefs
-///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-const anyComponentDef1: AnyComponentDef = myComponentDef;
-ignoreUnread = anyComponentDef1;
-
-const anyComponentDef2: AnyComponentDef = componentWithNewSelector;
-ignoreUnread = anyComponentDef2;
-
-function acceptAnyComponentDef(def: AnyComponentDef) {
-  ignoreUnread = def;
-}
-acceptAnyComponentDef(myComponentDef);
-acceptAnyComponentDef(componentWithNewSelector);

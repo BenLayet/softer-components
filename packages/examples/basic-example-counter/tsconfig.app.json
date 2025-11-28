@@ -22,11 +22,19 @@
     "noUnusedParameters": true,
     "noFallthroughCasesInSwitch": true,
     "noUncheckedSideEffectImports": true,
-    "types": ["vitest/globals"],
-    "paths": {
-      "@softer-components/types": ["../../types/src"],
-      "@softer-components/redux-adapter": ["../../redux-adapter/src"]
-    }
+    "types": ["vitest/globals"]
   },
-  "include": ["src"]
+  "include": ["src/**/*.ts"],
+  "exclude": ["src/**/*.test.ts"],
+  "references": [
+    {
+      "path": "../../types"
+    },
+    {
+      "path": "../../utils"
+    },
+    {
+      "path": "../../redux-adapter"
+    }
+  ]
 }

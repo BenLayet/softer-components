@@ -1,31 +1,50 @@
+import {
+  ComponentDef,
+  CreateComponentChildrenContract,
+} from "@softer-components/types";
 import { List } from "../../model/List.ts";
-import { shoppingListComponentDef } from "../shopping-list/shopping-list.component.ts";
-import { listSelectComponentDef } from "../list-select/list-select.component.ts";
-import { componentDefBuilder } from "@softer-components/types";
+import { listSelectDef } from "../list-select/list-select.component.ts";
+import { listDef } from "../list/list.component.ts";
+// Events
+type AppEvents = {
+  listSelected: { payload: List };
+  backClicked: { payload: undefined };
+};
+const childrenComponents = {
+  listSelect: listSelectDef,
+  list: listDef,
+};
 
-export const appComponentDef = componentDefBuilder
-    .initialState({ listName: null as string | null })
-    .selectors({
-        selectedListName: state => state.listName ?? "",
-        isSelected: state => state.listName !== null,
-    })
-    .events<{ listSelected: List }>({
-        listSelected: {
-            stateUpdater: (state, selectedList) => ({
-                ...state,
-                listName: selectedList.name,
-            }),
-        },
-    })
-    .children({
-        shoppingList: { componentDef: shoppingListComponentDef },
-        listSelect: { componentDef: listSelectComponentDef },
-    })
-    .input([
+export type AppComponentContract = {
+  state: undefined;
+  events: AppEvents;
+  children: CreateComponentChildrenContract<typeof childrenComponents>;
+  values: {};
+};
+// Component definition
+export const appDef: ComponentDef<AppComponentContract> = {
+  uiEvents: ["backClicked"],
+  updaters: {
+    listSelected: ({ childrenNodes }) => {
+      childrenNodes.list = true;
+      childrenNodes.listSelect = false;
+    },
+    backClicked: ({ childrenNodes }) => {
+      childrenNodes.list = false;
+      childrenNodes.listSelect = true;
+    },
+  },
+  initialChildrenNodes: { listSelect: false, list: true },
+  childrenComponents,
+  childrenConfig: {
+    list: { commands: [{ from: "listSelected", to: "initialize" }] },
+    listSelect: {
+      listeners: [
         {
-            onEvent: "listSelect/createNewListRequested",
-            thenDispatch: "listSelected",
-            withPayload: (_: {}, name: string) => ({ name, items: [] }),
+          from: "listSelected",
+          to: "listSelected",
         },
-    ])
-    .build();
+      ],
+    },
+  },
+};

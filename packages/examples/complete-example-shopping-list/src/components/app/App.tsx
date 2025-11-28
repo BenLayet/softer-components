@@ -1,22 +1,23 @@
 import { ListSelect } from "../list-select/ListSelect.tsx";
 import { useSofter } from "@softer-components/redux-adapter";
-import { appComponentDef } from "./app.component.ts";
-import { ShoppingList } from "../shopping-list/ShoppingList.tsx";
+import { AppComponentContract } from "./app.component.ts";
+import { List } from "../list/List.tsx";
 
-export const App = ({ path }: { path: string }) => {
-  const [{ isSelected, selectedListName }, {}, { listSelect, shoppingList }] =
-    useSofter(path, appComponentDef);
+export const App = ({ path = "" }) => {
+  const [{}, { backClicked }, { listSelect, list }] =
+    useSofter<AppComponentContract>(path);
 
   return (
     <div>
       <h1>Shopping List</h1>
-      {isSelected ? (
+      {listSelect && <ListSelect path={listSelect} />}
+      {list && (
         <div>
-          <h2>{selectedListName}</h2>
-          <ShoppingList path={shoppingList} />
+          <a href="#" onClick={() => backClicked()}>
+            Back to list selection
+          </a>
+          <List path={list} />
         </div>
-      ) : (
-        <ListSelect path={listSelect} />
       )}
     </div>
   );

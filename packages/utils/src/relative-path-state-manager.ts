@@ -1,0 +1,116 @@
+import { ChildrenNodes, State } from "@softer-components/types";
+import { ComponentPath, SofterRootState } from "./utils.type";
+import { StateManager, StateReader } from "./state-manager";
+
+/**
+ * Wrapper around StateManager that manages relative paths.
+ * All state operations are delegated with the absolute path.
+ *
+ * This state manager is meant to be shortly lived (a new instance for each event and each level while visiting the component tree).
+ */
+export class RelativePathStateReader {
+  constructor(
+    protected readonly softerRootState: SofterRootState,
+    private readonly absolutePathStateReader: StateReader,
+    protected readonly currentPath: ComponentPath = [],
+  ) {}
+
+  childStateReader(
+    childName: string,
+    childKey?: string,
+  ): RelativePathStateReader {
+    return new RelativePathStateReader(
+      this.softerRootState,
+      this.absolutePathStateReader,
+      [...this.currentPath, [childName, childKey]],
+    );
+  }
+
+  readState(): State {
+    return this.absolutePathStateReader.readState(
+      this.softerRootState,
+      this.currentPath,
+    );
+  }
+  getChildrenNodes(): ChildrenNodes {
+    return this.absolutePathStateReader.getChildrenNodes(
+      this.softerRootState,
+      this.currentPath,
+    );
+  }
+
+  selectValue<T>(selectorName: string, selector: (state: State) => T): T {
+    return this.absolutePathStateReader.selectValue(
+      this.softerRootState,
+      this.currentPath,
+      selectorName,
+      selector,
+    );
+  }
+}
+
+/**
+ * Wrapper around StateManager that manages relative paths.
+ * All state operations are delegated with the absolute path.
+ *
+ * This state manager is meant to be shortly lived (a new instance for each event and each level while visiting the component tree).
+ */
+export class RelativePathStateManager extends RelativePathStateReader {
+  constructor(
+    softerRootState: SofterRootState,
+    private readonly absolutePathStateManager: StateManager,
+    currentPath: ComponentPath = [],
+  ) {
+    super(softerRootState, absolutePathStateManager, currentPath);
+  }
+
+  childStateManager(
+    childName: string,
+    childKey?: string,
+  ): RelativePathStateManager {
+    return new RelativePathStateManager(
+      this.softerRootState,
+      this.absolutePathStateManager,
+      [...this.currentPath, [childName, childKey]],
+    );
+  }
+
+  createState(state: State): void {
+    if (this.currentPath.length === 0) {
+      this.absolutePathStateManager.updateState(
+        this.softerRootState,
+        this.currentPath,
+        state,
+      );
+    } else {
+      this.absolutePathStateManager.createState(
+        this.softerRootState,
+        this.currentPath,
+        state,
+      );
+    }
+  }
+
+  updateState(state: State): void {
+    this.absolutePathStateManager.updateState(
+      this.softerRootState,
+      this.currentPath,
+      state,
+    );
+  }
+
+  createEmptyCollectionChild(childName: string): void {
+    this.absolutePathStateManager.createEmptyCollectionChild(
+      this.softerRootState,
+      this.currentPath,
+      childName,
+    );
+  }
+
+  removeStateTree(): void {
+    this.absolutePathStateManager.removeStateTree(
+      this.softerRootState,
+      this.currentPath,
+    );
+  }
+}

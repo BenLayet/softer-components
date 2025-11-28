@@ -3,9 +3,7 @@
     "rootDir": "./src",
     "outDir": "./dist",
     "target": "ES2020",
-    "lib": [
-      "ES2020"
-    ],
+    "lib": ["ES2020"],
     "moduleResolution": "Bundler",
     "module": "ESNext",
     "baseUrl": ".",
@@ -15,9 +13,6 @@
     "sourceMap": true,
     "composite": true
   },
-  "files": [
-    "src/index.ts",
-    "src/softer-component-types.ts",
-    "src/component-def-builder.ts"
-  ]
+  "include": ["src/**/*.ts"],
+  "exclude": ["src/**/*.test.ts"]
 }

@@ -1,176 +1,139 @@
-/**
- * Core types for state-manager-agnostic component definitions.
- * These types provide the foundation for reusable and composable components,
- * compatible with any state manager.
- */
-
-/***************************************************************************************************************
- *                         VALUE
- ***************************************************************************************************************/
-export type Value =
+type Value =
   | string
   | number
   | boolean
-  | Date
   | null
   | { readonly [key: string]: Value }
   | readonly Value[];
 
+export type OptionalValue = Value | undefined;
+export type State = OptionalValue;
+export type Payload = OptionalValue;
+
+export type ComponentValuesContract = { [SelectorName in string]: any };
+export type ComponentEventsContract = {
+  [EventName: string]: { payload: OptionalValue };
+};
+export type ComponentChildContract = ComponentContract & {
+  isCollection?: boolean;
+};
+export type ComponentChildrenContract = Record<string, ComponentChildContract>;
+
+export type ComponentContract = {
+  state: OptionalValue;
+  values: ComponentValuesContract;
+  events: ComponentEventsContract;
+  children: ComponentChildrenContract;
+};
+/*
+TODO ask expert about letting client declare only partial contract in ComponentDef
+e.g.
+export type ComponentDef<
+  TPartialContract extends Partial<ComponentContract> = {},
+  TComponentContract extends ComponentContract = {
+    state: any;
+    values: any;
+    events: any;
+    children: any;
+  } & TPartialContract,
+> =
+*/
+/**
+ * Definition of a component including its initial state, selectors, updaters, event forwarders, and child components
+ */
+export type ComponentDef<TComponentContract extends ComponentContract = any> = {
+  initialState?: TComponentContract["state"];
+  initialChildrenNodes?: ChildrenNodes<TComponentContract["children"]>;
+  selectors?: {
+    [SelectorName in keyof TComponentContract["values"]]: (
+      state: TComponentContract["state"]
+    ) => TComponentContract["values"][SelectorName];
+  };
+  uiEvents?: (keyof TComponentContract["events"] & string)[];
+  updaters?: {
+    [EventName in keyof TComponentContract["events"]]?: (
+      params: Values<TComponentContract> & {
+        state: TComponentContract["state"]; //mutable
+        childrenNodes: ChildrenNodes<TComponentContract["children"]>; //mutable
+        payload: TComponentContract["events"][EventName]["payload"];
+      }
+    ) => void | TComponentContract["state"]; //return new state or void if state is mutated
+  };
+  eventForwarders?: InternalEventForwarders<TComponentContract>;
+  childrenComponents?: {
+    [ChildName in keyof TComponentContract["children"]]: ComponentDef<
+      TComponentContract["children"][ChildName]
+    >;
+  };
+  childrenConfig?: {
+    [ChildName in keyof TComponentContract["children"]]?: ChildConfig<
+      TComponentContract,
+      TComponentContract["children"][ChildName]
+    >;
+  };
+};
 /***************************************************************************************************************
- *                         STATE
+ *                         VALUES
+ ***************************************************************************************************************/
+/**
+ * Provides access to computed values (from selectors) and child values
+ * This is the runtime interface for accessing global state in a structured way
+ */
+export type Values<
+  TComponentContract extends ComponentContract = ComponentContract,
+> = {
+  /** Computed values from selectors - call these functions to get current values */
+  values: {
+    [K in keyof TComponentContract["values"]]: () => TComponentContract["values"][K];
+  };
+  /** Child component values - access nested component values here */
+  children: ChildrenValues<TComponentContract>;
+};
+export type ChildrenValues<TComponentContract extends ComponentContract> = {
+  [ChildName in keyof TComponentContract["children"]]: TComponentContract["children"][ChildName]["isCollection"] extends true
+    ? {
+        [ChildKey: string]: Values<TComponentContract["children"][ChildName]>;
+      }
+    : Values<TComponentContract["children"][ChildName]>;
+};
+/***************************************************************************************************************
+ *                         EVENT FORWARDING DEFINITIONS
  ***************************************************************************************************************/
 
-/**
- * State is the same type as Value but is used in a specific context.
- */
-export type State = Value;
-
-/***************************************************************************************************************
- *                         SELECTORS
- ***************************************************************************************************************/
-
-/**
- * Selector takes state and returns a value
- * @example
- * ```ts
- * (state: {counter:number}) => state.counter
- * ```
- */
-export type Selector<
-  TState extends State,
-  TValue extends Value | undefined = Value | undefined,
-> = (state: TState) => TValue;
-export type Selectors<TState extends State = State> =  {
-      [key in string]: Selector<TState>;
-    };
-/***************************************************************************************************************
- *                         EVENTS
- ***************************************************************************************************************/
-
-/**
- * Payload can be a specific value type or undefined (no payload)
- */
-export type Payload = Value | undefined;
-export type Payloads = Record<string, Payload>;
-
-/**
- * Event with type and payload (payload is always present and typed by TPayload;
- * use `undefined` for events that conceptually carry no payload)
- * @example
- * ```ts
- * type ButtonClicked:Event = {type:"buttonClicked", payload: undefined};
- * const event:ButtonClicked = {type:"buttonClicked", payload: undefined};
- *
- * type LinkClicked:Event = {type:"linkClicked", payload:{url:string}};
- * const event:LinkClicked = {type:"linkClicked", payload:{url:"https://example.com"}};
- * ```
- */
 export type Event<
   TEventName extends string = string,
   TPayload extends Payload = Payload,
 > = {
-  readonly type: TEventName;
+  readonly name: TEventName;
   readonly payload: TPayload;
 };
-
-/***************************************************************************************************************
- *                         STATE UPDATERS
- ***************************************************************************************************************/
-
-/**
- * State Updater takes no payload or only one type of payload.
- * A state updater is called when a specific event is dispatched with a specific payload.
- * (equivalent to a case reducer for a specific action in Redux)
- *
- * @example
- * ```ts
- * // With payload:
- * (state: {counter:number}, payload:number) => ({counter: state.counter + payload})
- * // Without payload:
- * (state: {counter:number}) => ({counter: state.counter + 1})
- * ```
- */
-export type StateUpdater<TState extends State, TPayload extends Payload> = (
-  state: TState,
-  payload: TPayload,
-) => TState;
-
-/***************************************************************************************************************
- *                         EVENT DEFINITIONS TODO rename to EventHandler ?
- ***************************************************************************************************************/
-
-export type EventDef<TState extends State, TPayload extends Payload> = {
-  readonly stateUpdater?: StateUpdater<TState & {}, TPayload>;
-};
-
-export type InternalEventForwarderDef<
-  TState extends State,
-  TFromEvent extends Event,
-  TToEvent extends Event,
-> = {
-  readonly to: Exclude<TToEvent["type"], TFromEvent["type"]>;
-} & WithPayloadDef<TState, TFromEvent["payload"], TToEvent["payload"]> &
-  OnConditionDef<TState, TFromEvent["payload"]>;
-
-export type EventsDef<
-  TState extends State,
-  TPayloads extends Record<string, Payload>,
-> = {
-  [TEventName in keyof TPayloads]: EventDef<TState, TPayloads[TEventName]> & {
-    //TODO make this optional empty event handler do not need to be defined
-    forwarders?: InternalEventForwarderDef<
-      TState,
-      Event<TEventName & string, TPayloads[TEventName & string]>,
-      PayloadsToEvent<TPayloads>
-    >[];
-  };
-};
-
-/***************************************************************************************************************
- *                        INPUT AND OUTPUT EVENT FORWARDERS
- ***************************************************************************************************************/
-
-/** TODO check if necessary ?
- * Adds an optional key (string) to each path segment in a component path
- * E.g. "/list/item/" becomes "/list/:string/item/:string/"
- * 
-type AddKeyToPath<TPath extends string> =
-  TPath extends `/${infer Head}/${infer Tail}`
-  ? `/${Head}${`:${string}` | ""}${AddKeyToPath<`/${Tail}`>}`
-  : TPath;
-
-/**
- * Basic event forwarder definition with onEvent and thenDispatch
- */
-type OnEventThenDispatchDef<
-  TFromEventName extends string,
-  TToEventName extends string,
-> = {
-  readonly onEvent: TFromEventName; // TODO onEvent could depend on the state
-  readonly thenDispatch: TToEventName; // TODO thenDispatch could depend on the state + payload
-};
-
 /**
  * Defines withPayload property for event forwarders
  * Required when payload types don't match, optional when they do
  */
 type WithPayloadDef<
-  TState extends State,
+  TComponentContract extends ComponentContract,
   TFromPayload extends Payload,
   TToPayload extends Payload,
 > = TToPayload extends undefined
-  ? {}
+  ? {
+      readonly withPayload?: never;
+    }
   : TFromPayload extends TToPayload
     ? {
         readonly withPayload?: (
-          state: TState & {},
-          payload: TFromPayload,
+          params: Values<TComponentContract> & {
+            payload: TFromPayload;
+            fromChildKey: string;
+          }
         ) => TToPayload;
       }
     : {
         readonly withPayload: (
-          state: TState & {}, //TODO use ResolvedSelectors instead of TState
-          payload: TFromPayload,
+          params: Values<TComponentContract> & {
+            payload: TFromPayload;
+            fromChildKey: string;
+          }
         ) => TToPayload;
       };
 
@@ -178,170 +141,172 @@ type WithPayloadDef<
  * Defines onCondition property for event forwarders
  * Optional condition to determine if event should be forwarded
  */
-type OnConditionDef<TState extends State, TFromPayload extends Payload> = {
-  onCondition?: (state: TState, payload: TFromPayload) => boolean;
-};
-
-/**
- * Internal event forwarder definition with all properties
- */
-type _EventForwarderDef<
-  TState extends State,
-  TFromEvent extends Event, //no union here
-  TToEvent extends Event, //no union here
-> = OnEventThenDispatchDef<TFromEvent["type"], TToEvent["type"]> &
-  WithPayloadDef<TState, TFromEvent["payload"], TToEvent["payload"]> &
-  OnConditionDef<TState, TFromEvent["payload"]>;
-
-/**
- * Event forwarder definition for forwarding events between different event sets
- * Prevents dispatching to self and handles type safety
- */
-export type EventForwarderDef<
-  TState extends State,
-  TFromEvents extends Event, //expects union
-  TToEvents extends Event = TFromEvents, //expects union
-> = TFromEvents extends never
-  ? any
-  : TFromEvents extends infer TFromEvent extends Event
-    ? TToEvents extends infer TToEvent extends Event
-      ? // TODO prevent forwarding to self while tolerating any as TToEvents or TFromEvents
-        // ? string extends TToEvents["type"] // tolerates any as TToEvents
-        //     ? _EventForwarderDef<TState, TFromEvent, TToEvent>
-        //     :  string extends TFromEvents["type"] // tolerates any as TFromEvents
-        //         ? _EventForwarderDef<TState, TFromEvent, TToEvent>
-        //         : TToEvent extends TFromEvent // prevent dispatching to self
-        //             ? never
-        //             :
-        _EventForwarderDef<TState, TFromEvent, TToEvent>
-      : never
-    : never;
-/***************************************************************************************************************
- *                         CHILDREN
- ***************************************************************************************************************/
-export type BaseComponentDef<TState extends State> = {
-  readonly initialState?: TState;
-  readonly events: EventsDef<any, any>;
-};
-type SingleChildFactory<
-  TParentState extends State,
-  TChildState extends State,
+type OnConditionDef<
+  TComponentContract extends ComponentContract,
+  TFromPayload extends Payload,
 > = {
-  //TODO readonly exists?: (state: TParentState & {}) => boolean;
-  readonly isCollection?: false;
-  readonly initialStateFactory?: (state: TParentState & {}) => TChildState & {};
+  onCondition?: (
+    params: Values<TComponentContract> & {
+      payload: TFromPayload;
+      fromChildKey: string;
+    }
+  ) => boolean;
 };
-type ChildCollectionFactory<
-  TParentState extends State,
-  TChildState extends State,
-> = {
-  readonly isCollection: true;
-  readonly count: (state: TParentState & {}) => number; // TODO replace by getKeys()
-  readonly childKey: (state: TParentState & {}, index: number) => string;
-  readonly initialStateFactoryWithKey?: (
-    state: TParentState & {},
-    childKey: string,
-  ) => TChildState & {};
-};
-type ChildDef<TParentState extends State, TChildState extends State = State> = {
-  componentDef: BaseComponentDef<TChildState>; //TODO use ComponentDef instead of BaseComponentDef ?
-} & (
-  | SingleChildFactory<TParentState, TChildState>
-  | ChildCollectionFactory<TParentState, TChildState>
-);
 
-export type ChildrenDef<TParentState extends State> = Record<
-  string,
-  ChildDef<TParentState>
+type ToEventDef<
+  TComponentContract extends ComponentContract,
+  TFromEvent extends Event, //not expecting a union
+  TToEvent extends Event, //not expecting a union
+> = {
+  readonly to: TToEvent["name"];
+} & WithPayloadDef<
+  TComponentContract,
+  TFromEvent["payload"],
+  TToEvent["payload"]
 >;
 
+type FromEventDef<TFromEvent extends Event> = {
+  readonly from: TFromEvent["name"];
+};
+export type FromEventToEvent<
+  TComponentContract extends ComponentContract,
+  TFromEvent extends Event, //not expecting a union
+  TToEvent extends Event, //not expecting a union
+> = FromEventDef<TFromEvent> &
+  ToEventDef<TComponentContract, TFromEvent, TToEvent> &
+  OnConditionDef<TComponentContract, TFromEvent["payload"]>;
+
+export type FromEventContractToEventContract<
+  TComponentContract extends ComponentContract,
+  TFromEvents extends ComponentEventsContract,
+  TToEvents extends ComponentEventsContract,
+> = {
+  [TFromEventName in keyof TFromEvents]: {
+    [TToEventName in keyof TToEvents]: FromEventToEvent<
+      TComponentContract,
+      {
+        name: TFromEventName & string;
+        payload: TFromEvents[TFromEventName & string]["payload"];
+      },
+      {
+        name: TToEventName & string;
+        payload: TToEvents[TToEventName & string]["payload"];
+      }
+    > & {
+      //TODO ask expert how to declare 'toKeys' only for commands from parent to children
+      toKeys?: (
+        params: Values<TComponentContract> & {
+          payload: TFromEvents[TFromEventName & string]["payload"];
+          fromChildKey: string;
+        }
+      ) => string[];
+    };
+  }[keyof TToEvents];
+}[keyof TFromEvents];
+
+export type InternalEventForwarder<
+  TComponentContract extends ComponentContract,
+> = {
+  [TFromEventName in keyof TComponentContract["events"]]: {
+    [TToEventName in keyof TComponentContract["events"]]: FromEventToEvent<
+      TComponentContract,
+      {
+        name: TFromEventName & string;
+        payload: TComponentContract["events"][TFromEventName &
+          string]["payload"];
+      },
+      {
+        name: TToEventName & string;
+        payload: TComponentContract["events"][TToEventName & string]["payload"];
+      }
+    >;
+  }[Exclude<keyof TComponentContract["events"], TFromEventName>]; //Exclude<..., TFromEventName> to prevent forwarding to itself
+}[keyof TComponentContract["events"]];
+
+export type InternalEventForwarders<
+  TComponentContract extends ComponentContract,
+> = InternalEventForwarder<TComponentContract>[]; //array of forwarders per event
+
 /***************************************************************************************************************
- *                         COMPONENT DEFINITION
+ *                         CHILDREN NODES
+ ***************************************************************************************************************/
+export type ChildrenNodes<
+  TChildrenContract extends
+    ComponentChildrenContract = ComponentChildrenContract,
+> = {
+  [ChildName in keyof TChildrenContract]: TChildrenContract[ChildName]["isCollection"] extends true
+    ? string[]
+    : boolean;
+};
+export type ChildrenNode<TChildContract extends ComponentChildContract> = {
+  readonly path: string;
+  readonly values: Values<TChildContract>;
+};
+
+/***************************************************************************************************************
+ *                         CHILDREN DEFINITION
  ***************************************************************************************************************/
 
-export type WithInitialState<TState extends State> = {
-  readonly initialState: TState;
-};
-export type WithChildrenDef<TChildrenDef extends ChildrenDef<any>> = {
-  readonly children: TChildrenDef;
-};
-export type WithSelectors<
-  TState extends State,
-  TSelectors extends Selectors<TState>,
+type WithChildListeners<
+  TParentContract extends ComponentContract,
+  TChildContract extends ComponentChildContract,
 > = {
-  readonly selectors: TSelectors;
+  readonly listeners?: FromEventContractToEventContract<
+    TParentContract,
+    TChildContract["events"], //from child
+    TParentContract["events"] //to parent
+  >[];
 };
-export type WithEvents<TState extends State, TPayloads extends Payloads> = {
-  readonly events: EventsDef<TState, TPayloads>;
-};
-export type WithInput<
-  TState extends State,
-  TPayloads extends Payloads,
-  TChildrenDef extends ChildrenDef<TState>,
+type WithChildCommands<
+  TParentContract extends ComponentContract,
+  TChildContract extends ComponentChildContract,
 > = {
-  readonly input: EventForwarderDef<
-    TState,
-    ChildrenDefToEvent<TChildrenDef>,
-    PayloadsToEvent<TPayloads>
+  readonly commands?: FromEventContractToEventContract<
+    TParentContract,
+    TParentContract["events"], //from parent
+    TChildContract["events"] //to child
   >[];
 };
 
-export type WithOutput<
-  TState extends State,
-  TPayloads extends Payloads,
-  TChildrenDef extends ChildrenDef<TState>,
+export type ChildConfig<
+  TParentContract extends ComponentContract,
+  TChildContract extends ComponentChildContract,
+> = WithChildListeners<TParentContract, TChildContract> &
+  WithChildCommands<TParentContract, TChildContract> &
+  (TChildContract["isCollection"] extends true
+    ? {
+        readonly isCollection: true;
+      }
+    : { readonly isCollection?: false });
+/***************************************************************************************************************
+ *                       HELPER TYPES TO EXTRACT CONTRACTS FROM DEFINITIONS
+ ***************************************************************************************************************/
+export type Selectors<TState extends OptionalValue> = {
+  [SelectorName in string]: (state: TState) => any;
+};
+export type ExtractComponentValuesContract<
+  TSelectors extends Record<string, (state: any) => any>,
 > = {
-  readonly output: EventForwarderDef<
-    TState,
-    PayloadsToEvent<TPayloads>,
-    ChildrenDefToEvent<TChildrenDef>
-  >[];
+  [SelectorName in keyof TSelectors]: TSelectors[SelectorName] extends (
+    state: any
+  ) => infer TResult
+    ? TResult
+    : never;
 };
 
-export type ComponentDef<
-  TState extends State,
-  TSelectors extends Selectors<TState>,
-  TPayloads extends Payloads, //TODO use TEventDef extends EventDef<TState>
-  TChildrenDef extends ChildrenDef<TState>,
-> = WithInitialState<TState> &
-  WithSelectors<TState, TSelectors> &
-  WithChildrenDef<TChildrenDef> &
-  WithEvents<TState, TPayloads> &
-  WithInput<TState, TPayloads, TChildrenDef> &
-  WithOutput<TState, TPayloads, TChildrenDef>;
-
-export type AnyComponentDef = ComponentDef<any, any, any, any>;
-
-/***************************************************************************************************************
- * Utility types
- ***************************************************************************************************************/
-
-export type EventsDefToPayloads<TEventsDef extends EventsDef<any, any>> =
-  TEventsDef extends EventsDef<any, infer TPayloads> ? TPayloads : never;
-
-export type EventsDefToEvent<TEventsDef extends EventsDef<any, any>> =
-  PayloadsToEvent<EventsDefToPayloads<TEventsDef>>;
-
-export type PayloadsToEvent<TPayload extends Payloads> = {
-  [TEventName in keyof TPayload]: Event<
-    TEventName & string,
-    TPayload[TEventName]
-  >;
-}[keyof TPayload];
-
-export type ChildrenDefToEvent<TChildrenDef extends ChildrenDef<any>> = {
-  [TChildName in keyof TChildrenDef]: ChildEventsDefToEvent<
-    TChildName & string,
-    TChildrenDef[TChildName]["componentDef"]["events"]
-  >;
-}[keyof TChildrenDef];
-
-type ChildEventsDefToEvent<
-  TChildName extends string,
-  TEventsDef extends EventsDef<any, any>,
+export type CreateComponentChildrenContract<
+  TChildren extends Record<string, ComponentDef<any>>,
+  TIsCollection extends {
+    [ChildName in keyof TChildren]?: "isCollection";
+  } = {},
 > = {
-  [TEventName in keyof EventsDefToPayloads<TEventsDef>]: Event<
-    `${TChildName}/${TEventName & string}`,
-    EventsDefToPayloads<TEventsDef>[TEventName]
-  >;
-}[keyof EventsDefToPayloads<TEventsDef>];
+  [ChildName in keyof TChildren]: (TChildren[ChildName] extends ComponentDef<
+    infer TComponentContract
+  >
+    ? TComponentContract
+    : never) & {
+    isCollection: TIsCollection[ChildName] extends "isCollection"
+      ? true
+      : false;
+  };
+};

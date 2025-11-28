@@ -13,9 +13,9 @@ if (container) {
   root.render(
     <StrictMode>
       <Provider store={store}>
-        <App path="/" />
+        <App />
       </Provider>
-    </StrictMode>
+    </StrictMode>,
   );
 } else {
   throw new Error(

@@ -4,6 +4,7 @@
   "version": "0.0.0",
   "type": "module",
   "scripts": {
+    "clean": "rm -rf dist",
     "build": "tsc -b && vite build",
     "dev": "vite",
     "format:check": "prettier --check .",
@@ -13,7 +14,8 @@
     "preview": "vite preview",
     "start": "vite",
     "test": "vitest --run",
-    "type-check": "tsc -b --noEmit"
+    "type-check": "tsc -b --noEmit",
+    "type-check:watch": "tsc -b --noEmit --watch"
   },
   "dependencies": {
     "@reduxjs/toolkit": "^2.6.1",
