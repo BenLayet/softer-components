@@ -1,21 +1,25 @@
 import { ComponentDef } from "@softer-components/types";
 import { isNotUndefined } from "./predicate.functions";
 import { RelativePathStateManager } from "./relative-path-state-manager";
-import { SofterRootState } from "./utils.type";
+import { ComponentPath, SofterRootState } from "./utils.type";
 import { StateManager } from "./state-manager";
 
 /**
- * Initialize the complete state tree from the root component definition
+ * Initialize the complete state from the root component definition
  */
 export function initializeRootState(
   softerRootState: SofterRootState,
   rootComponentDef: ComponentDef,
-  stateManager: StateManager
+  stateManager: StateManager,
 ) {
   return initializeStateRecursively(
     softerRootState,
     rootComponentDef,
-    new RelativePathStateManager(stateManager, [])
+    new RelativePathStateManager(
+      softerRootState,
+      stateManager,
+      [] as ComponentPath,
+    ),
   );
 }
 
@@ -25,10 +29,10 @@ export function initializeRootState(
 export function initializeStateRecursively(
   softerRootState: SofterRootState,
   componentDef: ComponentDef,
-  stateManager: RelativePathStateManager
+  stateManager: RelativePathStateManager,
 ) {
-  // Initialize component state, even if undefined
-  stateManager.createState(softerRootState, componentDef.initialState);
+  // Initialize the component state, even if undefined
+  stateManager.createState(componentDef.initialState);
 
   // Initialize children state
   if (isNotUndefined(componentDef.childrenComponents)) {
@@ -36,7 +40,7 @@ export function initializeStateRecursively(
       ([childName, childDef]) => {
         const childConfig = componentDef.childrenConfig?.[childName] ?? {};
         if (childConfig.isCollection) {
-          stateManager.createEmptyCollectionChild(softerRootState, childName);
+          stateManager.createEmptyCollectionChild(childName);
 
           const keys = (componentDef.initialChildrenNodes?.[childName] ??
             []) as string[];
@@ -46,7 +50,7 @@ export function initializeStateRecursively(
               initializeStateRecursively(
                 softerRootState,
                 childDef,
-                childStateManager
+                childStateManager,
               );
             });
         } else {
@@ -54,11 +58,11 @@ export function initializeStateRecursively(
             initializeStateRecursively(
               softerRootState,
               childDef,
-              stateManager.childStateManager(childName)
+              stateManager.childStateManager(childName),
             );
           }
         }
-      }
+      },
     );
   }
 }

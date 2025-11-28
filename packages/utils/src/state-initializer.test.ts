@@ -4,44 +4,47 @@ import { initializeRootState } from "./state-initializer";
 import { StateManager } from "./state-manager";
 
 describe("state tests with mocks", () => {
-  it("should create initial state tree for component with no constructor", () => {
+  it("should create initial state for component with no constructor", () => {
     // GIVEN a simple component definition with initial state
     const rootDef = {};
     const stateManager = {} as StateManager;
-    stateManager.writeState = vi.fn();
+    stateManager.updateState = vi.fn();
     stateManager.readState = vi.fn();
 
-    // WHEN creating initial state tree
-    initializeRootState(rootDef, stateManager);
+    // WHEN creating an initial state
+    initializeRootState({}, rootDef, stateManager);
 
     // THEN verify no methods were called
-    expect(stateManager.writeState).toHaveBeenCalledWith(
+    expect(stateManager.updateState).toHaveBeenCalledWith(
+      {},
       [], // path
-      undefined // state
+      undefined, // state
     );
     expect(stateManager.readState).not.toHaveBeenCalled();
   });
 
-  it("should create initial state tree for simple component", () => {
+  it("should create initial state for simple component", () => {
     // GIVEN a simple component
     const rootDef: ComponentDef = {
       initialState: { level: 1 },
     };
     const stateManager = {} as StateManager;
-    stateManager.writeState = vi.fn();
+    stateManager.updateState = vi.fn();
+    stateManager.updateState = vi.fn();
 
-    // WHEN creating initial state tree
-    initializeRootState(rootDef, stateManager);
+    // WHEN creating an initial state
+    initializeRootState({}, rootDef, stateManager);
 
     // THEN verify writeState was called with correct arguments
-    expect(stateManager.writeState).toHaveBeenCalledTimes(1);
-    expect(stateManager.writeState).toHaveBeenCalledWith(
+    expect(stateManager.updateState).toHaveBeenCalledTimes(1);
+    expect(stateManager.updateState).toHaveBeenCalledWith(
+      {},
       [], // path
-      { level: 1 } // state
+      { level: 1 }, // state
     );
   });
 
-  it("should create state tree for component with 1 child", () => {
+  it("should create state for component with 1 child", () => {
     // GIVEN a component with child components
     const childDef: ComponentDef = {
       initialState: { level: 2 },
@@ -52,27 +55,30 @@ describe("state tests with mocks", () => {
       childrenComponents: { child: childDef },
     };
     const stateManager = {} as StateManager;
-    stateManager.writeState = vi.fn();
+    stateManager.updateState = vi.fn();
+    stateManager.createState = vi.fn();
     stateManager.readState = vi.fn();
 
-    // WHEN creating initial state tree
-    initializeRootState(rootDef, stateManager);
+    // WHEN creating an initial state
+    initializeRootState({}, rootDef, stateManager);
 
-    // THEN verify writeState was called for parent and child
-    expect(stateManager.writeState).toHaveBeenCalledTimes(2);
+    // THEN
+    // Verify the first call (parent)
+    expect(stateManager.updateState).toHaveBeenCalledTimes(1);
+    expect(stateManager.updateState).toHaveBeenCalledWith(
+      {},
+      [], // path
+      { level: 1 }, // state
+    );
 
-    // Verify first call (parent)
-    expect(stateManager.writeState).toHaveBeenNthCalledWith(1, [], {
-      level: 1,
-    });
-
-    // Verify second call (child)
-    expect(stateManager.writeState).toHaveBeenNthCalledWith(
-      2,
+    // Verify the second call (child)
+    expect(stateManager.createState).toHaveBeenCalledTimes(1);
+    expect(stateManager.createState).toHaveBeenCalledWith(
+      {},
       [["child", undefined]], // path to child
       {
         level: 2,
-      }
+      },
     );
   });
 });

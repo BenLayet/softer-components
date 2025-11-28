@@ -5,89 +5,86 @@ import { StateManager } from "./state-manager";
 /**
  * Wrapper around StateManager that manages relative paths.
  * All state operations are delegated with the absolute path.
+ *
+ * This state manager is meant to be shortly lived (a new instance for each event and each level while visiting the component tree).
  */
 export class RelativePathStateManager {
   constructor(
+    private readonly softerRootState: SofterRootState,
     private readonly absolutePathStateManager: StateManager,
-    private readonly currentPath: ComponentPath = []
+    private readonly currentPath: ComponentPath = [],
   ) {}
 
   childStateManager(
     childName: string,
-    childKey?: string
+    childKey?: string,
   ): RelativePathStateManager {
-    return new RelativePathStateManager(this.absolutePathStateManager, [
-      ...this.currentPath,
-      [childName, childKey],
-    ]);
-  }
-
-  readState(softerRootState: SofterRootState): State {
-    return this.absolutePathStateManager.readState(
-      softerRootState,
-      this.currentPath
+    return new RelativePathStateManager(
+      this.softerRootState,
+      this.absolutePathStateManager,
+      [...this.currentPath, [childName, childKey]],
     );
   }
 
-  createState(softerRootState: SofterRootState, state: State): void {
+  readState(): State {
+    return this.absolutePathStateManager.readState(
+      this.softerRootState,
+      this.currentPath,
+    );
+  }
+
+  createState(state: State): void {
     if (this.currentPath.length === 0) {
       this.absolutePathStateManager.updateState(
-        softerRootState,
+        this.softerRootState,
         this.currentPath,
-        state
+        state,
       );
     } else {
       this.absolutePathStateManager.createState(
-        softerRootState,
+        this.softerRootState,
         this.currentPath,
-        state
+        state,
       );
     }
   }
 
-  updateState(softerRootState: SofterRootState, state: State): void {
+  updateState(state: State): void {
     this.absolutePathStateManager.updateState(
-      softerRootState,
+      this.softerRootState,
       this.currentPath,
-      state
+      state,
     );
   }
 
-  createEmptyCollectionChild(
-    softerRootState: SofterRootState,
-    childName: string
-  ): void {
+  createEmptyCollectionChild(childName: string): void {
     this.absolutePathStateManager.createEmptyCollectionChild(
-      softerRootState,
+      this.softerRootState,
       this.currentPath,
-      childName
+      childName,
     );
   }
 
-  getChildrenNodes(softerRootState: SofterRootState): ChildrenNodes {
+  getChildrenNodes(): ChildrenNodes {
     return this.absolutePathStateManager.getChildrenNodes(
-      softerRootState,
-      this.currentPath
+      this.softerRootState,
+      this.currentPath,
     );
   }
 
-  removeStateTree(softerRootState: SofterRootState): void {
+  removeStateTree(): void {
     this.absolutePathStateManager.removeStateTree(
-      softerRootState,
-      this.currentPath
+      this.softerRootState,
+      this.currentPath,
     );
   }
 
-  selectValue<T>(
-    softerRootState: SofterRootState,
-    selectorName: string,
-    selector: (state: State) => T
-  ): T {
+  selectValue<T>(selectorName: string, selector: (state: State) => T): T {
     return this.absolutePathStateManager.selectValue(
-      softerRootState,
+      this.softerRootState,
       this.currentPath,
       selectorName,
-      selector
+      selector,
     );
   }
 }

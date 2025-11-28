@@ -13,17 +13,18 @@ export function generateEventsToForward(
   softerRootState: SofterRootState,
   rootComponentDef: ComponentDef,
   triggeringEvent: GlobalEvent,
-  asboluteStateManager: StateManager
+  absoluteStateManager: StateManager,
 ) {
   const result: GlobalEvent[] = [];
   const stateManager = new RelativePathStateManager(
-    asboluteStateManager,
-    triggeringEvent.componentPath || []
+    softerRootState,
+    absoluteStateManager,
+    triggeringEvent.componentPath || [],
   );
 
   const componentDef = findComponentDef(
     rootComponentDef,
-    triggeringEvent.componentPath
+    triggeringEvent.componentPath,
   );
 
   result.push(
@@ -31,8 +32,8 @@ export function generateEventsToForward(
       softerRootState,
       componentDef,
       triggeringEvent,
-      stateManager
-    )
+      stateManager,
+    ),
   );
 
   result.push(
@@ -40,8 +41,8 @@ export function generateEventsToForward(
       softerRootState,
       rootComponentDef,
       triggeringEvent,
-      stateManager
-    )
+      stateManager,
+    ),
   );
 
   result.push(
@@ -49,8 +50,8 @@ export function generateEventsToForward(
       softerRootState,
       componentDef,
       triggeringEvent,
-      stateManager
-    )
+      stateManager,
+    ),
   );
 
   return result;
@@ -60,10 +61,10 @@ function generateEventsFromOwnComponent(
   softerRootState: SofterRootState,
   componentDef: ComponentDef,
   triggeringEvent: GlobalEvent,
-  stateManager: RelativePathStateManager
+  stateManager: RelativePathStateManager,
 ): GlobalEvent[] {
   const forwarders = (componentDef.eventForwarders ?? []).filter(
-    (forwarder) => forwarder.from === triggeringEvent.name
+    (forwarder) => forwarder.from === triggeringEvent.name,
   );
 
   if (forwarders.length === 0) {
@@ -74,13 +75,13 @@ function generateEventsFromOwnComponent(
     softerRootState,
     componentDef,
     triggeringEvent,
-    stateManager
+    stateManager,
   );
 
   return forwarders
     .filter(
       (forwarder) =>
-        !forwarder.onCondition || forwarder.onCondition(callBackParams)
+        !forwarder.onCondition || forwarder.onCondition(callBackParams),
     )
     .map((forwarder) => ({
       name: forwarder.to,
@@ -95,7 +96,7 @@ function generateEventsFromParentChildListeners(
   softerRootState: SofterRootState,
   rootComponentDef: ComponentDef<any>,
   triggeringEvent: GlobalEvent,
-  stateManager: RelativePathStateManager
+  stateManager: RelativePathStateManager,
 ): GlobalEvent[] {
   if (!triggeringEvent.componentPath?.length) {
     return [];
@@ -104,7 +105,7 @@ function generateEventsFromParentChildListeners(
   const parentComponentPath = triggeringEvent.componentPath.slice(0, -1);
   const parentComponentDef = findComponentDef(
     rootComponentDef,
-    parentComponentPath
+    parentComponentPath,
   );
   const childName =
     triggeringEvent.componentPath[
@@ -124,13 +125,13 @@ function generateEventsFromParentChildListeners(
     softerRootState,
     parentComponentDef,
     triggeringEvent,
-    stateManager
+    stateManager,
   );
 
   return childListeners
     .filter(
       (listener) =>
-        !listener.onCondition || listener.onCondition(callBackParams)
+        !listener.onCondition || listener.onCondition(callBackParams),
     )
     .map((listener) => ({
       name: listener.to,
@@ -145,14 +146,14 @@ function generateCommandsToChildren(
   softerRootState: SofterRootState,
   componentDef: ComponentDef,
   triggeringEvent: GlobalEvent,
-  stateManager: RelativePathStateManager
+  stateManager: RelativePathStateManager,
 ): GlobalEvent[] {
   const childrenCommands = Object.entries(
-    componentDef.childrenConfig ?? {}
+    componentDef.childrenConfig ?? {},
   ).flatMap(([childName, childConfig]) =>
     (childConfig.commands ?? [])
       .filter((command) => command.from === triggeringEvent.name)
-      .map((command) => ({ childName, command }))
+      .map((command) => ({ childName, command })),
   );
 
   if (childrenCommands.length === 0) {
@@ -163,18 +164,18 @@ function generateCommandsToChildren(
     softerRootState,
     componentDef,
     triggeringEvent,
-    stateManager
+    stateManager,
   );
 
   return childrenCommands
     .filter(
       ({ command }) =>
-        !command.onCondition || command.onCondition(callBackParams)
+        !command.onCondition || command.onCondition(callBackParams),
     )
     .flatMap(({ childName, command }) =>
       (command.toKeys ? command.toKeys(callBackParams) : [undefined]).map(
-        (key) => ({ childName, command, key })
-      )
+        (key) => ({ childName, command, key }),
+      ),
     )
     .map(({ childName, command, key }) => ({
       name: command.to,
@@ -189,12 +190,12 @@ function prepareCallBackParams(
   softerRootState: SofterRootState,
   componentDef: ComponentDef,
   event: GlobalEvent,
-  stateManager: RelativePathStateManager
+  stateManager: RelativePathStateManager,
 ) {
   const { values, children } = createValueProviders(
     softerRootState,
     componentDef,
-    stateManager
+    stateManager,
   );
   const payload = event.payload;
   const fromChildKey =

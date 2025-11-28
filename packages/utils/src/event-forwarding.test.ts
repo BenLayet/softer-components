@@ -1,7 +1,7 @@
 import { describe, it, expect, vi } from "vitest";
 
 import { generateEventsToForward } from "./event-forwarding";
-import { ComponentDef, State } from "@softer-components/types";
+import { ComponentDef } from "@softer-components/types";
 import { GlobalEvent } from "./utils.type";
 import { StateManager } from "./state-manager";
 
@@ -25,7 +25,12 @@ describe("event forwarding tests", () => {
     stateManager.getChildrenNodes = vi.fn().mockReturnValue({});
 
     // WHEN
-    const result = generateEventsToForward(componentDef, event, stateManager);
+    const result = generateEventsToForward(
+      {},
+      componentDef,
+      event,
+      stateManager,
+    );
 
     // THEN
     expect(result).toEqual([
@@ -65,7 +70,12 @@ describe("event forwarding tests", () => {
       .mockImplementation((path) => (path.length === 0 ? { child: true } : {}));
 
     // WHEN
-    const result = generateEventsToForward(componentDef, event, stateManager);
+    const result = generateEventsToForward(
+      {},
+      componentDef,
+      event,
+      stateManager,
+    );
 
     // THEN
     expect(result).toEqual([
@@ -105,7 +115,12 @@ describe("event forwarding tests", () => {
       .mockImplementation((path) => (path.length === 0 ? { child: true } : {}));
 
     // WHEN
-    const result = generateEventsToForward(componentDef, event, stateManager);
+    const result = generateEventsToForward(
+      {},
+      componentDef,
+      event,
+      stateManager,
+    );
 
     // THEN
     expect(result).toEqual([
@@ -168,15 +183,16 @@ describe("event forwarding tests", () => {
 
         // WHEN
         const result = generateEventsToForward(
+          {},
           componentDef,
           event,
-          stateManager
+          stateManager,
         );
 
         // THEN
         expect(result).toEqual(expectsEvents);
-      }
-    )
+      },
+    ),
   );
 
   it("generates an event with a different payload", () => {
@@ -209,7 +225,13 @@ describe("event forwarding tests", () => {
     stateManager.selectValue = vi.fn().mockReturnValue(42);
     stateManager.getChildrenNodes = vi.fn().mockReturnValue({});
     // WHEN
-    const result = generateEventsToForward(componentDef, event, stateManager);
+
+    const result = generateEventsToForward(
+      {},
+      componentDef,
+      event,
+      stateManager,
+    );
 
     // THEN
     expect(result).toEqual([
@@ -250,7 +272,13 @@ describe("event forwarding tests", () => {
     stateManager.getChildrenNodes = vi.fn().mockReturnValue({});
 
     // WHEN
-    const result = generateEventsToForward(componentDef, event, stateManager);
+
+    const result = generateEventsToForward(
+      {},
+      componentDef,
+      event,
+      stateManager,
+    );
 
     // THEN
     expect(result).toEqual([

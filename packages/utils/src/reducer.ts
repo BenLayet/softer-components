@@ -1,10 +1,7 @@
 import { ComponentDef } from "@softer-components/types";
 
 import { assertIsNotUndefined, isNotUndefined } from "./predicate.functions";
-import {
-  initializeRootState,
-  initializeStateRecursively,
-} from "./state-initializer";
+import { initializeStateRecursively } from "./state-initializer";
 import { findComponentDef } from "./component-def-tree";
 import { GlobalEvent, SofterRootState } from "./utils.type";
 import { RelativePathStateManager } from "./relative-path-state-manager";
@@ -24,21 +21,25 @@ export function updateSofterRootState(
   softerRootState: SofterRootState,
   rootComponentDef: ComponentDef,
   event: GlobalEvent,
-  stateManager: StateManager
+  stateManager: StateManager,
 ) {
   updateStateOfComponentOfEvent(
     softerRootState,
     rootComponentDef,
     event,
-    new RelativePathStateManager(stateManager, event.componentPath)
+    new RelativePathStateManager(
+      softerRootState,
+      stateManager,
+      event.componentPath,
+    ),
   );
 }
 
-function updateStateOfComponentOfEvent<State>(
+function updateStateOfComponentOfEvent(
   softerRootState: SofterRootState,
   rootComponentDef: ComponentDef,
   event: GlobalEvent,
-  stateManager: RelativePathStateManager
+  stateManager: RelativePathStateManager,
 ) {
   const componentDef = findComponentDef(rootComponentDef, event.componentPath);
   const updater = componentDef.updaters?.[event.name];
@@ -61,37 +62,37 @@ function updateStateOfComponentOfEvent<State>(
     }
   });
 
-  stateManager.updateState(softerRootState, next.state);
+  stateManager.updateState(next.state);
 
-  // If children nodes have changed, update the state tree accordingly
+  // If children nodes have changed, update the state accordingly
   if (childrenNodes !== next.childrenNodes) {
     updateChildrenState(
       softerRootState,
       componentDef,
       childrenNodes,
       next.childrenNodes,
-      stateManager
+      stateManager,
     );
   }
 }
 
 /**
- * Prepare updater parameters from component definition and state tree
+ * Prepare updater parameters from the component definition and state, recursively
  */
 function prepareUpdaterParams(
   softerRootState: SofterRootState,
   componentDef: ComponentDef,
   event: GlobalEvent,
-  stateManager: RelativePathStateManager
+  stateManager: RelativePathStateManager,
 ) {
   const { values, children } = createValueProviders(
     softerRootState,
     componentDef,
-    stateManager
+    stateManager,
   );
 
-  const childrenNodes = stateManager.getChildrenNodes(softerRootState);
-  const state = stateManager.readState(softerRootState);
+  const childrenNodes = stateManager.getChildrenNodes();
+  const state = stateManager.readState();
   const payload = event.payload;
 
   return {
@@ -111,7 +112,7 @@ function updateChildrenState(
   componentDef: ComponentDef,
   previousChildrenNodes: Record<string, string[] | boolean>,
   desiredChildrenNodes: Record<string, string[] | boolean>,
-  stateManager: RelativePathStateManager
+  stateManager: RelativePathStateManager,
 ) {
   Object.entries(desiredChildrenNodes).forEach(([childName, childNode]) => {
     const childConfig = componentDef.childrenConfig?.[childName] ?? {};
@@ -123,15 +124,13 @@ function updateChildrenState(
       const previousKeys = (previousChildNode ?? []) as string[];
       const desiredKeys = childNode as string[];
 
-      // Remove state of deleted keys
+      // Remove the state of deleted keys
       previousKeys
         .filter((key) => !desiredKeys.includes(key))
         .map((key) => stateManager.childStateManager(childName, key))
-        .forEach((childStateManager) =>
-          childStateManager.removeStateTree(softerRootState)
-        );
+        .forEach((childStateManager) => childStateManager.removeStateTree());
 
-      // Initialize state of desired keys
+      // Initialize the state of desired keys
       desiredKeys
         .filter((key) => !previousKeys.includes(key))
         .map((key) => stateManager.childStateManager(childName, key))
@@ -139,8 +138,8 @@ function updateChildrenState(
           initializeStateRecursively(
             softerRootState,
             childDef,
-            childStateManager
-          )
+            childStateManager,
+          ),
         );
     } else {
       // Single child
@@ -149,13 +148,11 @@ function updateChildrenState(
           initializeStateRecursively(
             softerRootState,
             childDef,
-            stateManager.childStateManager(childName)
+            stateManager.childStateManager(childName),
           );
         }
       } else {
-        stateManager
-          .childStateManager(childName)
-          .removeStateTree(softerRootState);
+        stateManager.childStateManager(childName).removeStateTree();
       }
     }
   });

@@ -1,11 +1,9 @@
-// packages/utils/src/state.test.ts
-import { describe, expect, it, test, vi } from "vitest";
+import { describe, expect, it, vi } from "vitest";
 import { updateSofterRootState } from "./reducer";
 import { ComponentDef } from "@softer-components/types";
 import { GlobalEvent } from "./utils.type";
 import { listDef } from "../../types/src/softer-component-types.test"; // TODO ask expert
 import { StateManager } from "./state-manager";
-import { isNotUndefined } from "./predicate.functions";
 
 describe("reducer tests", () => {
   it("should update simple state", () => {
@@ -36,13 +34,13 @@ describe("reducer tests", () => {
     const stateManager = {} as StateManager;
     stateManager.readState = vi.fn().mockReturnValue(initialState);
     stateManager.getChildrenNodes = vi.fn().mockReturnValue({});
-    stateManager.writeState = vi.fn();
+    stateManager.updateState = vi.fn();
 
-    // WHEN creating initial state tree
-    updateSofterRootState(componentDef, event, stateManager);
+    // WHEN
+    updateSofterRootState({}, componentDef, event, stateManager);
 
-    // THEN it should create correct state structure
-    expect(stateManager.writeState).toHaveBeenCalledWith([], {
+    // THEN
+    expect(stateManager.updateState).toHaveBeenCalledWith({}, [], {
       count: 1,
       name: "test",
     });
@@ -73,14 +71,15 @@ describe("reducer tests", () => {
     };
     const stateManager = {} as StateManager;
     stateManager.readState = vi.fn().mockReturnValue(initialState);
-    stateManager.writeState = vi.fn();
+    stateManager.updateState = vi.fn();
+    stateManager.createState = vi.fn();
 
-    // WHEN creating initial state tree
-    updateSofterRootState(componentDef, event, stateManager);
+    // WHEN
+    updateSofterRootState({}, componentDef, event, stateManager);
 
-    // THEN it should create correct state structure
-    // THEN it should create correct state structure
-    expect(stateManager.writeState).toBeCalledTimes(0);
+    // THEN
+    expect(stateManager.updateState).toBeCalledTimes(0);
+    expect(stateManager.createState).toBeCalledTimes(0);
   });
 
   const tests = [
@@ -95,10 +94,10 @@ describe("reducer tests", () => {
         payload: "milk",
         componentPath: [],
       },
-      thenExpectsCalls: [
-        {
-          method: "writeState",
-          args: {
+      thenExpectsCalls: {
+        updateState: [
+          {
+            softerRootState: {},
             path: [],
             state: {
               lastItemId: 0,
@@ -106,8 +105,8 @@ describe("reducer tests", () => {
               nextItemName: "milk",
             },
           },
-        },
-      ],
+        ],
+      },
     },
     {
       givenListState: {
@@ -120,10 +119,10 @@ describe("reducer tests", () => {
         payload: { itemName: "milk", itemId: 1 },
         componentPath: [],
       },
-      thenExpectsCalls: [
-        {
-          method: "writeState",
-          args: {
+      thenExpectsCalls: {
+        updateState: [
+          {
+            softerRootState: {},
             path: [],
             state: {
               lastItemId: 0,
@@ -131,8 +130,8 @@ describe("reducer tests", () => {
               nextItemName: "",
             },
           },
-        },
-      ],
+        ],
+      },
     },
     {
       givenListState: {
@@ -145,10 +144,10 @@ describe("reducer tests", () => {
         payload: { itemName: "milk", itemId: 1 },
         componentPath: [],
       },
-      thenExpectsCalls: [
-        {
-          method: "writeState",
-          args: {
+      thenExpectsCalls: {
+        updateState: [
+          {
+            softerRootState: {},
             path: [],
             state: {
               lastItemId: 1,
@@ -156,15 +155,15 @@ describe("reducer tests", () => {
               nextItemName: "",
             },
           },
-        },
-        {
-          method: "writeState",
-          args: {
+        ],
+        createState: [
+          {
+            softerRootState: {},
             path: [["items", "1"]],
             state: undefined,
           },
-        },
-      ],
+        ],
+      },
     },
     {
       givenListState: {
@@ -178,15 +177,18 @@ describe("reducer tests", () => {
         payload: "milk",
         componentPath: [["items", "1"]],
       },
-      thenExpectsCalls: [
-        {
-          method: "writeState",
-          args: {
+      thenExpectsCalls: {
+        updateState: [
+          {
+            softerRootState: {},
             path: [["items", "1"]],
-            state: { name: "milk", quantity: 1 },
+            state: {
+              name: "milk",
+              quantity: 1,
+            },
           },
-        },
-      ],
+        ],
+      },
     },
     {
       givenListState: {
@@ -200,15 +202,15 @@ describe("reducer tests", () => {
         payload: undefined,
         componentPath: [["items", "1"]],
       },
-      thenExpectsCalls: [
-        {
-          method: "writeState",
-          args: {
+      thenExpectsCalls: {
+        updateState: [
+          {
+            softerRootState: {},
             path: [["items", "1"]],
             state: { name: "milk", quantity: 2 },
           },
-        },
-      ],
+        ],
+      },
     },
     {
       givenListState: {
@@ -222,15 +224,15 @@ describe("reducer tests", () => {
         payload: undefined,
         componentPath: [["items", "1"]],
       },
-      thenExpectsCalls: [
-        {
-          method: "writeState",
-          args: {
+      thenExpectsCalls: {
+        updateState: [
+          {
+            softerRootState: {},
             path: [["items", "1"]],
             state: { name: "milk", quantity: 1 },
           },
-        },
-      ],
+        ],
+      },
     },
     {
       givenListState: {
@@ -244,14 +246,14 @@ describe("reducer tests", () => {
         payload: 1,
         componentPath: [],
       },
-      thenExpectsCalls: [
-        {
-          method: "removeStateTree",
-          args: {
+      thenExpectsCalls: {
+        removeStateTree: [
+          {
+            softerRootState: {},
             path: [["items", "1"]],
           },
-        },
-      ],
+        ],
+      },
     },
   ];
   tests.forEach(
@@ -264,30 +266,37 @@ describe("reducer tests", () => {
       it(`should handle event: ${event.name}`, () => {
         // GIVEN a more complex component definition
         const stateManager = {} as StateManager;
-        stateManager.readState = vi.fn().mockImplementation((path) => {
+        stateManager.readState = vi.fn().mockImplementation((state, path) => {
           if (path.length === 0) return listState;
           return itemState;
         });
-        stateManager.getChildrenNodes = vi.fn().mockImplementation((path) => {
-          if (path.length === 0) {
-            return { items: listState.lastItemId > 0 ? ["1"] : [] };
-          }
-          return {};
-        });
-        stateManager.writeState = vi.fn();
+        stateManager.getChildrenNodes = vi
+          .fn()
+          .mockImplementation((_state, path) => {
+            if (path.length === 0) {
+              return { items: listState.lastItemId > 0 ? ["1"] : [] };
+            }
+            return {};
+          });
+        stateManager.updateState = vi.fn();
+        stateManager.createState = vi.fn();
         stateManager.removeStateTree = vi.fn();
 
-        //WHEN changing name
-        updateSofterRootState(listDef, event, stateManager);
+        // WHEN
+        updateSofterRootState({}, listDef, event as GlobalEvent, stateManager);
 
-        // THEN it should create correct state structure
-
-        expectedCalls.forEach(({ args, method }, index) => {
-          expect(
-            stateManager[method as keyof StateManager]
-          ).toHaveBeenNthCalledWith(index + 1, ...Object.values(args));
-        });
+        // THEN
+        Object.entries(expectedCalls).forEach(([method, callsArgs]) =>
+          callsArgs
+            .map((args: {}, index: number) => [method, args, index] as const)
+            .forEach(([method, args, index]) => {
+              expect(
+                stateManager[method as keyof StateManager],
+                `method ${method} should have been called ${index + 1} time(s) with args: ${JSON.stringify(args, null, 2)}`,
+              ).toHaveBeenNthCalledWith(index + 1, ...Object.values(args));
+            }),
+        );
       });
-    }
+    },
   );
 });

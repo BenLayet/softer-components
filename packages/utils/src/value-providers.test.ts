@@ -15,7 +15,7 @@ describe("createValuesProvider", () => {
     mockStateManager.selectValue = vi.fn().mockReturnValue(42);
 
     //WHEN
-    const result = createValueProviders(root, mockStateManager);
+    const result = createValueProviders({}, root, mockStateManager);
 
     //THEN
     expect(result.values.answer()).toEqual(42);
@@ -43,7 +43,7 @@ describe("createValuesProvider", () => {
     mockChildStateManager.selectValue = vi.fn().mockReturnValue(42);
 
     //WHEN
-    const result = createValueProviders(root, mockStateManager);
+    const result = createValueProviders({}, root, mockStateManager);
 
     //THEN
     expect(result.children.child.values.answer()).toEqual(42);

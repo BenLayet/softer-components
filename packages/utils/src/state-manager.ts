@@ -2,7 +2,7 @@ import { ChildrenNodes, State } from "@softer-components/types";
 import { ChildrenPaths, ComponentPath, SofterRootState } from "./utils.type";
 
 /**
- * StateManager interface - all methods receive state as parameter
+ * StateManager interface - all methods receive state as a parameter and can modify it.
  */
 export interface StateManager {
   /**
@@ -16,30 +16,30 @@ export interface StateManager {
   updateState(
     softerRootState: SofterRootState,
     path: ComponentPath,
-    state: State
+    state: State,
   ): void;
 
   /**
-   * Create state at the given path (path must not exist, parent must exist)
+   * Create the state at the given path (the path must not exist, parent must exist)
    */
   createState(
     softerRootState: SofterRootState,
     path: ComponentPath,
-    state: State
+    state: State,
   ): void;
 
   /**
-   * Remove entire state tree at the given path
+   * Remove the entire state at the given path
    */
   removeStateTree(softerRootState: SofterRootState, path: ComponentPath): void;
 
   /**
-   * Create empty collection child at the given path
+   * Create an empty collection child at the given path
    */
   createEmptyCollectionChild(
     softerRootState: SofterRootState,
     parentPath: ComponentPath,
-    childName: string
+    childName: string,
   ): void;
 
   /**
@@ -47,7 +47,7 @@ export interface StateManager {
    */
   getChildrenNodes(
     softerRootState: SofterRootState,
-    path: ComponentPath
+    path: ComponentPath,
   ): ChildrenNodes;
 
   /**
@@ -55,7 +55,7 @@ export interface StateManager {
    */
   getChildrenPaths(
     softerRootState: SofterRootState,
-    path: ComponentPath
+    path: ComponentPath,
   ): ChildrenPaths;
 
   /**
@@ -65,6 +65,6 @@ export interface StateManager {
     softerRootState: SofterRootState,
     path: ComponentPath,
     selectorName: string,
-    selector: (state: State) => T
+    selector: (state: State) => T,
   ): T;
 }

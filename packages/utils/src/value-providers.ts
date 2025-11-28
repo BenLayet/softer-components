@@ -12,17 +12,17 @@ import { SofterRootState } from "./utils.type";
 export function createValueProviders(
   softerRootState: SofterRootState,
   componentDef: ComponentDef,
-  stateManager: RelativePathStateManager
+  stateManager: RelativePathStateManager,
 ): ValueProviders {
   // Create own values
   const values = createOwnValueProviders(
     softerRootState,
     componentDef,
-    stateManager
+    stateManager,
   );
 
-  // Create children values
-  const childrenNodes = stateManager.getChildrenNodes(softerRootState);
+  // Create children's values
+  const childrenNodes = stateManager.getChildrenNodes();
   const children = Object.fromEntries(
     Object.entries(childrenNodes).map(([childName, childNode]) => {
       const childDef = componentDef.childrenComponents?.[childName];
@@ -38,10 +38,10 @@ export function createValueProviders(
             const childValueProviders = createValueProviders(
               softerRootState,
               childDef,
-              stateManager.childStateManager(childName, key)
+              stateManager.childStateManager(childName, key),
             );
             return [key, childValueProviders];
-          })
+          }),
         );
         return [childName, collectionChildValueProviders];
       } else {
@@ -50,11 +50,11 @@ export function createValueProviders(
           createValueProviders(
             softerRootState,
             childDef,
-            stateManager.childStateManager(childName)
+            stateManager.childStateManager(childName),
           ),
         ];
       }
-    })
+    }),
   );
 
   return { values, children };
@@ -63,13 +63,13 @@ export function createValueProviders(
 function createOwnValueProviders(
   softerRootState: SofterRootState,
   componentDef: ComponentDef,
-  stateManager: RelativePathStateManager
+  stateManager: RelativePathStateManager,
 ): ValueProviders["values"] {
   const selectorsDef = componentDef.selectors || {};
   return Object.fromEntries(
     Object.entries(selectorsDef).map(([selectorName, selector]) => [
       selectorName,
-      () => stateManager.selectValue(softerRootState, selectorName, selector),
-    ])
+      () => stateManager.selectValue(selectorName, selector),
+    ]),
   );
 }
