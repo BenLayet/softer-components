@@ -9,6 +9,7 @@ import { listDef } from "../list/list.component.ts";
 type AppEvents = {
   listSelected: { payload: List };
   backClicked: { payload: undefined };
+  selectListRequested: { payload: undefined };
 };
 const childrenComponents = {
   listSelect: listSelectDef,
@@ -24,12 +25,18 @@ export type AppComponentContract = {
 // Component definition
 export const appDef: ComponentDef<AppComponentContract> = {
   uiEvents: ["backClicked"],
+  eventForwarders: [
+    {
+      from: "backClicked",
+      to: "selectListRequested",
+    },
+  ],
   updaters: {
     listSelected: ({ childrenKeys }) => {
       childrenKeys.list = ["0"];
       childrenKeys.listSelect = [];
     },
-    backClicked: ({ childrenKeys }) => {
+    selectListRequested: ({ childrenKeys }) => {
       childrenKeys.list = [];
       childrenKeys.listSelect = ["0"];
     },
@@ -43,6 +50,13 @@ export const appDef: ComponentDef<AppComponentContract> = {
         {
           from: "listSelected",
           to: "listSelected",
+        },
+      ],
+      commands: [
+        {
+          from: "selectListRequested",
+          to: "fetchSavedListRequested",
+          toKeys: ({ children }) => [Object.keys(children.listSelect)[0]],
         },
       ],
     },

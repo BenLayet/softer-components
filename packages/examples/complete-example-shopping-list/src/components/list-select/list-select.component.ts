@@ -10,9 +10,12 @@ import { listDef } from "../list/list.component";
 // Initial state definition
 const initialState = {
   listName: "",
+  savedLists: [] as List[],
 };
 const selectors = {
   listName: state => state.listName,
+  savedLists: state => state.savedLists,
+  nextListId: state => state.savedLists.length + 1,
 } satisfies Selectors<typeof initialState>;
 
 // Events type declaration
@@ -20,7 +23,10 @@ type ListSelectEvents = {
   listNameChanged: { payload: string };
   createNewListClicked: { payload: undefined };
   createNewListRequested: { payload: string };
-  openPreviousListRequested: { payload: undefined };
+  openPreviousListRequested: { payload: number };
+  fetchSavedListRequested: { payload: undefined };
+  fetchSavedListSucceeded: { payload: List[] };
+  fetchSavedListFailed: { payload: undefined };
   listSelected: { payload: List };
 };
 
@@ -53,10 +59,22 @@ export const listSelectDef: ComponentDef<ListSelectContract> = {
     {
       from: "createNewListClicked",
       to: "listSelected",
-      withPayload: ({ values: selectors }) => ({
-        name: selectors.listName(),
+      withPayload: ({ values }) => ({
+        id: values.nextListId(),
+        name: values.listName(),
         items: [],
       }),
+    },
+    {
+      from: "fetchSavedListRequested",
+      to: "fetchSavedListSucceeded",
+      withPayload: ({ values }) => [
+        {
+          id: values.nextListId(),
+          name: "Mock list",
+          items: [{ id: 1, name: "Mock item" }],
+        },
+      ],
     },
   ],
 };
