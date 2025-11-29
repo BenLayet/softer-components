@@ -4,6 +4,7 @@ import {
   ComponentPath,
   findComponentDef,
   findSubTree,
+  isUndefined,
   TreeStateManager,
 } from "@softer-components/utils";
 import {
@@ -88,19 +89,24 @@ export class MemoizedApplicationViewModel implements SofterViewModel {
       findSubTree(getSofterRootTree(globalState), componentPath);
 
     const ownStateSelector = createSelector([stateTreeSelector], (subTree) =>
-      this.stateManager.readState(subTree, []),
+      isUndefined(subTree)
+        ? undefined
+        : this.stateManager.readState(subTree, []),
     );
 
     const childrenKeysSelector = createSelector(
       [stateTreeSelector],
-      (subTree) => this.stateManager.getChildrenKeys(subTree, []),
+      (subTree) =>
+        isUndefined(subTree)
+          ? undefined
+          : this.stateManager.getChildrenKeys(subTree, []),
     );
 
     const childrenPathsSelector = createSelector(
       [childrenKeysSelector],
       (childrenKeys) =>
         Object.fromEntries(
-          Object.entries(childrenKeys).map(([childName, childKeys]) => [
+          Object.entries(childrenKeys ?? {}).map(([childName, childKeys]) => [
             childName,
             childKeys.map((key) =>
               componentPathToString([...componentPath, [childName, key]]),
