@@ -23,7 +23,7 @@ export function createValueProviders(
       const childDef = componentDef.childrenComponents?.[childName];
       assertValueIsNotUndefined({ childDef });
 
-      const collectionChildValueProviders = Object.fromEntries(
+      const childInstancesValueProviders = Object.fromEntries(
         childKeys.map((key) => {
           const childValueProviders = createValueProviders(
             childDef,
@@ -32,7 +32,7 @@ export function createValueProviders(
           return [key, childValueProviders];
         }),
       );
-      return [childName, collectionChildValueProviders];
+      return [childName, childInstancesValueProviders];
     }),
   );
 
