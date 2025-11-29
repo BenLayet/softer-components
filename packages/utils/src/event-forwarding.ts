@@ -160,9 +160,11 @@ function generateCommandsToChildren(
         !command.onCondition || command.onCondition(callBackParams),
     )
     .flatMap(({ childName, command }) =>
-      (command.toKeys ? command.toKeys(callBackParams) : [undefined]).map(
-        (key) => ({ childName, command, key }),
-      ),
+      (command.toKeys
+        ? command.toKeys(callBackParams)
+        : // default to all children
+          stateReader.getChildrenKeys()[childName]
+      ).map((key) => ({ childName, command, key })),
     )
     .map(({ childName, command, key }) => ({
       name: command.to,
