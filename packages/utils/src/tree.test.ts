@@ -1,24 +1,36 @@
 import { describe, it, expect } from "vitest";
 
-import { CHILDREN_CONTAINER_KEY, findSubTree, OWN_KEY } from "./tree";
+import { CHILDREN_BRANCHES_KEY, findSubTree, OWN_VALUE_KEY } from "./tree";
 
 describe("findSubTree", () => {
   it("returns root ", () => {
-    const global = { [OWN_KEY]: {} };
+    const global = { [OWN_VALUE_KEY]: {} };
     const result = findSubTree(global, []);
     expect(result).toEqual(global);
   });
   it("returns a child ", () => {
-    const child = { [OWN_KEY]: {} };
-    const global = { [OWN_KEY]: {}, [CHILDREN_CONTAINER_KEY]: { child } };
-    const result = findSubTree(global, [["child"]]);
-    expect(result).toEqual(child);
+    const childTree = { [OWN_VALUE_KEY]: {} };
+    const globalTree = {
+      [OWN_VALUE_KEY]: {},
+      [CHILDREN_BRANCHES_KEY]: { child: { ["0"]: childTree } },
+    };
+    const result = findSubTree(globalTree, [["child", "0"]]);
+    expect(result).toEqual(childTree);
   });
   it("returns a grand child ", () => {
-    const grandChild = { [OWN_KEY]: {} };
-    const child = { [OWN_KEY]: {}, [CHILDREN_CONTAINER_KEY]: { grandChild } };
-    const root = { [OWN_KEY]: {}, [CHILDREN_CONTAINER_KEY]: { child } };
-    const result = findSubTree(root, [["child"], ["grandChild"]]);
-    expect(result).toEqual(grandChild);
+    const grandChildTree = { [OWN_VALUE_KEY]: {} };
+    const childTree = {
+      [OWN_VALUE_KEY]: {},
+      [CHILDREN_BRANCHES_KEY]: { grandChild: { "0": grandChildTree } },
+    };
+    const root = {
+      [OWN_VALUE_KEY]: {},
+      [CHILDREN_BRANCHES_KEY]: { child: { "0": childTree } },
+    };
+    const result = findSubTree(root, [
+      ["child", "0"],
+      ["grandChild", "0"],
+    ]);
+    expect(result).toEqual(grandChildTree);
   });
 });

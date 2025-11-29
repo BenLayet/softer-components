@@ -1,10 +1,10 @@
-import { ChildrenNodes, State } from "@softer-components/types";
+import { ChildrenKeys, State } from "@softer-components/types";
 import { ComponentPath, StateManager } from "src/index";
 import {
-  createEmptyCollectionChildAtPath,
+  initializeChildBranches,
   createValueAtPath,
   findSubTree,
-  getChildrenNodes,
+  getChildrenKeys,
   getValueAtPath,
   removeSubTree,
   Tree,
@@ -29,15 +29,12 @@ export class TreeStateManager implements StateManager {
     createValueAtPath(rootStateTree, path, state);
   }
 
-  /**
-   * Create an empty collection child at the given path
-   */
-  createEmptyCollectionChild(
+  initializeChildBranches(
     rootStateTree: Tree<State>,
     parentPath: ComponentPath,
     childName: string,
   ): void {
-    createEmptyCollectionChildAtPath(rootStateTree, parentPath, childName);
+    initializeChildBranches(rootStateTree, parentPath, childName);
   }
 
   removeStateTree(rootStateTree: Tree<State>, path: ComponentPath): void {
@@ -62,17 +59,16 @@ export class TreeStateManager implements StateManager {
     }
   }
 
-  getChildrenNodes(
+  getChildrenKeys(
     rootStateTree: Tree<State>,
     path: ComponentPath,
-  ): ChildrenNodes {
-    return getChildrenNodes(findSubTree(rootStateTree, path));
+  ): ChildrenKeys {
+    return getChildrenKeys(findSubTree(rootStateTree, path));
   }
 
   selectValue<T>(
     rootStateTree: Tree<State>,
     path: ComponentPath,
-    _selectorName: string,
     selector: (state: State) => T,
   ): T {
     return selector(this.readState(rootStateTree, path));

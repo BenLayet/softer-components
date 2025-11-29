@@ -1,5 +1,4 @@
 import {
-  ComponentChildrenContract,
   ComponentContract,
   ComponentEventsContract,
   ComponentValuesContract,
@@ -16,14 +15,16 @@ type EventsContractToUiDispatchers<
     : (payload: TEventsContract[K]["payload"]) => void;
 };
 
-type ExtractChildrenPath<TChildrenContract extends ComponentChildrenContract> =
-  {
-    [K in keyof TChildrenContract]: TChildrenContract[K] extends {
-      isCollection: true;
-    }
-      ? string[]
-      : string | null;
-  };
+type ExtractChildrenPaths<
+  TChildrenContract extends Record<string, ComponentContract>,
+> = {
+  [K in keyof TChildrenContract]: string[];
+};
+type ExtractSingleChildrenPaths<
+  TChildrenContract extends Record<string, ComponentContract>,
+> = {
+  [K in keyof TChildrenContract]: string | undefined;
+};
 
 export const useSofterSelectors = <
   TValueContract extends ComponentValuesContract,
@@ -32,7 +33,9 @@ export const useSofterSelectors = <
 ): TValueContract => {
   const store = useStore() as SofterStore;
   // Subscribe to Redux state with useSelector
-  return useSelector(store.softerUi.valuesSelector(pathStr)) as TValueContract;
+  return useSelector(
+    store.softerViewModel.valuesSelector(pathStr),
+  ) as TValueContract;
 };
 
 export const useSofterEvents = <
@@ -41,22 +44,33 @@ export const useSofterEvents = <
   pathStr: string,
 ): EventsContractToUiDispatchers<TEventsContract> => {
   const store = useStore() as SofterStore;
-  return store.softerUi.dispatchers(
+  return store.softerViewModel.dispatchers(
     pathStr,
     useDispatch(),
   ) as EventsContractToUiDispatchers<TEventsContract>;
 };
 
-export const useSofterChildrenPath = <
-  TChildrenContract extends ComponentChildrenContract,
+export const useSofterChildrenPaths = <
+  TChildrenContract extends Record<string, ComponentContract>,
 >(
   pathStr: string,
-): ExtractChildrenPath<TChildrenContract> => {
+): ExtractChildrenPaths<TChildrenContract> => {
   const store = useStore() as SofterStore;
   // Subscribe to Redux state with useSelector
   return useSelector(
-    store.softerUi.childrenPathsSelector(pathStr),
-  ) as ExtractChildrenPath<TChildrenContract>;
+    store.softerViewModel.childrenPathsSelector(pathStr),
+  ) as ExtractChildrenPaths<TChildrenContract>;
+};
+export const useSofterSingleChildrenPaths = <
+  TChildrenContract extends Record<string, ComponentContract>,
+>(
+  pathStr: string,
+): ExtractSingleChildrenPaths<TChildrenContract> => {
+  const store = useStore() as SofterStore;
+  // Subscribe to Redux state with useSelector
+  return useSelector(
+    store.softerViewModel.pathOfFirstInstanceOfEachChildSelector(pathStr),
+  ) as ExtractSingleChildrenPaths<TChildrenContract>;
 };
 
 export const useSofter = <TComponentContract extends ComponentContract>(
@@ -64,9 +78,11 @@ export const useSofter = <TComponentContract extends ComponentContract>(
 ): [
   TComponentContract["values"],
   EventsContractToUiDispatchers<TComponentContract["events"]>,
-  ExtractChildrenPath<TComponentContract["children"]>,
+  ExtractSingleChildrenPaths<TComponentContract["children"]>,
+  ExtractChildrenPaths<TComponentContract["children"]>,
 ] => [
   useSofterSelectors<TComponentContract["values"]>(pathStr),
   useSofterEvents<TComponentContract["events"]>(pathStr),
-  useSofterChildrenPath<TComponentContract["children"]>(pathStr),
+  useSofterSingleChildrenPaths<TComponentContract["children"]>(pathStr),
+  useSofterChildrenPaths<TComponentContract["children"]>(pathStr),
 ];

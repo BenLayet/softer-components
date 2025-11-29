@@ -17,36 +17,22 @@ export function createValueProviders(
   const values = createOwnValueProviders(componentDef, stateReader);
 
   // Create children's values
-  const childrenNodes = stateReader.getChildrenNodes();
+  const childrenKeys = stateReader.getChildrenKeys();
   const children = Object.fromEntries(
-    Object.entries(childrenNodes).map(([childName, childNode]) => {
+    Object.entries(childrenKeys).map(([childName, childKeys]) => {
       const childDef = componentDef.childrenComponents?.[childName];
       assertValueIsNotUndefined({ childDef });
 
-      const isCollection =
-        componentDef.childrenConfig?.[childName].isCollection ?? false;
-
-      if (isCollection) {
-        const keys = (childNode ?? []) as string[];
-        const collectionChildValueProviders = Object.fromEntries(
-          keys.map((key) => {
-            const childValueProviders = createValueProviders(
-              childDef,
-              stateReader.childStateReader(childName, key),
-            );
-            return [key, childValueProviders];
-          }),
-        );
-        return [childName, collectionChildValueProviders];
-      } else {
-        return [
-          childName,
-          createValueProviders(
+      const childInstancesValueProviders = Object.fromEntries(
+        childKeys.map((key) => {
+          const childValueProviders = createValueProviders(
             childDef,
-            stateReader.childStateReader(childName),
-          ),
-        ];
-      }
+            stateReader.childStateReader(childName, key),
+          );
+          return [key, childValueProviders];
+        }),
+      );
+      return [childName, childInstancesValueProviders];
     }),
   );
 
@@ -61,7 +47,7 @@ function createOwnValueProviders(
   return Object.fromEntries(
     Object.entries(selectorsDef).map(([selectorName, selector]) => [
       selectorName,
-      () => stateReader.selectValue(selectorName, selector),
+      () => stateReader.selectValue(selector),
     ]),
   );
 }

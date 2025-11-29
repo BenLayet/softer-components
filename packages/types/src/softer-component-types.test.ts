@@ -1,9 +1,10 @@
 import {
   ComponentDef,
-  CreateComponentChildrenContract,
+  ExtractComponentChildrenContract,
   ExtractComponentValuesContract,
   Selectors,
 } from "./softer-component-types";
+import { ignore } from "./type-testing-utiliy-test";
 
 /////////////////////
 // ITEM
@@ -92,10 +93,7 @@ export type ListContract = {
   state: ListState;
   values: ExtractComponentValuesContract<typeof listSelectors>;
   events: ListEvents;
-  children: CreateComponentChildrenContract<
-    typeof childrenComponents,
-    { items: "isCollection" }
-  >;
+  children: ExtractComponentChildrenContract<typeof childrenComponents>;
 };
 export const listDef: ComponentDef<ListContract> = {
   initialState,
@@ -109,17 +107,14 @@ export const listDef: ComponentDef<ListContract> = {
       state.nextItemName = "";
     },
     createItemRequested: ({
-      childrenNodes: { items },
+      childrenKeys: { items },
       payload: { itemId },
       state,
     }) => {
       items.push(`${itemId}`);
       state.lastItemId = itemId;
     },
-    removeItemRequested: ({
-      childrenNodes: { items },
-      payload: idToRemove,
-    }) => {
+    removeItemRequested: ({ childrenKeys: { items }, payload: idToRemove }) => {
       items.splice(items.indexOf(`${idToRemove}`), 1);
     },
   },
@@ -157,9 +152,9 @@ export const listDef: ComponentDef<ListContract> = {
     },
   ],
   childrenComponents,
+  initialChildrenKeys: { items: [] },
   childrenConfig: {
     items: {
-      isCollection: true,
       commands: [
         {
           from: "incrementItemQuantityRequested",
@@ -183,3 +178,11 @@ export const listDef: ComponentDef<ListContract> = {
     },
   },
 };
+
+// test assignability
+const test1: ComponentDef<ListContract> = listDef;
+const test2: ComponentDef = listDef;
+ignore.unread = [test1, test2];
+// test consumability
+const consumer = (_: ComponentDef) => {};
+consumer(listDef);

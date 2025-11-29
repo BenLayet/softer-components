@@ -1,4 +1,4 @@
-import { ChildrenNodes, State } from "@softer-components/types";
+import { ChildrenKeys, State } from "@softer-components/types";
 import { ComponentPath, SofterRootState } from "./utils.type";
 import { StateManager, StateReader } from "./state-manager";
 
@@ -32,18 +32,17 @@ export class RelativePathStateReader {
       this.currentPath,
     );
   }
-  getChildrenNodes(): ChildrenNodes {
-    return this.absolutePathStateReader.getChildrenNodes(
+  getChildrenKeys(): ChildrenKeys {
+    return this.absolutePathStateReader.getChildrenKeys(
       this.softerRootState,
       this.currentPath,
     );
   }
 
-  selectValue<T>(selectorName: string, selector: (state: State) => T): T {
+  selectValue<T>(selector: (state: State) => T): T {
     return this.absolutePathStateReader.selectValue(
       this.softerRootState,
       this.currentPath,
-      selectorName,
       selector,
     );
   }
@@ -76,19 +75,11 @@ export class RelativePathStateManager extends RelativePathStateReader {
   }
 
   createState(state: State): void {
-    if (this.currentPath.length === 0) {
-      this.absolutePathStateManager.updateState(
-        this.softerRootState,
-        this.currentPath,
-        state,
-      );
-    } else {
-      this.absolutePathStateManager.createState(
-        this.softerRootState,
-        this.currentPath,
-        state,
-      );
-    }
+    this.absolutePathStateManager.createState(
+      this.softerRootState,
+      this.currentPath,
+      state,
+    );
   }
 
   updateState(state: State): void {
@@ -99,8 +90,8 @@ export class RelativePathStateManager extends RelativePathStateReader {
     );
   }
 
-  createEmptyCollectionChild(childName: string): void {
-    this.absolutePathStateManager.createEmptyCollectionChild(
+  initializeChildBranches(childName: string): void {
+    this.absolutePathStateManager.initializeChildBranches(
       this.softerRootState,
       this.currentPath,
       childName,
