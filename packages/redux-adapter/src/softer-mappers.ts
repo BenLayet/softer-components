@@ -6,8 +6,9 @@ import {
   ComponentPath,
   GlobalEvent,
   SofterRootState,
+  OWN_VALUE_KEY,
+  Tree,
 } from "@softer-components/utils";
-import { OWN_VALUE_KEY, Tree } from "@softer-components/utils";
 export type ReduxDispatch = (action: ReduxAction) => void;
 type ReduxAction = {
   type: string;

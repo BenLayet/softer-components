@@ -8,7 +8,7 @@ import { ComponentDef } from "@softer-components/types";
 import {
   generateEventsToForward,
   initializeRootState,
-  StateManager,
+  StateReader,
   updateSofterRootState,
 } from "@softer-components/utils";
 import {
@@ -79,7 +79,7 @@ export function configureSofterStore(
 }
 
 function startListeningForEventForwarders(
-  stateManager: StateManager,
+  stateReader: StateReader,
   rootComponentDef: ComponentDef,
   listenerMiddleware: ListenerMiddlewareInstance,
 ) {
@@ -94,7 +94,7 @@ function startListeningForEventForwarders(
         softerRootState,
         rootComponentDef,
         actionToEvent(action),
-        stateManager,
+        stateReader,
       ).map(eventToAction);
       nextActions.forEach((a) => listenerApi.dispatch(a));
     },

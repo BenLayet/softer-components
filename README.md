@@ -340,7 +340,7 @@ eventForwarders: [
 ]
 ```
 
-### Managing Children Nodes
+### Managing Children Instances With Keys
 
 ```typescript
 type ListContract = {
@@ -358,25 +358,25 @@ type ListContract = {
 export const listDef: ComponentDef<ListContract> = {
     initialState: {nextId: 0},
 
-    // Initial children nodes
-    initialChildrenNodes: {
+    // Initial children keys
+    initialChildrenKeys: {
         items: [], // Start with no items
     },
 
     updaters: {
-        addItem: ({state, childrenNodes, payload}) => {
+        addItem: ({state, childrenKeys, payload}) => {
             const newId = String(state.nextId);
             state.nextId += 1;
 
-            // 🔧 Mutate childrenNodes to add child
-            childrenNodes.items.push(newId);
+            // 🔧 Mutate childrenKeys to add child
+            childrenKeys.items.push(newId);
         },
 
-        removeItem: ({childrenNodes, payload}) => {
-            // 🔧 Mutate childrenNodes to remove child
-            const index = childrenNodes.items.indexOf(payload);
+        removeItem: ({childrenKeys, payload}) => {
+            // 🔧 Mutate childrenKeys to remove child
+            const index = childrenKeys.items.indexOf(payload);
             if (index > -1) {
-                childrenNodes.items.splice(index, 1);
+                childrenKeys.items.splice(index, 1);
             }
         },
     },
@@ -450,7 +450,7 @@ type ComponentContract = {
 ```typescript
 type ComponentDef<TComponentContract extends ComponentContract> = {
   initialState?: TComponentContract["state"];
-  initialChildrenNodes?: ChildrenNodes<TComponentContract["children"]>;
+  initialChildrenKeys?: ChildrenKeys<TComponentContract["children"]>;
   selectors?: {
     [K in keyof TComponentContract["values"]]: (
       state: TComponentContract["state"]

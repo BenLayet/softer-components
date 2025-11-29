@@ -241,7 +241,7 @@ export type InternalEventForwarders<
 > = InternalEventForwarder<TComponentContract>[]; //array of forwarders per event
 
 /***************************************************************************************************************
- *                         CHILDREN NODES
+ *                         CHILDREN KEYS
  ***************************************************************************************************************/
 type ChildKeys = string[];
 export type ChildrenKeys<
