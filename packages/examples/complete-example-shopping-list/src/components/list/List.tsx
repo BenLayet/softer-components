@@ -6,6 +6,7 @@ export const List = ({ path = "" }) => {
   const [
     { nextItemName },
     { nextItemSubmitted, nextItemNameChanged },
+    {},
     { items },
   ] = useSofter<ListContract>(path);
   return (

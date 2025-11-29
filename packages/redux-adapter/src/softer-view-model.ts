@@ -15,9 +15,13 @@ import {
   stringToComponentPath,
 } from "./softer-mappers";
 
+export type PathOfFirstInstanceOfEachChild = Record<string, string>;
 export type ChildrenPaths = Record<string, string[]>;
 export type ComponentViewModel = {
   valuesSelector: (globalState: GlobalState) => Record<string, any>;
+  pathOfFirstInstanceOfEachChildSelector: (
+    globalState: GlobalState,
+  ) => PathOfFirstInstanceOfEachChild;
   childrenPathsSelector: (globalState: GlobalState) => ChildrenPaths;
   dispatchers: (
     dispatch: ReduxDispatch,
@@ -28,6 +32,9 @@ export interface SofterViewModel {
   valuesSelector(
     pathStr: string,
   ): (globalState: GlobalState) => Record<string, any>;
+  pathOfFirstInstanceOfEachChildSelector(
+    pathStr: string,
+  ): (globalState: GlobalState) => PathOfFirstInstanceOfEachChild;
   childrenPathsSelector(
     pathStr: string,
   ): (globalState: GlobalState) => ChildrenPaths;
@@ -56,6 +63,10 @@ export class MemoizedApplicationViewModel implements SofterViewModel {
   }
   childrenPathsSelector(pathStr: string) {
     return this.componentViewModelAtPath(pathStr).childrenPathsSelector;
+  }
+  pathOfFirstInstanceOfEachChildSelector(pathStr: string) {
+    return this.componentViewModelAtPath(pathStr)
+      .pathOfFirstInstanceOfEachChildSelector;
   }
   dispatchers(pathStr: string, dispatch: ReduxDispatch) {
     return this.componentViewModelAtPath(pathStr).dispatchers(dispatch);
@@ -97,6 +108,16 @@ export class MemoizedApplicationViewModel implements SofterViewModel {
           ]),
         ),
     );
+    const pathOfFirstInstanceOfEachChildSelector = createSelector(
+      [childrenPathsSelector],
+      (paths) =>
+        Object.fromEntries(
+          Object.entries(paths).map(([childName, keys]) => [
+            childName,
+            keys[0],
+          ]),
+        ),
+    );
     const valuesSelector = createSelector([ownStateSelector], (state) =>
       Object.fromEntries(
         Object.entries(
@@ -124,6 +145,7 @@ export class MemoizedApplicationViewModel implements SofterViewModel {
     return {
       dispatchers,
       childrenPathsSelector,
+      pathOfFirstInstanceOfEachChildSelector,
       valuesSelector,
     };
   };

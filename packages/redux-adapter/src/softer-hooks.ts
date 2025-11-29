@@ -15,10 +15,15 @@ type EventsContractToUiDispatchers<
     : (payload: TEventsContract[K]["payload"]) => void;
 };
 
-type ExtractChildrenPath<
+type ExtractChildrenPaths<
   TChildrenContract extends Record<string, ComponentContract>,
 > = {
   [K in keyof TChildrenContract]: string[];
+};
+type ExtractSingleChildrenPaths<
+  TChildrenContract extends Record<string, ComponentContract>,
+> = {
+  [K in keyof TChildrenContract]: string | undefined;
 };
 
 export const useSofterSelectors = <
@@ -45,16 +50,27 @@ export const useSofterEvents = <
   ) as EventsContractToUiDispatchers<TEventsContract>;
 };
 
-export const useSofterChildrenPath = <
+export const useSofterChildrenPaths = <
   TChildrenContract extends Record<string, ComponentContract>,
 >(
   pathStr: string,
-): ExtractChildrenPath<TChildrenContract> => {
+): ExtractChildrenPaths<TChildrenContract> => {
   const store = useStore() as SofterStore;
   // Subscribe to Redux state with useSelector
   return useSelector(
     store.softerViewModel.childrenPathsSelector(pathStr),
-  ) as ExtractChildrenPath<TChildrenContract>;
+  ) as ExtractChildrenPaths<TChildrenContract>;
+};
+export const useSofterSingleChildrenPaths = <
+  TChildrenContract extends Record<string, ComponentContract>,
+>(
+  pathStr: string,
+): ExtractSingleChildrenPaths<TChildrenContract> => {
+  const store = useStore() as SofterStore;
+  // Subscribe to Redux state with useSelector
+  return useSelector(
+    store.softerViewModel.pathOfFirstInstanceOfEachChildSelector(pathStr),
+  ) as ExtractSingleChildrenPaths<TChildrenContract>;
 };
 
 export const useSofter = <TComponentContract extends ComponentContract>(
@@ -62,9 +78,11 @@ export const useSofter = <TComponentContract extends ComponentContract>(
 ): [
   TComponentContract["values"],
   EventsContractToUiDispatchers<TComponentContract["events"]>,
-  ExtractChildrenPath<TComponentContract["children"]>,
+  ExtractSingleChildrenPaths<TComponentContract["children"]>,
+  ExtractChildrenPaths<TComponentContract["children"]>,
 ] => [
   useSofterSelectors<TComponentContract["values"]>(pathStr),
   useSofterEvents<TComponentContract["events"]>(pathStr),
-  useSofterChildrenPath<TComponentContract["children"]>(pathStr),
+  useSofterSingleChildrenPaths<TComponentContract["children"]>(pathStr),
+  useSofterChildrenPaths<TComponentContract["children"]>(pathStr),
 ];

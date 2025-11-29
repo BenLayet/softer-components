@@ -10,13 +10,13 @@ export const App = ({ path = "" }) => {
   return (
     <div>
       <h1>Shopping List</h1>
-      {listSelect["0"] && <ListSelect path={listSelect["0"]} />}
-      {list["0"] && (
+      {listSelect && <ListSelect path={listSelect} />}
+      {list && (
         <div>
           <a href="#" onClick={() => backClicked()}>
             Back to list selection
           </a>
-          <List path={list["0"]} />
+          <List path={list} />
         </div>
       )}
     </div>
