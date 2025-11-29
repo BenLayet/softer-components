@@ -1,8 +1,8 @@
 import { describe, expect, it } from "vitest";
 
 import { configureSofterStore } from "./softer-store";
-import { listDef } from "../../types/src/softer-component-types.test"; // TODO ask expert
-import { CHILDREN_CONTAINER_KEY, OWN_KEY } from "@softer-components/utils";
+import { listDef } from "@softer-components/types"; // TODO ask expert
+import { CHILDREN_BRANCHES_KEY, OWN_VALUE_KEY } from "@softer-components/utils";
 
 describe("configureSofterStore", () => {
   it("should create a store with initial state", () => {
@@ -13,7 +13,9 @@ describe("configureSofterStore", () => {
     const store = configureSofterStore(rootComponentDef);
 
     //THEN the store should have the initial state
-    expect(store.getState()).toEqual({ "☁️": { [OWN_KEY]: { count: 0 } } });
+    expect(store.getState()).toEqual({
+      "☁️": { [OWN_VALUE_KEY]: { count: 0 }, [CHILDREN_BRANCHES_KEY]: {} },
+    });
   });
 
   it("should create a working app", () => {
@@ -24,14 +26,12 @@ describe("configureSofterStore", () => {
     const actualState = store.getState();
     expect(actualState).toEqual({
       "☁️": {
-        [OWN_KEY]: {
+        [OWN_VALUE_KEY]: {
           listName: "My Shopping List",
           nextItemName: "",
           lastItemId: 0,
         },
-        [CHILDREN_CONTAINER_KEY]: {
-          items: {},
-        },
+        [CHILDREN_BRANCHES_KEY]: { items: {} },
       },
     });
 

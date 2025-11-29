@@ -1,9 +1,9 @@
 import { ComponentDef } from "@softer-components/types";
-import { isNotUndefined } from "./predicate.functions";
 import { RelativePathStateManager } from "./relative-path-state-manager";
-import { ComponentPath, SofterRootState } from "./utils.type";
+import { SofterRootState } from "./utils.type";
 import { StateManager } from "./state-manager";
 
+const INITIAL_KEY = "0";
 /**
  * Initialize the complete state from the root component definition
  */
@@ -12,13 +12,13 @@ export function initializeRootState(
   rootComponentDef: ComponentDef,
   stateManager: StateManager,
 ) {
-  return initializeStateRecursively(
+  // Initialize the root state, even if undefined
+  stateManager.updateState(softerRootState, [], rootComponentDef.initialState);
+
+  // Initialize children state
+  initializeChildrenState(
     rootComponentDef,
-    new RelativePathStateManager(
-      softerRootState,
-      stateManager,
-      [] as ComponentPath,
-    ),
+    new RelativePathStateManager(softerRootState, stateManager, []),
   );
 }
 
@@ -33,29 +33,20 @@ export function initializeStateRecursively(
   stateManager.createState(componentDef.initialState);
 
   // Initialize children state
-  if (isNotUndefined(componentDef.childrenComponents)) {
-    Object.entries(componentDef.childrenComponents).forEach(
-      ([childName, childDef]) => {
-        const childConfig = componentDef.childrenConfig?.[childName] ?? {};
-        if (childConfig.isCollection) {
-          stateManager.createEmptyCollectionChild(childName);
-
-          const keys = (componentDef.initialChildrenNodes?.[childName] ??
-            []) as string[];
-          keys
-            .map((key) => stateManager.childStateManager(childName, key))
-            .forEach((childStateManager) => {
-              initializeStateRecursively(childDef, childStateManager);
-            });
-        } else {
-          if (componentDef.initialChildrenNodes?.[childName] ?? true) {
-            initializeStateRecursively(
-              childDef,
-              stateManager.childStateManager(childName),
-            );
-          }
-        }
-      },
-    );
-  }
+  initializeChildrenState(componentDef, stateManager);
+}
+function initializeChildrenState(
+  componentDef: ComponentDef,
+  stateManager: RelativePathStateManager,
+) {
+  Object.entries(componentDef.childrenComponents ?? {}).forEach(
+    ([childName, childDef]) => {
+      stateManager.initializeChildBranches(childName);
+      (componentDef.initialChildrenKeys?.[childName] ?? [INITIAL_KEY])
+        .map((key) => stateManager.childStateManager(childName, key))
+        .forEach((childStateManager) => {
+          initializeStateRecursively(childDef, childStateManager);
+        });
+    },
+  );
 }

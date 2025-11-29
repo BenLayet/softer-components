@@ -22,7 +22,7 @@ describe("event forwarding tests", () => {
       componentPath: [],
     };
     const stateManager = {} as StateManager;
-    stateManager.getChildrenNodes = vi.fn().mockReturnValue({});
+    stateManager.getChildrenKeys = vi.fn().mockReturnValue({});
 
     // WHEN
     const result = generateEventsToForward(
@@ -65,7 +65,7 @@ describe("event forwarding tests", () => {
       componentPath: [["child"]],
     };
     const stateManager = {} as StateManager;
-    stateManager.getChildrenNodes = vi
+    stateManager.getChildrenKeys = vi
       .fn()
       .mockImplementation((path) => (path.length === 0 ? { child: true } : {}));
 
@@ -110,7 +110,7 @@ describe("event forwarding tests", () => {
       componentPath: [],
     };
     const stateManager = {} as StateManager;
-    stateManager.getChildrenNodes = vi
+    stateManager.getChildrenKeys = vi
       .fn()
       .mockImplementation((path) => (path.length === 0 ? { child: true } : {}));
 
@@ -179,7 +179,7 @@ describe("event forwarding tests", () => {
 
         const stateManager = {} as StateManager;
         stateManager.selectValue = vi.fn().mockReturnValue(isPassing);
-        stateManager.getChildrenNodes = vi.fn().mockReturnValue({});
+        stateManager.getChildrenKeys = vi.fn().mockReturnValue({});
 
         // WHEN
         const result = generateEventsToForward(
@@ -223,7 +223,7 @@ describe("event forwarding tests", () => {
 
     const stateManager = {} as StateManager;
     stateManager.selectValue = vi.fn().mockReturnValue(42);
-    stateManager.getChildrenNodes = vi.fn().mockReturnValue({});
+    stateManager.getChildrenKeys = vi.fn().mockReturnValue({});
     // WHEN
 
     const result = generateEventsToForward(
@@ -269,7 +269,7 @@ describe("event forwarding tests", () => {
       componentPath: [],
     };
     const stateManager = {} as StateManager;
-    stateManager.getChildrenNodes = vi.fn().mockReturnValue({});
+    stateManager.getChildrenKeys = vi.fn().mockReturnValue({});
 
     // WHEN
 

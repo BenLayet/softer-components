@@ -12,7 +12,7 @@ import { StateManager } from "./state-manager";
 /**
  * Update the global state tree based on the given event
  *
- * @param softerRootState - Current global state
+ * @param softerRootState - softer root state
  * @param rootComponentDef - Root component definition
  * @param event - Event to process
  * @param stateManager - State manager to read/write state
@@ -43,15 +43,15 @@ function updateStateOfComponentOfEvent(
   const updater = componentDef.updaters?.[event.name];
   if (!updater) return;
 
-  const { values, children, childrenNodes, state, payload } =
+  const { values, children, childrenKeys, state, payload } =
     prepareUpdaterParams(componentDef, event, stateManager);
 
-  const next = produce({ state, childrenNodes }, (draft: any) => {
+  const next = produce({ state, childrenKeys }, (draft: any) => {
     const returnedValue = updater({
       values,
       children,
       payload,
-      childrenNodes: draft.childrenNodes,
+      childrenKeys: draft.childrenKeys,
       state: draft.state,
     });
 
@@ -60,17 +60,16 @@ function updateStateOfComponentOfEvent(
     }
   });
 
+  // update own state
   stateManager.updateState(next.state);
 
-  // If children nodes have changed, update the state accordingly
-  if (childrenNodes !== next.childrenNodes) {
-    updateChildrenState(
-      componentDef,
-      childrenNodes,
-      next.childrenNodes,
-      stateManager,
-    );
-  }
+  // update children state
+  updateChildrenState(
+    componentDef,
+    childrenKeys,
+    next.childrenKeys,
+    stateManager,
+  );
 }
 
 /**
@@ -82,8 +81,7 @@ function prepareUpdaterParams(
   stateManager: RelativePathStateManager,
 ) {
   const { values, children } = createValueProviders(componentDef, stateManager);
-
-  const childrenNodes = stateManager.getChildrenNodes();
+  const childrenKeys = stateManager.getChildrenKeys();
   const state = stateManager.readState();
   const payload = event.payload;
 
@@ -91,55 +89,36 @@ function prepareUpdaterParams(
     values,
     children,
     payload,
-    childrenNodes,
+    childrenKeys,
     state,
   };
 }
 
 /**
- * Update children state based on changed childrenNodes
+ * Update children state based on changed childrenKeys
  */
 function updateChildrenState(
   componentDef: ComponentDef,
-  previousChildrenNodes: Record<string, string[] | boolean>,
-  desiredChildrenNodes: Record<string, string[] | boolean>,
+  previousChildrenKeys: Record<string, string[]>,
+  desiredChildrenKeys: Record<string, string[]>,
   stateManager: RelativePathStateManager,
 ) {
-  Object.entries(desiredChildrenNodes).forEach(([childName, childNode]) => {
-    const childConfig = componentDef.childrenConfig?.[childName] ?? {};
-    const previousChildNode = previousChildrenNodes[childName];
+  Object.entries(desiredChildrenKeys).forEach(([childName, desiredKeys]) => {
     const childDef = componentDef.childrenComponents?.[childName];
     assertIsNotUndefined(childDef);
+    const previousKeys = (previousChildrenKeys[childName] ?? []) as string[];
+    // Remove the state of deleted keys
+    previousKeys
+      .filter((key) => !desiredKeys.includes(key))
+      .map((key) => stateManager.childStateManager(childName, key))
+      .forEach((childStateManager) => childStateManager.removeStateTree());
 
-    if (childConfig.isCollection) {
-      const previousKeys = (previousChildNode ?? []) as string[];
-      const desiredKeys = childNode as string[];
-
-      // Remove the state of deleted keys
-      previousKeys
-        .filter((key) => !desiredKeys.includes(key))
-        .map((key) => stateManager.childStateManager(childName, key))
-        .forEach((childStateManager) => childStateManager.removeStateTree());
-
-      // Initialize the state of desired keys
-      desiredKeys
-        .filter((key) => !previousKeys.includes(key))
-        .map((key) => stateManager.childStateManager(childName, key))
-        .forEach((childStateManager) =>
-          initializeStateRecursively(childDef, childStateManager),
-        );
-    } else {
-      // Single child
-      if (childNode) {
-        if (!previousChildNode) {
-          initializeStateRecursively(
-            childDef,
-            stateManager.childStateManager(childName),
-          );
-        }
-      } else {
-        stateManager.childStateManager(childName).removeStateTree();
-      }
-    }
+    // Initialize the state of desired keys
+    desiredKeys
+      .filter((key) => !previousKeys.includes(key))
+      .map((key) => stateManager.childStateManager(childName, key))
+      .forEach((childStateManager) =>
+        initializeStateRecursively(childDef, childStateManager),
+      );
   });
 }

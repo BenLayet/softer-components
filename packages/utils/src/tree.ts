@@ -2,31 +2,18 @@
  * Tree structure and utilities to manipulate it.
  * State Managers could use these utilities to read/write states at specific paths or create their own structures.
  */
-import { ChildrenNodes } from "@softer-components/types";
-import {
-  assertIsNotUndefined,
-  isNotUndefined,
-  isUndefined,
-} from "./predicate.functions";
+import { ChildrenKeys } from "@softer-components/types";
+import { assertIsNotUndefined, isNotUndefined } from "./predicate.functions";
 import { ComponentPath } from "./utils.type";
 
-// state tree
-export const CHILDREN_CONTAINER_KEY = "🪾";
-export const OWN_KEY = "🫒";
-
-export type SingleChildInstance<T> = Tree<T>;
-export type CollectionChildInstances<T> = Record<
-  string,
-  SingleChildInstance<T>
->;
-export type ChildrenContainer<T> = Record<
-  string,
-  SingleChildInstance<T> | CollectionChildInstances<T>
->;
+// tree constants
+export const CHILDREN_BRANCHES_KEY = "🪾";
+export const OWN_VALUE_KEY = "🫒";
 
 export type Tree<T> = {
-  [OWN_KEY]: T;
-  [CHILDREN_CONTAINER_KEY]?: ChildrenContainer<T>;
+  [OWN_VALUE_KEY]: T;
+  // ----------------------------- child name --  key --- child tree
+  [CHILDREN_BRANCHES_KEY]?: Record<string, Record<string, Tree<T>>>;
 };
 /**
  * @param treeAtRootOfPath
@@ -35,25 +22,23 @@ export type Tree<T> = {
  */
 export const findSubTree = <T>(
   treeAtRootOfPath: Tree<T>,
-  componentPath: ComponentPath
+  componentPath: ComponentPath,
 ): Tree<T> => {
   if (componentPath.length === 0) {
     assertIsNotUndefined(treeAtRootOfPath);
     return treeAtRootOfPath;
   }
+  const childrenBranches = treeAtRootOfPath[CHILDREN_BRANCHES_KEY];
+  assertIsNotUndefined(childrenBranches);
+
   const pathSegment = componentPath[0];
   assertIsNotUndefined(pathSegment);
 
-  const childName = pathSegment[0];
+  const [childName, key] = pathSegment;
   assertIsNotUndefined(childName);
+  assertIsNotUndefined(key);
 
-  const key = pathSegment[1];
-  const childrenBranches = treeAtRootOfPath[CHILDREN_CONTAINER_KEY];
-  assertIsNotUndefined(childrenBranches);
-
-  const subTree = isUndefined(key)
-    ? (childrenBranches[childName] as SingleChildInstance<T>)
-    : (childrenBranches[childName] as CollectionChildInstances<T>)[key];
+  const subTree = childrenBranches[childName][key];
   assertIsNotUndefined(subTree);
 
   return findSubTree(subTree, componentPath.slice(1));
@@ -61,126 +46,93 @@ export const findSubTree = <T>(
 
 export const removeSubTree = <T>(
   treeAtRootOfPath: Tree<T>,
-  componentPath: ComponentPath
+  componentPath: ComponentPath,
 ) => {
   if (componentPath.length === 0) {
     throw new Error("Cannot remove the root of the tree");
   }
   const parentPath = componentPath.slice(0, -1);
-  const lastSegment = componentPath[componentPath.length - 1];
   const parentSubTree = findSubTree(treeAtRootOfPath, parentPath);
-  const childrenBranches = parentSubTree[CHILDREN_CONTAINER_KEY];
+  const childrenBranches = parentSubTree[CHILDREN_BRANCHES_KEY];
   if (!childrenBranches) {
     return;
   }
-  const childName = lastSegment[0];
-  const key = lastSegment[1];
-  if (!isUndefined(key)) {
-    const collectionBranches = childrenBranches[childName];
-    if (isBranchOfCollection(collectionBranches)) {
-      delete collectionBranches[key];
-    }
+  const [childName, key] = componentPath[componentPath.length - 1];
+  assertIsNotUndefined(childName);
+  assertIsNotUndefined(key);
+  const childBranches = childrenBranches[childName];
+  if (!childBranches) {
     return;
-  } else {
-    // Single child case
-    delete childrenBranches[childName];
   }
+  delete childBranches[key];
 };
 
 export const getValueAtPath = <T>(
   treeAtRootOfPath: Tree<T>,
-  path: ComponentPath
+  path: ComponentPath,
 ): T => {
-  return findSubTree(treeAtRootOfPath, path)[OWN_KEY];
+  return findSubTree(treeAtRootOfPath, path)[OWN_VALUE_KEY];
 };
 
 export const updateValueAtPath = <T>(
   treeAtRootOfPath: Tree<T>,
   path: ComponentPath,
-  value: T
-) => (findSubTree(treeAtRootOfPath, path)[OWN_KEY] = value);
+  value: T,
+) => (findSubTree(treeAtRootOfPath, path)[OWN_VALUE_KEY] = value);
 
 export const createValueAtPath = <T>(
   treeAtRootOfPath: Tree<T>,
   path: ComponentPath,
-  value: T
+  value: T,
 ): void => {
   if (path.length === 0) {
-    treeAtRootOfPath[OWN_KEY] = value;
-    return;
+    throw new Error(
+      `Cannot create a value at the root of the tree. Value = '${value}'`,
+    );
   }
-  const parentPath = path.slice(0, -1);
-  const parentSubTree = findSubTree(treeAtRootOfPath, parentPath);
-  if (!parentSubTree[CHILDREN_CONTAINER_KEY]) {
-    parentSubTree[CHILDREN_CONTAINER_KEY] = {};
-  }
-  const childrenContainer = parentSubTree[CHILDREN_CONTAINER_KEY];
   //parse child name and key
   const pathSegment = path[path.length - 1];
   assertIsNotUndefined(pathSegment);
-
-  const childName = pathSegment[0];
+  const [childName, key] = pathSegment;
   assertIsNotUndefined(childName);
+  assertIsNotUndefined(key);
 
-  const key = pathSegment[1];
-  if (isUndefined(key)) {
-    // Single child case
-    if (isNotUndefined(childrenContainer[childName])) {
-      throw new Error(`A child with name '${childName}' already exists.`);
-    }
-    // initialize instance
-    childrenContainer[childName] = { [OWN_KEY]: value };
-  } else {
-    // Collection child case
-    if (!childrenContainer[childName]) {
-      childrenContainer[childName] = {};
-    }
-    const collectionChildInstancesContainer = childrenContainer[
-      childName
-    ] as CollectionChildInstances<T>;
-    if (isNotUndefined(collectionChildInstancesContainer[key])) {
-      throw new Error(
-        `A child with name '${childName}' and key '${key}' already exists.`
-      );
-    }
-    // initialize instance
-    collectionChildInstancesContainer[key] = { [OWN_KEY]: value };
+  // this throws if the parent does not exist
+  const childBranches = initializeChildBranches(
+    treeAtRootOfPath,
+    path.slice(0, -1),
+    childName,
+  );
+  if (isNotUndefined(childBranches[key])) {
+    throw new Error(
+      `A child with name '${childName}' and key '${key}' already exists.`,
+    );
   }
+  // initialize instance
+  childBranches[key] = { [OWN_VALUE_KEY]: value };
 };
 
-export const getChildrenNodes = (subTree: Tree<any>): ChildrenNodes =>
+export const getChildrenKeys = (subTree: Tree<any>): ChildrenKeys =>
   Object.fromEntries(
-    Object.entries(subTree[CHILDREN_CONTAINER_KEY] || {}).map(
+    Object.entries(subTree[CHILDREN_BRANCHES_KEY] || {}).map(
       ([childName, childBranch]) => {
-        return [
-          childName,
-          isBranchOfSingleChild(childBranch) ? true : Object.keys(childBranch),
-        ];
-      }
-    )
-  ) as ChildrenNodes;
+        return [childName, Object.keys(childBranch)];
+      },
+    ),
+  ) as ChildrenKeys;
 
-export const createEmptyCollectionChildAtPath = <T>(
+export const initializeChildBranches = <T>(
   treeAtRootOfPath: Tree<T>,
   parentPath: ComponentPath,
-  childName: string
+  childName: string,
 ) => {
   const parentSubTree = findSubTree(treeAtRootOfPath, parentPath);
-  if (!parentSubTree[CHILDREN_CONTAINER_KEY]) {
-    parentSubTree[CHILDREN_CONTAINER_KEY] = {};
+  if (!parentSubTree[CHILDREN_BRANCHES_KEY]) {
+    parentSubTree[CHILDREN_BRANCHES_KEY] = {};
   }
-  const childrenContainer = parentSubTree[CHILDREN_CONTAINER_KEY];
-  if (!childrenContainer[childName]) {
-    childrenContainer[childName] = {};
+  const childrenBranches = parentSubTree[CHILDREN_BRANCHES_KEY];
+  if (!childrenBranches[childName]) {
+    childrenBranches[childName] = {};
   }
+  return childrenBranches[childName];
 };
-
-const isBranchOfSingleChild = <T>(
-  branch: SingleChildInstance<T> | CollectionChildInstances<T>
-): branch is SingleChildInstance<T> =>
-  Object.keys(branch).includes(OWN_KEY) ||
-  Object.keys(branch).includes(CHILDREN_CONTAINER_KEY);
-
-const isBranchOfCollection = <T>(
-  branch: SingleChildInstance<T> | CollectionChildInstances<T>
-): branch is CollectionChildInstances<T> => !isBranchOfSingleChild(branch);

@@ -14,16 +14,12 @@ export type ComponentValuesContract = { [SelectorName in string]: any };
 export type ComponentEventsContract = {
   [EventName: string]: { payload: OptionalValue };
 };
-export type ComponentChildContract = ComponentContract & {
-  isCollection?: boolean;
-};
-export type ComponentChildrenContract = Record<string, ComponentChildContract>;
 
 export type ComponentContract = {
   state: OptionalValue;
   values: ComponentValuesContract;
   events: ComponentEventsContract;
-  children: ComponentChildrenContract;
+  children: Record<string, ComponentContract>;
 };
 /*
 TODO ask expert about letting client declare only partial contract in ComponentDef
@@ -43,10 +39,9 @@ export type ComponentDef<
  */
 export type ComponentDef<TComponentContract extends ComponentContract = any> = {
   initialState?: TComponentContract["state"];
-  initialChildrenNodes?: ChildrenNodes<TComponentContract["children"]>;
   selectors?: {
     [SelectorName in keyof TComponentContract["values"]]: (
-      state: TComponentContract["state"]
+      state: TComponentContract["state"],
     ) => TComponentContract["values"][SelectorName];
   };
   uiEvents?: (keyof TComponentContract["events"] & string)[];
@@ -54,10 +49,10 @@ export type ComponentDef<TComponentContract extends ComponentContract = any> = {
     [EventName in keyof TComponentContract["events"]]?: (
       params: Values<TComponentContract> & {
         state: TComponentContract["state"]; //mutable
-        childrenNodes: ChildrenNodes<TComponentContract["children"]>; //mutable
+        childrenKeys: ChildrenKeys<TComponentContract["children"]>; //mutable
         payload: TComponentContract["events"][EventName]["payload"];
-      }
-    ) => void | TComponentContract["state"]; //return new state or void if state is mutated
+      },
+    ) => void | TComponentContract["state"];
   };
   eventForwarders?: InternalEventForwarders<TComponentContract>;
   childrenComponents?: {
@@ -65,6 +60,7 @@ export type ComponentDef<TComponentContract extends ComponentContract = any> = {
       TComponentContract["children"][ChildName]
     >;
   };
+  initialChildrenKeys?: ChildrenKeys<TComponentContract["children"]>;
   childrenConfig?: {
     [ChildName in keyof TComponentContract["children"]]?: ChildConfig<
       TComponentContract,
@@ -77,7 +73,7 @@ export type ComponentDef<TComponentContract extends ComponentContract = any> = {
  ***************************************************************************************************************/
 /**
  * Provides access to computed values (from selectors) and child values
- * This is the runtime interface for accessing global state in a structured way
+ * This is the runtime interface for accessing global state without exposing the state itself
  */
 export type Values<
   TComponentContract extends ComponentContract = ComponentContract,
@@ -90,11 +86,9 @@ export type Values<
   children: ChildrenValues<TComponentContract>;
 };
 export type ChildrenValues<TComponentContract extends ComponentContract> = {
-  [ChildName in keyof TComponentContract["children"]]: TComponentContract["children"][ChildName]["isCollection"] extends true
-    ? {
-        [ChildKey: string]: Values<TComponentContract["children"][ChildName]>;
-      }
-    : Values<TComponentContract["children"][ChildName]>;
+  [ChildName in keyof TComponentContract["children"]]: {
+    [ChildKey: string]: Values<TComponentContract["children"][ChildName]>;
+  };
 };
 /***************************************************************************************************************
  *                         EVENT FORWARDING DEFINITIONS
@@ -125,7 +119,7 @@ type WithPayloadDef<
           params: Values<TComponentContract> & {
             payload: TFromPayload;
             fromChildKey: string;
-          }
+          },
         ) => TToPayload;
       }
     : {
@@ -133,13 +127,13 @@ type WithPayloadDef<
           params: Values<TComponentContract> & {
             payload: TFromPayload;
             fromChildKey: string;
-          }
+          },
         ) => TToPayload;
       };
 
 /**
  * Defines onCondition property for event forwarders
- * Optional condition to determine if event should be forwarded
+ * Optional condition to determine if the event should be forwarded
  */
 type OnConditionDef<
   TComponentContract extends ComponentContract,
@@ -149,7 +143,7 @@ type OnConditionDef<
     params: Values<TComponentContract> & {
       payload: TFromPayload;
       fromChildKey: string;
-    }
+    },
   ) => boolean;
 };
 
@@ -176,7 +170,7 @@ export type FromEventToEvent<
   ToEventDef<TComponentContract, TFromEvent, TToEvent> &
   OnConditionDef<TComponentContract, TFromEvent["payload"]>;
 
-export type FromEventContractToEventContract<
+export type FromEventContractToChildEventContract<
   TComponentContract extends ComponentContract,
   TFromEvents extends ComponentEventsContract,
   TToEvents extends ComponentEventsContract,
@@ -193,14 +187,33 @@ export type FromEventContractToEventContract<
         payload: TToEvents[TToEventName & string]["payload"];
       }
     > & {
-      //TODO ask expert how to declare 'toKeys' only for commands from parent to children
       toKeys?: (
         params: Values<TComponentContract> & {
           payload: TFromEvents[TFromEventName & string]["payload"];
           fromChildKey: string;
-        }
+        },
       ) => string[];
     };
+  }[keyof TToEvents];
+}[keyof TFromEvents];
+
+export type FromEventContractToEventContract<
+  TComponentContract extends ComponentContract,
+  TFromEvents extends ComponentEventsContract,
+  TToEvents extends ComponentEventsContract,
+> = {
+  [TFromEventName in keyof TFromEvents]: {
+    [TToEventName in keyof TToEvents]: FromEventToEvent<
+      TComponentContract,
+      {
+        name: TFromEventName & string;
+        payload: TFromEvents[TFromEventName & string]["payload"];
+      },
+      {
+        name: TToEventName & string;
+        payload: TToEvents[TToEventName & string]["payload"];
+      }
+    >;
   }[keyof TToEvents];
 }[keyof TFromEvents];
 
@@ -230,17 +243,14 @@ export type InternalEventForwarders<
 /***************************************************************************************************************
  *                         CHILDREN NODES
  ***************************************************************************************************************/
-export type ChildrenNodes<
-  TChildrenContract extends
-    ComponentChildrenContract = ComponentChildrenContract,
+type ChildKeys = string[];
+export type ChildrenKeys<
+  TChildrenContract extends Record<string, ComponentContract> = Record<
+    string,
+    ComponentContract
+  >,
 > = {
-  [ChildName in keyof TChildrenContract]: TChildrenContract[ChildName]["isCollection"] extends true
-    ? string[]
-    : boolean;
-};
-export type ChildrenNode<TChildContract extends ComponentChildContract> = {
-  readonly path: string;
-  readonly values: Values<TChildContract>;
+  [ChildName in keyof TChildrenContract]: ChildKeys;
 };
 
 /***************************************************************************************************************
@@ -249,7 +259,7 @@ export type ChildrenNode<TChildContract extends ComponentChildContract> = {
 
 type WithChildListeners<
   TParentContract extends ComponentContract,
-  TChildContract extends ComponentChildContract,
+  TChildContract extends ComponentContract,
 > = {
   readonly listeners?: FromEventContractToEventContract<
     TParentContract,
@@ -259,9 +269,9 @@ type WithChildListeners<
 };
 type WithChildCommands<
   TParentContract extends ComponentContract,
-  TChildContract extends ComponentChildContract,
+  TChildContract extends ComponentContract,
 > = {
-  readonly commands?: FromEventContractToEventContract<
+  readonly commands?: FromEventContractToChildEventContract<
     TParentContract,
     TParentContract["events"], //from parent
     TChildContract["events"] //to child
@@ -270,14 +280,10 @@ type WithChildCommands<
 
 export type ChildConfig<
   TParentContract extends ComponentContract,
-  TChildContract extends ComponentChildContract,
+  TChildContract extends ComponentContract,
 > = WithChildListeners<TParentContract, TChildContract> &
-  WithChildCommands<TParentContract, TChildContract> &
-  (TChildContract["isCollection"] extends true
-    ? {
-        readonly isCollection: true;
-      }
-    : { readonly isCollection?: false });
+  WithChildCommands<TParentContract, TChildContract>;
+
 /***************************************************************************************************************
  *                       HELPER TYPES TO EXTRACT CONTRACTS FROM DEFINITIONS
  ***************************************************************************************************************/
@@ -288,25 +294,18 @@ export type ExtractComponentValuesContract<
   TSelectors extends Record<string, (state: any) => any>,
 > = {
   [SelectorName in keyof TSelectors]: TSelectors[SelectorName] extends (
-    state: any
+    state: any,
   ) => infer TResult
     ? TResult
     : never;
 };
 
-export type CreateComponentChildrenContract<
-  TChildren extends Record<string, ComponentDef<any>>,
-  TIsCollection extends {
-    [ChildName in keyof TChildren]?: "isCollection";
-  } = {},
+export type ExtractComponentChildrenContract<
+  TChildren extends Record<string, ComponentDef>,
 > = {
-  [ChildName in keyof TChildren]: (TChildren[ChildName] extends ComponentDef<
+  [ChildName in keyof TChildren]: TChildren[ChildName] extends ComponentDef<
     infer TComponentContract
   >
     ? TComponentContract
-    : never) & {
-    isCollection: TIsCollection[ChildName] extends "isCollection"
-      ? true
-      : false;
-  };
+    : never;
 };

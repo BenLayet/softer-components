@@ -2,11 +2,12 @@ import { OptionalValue, State } from "@softer-components/types";
 import {
   assertIsNotUndefined,
   assertValueIsUndefined,
+  CHILDREN_BRANCHES_KEY,
   ComponentPath,
   GlobalEvent,
   SofterRootState,
 } from "@softer-components/utils";
-import { OWN_KEY, Tree } from "@softer-components/utils";
+import { OWN_VALUE_KEY, Tree } from "@softer-components/utils";
 export type ReduxDispatch = (action: ReduxAction) => void;
 type ReduxAction = {
   type: string;
@@ -55,7 +56,10 @@ export function addSofterRootTree(globalState: GlobalState): {
     { softerRootTree: globalState[SOFTER_PREFIX] },
     "Global state already has root tree",
   );
-  globalState[SOFTER_PREFIX] = { [OWN_KEY]: {} };
+  globalState[SOFTER_PREFIX] = {
+    [OWN_VALUE_KEY]: {},
+    [CHILDREN_BRANCHES_KEY]: {},
+  };
   return globalState as { [SOFTER_PREFIX]: Tree<State> };
 }
 export function getSofterRootTree(

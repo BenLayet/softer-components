@@ -4,6 +4,7 @@ import { Provider } from "react-redux";
 import { configureSofterStore } from "./softer-store";
 import { useSofter, useSofterSelectors } from "./softer-hooks";
 import { ComponentDef } from "@softer-components/types";
+import React from "react";
 
 describe("useSofter with memoization", () => {
   it("should memoize selectors and prevent unnecessary re-renders", () => {
@@ -139,11 +140,7 @@ describe("useSofter with memoization", () => {
       childrenComponents: {
         items: itemDef,
       },
-      childrenConfig: {
-        items: {
-          isCollection: true,
-        },
-      },
+      initialChildrenKeys: { items: [] },
     };
 
     const store = configureSofterStore(listDef);

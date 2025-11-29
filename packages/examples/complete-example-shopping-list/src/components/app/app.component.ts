@@ -1,6 +1,6 @@
 import {
   ComponentDef,
-  CreateComponentChildrenContract,
+  ExtractComponentChildrenContract,
 } from "@softer-components/types";
 import { List } from "../../model/List.ts";
 import { listSelectDef } from "../list-select/list-select.component.ts";
@@ -18,23 +18,23 @@ const childrenComponents = {
 export type AppComponentContract = {
   state: undefined;
   events: AppEvents;
-  children: CreateComponentChildrenContract<typeof childrenComponents>;
+  children: ExtractComponentChildrenContract<typeof childrenComponents>;
   values: {};
 };
 // Component definition
 export const appDef: ComponentDef<AppComponentContract> = {
   uiEvents: ["backClicked"],
   updaters: {
-    listSelected: ({ childrenNodes }) => {
-      childrenNodes.list = true;
-      childrenNodes.listSelect = false;
+    listSelected: ({ childrenKeys }) => {
+      childrenKeys.list = ["0"];
+      childrenKeys.listSelect = [];
     },
-    backClicked: ({ childrenNodes }) => {
-      childrenNodes.list = false;
-      childrenNodes.listSelect = true;
+    backClicked: ({ childrenKeys }) => {
+      childrenKeys.list = [];
+      childrenKeys.listSelect = ["0"];
     },
   },
-  initialChildrenNodes: { listSelect: false, list: true },
+  initialChildrenKeys: { listSelect: [], list: ["0"] },
   childrenComponents,
   childrenConfig: {
     list: { commands: [{ from: "listSelected", to: "initialize" }] },

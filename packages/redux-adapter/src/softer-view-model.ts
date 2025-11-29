@@ -1,7 +1,6 @@
 import { createSelector } from "@reduxjs/toolkit";
 import { ComponentDef } from "@softer-components/types";
 import {
-  ChildrenPaths,
   ComponentPath,
   findComponentDef,
   findSubTree,
@@ -16,6 +15,7 @@ import {
   stringToComponentPath,
 } from "./softer-mappers";
 
+export type ChildrenPaths = Record<string, string[]>;
 export type ComponentViewModel = {
   valuesSelector: (globalState: GlobalState) => Record<string, any>;
   childrenPathsSelector: (globalState: GlobalState) => ChildrenPaths;
@@ -80,22 +80,20 @@ export class MemoizedApplicationViewModel implements SofterViewModel {
       this.stateManager.readState(subTree, []),
     );
 
-    const childrenNodesSelector = createSelector(
+    const childrenKeysSelector = createSelector(
       [stateTreeSelector],
-      (subTree) => this.stateManager.getChildrenNodes(subTree, []),
+      (subTree) => this.stateManager.getChildrenKeys(subTree, []),
     );
 
     const childrenPathsSelector = createSelector(
-      [childrenNodesSelector],
-      (childrenNodes) =>
+      [childrenKeysSelector],
+      (childrenKeys) =>
         Object.fromEntries(
-          Object.entries(childrenNodes).map(([childName, childNode]) => [
+          Object.entries(childrenKeys).map(([childName, childKeys]) => [
             childName,
-            Array.isArray(childNode)
-              ? childNode.map((key) =>
-                  componentPathToString([...componentPath, [childName, key]]),
-                )
-              : componentPathToString([...componentPath, [childName]]),
+            childKeys.map((key) =>
+              componentPathToString([...componentPath, [childName, key]]),
+            ),
           ]),
         ),
     );

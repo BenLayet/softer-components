@@ -1,8 +1,10 @@
-import { ChildrenNodes, State } from "@softer-components/types";
+import { ChildrenKeys, State } from "@softer-components/types";
 import { ComponentPath, SofterRootState } from "./utils.type";
 
 /**
- * StateReader - all methods receive state as a parameter
+ * StateReader
+ *
+ * All methods receive state as a parameter and extract information from it.
  */
 export interface StateReader {
   /**
@@ -11,26 +13,27 @@ export interface StateReader {
   readState(softerRootState: SofterRootState, path: ComponentPath): State;
 
   /**
-   * Get children nodes structure at the given path
+   * Get all children's keys at the given path
    */
-  getChildrenNodes(
+  getChildrenKeys(
     softerRootState: SofterRootState,
     path: ComponentPath,
-  ): ChildrenNodes;
+  ): ChildrenKeys;
 
   /**
-   * Select a value using a memoized selector
+   * Select a value from the state at the given path
    */
   selectValue<T>(
     softerRootState: SofterRootState,
     path: ComponentPath,
-    selectorName: string,
     selector: (state: State) => T,
   ): T;
 }
 
 /**
- * StateWriter - all methods receive state as a parameter and can modify it.
+ * StateWriter
+ *
+ * All methods receive state as a parameter and modify it.
  */
 export interface StateWriter {
   /**
@@ -52,9 +55,9 @@ export interface StateWriter {
   ): void;
 
   /**
-   * Create an empty collection child at the given path
+   * Create an empty child at the given path
    */
-  createEmptyCollectionChild(
+  initializeChildBranches(
     softerRootState: SofterRootState,
     parentPath: ComponentPath,
     childName: string,
@@ -65,6 +68,10 @@ export interface StateWriter {
    */
   removeStateTree(softerRootState: SofterRootState, path: ComponentPath): void;
 
+  /**
+   * Sets a listener to be notified with the specific path when a state tree is removed.
+   * @param listener
+   */
   setRemoveStateTreeListener(listener: (path: ComponentPath) => void): void;
 }
 

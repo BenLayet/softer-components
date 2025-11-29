@@ -2,7 +2,7 @@ import { describe, expect, it, vi } from "vitest";
 import { updateSofterRootState } from "./reducer";
 import { ComponentDef } from "@softer-components/types";
 import { GlobalEvent } from "./utils.type";
-import { listDef } from "../../types/src/softer-component-types.test"; // TODO ask expert
+import { listDef } from "@softer-components/types"; // TODO ask expert
 import { StateManager } from "./state-manager";
 
 describe("reducer tests", () => {
@@ -33,7 +33,7 @@ describe("reducer tests", () => {
 
     const stateManager = {} as StateManager;
     stateManager.readState = vi.fn().mockReturnValue(initialState);
-    stateManager.getChildrenNodes = vi.fn().mockReturnValue({});
+    stateManager.getChildrenKeys = vi.fn().mockReturnValue({});
     stateManager.updateState = vi.fn();
 
     // WHEN
@@ -266,11 +266,11 @@ describe("reducer tests", () => {
       it(`should handle event: ${event.name}`, () => {
         // GIVEN a more complex component definition
         const stateManager = {} as StateManager;
-        stateManager.readState = vi.fn().mockImplementation((state, path) => {
+        stateManager.readState = vi.fn().mockImplementation((_, path) => {
           if (path.length === 0) return listState;
           return itemState;
         });
-        stateManager.getChildrenNodes = vi
+        stateManager.getChildrenKeys = vi
           .fn()
           .mockImplementation((_state, path) => {
             if (path.length === 0) {

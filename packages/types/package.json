@@ -19,8 +19,7 @@
     "build": "tsc -b",
     "build:watch": "tsc -b --watch",
     "lint": "eslint src/",
-    "format": "prettier --write .",
-    "test": "echo \"No tests specified\" && exit 0"
+    "format": "prettier --write ."
   },
   "devDependencies": {
     "@typescript-eslint/eslint-plugin": "^8.18.5",

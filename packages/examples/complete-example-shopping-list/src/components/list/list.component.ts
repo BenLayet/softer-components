@@ -1,6 +1,6 @@
 import {
   ComponentDef,
-  CreateComponentChildrenContract,
+  ExtractComponentChildrenContract,
   ExtractComponentValuesContract,
   Selectors,
 } from "@softer-components/types";
@@ -36,10 +36,7 @@ export type ListContract = {
   state: ListState;
   values: ExtractComponentValuesContract<typeof listSelectors>;
   events: ListEvents;
-  children: CreateComponentChildrenContract<
-    typeof childrenComponents,
-    { items: "isCollection" }
-  >;
+  children: ExtractComponentChildrenContract<typeof childrenComponents>;
 };
 
 export const listDef: ComponentDef<ListContract> = {
@@ -47,8 +44,8 @@ export const listDef: ComponentDef<ListContract> = {
   selectors: listSelectors,
   uiEvents: ["nextItemNameChanged", "nextItemSubmitted"],
   updaters: {
-    initialize: ({ payload: list, childrenNodes }) => {
-      childrenNodes.items = list.items.map(item => `${item.id}`);
+    initialize: ({ payload: list, childrenKeys }) => {
+      childrenKeys.items = list.items.map(item => `${item.id}`);
       return { listName: list.name, nextItemName: "" };
     },
     nextItemNameChanged: ({ state, payload: nextItemName }) => {
@@ -57,13 +54,10 @@ export const listDef: ComponentDef<ListContract> = {
     addItemRequested: ({ state }) => {
       state.nextItemName = "";
     },
-    createItemRequested: ({ childrenNodes: { items }, payload: { id } }) => {
+    createItemRequested: ({ childrenKeys: { items }, payload: { id } }) => {
       items.push(`${id}`);
     },
-    removeItemRequested: ({
-      childrenNodes: { items },
-      payload: idToRemove,
-    }) => {
+    removeItemRequested: ({ childrenKeys: { items }, payload: idToRemove }) => {
       items.splice(items.indexOf(`${idToRemove}`), 1);
     },
   },
@@ -105,9 +99,9 @@ export const listDef: ComponentDef<ListContract> = {
     },
   ],
   childrenComponents,
+  initialChildrenKeys: { items: [] },
   childrenConfig: {
     items: {
-      isCollection: true,
       commands: [
         {
           from: "incrementItemQuantityRequested",

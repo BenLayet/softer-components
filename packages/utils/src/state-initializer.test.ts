@@ -46,24 +46,24 @@ describe("state tests with mocks", () => {
 
   it("should create state for component with 1 child", () => {
     // GIVEN a component with child components
-    const childDef: ComponentDef = {
+    const child: ComponentDef = {
       initialState: { level: 2 },
     };
 
     const rootDef: ComponentDef = {
       initialState: { level: 1 },
-      childrenComponents: { child: childDef },
+      childrenComponents: { child },
     };
     const stateManager = {} as StateManager;
     stateManager.updateState = vi.fn();
     stateManager.createState = vi.fn();
     stateManager.readState = vi.fn();
+    stateManager.initializeChildBranches = vi.fn();
 
     // WHEN creating an initial state
     initializeRootState({}, rootDef, stateManager);
 
     // THEN
-    // Verify the first call (parent)
     expect(stateManager.updateState).toHaveBeenCalledTimes(1);
     expect(stateManager.updateState).toHaveBeenCalledWith(
       {},
@@ -71,11 +71,16 @@ describe("state tests with mocks", () => {
       { level: 1 }, // state
     );
 
-    // Verify the second call (child)
+    expect(stateManager.initializeChildBranches).toHaveBeenCalledTimes(1);
+    expect(stateManager.initializeChildBranches).toHaveBeenCalledWith(
+      {},
+      [], // path
+      "child",
+    );
     expect(stateManager.createState).toHaveBeenCalledTimes(1);
     expect(stateManager.createState).toHaveBeenCalledWith(
       {},
-      [["child", undefined]], // path to child
+      [["child", "0"]], // path to child
       {
         level: 2,
       },
