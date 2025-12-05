@@ -179,7 +179,7 @@ function App() {
 }
 ```
 
-or create your own adapter for your own state manager using `@softer-components/utils` (and share it !)
+or create your own adapter for your own state manager using `@softer-components/utils` (and share it!)
 
 ### 4. Use in React Component
 
@@ -214,29 +214,25 @@ Forward events within the same component:
 
 ```typescript
 export const counterDef: ComponentDef<CounterContract> = {
-  initialState: { count: 0, isResetting: false },
+  initialState: { count: 0 },
 
   selectors: {
     count: (state) => state.count,
   },
 
-  uiEvents: ["startReset"],
+  uiEvents: ["btnClicked"],
 
   updaters: {
-    startReset: ({ state }) => {
-      state.isResetting = true;
-    },
-    reset: ({ state }) => {
-      state.count = 0;
-      state.isResetting = false;
+    incrementRequested: ({ state }) => {
+      state.count++;
     },
   },
 
-  // 🔄 Forward startReset -> reset
+  // 🔄 Forward btnClicked -> incrementRequested
   eventForwarders: [
     {
-      from: "startReset",
-      to: "reset",
+      from: "btnClicked",
+      to: "incrementRequested",
     },
   ],
 };
@@ -310,10 +306,8 @@ export const listDef: ComponentDef<ListContract> = {
       // 📢 Send commands to children
       commands: [
         {
-          from: "clearAll", // Parent event
-          to: "clear", // Child event
-          // Send to all children
-          toKeys: ({ children }) => Object.keys(children.items),
+          from: "clearAllRequested", // Parent event
+          to: "clearRequested", // Child event
         },
       ],
     },
@@ -333,8 +327,8 @@ eventForwarders: [
       return values.isEnabled && payload !== null;
     },
     // Transform payload
-    withPayload: ({ payload }) => {
-      return { id: payload, timestamp: Date.now() };
+    withPayload: ({ payload :{id}) => {
+      return { id, nextId: id+1) };
     },
   },
 ]
