@@ -212,21 +212,6 @@ input[type="submit"],
   box-shadow: 3px 3px 0 #ccc;
 }
 
-/* Grid/Flexbox visualization (optional) */
-[style*="display: flex"],
-[style*="display: grid"],
-.flex,
-.grid {
-  border: 2px dotted #f00;
-  background: repeating-linear-gradient(
-    0deg,
-    transparent,
-    transparent 10px,
-    rgba(255, 0, 0, 0.05) 10px,
-    rgba(255, 0, 0, 0.05) 11px
-  );
-}
-
 .clickable {
   cursor: pointer;
 }

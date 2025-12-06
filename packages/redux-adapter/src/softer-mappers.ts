@@ -22,7 +22,7 @@ export function isSofterEvent(action: ReduxAction): boolean {
 }
 
 export function removeSofterPrefix(actionType: string) {
-  return actionType.slice(REDUX_SOFTER_PREFIX.length);
+  return actionType.slice(REDUX_SOFTER_PREFIX.length + 1);
 }
 
 export function actionToEvent(action: ReduxAction): GlobalEvent {
@@ -41,6 +41,7 @@ export function actionToEvent(action: ReduxAction): GlobalEvent {
 export function eventToAction(event: GlobalEvent): ReduxAction {
   const type =
     REDUX_SOFTER_PREFIX +
+    (event.source ?? "?") +
     componentPathToString(event.componentPath) +
     event.name;
   return {

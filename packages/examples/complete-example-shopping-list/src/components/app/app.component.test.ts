@@ -8,7 +8,7 @@ describe("app.component", () => {
       .thenExpectComponentAtPath("/listSelect:0/")
       .listName.toBe("");
   });
-  it("when increment is requested then count should be + 1", () => {
+  it("when listNameChanged then list name should be set", () => {
     givenRootComponent(appDef)
       .whenEventOccurs("/listSelect:0/listNameChanged", "My List")
       .thenExpectComponentAtPath("/listSelect:0/")

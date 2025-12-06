@@ -108,6 +108,7 @@ const createEventEffectDispatchers = (
             componentPath,
             name: dispatchableEventName,
             payload,
+            source: "📡",
           }),
       ],
     ),

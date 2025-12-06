@@ -76,6 +76,7 @@ function generateEventsFromOwnComponent(
       payload: forwarder.withPayload
         ? forwarder.withPayload(eventContext())
         : triggeringEvent.payload,
+      source: "➡️",
     }));
 }
 
@@ -123,6 +124,7 @@ function generateEventsToParent(
       payload: listener.withPayload
         ? listener.withPayload(eventContext())
         : triggeringEvent.payload,
+      source: "👂",
     }));
 }
 
@@ -167,5 +169,6 @@ function generateEventsToChildren(
       payload: command.withPayload
         ? command.withPayload({ ...eventContext(), childKey })
         : triggeringEvent.payload,
+      source: "📢",
     }));
 }
