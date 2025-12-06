@@ -1,7 +1,9 @@
 import { Item } from "./Item.ts";
 
+export type ListId = string;
 export type List = {
-  id: number;
+  id: ListId;
   name: string;
-  items: Item[];
+  listItems: ListItem[];
 };
+export type ListItem = { item: Item; quantity: number };

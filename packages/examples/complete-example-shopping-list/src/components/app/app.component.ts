@@ -2,13 +2,12 @@ import {
   ComponentDef,
   ExtractComponentChildrenContract,
 } from "@softer-components/types";
-import { List } from "../../model/List.ts";
-import { listSelectDef } from "../list-select/list-select.component.ts";
-import { listDef } from "../list/list.component.ts";
+import { List } from "../../model";
+import { listSelectDef } from "./list-select/list-select.component.ts";
+import { listDef } from "./list/list.component.ts";
 // Events
 type AppEvents = {
   listSelected: { payload: List };
-  backClicked: { payload: undefined };
   selectListRequested: { payload: undefined };
 };
 const childrenComponents = {
@@ -24,13 +23,6 @@ export type AppComponentContract = {
 };
 // Component definition
 export const appDef: ComponentDef<AppComponentContract> = {
-  uiEvents: ["backClicked"],
-  eventForwarders: [
-    {
-      from: "backClicked",
-      to: "selectListRequested",
-    },
-  ],
   updaters: {
     listSelected: ({ childrenKeys }) => {
       childrenKeys.list = ["0"];
@@ -41,22 +33,18 @@ export const appDef: ComponentDef<AppComponentContract> = {
       childrenKeys.listSelect = ["0"];
     },
   },
-  initialChildrenKeys: { listSelect: [], list: ["0"] },
+  initialChildrenKeys: { listSelect: ["0"], list: [] },
   childrenComponents,
   childrenConfig: {
-    list: { commands: [{ from: "listSelected", to: "initialize" }] },
+    list: {
+      commands: [{ from: "listSelected", to: "initialize" }],
+      listeners: [{ from: "goBackClicked", to: "selectListRequested" }],
+    },
     listSelect: {
       listeners: [
         {
           from: "listSelected",
           to: "listSelected",
-        },
-      ],
-      commands: [
-        {
-          from: "selectListRequested",
-          to: "fetchSavedListRequested",
-          toKeys: ({ children }) => [Object.keys(children.listSelect)[0]],
         },
       ],
     },

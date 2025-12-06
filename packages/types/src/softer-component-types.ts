@@ -11,14 +11,20 @@ export type State = OptionalValue;
 export type Payload = OptionalValue;
 
 export type ComponentValuesContract = { [SelectorName in string]: any };
-export type ComponentEventsContract = {
-  [EventName: string]: { payload: OptionalValue };
+export type ComponentEventsContract<
+  EventNames extends string = string,
+  DispatchableEventNames extends EventNames = EventNames,
+> = {
+  [EventName in EventNames]: {
+    payload: OptionalValue;
+    canTrigger?: DispatchableEventNames[];
+  };
 };
 
-export type ComponentContract = {
+export type ComponentContract<EventNames extends string = string> = {
   state: OptionalValue;
   values: ComponentValuesContract;
-  events: ComponentEventsContract;
+  events: ComponentEventsContract<EventNames>;
   children: Record<string, ComponentContract>;
 };
 /*
@@ -67,6 +73,7 @@ export type ComponentDef<TComponentContract extends ComponentContract = any> = {
       TComponentContract["children"][ChildName]
     >;
   };
+  effects?: Effects<TComponentContract>;
 };
 /***************************************************************************************************************
  *                         VALUES
@@ -79,7 +86,7 @@ export type Values<
   TComponentContract extends ComponentContract = ComponentContract,
 > = {
   /** Computed values from selectors - call these functions to get current values */
-  values: {
+  selectors: {
     [K in keyof TComponentContract["values"]]: () => TComponentContract["values"][K];
   };
   /** Child component values - access nested component values here */
@@ -95,8 +102,8 @@ export type ChildrenValues<TComponentContract extends ComponentContract> = {
  ***************************************************************************************************************/
 
 export type Event<
-  TEventName extends string = string,
   TPayload extends Payload = Payload,
+  TEventName extends string = string,
 > = {
   readonly name: TEventName;
   readonly payload: TPayload;
@@ -118,7 +125,7 @@ type WithPayloadDef<
         readonly withPayload?: (
           params: Values<TComponentContract> & {
             payload: TFromPayload;
-            fromChildKey: string;
+            childKey?: string;
           },
         ) => TToPayload;
       }
@@ -126,7 +133,7 @@ type WithPayloadDef<
         readonly withPayload: (
           params: Values<TComponentContract> & {
             payload: TFromPayload;
-            fromChildKey: string;
+            childKey: string;
           },
         ) => TToPayload;
       };
@@ -142,7 +149,7 @@ type OnConditionDef<
   onCondition?: (
     params: Values<TComponentContract> & {
       payload: TFromPayload;
-      fromChildKey: string;
+      childKey?: string;
     },
   ) => boolean;
 };
@@ -190,7 +197,7 @@ export type FromEventContractToChildEventContract<
       toKeys?: (
         params: Values<TComponentContract> & {
           payload: TFromEvents[TFromEventName & string]["payload"];
-          fromChildKey: string;
+          childKey?: string;
         },
       ) => string[];
     };
@@ -285,6 +292,15 @@ export type ChildConfig<
   WithChildCommands<TParentContract, TChildContract>;
 
 /***************************************************************************************************************
+ *                     Effects
+ ***************************************************************************************************************/
+type Effects<TComponentContract extends ComponentContract> = {
+  [EventName in keyof TComponentContract["events"]]?: TComponentContract["events"][EventName]["canTrigger"] extends infer DispatchableEventNames extends
+    string[]
+    ? DispatchableEventNames
+    : never;
+};
+/***************************************************************************************************************
  *                       HELPER TYPES TO EXTRACT CONTRACTS FROM DEFINITIONS
  ***************************************************************************************************************/
 export type Selectors<TState extends OptionalValue> = {
@@ -308,4 +324,24 @@ export type ExtractComponentChildrenContract<
   >
     ? TComponentContract
     : never;
+};
+export type ExtractEventNames<TComponentContract extends ComponentContract> =
+  keyof TComponentContract["events"] & string;
+
+export type Dispatcher<TPayload extends Payload = Payload> =
+  TPayload extends undefined ? () => void : (payload: TPayload) => void;
+export type EventEffectDispatchers<
+  TComponentContract extends ComponentContract = ComponentContract,
+  TEventName extends
+    ExtractEventNames<TComponentContract> = ExtractEventNames<TComponentContract>,
+> = {
+  [TTriggerableEventName in TComponentContract["events"][TEventName]["canTrigger"] &
+    string]: Dispatcher<TComponentContract["events"][TEventName]["payload"]>;
+};
+export type ComponentEffectsDispatchers<
+  TComponentContract extends ComponentContract = ComponentContract,
+> = {
+  [TEventName in ExtractEventNames<TComponentContract>]: TComponentContract["events"][TEventName]["canTrigger"] extends undefined
+    ? never
+    : EventEffectDispatchers<TComponentContract, TEventName>;
 };

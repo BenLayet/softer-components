@@ -172,7 +172,7 @@ describe("event forwarding tests", () => {
             {
               from: "btnClicked",
               to: "incrementRequested",
-              onCondition: ({ values }) => values.isPassing(),
+              onCondition: ({ selectors }) => selectors.isPassing(),
             },
           ],
         };
@@ -216,7 +216,7 @@ describe("event forwarding tests", () => {
         {
           from: "btnClicked",
           to: "incrementRequested",
-          withPayload: ({ values }) => values.nextPayload(),
+          withPayload: ({ selectors }) => selectors.nextPayload(),
         },
       ],
     };

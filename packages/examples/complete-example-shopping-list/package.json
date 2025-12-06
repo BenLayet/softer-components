@@ -23,6 +23,7 @@
     "react-dom": "^19.1.0",
     "react-redux": "^9.2.0",
     "@softer-components/redux-adapter": "workspace:^",
+    "@softer-components/utils": "workspace:^",
     "@softer-components/types": "workspace:^"
   },
   "devDependencies": {

@@ -25,6 +25,16 @@ export class RelativePathStateReader {
       [...this.currentPath, [childName, childKey]],
     );
   }
+  parentStateReader(): RelativePathStateReader {
+    if (this.currentPath.length === 0) {
+      throw new Error("cannot go up from root");
+    }
+    return new RelativePathStateReader(
+      this.softerRootState,
+      this.absolutePathStateReader,
+      this.currentPath.slice(0, -1),
+    );
+  }
 
   readState(): State {
     return this.absolutePathStateReader.readState(

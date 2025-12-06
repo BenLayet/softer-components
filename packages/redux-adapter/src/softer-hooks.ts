@@ -5,6 +5,9 @@ import {
 } from "@softer-components/types";
 import { useDispatch, useSelector, useStore } from "react-redux";
 import { SofterStore } from "./softer-store";
+import { useEffect } from "react";
+import { Effects } from "@softer-components/utils";
+import { stringToComponentPath } from "./softer-mappers";
 
 type EventsContractToUiDispatchers<
   TEventsContract extends ComponentEventsContract,
@@ -86,3 +89,14 @@ export const useSofter = <TComponentContract extends ComponentContract>(
   useSofterSingleChildrenPaths<TComponentContract["children"]>(pathStr),
   useSofterChildrenPaths<TComponentContract["children"]>(pathStr),
 ];
+
+export function useSofterEffects<TComponentContract extends ComponentContract>(
+  pathStr: string,
+  effects: Effects<TComponentContract>,
+) {
+  const store = useStore() as SofterStore;
+  const componentPath = stringToComponentPath(pathStr);
+  useEffect(() =>
+    store.softerEffectsManager.registerEffects(componentPath, effects),
+  );
+}

@@ -111,6 +111,9 @@ importers:
       '@softer-components/types':
         specifier: workspace:^
         version: link:../../types
+      '@softer-components/utils':
+        specifier: workspace:^
+        version: link:../../utils
       lodash-es:
         specifier: ^4.17.21
         version: 4.17.21

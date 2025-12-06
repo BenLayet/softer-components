@@ -17,30 +17,30 @@ export function isNotUndefined<T>(value: T | undefined | void): value is T {
 
 export function assertValueIsUndefined<T>(
   container: { [key: string]: T | undefined },
-  message?: string
+  message?: string,
 ): asserts container is { [key: string]: undefined } {
   if (isNotUndefined(Object.values(container)[0])) {
     throw new Error(
       message ||
-        `Value of ${Object.keys(container)[0]} is not undefined when it should be`
+        `Value of ${Object.keys(container)[0]} is not undefined when it should be`,
     );
   }
 }
 
 export function assertValueIsNotUndefined<T>(
   container: { [key: string]: T | undefined },
-  message?: string
+  message?: string,
 ): asserts container is { [key: string]: T } {
   if (isUndefined(Object.values(container)[0])) {
     throw new Error(
-      message || `Value of ${Object.keys(container)[0]} is not defined`
+      message || `- Value of ${Object.keys(container)[0]} is not defined`,
     );
   }
 }
 
 export function assertIsNotUndefined<T>(
   value: T | undefined,
-  message?: string
+  message?: string,
 ): asserts value is T {
   if (isUndefined(value)) {
     throw new Error(message || "Value is not defined");
@@ -49,7 +49,7 @@ export function assertIsNotUndefined<T>(
 
 export function assertIsString(
   value: unknown,
-  message?: string
+  message?: string,
 ): asserts value is string {
   if (typeof value !== "string") {
     throw new Error(message || `Expected string, got ${typeof value}`);
@@ -58,7 +58,7 @@ export function assertIsString(
 
 export function assertIsNumber(
   value: unknown,
-  message?: string
+  message?: string,
 ): asserts value is number {
   if (typeof value !== "number") {
     throw new Error(message || `Expected number, got ${typeof value}`);

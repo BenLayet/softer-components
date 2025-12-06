@@ -54,7 +54,7 @@ const itemDef: ComponentDef<ItemContract> = {
     {
       from: "decrementQuantityRequested",
       to: "removeRequested",
-      onCondition: ({ values: selectors }) => selectors.isEmpty(),
+      onCondition: ({ selectors }) => selectors.isEmpty(),
     },
   ],
 };
@@ -122,16 +122,17 @@ export const listDef: ComponentDef<ListContract> = {
     {
       from: "nextItemSubmitted",
       to: "addItemRequested",
-      withPayload: ({ values: selectors }) => selectors.nextItemName().trim(),
-      onCondition: ({ values: selectors }) =>
-        selectors.nextItemName().trim() !== "",
+      withPayload: ({ selectors }) => selectors.nextItemName().trim(),
+      onCondition: ({ selectors }) => selectors.nextItemName().trim() !== "",
     },
     {
       from: "addItemRequested",
       to: "createItemRequested",
       onCondition: ({ children: { items }, payload: itemName }) =>
-        Object.values(items).every((item) => item.values.name() !== itemName),
-      withPayload: ({ values: selectors, payload: itemName }) => ({
+        Object.values(items).every(
+          (item) => item.selectors.name() !== itemName,
+        ),
+      withPayload: ({ selectors, payload: itemName }) => ({
         itemName,
         itemId: selectors.nextItemId(),
       }),
@@ -140,10 +141,10 @@ export const listDef: ComponentDef<ListContract> = {
       from: "addItemRequested",
       to: "incrementItemQuantityRequested",
       onCondition: ({ children: { items }, payload: itemName }) =>
-        Object.values(items).some((item) => item.values.name() === itemName),
+        Object.values(items).some((item) => item.selectors.name() === itemName),
       withPayload: ({ children: { items }, payload: itemName }) =>
         Object.entries(items)
-          .filter(([, item]) => item.values.name() === itemName)
+          .filter(([, item]) => item.selectors.name() === itemName)
           .map(([key]) => parseInt(key))[0],
     },
     {
@@ -172,7 +173,7 @@ export const listDef: ComponentDef<ListContract> = {
         {
           from: "removeRequested",
           to: "removeItemRequested",
-          withPayload: ({ fromChildKey }) => parseInt(fromChildKey),
+          withPayload: ({ childKey }) => parseInt(childKey),
         },
       ],
     },

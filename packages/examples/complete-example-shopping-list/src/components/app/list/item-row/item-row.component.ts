@@ -1,24 +1,29 @@
 import {
   ComponentDef,
   ExtractComponentValuesContract,
+  Selectors,
 } from "@softer-components/types";
-import { Item } from "../../model/Item.ts";
+import { ListItem } from "../../../../model";
 // Initial state definition
-type ItemRowState = { item?: Item; quantity: number };
+type ItemRowState = ListItem;
 
 // Events type declaration
 type ItemRowEvents = {
-  initialize: { payload: Item };
+  initialize: { payload: ListItem };
   removeItemRequested: { payload: undefined };
   incrementRequested: { payload: undefined };
   decrementRequested: { payload: undefined };
+  itemChanged: { payload: undefined };
 };
 
 const selectors = {
-  name: (state: ItemRowState) => state.item?.name,
-  quantity: (state: ItemRowState) => state.quantity,
-  isQuantityZero: (state: ItemRowState) => state.quantity === 0,
-};
+  listItem: state => state,
+  item: state => state.item,
+  id: state => state.item.id,
+  name: state => state.item.name,
+  quantity: state => state.quantity,
+  isQuantityZero: state => state.quantity === 0,
+} satisfies Selectors<ItemRowState>;
 
 export type ItemRowContract = {
   state: ItemRowState;
@@ -32,10 +37,7 @@ export const itemRowDef: ComponentDef<ItemRowContract> = {
   selectors,
   uiEvents: ["removeItemRequested", "incrementRequested", "decrementRequested"],
   updaters: {
-    initialize: ({ payload: item }) => ({
-      item,
-      quantity: 1,
-    }),
+    initialize: ({ payload: listItem }) => listItem,
     incrementRequested: ({ state }) => {
       state.quantity += 1;
     },
@@ -49,7 +51,12 @@ export const itemRowDef: ComponentDef<ItemRowContract> = {
     {
       from: "decrementRequested",
       to: "removeItemRequested",
-      onCondition: ({ values }) => values.isQuantityZero(),
+      onCondition: ({ selectors }) => selectors.isQuantityZero(),
     },
+    {
+      from: "incrementRequested",
+      to: "itemChanged",
+    },
+    { from: "decrementRequested", to: "itemChanged" },
   ],
 };

@@ -1,0 +1,18 @@
+import { Effects } from "@softer-components/utils";
+import { ListSelectContract } from "./list-select.component.ts";
+import { listService } from "../../../service/list-service.ts";
+
+export const listSelectEffects: Effects<ListSelectContract> = {
+  createNewListRequested: async (
+    { createNewListSucceeded, createNewListFailed },
+    { payload: name },
+  ) => {
+    try {
+      const list = await listService.create(name);
+      createNewListSucceeded(list);
+    } catch (e: any) {
+      createNewListFailed(e.message);
+      console.error(e);
+    }
+  },
+};
