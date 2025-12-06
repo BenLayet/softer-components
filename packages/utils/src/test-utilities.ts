@@ -11,6 +11,9 @@ import {
   eventNameWithoutComponentPath,
   stringToComponentPath,
 } from "./component-path";
+import { EffectsManager } from "./effects-manager";
+import { Effects } from "./effects";
+import { generateEventsToForward } from "./event-forwarding";
 
 export const givenRootComponent = <
   TComponentContract extends ComponentContract,
@@ -18,17 +21,33 @@ export const givenRootComponent = <
   rootComponentDef: ComponentDef<TComponentContract>,
 ) => {
   const stateManager = new TreeStateManager();
+  const effectsManager = new EffectsManager(rootComponentDef, stateManager);
   const state = {};
   initializeRootState(state, rootComponentDef, stateManager);
-  const testContext = { rootComponentDef, stateManager, state };
+  const testStore = { rootComponentDef, stateManager, state, effectsManager };
   return {
-    whenEventOccurs: whenEventOccurs(testContext),
-    thenExpectComponentAtPath: thenExpectComponentAtPath(testContext),
+    withEffects: withEffects(testStore),
+    when: whenEventOccurs(testStore),
+    thenExpect: thenExpectComponentAtPath(testStore),
   };
 };
+const withEffects =
+  (testStore: any) => (effects: { [componentPath: string]: Effects }) => {
+    Object.entries(effects).forEach(([componentPathStr, componentEffects]) =>
+      testStore.effectsManager.registerEffects(
+        componentPathStr,
+        componentEffects,
+      ),
+    );
+    return {
+      withEffects: withEffects(testStore),
+      when: whenEventOccurs(testStore),
+      thenExpect: thenExpectComponentAtPath(testStore),
+    };
+  };
 
 const whenEventOccurs =
-  (testContext: any) =>
+  (testStore: any) =>
   (eventNameWithPath: string, payload: Payload = undefined) => {
     const globalEvent = {
       name: eventNameWithoutComponentPath(eventNameWithPath),
@@ -36,14 +55,20 @@ const whenEventOccurs =
       payload,
     };
     updateSofterRootState(
-      testContext.state,
-      testContext.rootComponentDef,
+      testStore.state,
+      testStore.rootComponentDef,
       globalEvent,
-      testContext.stateManager,
+      testStore.stateManager,
     );
+    generateEventsToForward(
+      testStore.state,
+      testStore.rootComponentDef,
+      globalEvent,
+      testStore.stateManager,
+    ).forEach((event) => whenEventOccurs(testStore)(event.name, event.payload));
     return {
-      andEventOccurs: whenEventOccurs(testContext),
-      thenExpectComponentAtPath: thenExpectComponentAtPath(testContext),
+      and: whenEventOccurs(testStore),
+      thenExpect: thenExpectComponentAtPath(testStore),
     };
   };
 
