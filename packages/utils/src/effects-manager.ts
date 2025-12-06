@@ -12,6 +12,7 @@ import {
 import { StateReader } from "./state-manager";
 import { findComponentDef } from "./component-def-tree";
 import { RelativePathStateReader } from "./relative-path-state-manager";
+import { componentPathToString } from "./component-path";
 
 export class EffectsManager {
   private readonly effectsMap: {
@@ -60,7 +61,7 @@ export class EffectsManager {
     softerRootState: SofterRootState,
     dispatchEvent: (event: GlobalEvent) => void,
   ): void {
-    const pathStr = JSON.stringify(event.componentPath);
+    const pathStr = componentPathToString(event.componentPath);
     const effects = this.effectsMap[pathStr]?.[event.name] as
       | Effect[]
       | undefined;

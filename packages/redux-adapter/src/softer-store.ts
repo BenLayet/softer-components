@@ -109,8 +109,6 @@ function createSofterReducer(
       if (!isSofterEvent(action)) {
         return state;
       }
-      console.log(JSON.parse(JSON.stringify(state)));
-      console.log(action.type, action);
       // updateSofterRootState updates the softerRootStateTree in place
       // the stateManager notifies the softerViewModel when a state tree is removed
       // so the memoized selectors can be cleaned up.

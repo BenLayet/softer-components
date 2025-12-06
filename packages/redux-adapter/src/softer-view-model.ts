@@ -2,18 +2,18 @@ import { createSelector } from "@reduxjs/toolkit";
 import { ComponentDef } from "@softer-components/types";
 import {
   ComponentPath,
+  componentPathToString,
   findComponentDef,
   findSubTree,
   isUndefined,
+  stringToComponentPath,
   TreeStateManager,
 } from "@softer-components/utils";
 import {
-  componentPathToString,
   eventToAction,
   getSofterRootTree,
   GlobalState,
   ReduxDispatch,
-  stringToComponentPath,
 } from "./softer-mappers";
 
 export type PathOfFirstInstanceOfEachChild = Record<string, string>;

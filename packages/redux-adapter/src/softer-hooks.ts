@@ -7,7 +7,6 @@ import { useDispatch, useSelector, useStore } from "react-redux";
 import { SofterStore } from "./softer-store";
 import { useEffect } from "react";
 import { Effects } from "@softer-components/utils";
-import { removeSofterPrefix } from "./softer-mappers";
 
 type EventsContractToUiDispatchers<
   TEventsContract extends ComponentEventsContract,
@@ -95,10 +94,5 @@ export function useSofterEffects<TComponentContract extends ComponentContract>(
   effects: Effects<TComponentContract>,
 ) {
   const store = useStore() as SofterStore;
-  useEffect(() =>
-    store.softerEffectsManager.registerEffects(
-      removeSofterPrefix(pathStr),
-      effects,
-    ),
-  );
+  useEffect(() => store.softerEffectsManager.registerEffects(pathStr, effects));
 }
