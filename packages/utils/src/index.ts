@@ -7,3 +7,6 @@ export * from "./state-manager";
 export * from "./utils.type";
 export * from "./tree-state-manager";
 export * from "./tree";
+export * from "./effects-manager";
+export * from "./effects";
+export * from "./component-path";

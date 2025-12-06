@@ -2,10 +2,7 @@ import { useSofter } from "@softer-components/redux-adapter";
 import { ItemRowContract } from "./item-row.component.ts";
 
 export const ItemRow = ({ path = "" }) => {
-  const [
-    { name, quantity },
-    { removeItemRequested, decrementRequested, incrementRequested },
-  ] = useSofter<ItemRowContract>(path);
+  const [v, d] = useSofter<ItemRowContract>(path);
   return (
     <div
       className="clickable horizontal"
@@ -20,25 +17,25 @@ export const ItemRow = ({ path = "" }) => {
         className="horizontal"
         style={{ flexGrow: 1, justifyContent: "flex-start" }}
       >
-        {name}
+        {v.name}
         <span style={{ marginLeft: "1em", fontSize: "0.7em" }}>
-          x{quantity}
+          x{v.quantity}
         </span>
       </div>
       <div className="horizontal">
         <button
           aria-label="Decrement value"
-          onClick={() => decrementRequested()}
+          onClick={() => d.decrementRequested()}
         >
           -
         </button>
         <button
           aria-label="Increment value"
-          onClick={() => incrementRequested()}
+          onClick={() => d.incrementRequested()}
         >
           +
         </button>
-        <button onClick={() => removeItemRequested()}>X</button>
+        <button onClick={() => d.removeItemRequested()}>X</button>
       </div>
     </div>
   );

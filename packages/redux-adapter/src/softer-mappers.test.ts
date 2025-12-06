@@ -1,12 +1,27 @@
 import { describe, expect, it } from "vitest";
-import { stringToComponentPath } from "./softer-mappers";
+import { actionToEvent, eventToAction } from "./softer-mappers";
 
-describe("stringToComponentPath", () => {
-  it("should parse a single component path", () => {
+describe("softer mapper tests", () => {
+  it("should convert redux action to softer event", () => {
     //WHEN
-    const result = stringToComponentPath("☁️/child/");
+    const result = actionToEvent({ type: "☁️/child:0/answered", payload: 42 });
 
     //THEN
-    expect(result).toEqual([["child", undefined]]);
+    expect(result).toEqual({
+      name: "answered",
+      payload: 42,
+      componentPath: [["child", "0"]],
+    });
+  });
+  it("should convert softer event to redux action", () => {
+    //WHEN
+    const result = eventToAction({
+      name: "answered",
+      payload: 42,
+      componentPath: [["child", "0"]],
+    });
+
+    //THEN
+    expect(result).toEqual({ type: "☁️/child:0/answered", payload: 42 });
   });
 });

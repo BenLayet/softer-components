@@ -110,7 +110,7 @@ type CounterContract = {
   };
 
   // Computed values (from selectors)
-  values: {
+ values: {
     doubled: number;
     isEven: boolean;
   };
@@ -245,7 +245,7 @@ export const counterDef: ComponentDef<CounterContract> = {
 ```typescript
 type ItemContract = {
   state: { name: string };
-  values: { displayName: string };
+ selectors: { displayName: string };
   events: {
     removed: { payload: undefined };
   };
@@ -287,7 +287,7 @@ export const listDef: ComponentDef<ListContract> = {
         {
           from: "removed", // Child event
           to: "itemRemoved", // Parent event
-          withPayload: ({ fromChildKey }) => fromChildKey,
+          withPayload: ({ childKey }) => childKey,
         },
       ],
     },

@@ -1,4 +1,5 @@
+export type ItemId = number;
 export type Item = {
+  id: ItemId;
   name: string;
-  id: number;
 };

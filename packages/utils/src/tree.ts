@@ -3,7 +3,11 @@
  * State Managers could use these utilities to read/write states at specific paths or create their own structures.
  */
 import { ChildrenKeys } from "@softer-components/types";
-import { assertIsNotUndefined, isNotUndefined } from "./predicate.functions";
+import {
+  assertIsNotUndefined,
+  isNotUndefined,
+  isUndefined,
+} from "./predicate.functions";
 import { ComponentPath } from "./utils.type";
 
 // tree constants
@@ -23,13 +27,14 @@ export type Tree<T> = {
 export const findSubTree = <T>(
   treeAtRootOfPath: Tree<T>,
   componentPath: ComponentPath,
-): Tree<T> => {
+): Tree<T> | undefined => {
   if (componentPath.length === 0) {
-    assertIsNotUndefined(treeAtRootOfPath);
     return treeAtRootOfPath;
   }
   const childrenBranches = treeAtRootOfPath[CHILDREN_BRANCHES_KEY];
-  assertIsNotUndefined(childrenBranches);
+  if (isUndefined(childrenBranches)) {
+    return undefined;
+  }
 
   const pathSegment = componentPath[0];
   assertIsNotUndefined(pathSegment);
@@ -39,7 +44,9 @@ export const findSubTree = <T>(
   assertIsNotUndefined(key);
 
   const subTree = childrenBranches[childName][key];
-  assertIsNotUndefined(subTree);
+  if (isUndefined(subTree)) {
+    return undefined;
+  }
 
   return findSubTree(subTree, componentPath.slice(1));
 };
@@ -53,6 +60,8 @@ export const removeSubTree = <T>(
   }
   const parentPath = componentPath.slice(0, -1);
   const parentSubTree = findSubTree(treeAtRootOfPath, parentPath);
+  assertIsNotUndefined(parentSubTree);
+
   const childrenBranches = parentSubTree[CHILDREN_BRANCHES_KEY];
   if (!childrenBranches) {
     return;
@@ -70,15 +79,19 @@ export const removeSubTree = <T>(
 export const getValueAtPath = <T>(
   treeAtRootOfPath: Tree<T>,
   path: ComponentPath,
-): T => {
-  return findSubTree(treeAtRootOfPath, path)[OWN_VALUE_KEY];
+): T | undefined => {
+  return findSubTree(treeAtRootOfPath, path)?.[OWN_VALUE_KEY];
 };
 
 export const updateValueAtPath = <T>(
   treeAtRootOfPath: Tree<T>,
   path: ComponentPath,
   value: T,
-) => (findSubTree(treeAtRootOfPath, path)[OWN_VALUE_KEY] = value);
+) => {
+  const subTree = findSubTree(treeAtRootOfPath, path);
+  assertIsNotUndefined(subTree);
+  subTree[OWN_VALUE_KEY] = value;
+};
 
 export const createValueAtPath = <T>(
   treeAtRootOfPath: Tree<T>,
@@ -112,9 +125,9 @@ export const createValueAtPath = <T>(
   childBranches[key] = { [OWN_VALUE_KEY]: value };
 };
 
-export const getChildrenKeys = (subTree: Tree<any>): ChildrenKeys =>
+export const getChildrenKeys = (subTree: Tree<any> | undefined): ChildrenKeys =>
   Object.fromEntries(
-    Object.entries(subTree[CHILDREN_BRANCHES_KEY] || {}).map(
+    Object.entries(subTree?.[CHILDREN_BRANCHES_KEY] || {}).map(
       ([childName, childBranch]) => {
         return [childName, Object.keys(childBranch)];
       },
@@ -127,6 +140,7 @@ export const initializeChildBranches = <T>(
   childName: string,
 ) => {
   const parentSubTree = findSubTree(treeAtRootOfPath, parentPath);
+  assertIsNotUndefined(parentSubTree);
   if (!parentSubTree[CHILDREN_BRANCHES_KEY]) {
     parentSubTree[CHILDREN_BRANCHES_KEY] = {};
   }

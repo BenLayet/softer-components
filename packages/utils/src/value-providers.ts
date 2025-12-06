@@ -1,5 +1,7 @@
 import {
+  ComponentContract,
   ComponentDef,
+  State,
   Values,
   Values as ValueProviders,
 } from "@softer-components/types";
@@ -9,19 +11,21 @@ import { RelativePathStateReader } from "./relative-path-state-manager";
 /**
  * Create Values provider for a component given its definition and state
  */
-export function createValueProviders(
-  componentDef: ComponentDef,
+export function createValueProviders<
+  TComponentContract extends ComponentContract = ComponentContract,
+>(
+  componentDef: ComponentDef<TComponentContract>,
   stateReader: RelativePathStateReader,
-): ValueProviders {
+): ValueProviders<TComponentContract> {
   // Create own values
-  const values = createOwnValueProviders(componentDef, stateReader);
+  const selectors = createOwnSelectors(componentDef, stateReader);
 
   // Create children's values
   const childrenKeys = stateReader.getChildrenKeys();
   const children = Object.fromEntries(
     Object.entries(childrenKeys).map(([childName, childKeys]) => {
       const childDef = componentDef.childrenComponents?.[childName];
-      assertValueIsNotUndefined({ childDef });
+      assertValueIsNotUndefined({ [childName]: childDef });
 
       const childInstancesValueProviders = Object.fromEntries(
         childKeys.map((key) => {
@@ -36,18 +40,20 @@ export function createValueProviders(
     }),
   );
 
-  return { values, children };
+  return { selectors, children } as ValueProviders<TComponentContract>;
 }
 
-function createOwnValueProviders(
-  componentDef: ComponentDef,
+function createOwnSelectors<
+  TComponentContract extends ComponentContract = ComponentContract,
+>(
+  componentDef: ComponentDef<TComponentContract>,
   stateReader: RelativePathStateReader,
-): Values["values"] {
+): Values<TComponentContract>["selectors"] {
   const selectorsDef = componentDef.selectors || {};
   return Object.fromEntries(
     Object.entries(selectorsDef).map(([selectorName, selector]) => [
       selectorName,
-      () => stateReader.selectValue(selector),
+      () => stateReader.selectValue(selector as (state: State) => unknown),
     ]),
-  );
+  ) as Values<TComponentContract>["selectors"];
 }

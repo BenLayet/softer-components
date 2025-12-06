@@ -43,12 +43,12 @@ function updateStateOfComponentOfEvent(
   const updater = componentDef.updaters?.[event.name];
   if (!updater) return;
 
-  const { values, children, childrenKeys, state, payload } =
+  const { selectors, children, childrenKeys, state, payload } =
     prepareUpdaterParams(componentDef, event, stateManager);
 
   const next = produce({ state, childrenKeys }, (draft: any) => {
     const returnedValue = updater({
-      values,
+      selectors,
       children,
       payload,
       childrenKeys: draft.childrenKeys,
@@ -80,13 +80,16 @@ function prepareUpdaterParams(
   event: GlobalEvent,
   stateManager: RelativePathStateManager,
 ) {
-  const { values, children } = createValueProviders(componentDef, stateManager);
+  const { selectors, children } = createValueProviders(
+    componentDef,
+    stateManager,
+  );
   const childrenKeys = stateManager.getChildrenKeys();
   const state = stateManager.readState();
   const payload = event.payload;
 
   return {
-    values,
+    selectors,
     children,
     payload,
     childrenKeys,

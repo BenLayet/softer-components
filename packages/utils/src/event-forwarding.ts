@@ -2,9 +2,9 @@ import { ComponentDef } from "@softer-components/types";
 import { GlobalEvent, SofterRootState } from "./utils.type";
 import { assertIsNotUndefined } from "./predicate.functions";
 import { findComponentDef } from "./component-def-tree";
-import { createValueProviders } from "./value-providers";
 import { RelativePathStateReader } from "./relative-path-state-manager";
 import { StateReader } from "./state-manager";
+import { eventConsumerContextProvider } from "./event-consumer-context";
 
 /**
  * Generate events to forward based on the triggering event
@@ -36,15 +36,11 @@ export function generateEventsToForward(
   );
 
   result.push(
-    ...generateEventsFromParentChildListeners(
-      rootComponentDef,
-      triggeringEvent,
-      stateReader,
-    ),
+    ...generateEventsToParent(rootComponentDef, triggeringEvent, stateReader),
   );
 
   result.push(
-    ...generateCommandsToChildren(componentDef, triggeringEvent, stateReader),
+    ...generateEventsToChildren(componentDef, triggeringEvent, stateReader),
   );
 
   return result;
@@ -63,7 +59,7 @@ function generateEventsFromOwnComponent(
     return [];
   }
 
-  const callBackParams = prepareCallBackParams(
+  const eventContext = eventConsumerContextProvider(
     componentDef,
     triggeringEvent,
     stateReader,
@@ -72,18 +68,18 @@ function generateEventsFromOwnComponent(
   return forwarders
     .filter(
       (forwarder) =>
-        !forwarder.onCondition || forwarder.onCondition(callBackParams),
+        !forwarder.onCondition || forwarder.onCondition(eventContext()),
     )
     .map((forwarder) => ({
       name: forwarder.to,
       componentPath: triggeringEvent.componentPath,
       payload: forwarder.withPayload
-        ? forwarder.withPayload(callBackParams)
+        ? forwarder.withPayload(eventContext())
         : triggeringEvent.payload,
     }));
 }
 
-function generateEventsFromParentChildListeners(
+function generateEventsToParent(
   rootComponentDef: ComponentDef,
   triggeringEvent: GlobalEvent,
   stateReader: RelativePathStateReader,
@@ -110,28 +106,27 @@ function generateEventsFromParentChildListeners(
   if (!childListeners || childListeners.length === 0) {
     return [];
   }
-
-  const callBackParams = prepareCallBackParams(
+  const eventContext = eventConsumerContextProvider(
     parentComponentDef,
     triggeringEvent,
-    stateReader,
+    stateReader.parentStateReader(),
   );
 
   return childListeners
     .filter(
       (listener) =>
-        !listener.onCondition || listener.onCondition(callBackParams),
+        !listener.onCondition || listener.onCondition(eventContext()),
     )
     .map((listener) => ({
       name: listener.to,
       componentPath: parentComponentPath,
       payload: listener.withPayload
-        ? listener.withPayload(callBackParams)
+        ? listener.withPayload(eventContext())
         : triggeringEvent.payload,
     }));
 }
 
-function generateCommandsToChildren(
+function generateEventsToChildren(
   componentDef: ComponentDef,
   triggeringEvent: GlobalEvent,
   stateReader: RelativePathStateReader,
@@ -148,7 +143,7 @@ function generateCommandsToChildren(
     return [];
   }
 
-  const callBackParams = prepareCallBackParams(
+  const eventContext = eventConsumerContextProvider(
     componentDef,
     triggeringEvent,
     stateReader,
@@ -157,36 +152,20 @@ function generateCommandsToChildren(
   return childrenCommands
     .filter(
       ({ command }) =>
-        !command.onCondition || command.onCondition(callBackParams),
+        !command.onCondition || command.onCondition(eventContext()),
     )
     .flatMap(({ childName, command }) =>
-      (command.toKeys ? command.toKeys(callBackParams) : [undefined]).map(
-        (key) => ({ childName, command, key }),
-      ),
+      (command.toKeys
+        ? command.toKeys(eventContext())
+        : // default to all children
+          stateReader.getChildrenKeys()[childName]
+      ).map((childKey) => ({ childName, command, childKey })),
     )
-    .map(({ childName, command, key }) => ({
+    .map(({ childName, command, childKey }) => ({
       name: command.to,
-      componentPath: [...triggeringEvent.componentPath, [childName, key]],
+      componentPath: [...triggeringEvent.componentPath, [childName, childKey]],
       payload: command.withPayload
-        ? command.withPayload(callBackParams)
+        ? command.withPayload({ ...eventContext(), childKey })
         : triggeringEvent.payload,
     }));
-}
-
-function prepareCallBackParams(
-  componentDef: ComponentDef,
-  event: GlobalEvent,
-  stateReader: RelativePathStateReader,
-) {
-  const { values, children } = createValueProviders(componentDef, stateReader);
-  const payload = event.payload;
-  const fromChildKey =
-    event.componentPath?.[event.componentPath?.length - 1]?.[1];
-
-  return {
-    values,
-    children,
-    payload,
-    fromChildKey,
-  };
 }

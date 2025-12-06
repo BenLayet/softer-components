@@ -4,6 +4,7 @@ import {
   ComponentPath,
   findComponentDef,
   findSubTree,
+  isUndefined,
   TreeStateManager,
 } from "@softer-components/utils";
 import {
@@ -47,17 +48,16 @@ export interface SofterViewModel {
 /**
  * Maintains a map of memoized component view models at each path in the global state tree.
  */
-export class MemoizedApplicationViewModel implements SofterViewModel {
+export class SofterApplicationViewModel implements SofterViewModel {
   private readonly componentViewModels: Record<string, ComponentViewModel> = {};
+  public readonly stateManager = new TreeStateManager();
 
-  constructor(
-    private readonly stateManager: TreeStateManager,
-    private readonly rootComponentDef: ComponentDef,
-  ) {
+  constructor(private readonly rootComponentDef: ComponentDef) {
     this.stateManager.setRemoveStateTreeListener(
       (path) => delete this.componentViewModels[componentPathToString(path)],
     );
   }
+
   valuesSelector(pathStr: string) {
     return this.componentViewModelAtPath(pathStr).valuesSelector;
   }
@@ -88,19 +88,24 @@ export class MemoizedApplicationViewModel implements SofterViewModel {
       findSubTree(getSofterRootTree(globalState), componentPath);
 
     const ownStateSelector = createSelector([stateTreeSelector], (subTree) =>
-      this.stateManager.readState(subTree, []),
+      isUndefined(subTree)
+        ? undefined
+        : this.stateManager.readState(subTree, []),
     );
 
     const childrenKeysSelector = createSelector(
       [stateTreeSelector],
-      (subTree) => this.stateManager.getChildrenKeys(subTree, []),
+      (subTree) =>
+        isUndefined(subTree)
+          ? undefined
+          : this.stateManager.getChildrenKeys(subTree, []),
     );
 
     const childrenPathsSelector = createSelector(
       [childrenKeysSelector],
       (childrenKeys) =>
         Object.fromEntries(
-          Object.entries(childrenKeys).map(([childName, childKeys]) => [
+          Object.entries(childrenKeys ?? {}).map(([childName, childKeys]) => [
             childName,
             childKeys.map((key) =>
               componentPathToString([...componentPath, [childName, key]]),

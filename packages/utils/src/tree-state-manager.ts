@@ -1,11 +1,11 @@
 import { ChildrenKeys, State } from "@softer-components/types";
 import { ComponentPath, StateManager } from "src/index";
 import {
-  initializeChildBranches,
   createValueAtPath,
   findSubTree,
   getChildrenKeys,
   getValueAtPath,
+  initializeChildBranches,
   removeSubTree,
   Tree,
   updateValueAtPath,

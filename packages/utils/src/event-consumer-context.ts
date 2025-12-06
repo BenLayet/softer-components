@@ -1,0 +1,63 @@
+import {
+  ComponentContract,
+  ComponentDef,
+  Event,
+  Payload,
+  Values as ValueProviders,
+} from "@softer-components/types";
+import { GlobalEvent } from "./utils.type";
+import { RelativePathStateReader } from "./relative-path-state-manager";
+import { createValueProviders } from "./value-providers";
+
+export type EventConsumerContext<
+  TPayload extends Payload = Payload,
+  TComponentContract extends ComponentContract = ComponentContract,
+> = ValueProviders<TComponentContract> & {
+  payload: TPayload;
+  childKey?: string;
+};
+
+export function eventConsumerContextProvider<
+  TPayload extends Payload,
+  TComponentContract extends ComponentContract = ComponentContract,
+>(
+  componentDef: ComponentDef<TComponentContract>,
+  event: GlobalEvent<Event<TPayload>>,
+  stateReader: RelativePathStateReader,
+): () => EventConsumerContext<TPayload, TComponentContract> {
+  let cachedContext:
+    | EventConsumerContext<TPayload, TComponentContract>
+    | undefined;
+  return () => {
+    if (cachedContext) return cachedContext;
+    cachedContext = createEventConsumerContext(
+      componentDef,
+      event,
+      stateReader,
+    );
+    return cachedContext;
+  };
+}
+
+function createEventConsumerContext<
+  TPayload extends Payload,
+  TComponentContract extends ComponentContract = ComponentContract,
+>(
+  componentDef: ComponentDef<TComponentContract>,
+  event: GlobalEvent<Event<TPayload>>,
+  stateReader: RelativePathStateReader,
+): EventConsumerContext<TPayload, TComponentContract> {
+  const { selectors, children } = createValueProviders(
+    componentDef,
+    stateReader,
+  );
+  const payload = event.payload;
+  const childKey = event.componentPath?.[event.componentPath?.length - 1]?.[1];
+
+  return {
+    selectors,
+    children,
+    payload,
+    childKey,
+  };
+}

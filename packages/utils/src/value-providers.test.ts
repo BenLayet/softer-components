@@ -18,7 +18,7 @@ describe("createValuesProvider", () => {
     const result = createValueProviders(root, mockStateReader);
 
     //THEN
-    expect(result.values.answer()).toEqual(42);
+    expect(result.selectors.answer()).toEqual(42);
     expect(result.children).toEqual({});
   });
   it("returns a child selector", () => {
@@ -44,8 +44,8 @@ describe("createValuesProvider", () => {
     const result = createValueProviders(rootDef, mockStateReader);
 
     //THEN
-    expect(result.children.child["0"].values.answer()).toEqual(42);
-    expect(result.values).toEqual({});
+    expect(result.children.child["0"].selectors.answer()).toEqual(42);
+    expect(result.selectors).toEqual({});
     expect(result.children.child["0"].children).toEqual({});
   });
 });
