@@ -6,13 +6,11 @@ import {
   Payload,
 } from "@softer-components/types";
 import { updateSofterRootState } from "./reducer";
-import { ComponentPath, GlobalEvent } from "./utils.type";
 import { findComponentDef } from "./component-def-tree";
 import {
   eventNameWithoutComponentPath,
   stringToComponentPath,
 } from "./component-path";
-import { findSubTree } from "./tree";
 
 export const givenRootComponent = <
   TComponentContract extends ComponentContract,
