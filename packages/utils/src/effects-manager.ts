@@ -23,25 +23,16 @@ export class EffectsManager {
     private readonly stateReader: StateReader,
   ) {}
 
-  registerEffects = (
-    componentPath: ComponentPath,
-    effects: Effects<any>,
-  ): Unregister => {
+  registerEffects = (pathStr: string, effects: Effects<any>): Unregister => {
     const unregisterFunctions = Object.entries(effects).map(
-      ([eventName, effect]) =>
-        this.registerEffect(componentPath, eventName, effect),
+      ([eventName, effect]) => this.registerEffect(pathStr, eventName, effect),
     );
     return () => unregisterFunctions.forEach((f) => f());
   };
   registerEffect<
     TComponentContract extends ComponentContract,
     TEventName extends ExtractEventNames<TComponentContract> & string,
-  >(
-    componentPath: ComponentPath,
-    eventName: TEventName,
-    effect: Effect,
-  ): Unregister {
-    const pathStr = JSON.stringify(componentPath);
+  >(pathStr: string, eventName: TEventName, effect: Effect): Unregister {
     if (isUndefined(this.effectsMap[pathStr])) {
       this.effectsMap[pathStr] = {};
     }

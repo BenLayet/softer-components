@@ -36,6 +36,9 @@ importers:
       '@eslint/js':
         specifier: ^9.23.0
         version: 9.36.0
+      '@softer-components/utils':
+        specifier: workspace:^
+        version: link:../../utils
       '@testing-library/dom':
         specifier: ^10.4.0
         version: 10.4.1

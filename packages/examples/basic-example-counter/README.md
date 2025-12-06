@@ -9,7 +9,6 @@ This example showcases the core principles of Softer Components:
 - **Pure component definition** - Business logic separated from UI framework
 - **Type safety** - Full TypeScript support with strict mode
 - **State-manager agnostic** - Component definition works with any state manager
-- **One slice per component** - Clean separation of concerns
 
 ## Architecture
 
@@ -35,8 +34,7 @@ The React component contains only presentation logic, retrieving typed event dis
 ### 🎯 **Pure Business Logic**
 
 - Component definition has zero dependencies on React or Redux
-- Testable without UI framework
-- Reusable across different state managers
+- Testable without any UI framework
 
 ### 🔒 **Type Safety**
 
@@ -46,33 +44,31 @@ The React component contains only presentation logic, retrieving typed event dis
 
 ### 🔄 **State-Manager Agnostic**
 
-- Same component definition works with Redux, Zustand, or any other state manager
-- Easy migration between state management solutions
+- Keep your business logic safe from evolutions of external libraries and frameworks
 - Framework-independent component testing
 
-### 🏗️ **Clean Architecture**
+### 🏗️ **Strict Architecture**
 
-- One Redux slice per UI component
 - Clear separation between business logic and presentation
 - Predictable component structure
 
 ## Running the Example
 
-Following the Softer Components development workflow:
-
 ```bash
-# Navigate to the example
-cd /home/ben/dev/repositories/softer-components/packages/examples/basic-example-counter
-
-# Install dependencies
+# install the dependencies
 pnpm install
+
+# Navigate to the redux-adapter 
+cd ./packages/redux-adapter
+
+# build the library
+pnpm build
+
+# Navigate to the example
+cd ../examples/basic-example-counter
 
 # Development server
 pnpm dev
-
-# Run tests - takes ~1.5 seconds
-pnpm test
-
 ```
 
 ## File Structure
