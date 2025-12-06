@@ -2,22 +2,16 @@
   "name": "@softer-components/types",
   "version": "0.1.0",
   "type": "module",
-  "main": "dist/index.js",
-  "types": "dist/index.d.ts",
   "license": "MIT",
-  "exports": {
-    ".": {
-      "types": "./dist/index.d.ts",
-      "import": "./dist/index.js"
-    }
-  },
+  "main": "lib/index.js",
+  "types": "lib/index.d.ts",
   "files": [
-    "dist"
+    "lib"
   ],
   "scripts": {
     "clean": "rm -rf dist & rm tsconfig.tsbuildinfo",
-    "build": "tsc -b",
-    "build:watch": "tsc -b --watch",
+    "build": "vite build",
+    "build:watch": "vite build --watch",
     "lint": "eslint src/",
     "format": "prettier --write ."
   },
@@ -27,6 +21,8 @@
     "eslint": "^9.19.0",
     "prettier": "^3.4.2",
     "typescript": "~5.8.2",
+    "vite": "^7.2.4",
+    "vite-plugin-dts": "^4.5.4",
     "vitest": "^3.2.4"
   },
   "publishConfig": {

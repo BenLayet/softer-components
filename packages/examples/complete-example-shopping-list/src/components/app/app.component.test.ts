@@ -1,6 +1,6 @@
 import { describe, it } from "vitest";
 import { appDef } from "./app.component";
-import { givenRootComponent } from "../../../../../utils/src/test-utilities";
+import { givenRootComponent } from "@softer-components/utils/test-utilities";
 
 describe("app.component", () => {
   it("initial list name is empty", () => {

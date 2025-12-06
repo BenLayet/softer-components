@@ -2,19 +2,13 @@
   "name": "@softer-components/redux-adapter",
   "type": "module",
   "version": "0.1.0",
-  "main": "dist/index.js",
-  "types": "dist/index.d.ts",
+  "main": "lib/index.js",
+  "types": "lib/index.d.ts",
   "license": "MIT",
-  "exports": {
-    ".": {
-      "types": "./dist/index.d.ts",
-      "import": "./dist/index.js"
-    }
-  },
   "scripts": {
     "clean": "rm -rf dist & rm tsconfig.tsbuildinfo",
-    "build": "tsc -b",
-    "build:watch": "tsc -b --watch",
+    "build": "vite build",
+    "build:watch": "vite build --watch",
     "test": "vitest",
     "test-for-debug": "vitest --testTimeout=100000 --bail=1",
     "format": "pnpx prettier --write ."
@@ -36,6 +30,8 @@
     "@vitejs/plugin-react": "^4.7.0",
     "jsdom": "^26.1.0",
     "prettier": "^3.6.2",
+    "vite": "^7.2.4",
+    "vite-plugin-dts": "^4.5.4",
     "vitest": "^3.2.4"
   },
   "publishConfig": {

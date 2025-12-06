@@ -1,6 +1,6 @@
 import {describe, it} from "vitest";
 import {counterComponentDef} from "./counter.component";
-import {givenRootComponent} from "../../../../../utils/src/test-utilities";
+import {givenRootComponent} from "@softer-components/utils/test-utilities";
 
 describe("counter.component", () => {
     it("initialState is { count: 0 }", () => {
