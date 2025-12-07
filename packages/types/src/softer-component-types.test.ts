@@ -71,7 +71,7 @@ const initialState = {
 type ListState = typeof initialState;
 type ListEvents = {
   nextItemNameChanged: { payload: string };
-  nextItemSubmitted: { payload: undefined };
+  newItemSubmitted: { payload: undefined };
   addItemRequested: { payload: string };
   resetItemNameRequested: { payload: undefined };
   incrementItemQuantityRequested: { payload: number };
@@ -120,7 +120,7 @@ export const listDef: ComponentDef<ListContract> = {
   },
   eventForwarders: [
     {
-      from: "nextItemSubmitted",
+      from: "newItemSubmitted",
       to: "addItemRequested",
       withPayload: ({ selectors }) => selectors.nextItemName().trim(),
       onCondition: ({ selectors }) => selectors.nextItemName().trim() !== "",

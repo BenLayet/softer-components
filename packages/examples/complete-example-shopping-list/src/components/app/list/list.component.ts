@@ -21,7 +21,7 @@ type ListEvents = {
   initialize: { payload: List };
   goBackClicked: { payload: undefined };
   nextItemNameChanged: { payload: string };
-  nextItemSubmitted: { payload: undefined };
+  newItemSubmitted: { payload: undefined };
   createItemOrIncrementQuantityRequested: { payload: string };
   resetNextItemNameRequested: { payload: undefined };
   incrementItemQuantityRequested: { payload: ItemId };
@@ -58,7 +58,7 @@ export type ListContract = {
 
 export const listDef: ComponentDef<ListContract> = {
   selectors: listSelectors,
-  uiEvents: ["nextItemNameChanged", "nextItemSubmitted", "goBackClicked"],
+  uiEvents: ["nextItemNameChanged", "newItemSubmitted", "goBackClicked"],
   updaters: {
     initialize: ({ payload: list, childrenKeys }) => {
       childrenKeys.itemRows = list.listItems.map(
@@ -105,7 +105,7 @@ export const listDef: ComponentDef<ListContract> = {
   },
   eventForwarders: [
     {
-      from: "nextItemSubmitted",
+      from: "newItemSubmitted",
       to: "createItemOrIncrementQuantityRequested",
       withPayload: ({ selectors }) => selectors.nextItemSanitizedName(),
       onCondition: ({ selectors }) => selectors.isNextItemNameValid(),
@@ -123,7 +123,7 @@ export const listDef: ComponentDef<ListContract> = {
           id:
             Object.keys(itemRows)
               .map(Number)
-              .reduce((maxId, id) => (id > maxId ? id : maxId), 0) + 1,
+              .reduce((maxId, id) => (id > maxId ? id : maxId), -1) + 1,
         },
         quantity: 1,
       }),

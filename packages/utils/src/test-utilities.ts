@@ -3,17 +3,23 @@ import { initializeRootState } from "./state-initializer";
 import {
   ComponentContract,
   ComponentDef,
+  OptionalValue,
   Payload,
+  State,
 } from "@softer-components/types";
 import { updateSofterRootState } from "./reducer";
 import { findComponentDef } from "./component-def-tree";
 import {
+  componentPathToString,
   eventNameWithoutComponentPath,
   stringToComponentPath,
 } from "./component-path";
 import { EffectsManager } from "./effects-manager";
 import { Effects } from "./effects";
 import { generateEventsToForward } from "./event-forwarding";
+import { ComponentPath, GlobalEvent } from "./utils.type";
+import { expect } from "vitest";
+import { isUndefined } from "./predicate.functions";
 
 export const givenRootComponent = <
   TComponentContract extends ComponentContract,
@@ -27,8 +33,8 @@ export const givenRootComponent = <
   const testStore = { rootComponentDef, stateManager, state, effectsManager };
   return {
     withEffects: withEffects(testStore),
-    when: whenEventOccurs(testStore),
-    thenExpect: thenExpectComponentAtPath(testStore),
+    when: whenEventSequenceOccurs(testStore),
+    thenExpect: thenExpect(testStore),
   };
 };
 const withEffects =
@@ -41,51 +47,104 @@ const withEffects =
     );
     return {
       withEffects: withEffects(testStore),
-      when: whenEventOccurs(testStore),
-      thenExpect: thenExpectComponentAtPath(testStore),
+      when: whenEventSequenceOccurs(testStore),
+      thenExpect: thenExpect(testStore),
     };
   };
 
-const whenEventOccurs =
-  (testStore: any) =>
-  (eventNameWithPath: string, payload: Payload = undefined) => {
-    const globalEvent = {
-      name: eventNameWithoutComponentPath(eventNameWithPath),
-      componentPath: stringToComponentPath(eventNameWithPath),
-      payload,
-    };
-    updateSofterRootState(
-      testStore.state,
-      testStore.rootComponentDef,
-      globalEvent,
-      testStore.stateManager,
-    );
-    generateEventsToForward(
-      testStore.state,
-      testStore.rootComponentDef,
-      globalEvent,
-      testStore.stateManager,
-    ).forEach((event) => whenEventOccurs(testStore)(event.name, event.payload));
+const whenEventSequenceOccurs =
+  (testStore: any) => (input: GlobalEvent[] | GlobalEvent) => {
+    // Normalize to an array
+    const globalEvents: GlobalEvent[] = Array.isArray(input) ? input : [input];
+
+    globalEvents.forEach(whenEventOccurs(testStore));
     return {
-      and: whenEventOccurs(testStore),
-      thenExpect: thenExpectComponentAtPath(testStore),
+      and: whenEventSequenceOccurs(testStore),
+      thenExpect: thenExpect(testStore),
+    };
+  };
+const whenEventOccurs = (testStore: any) => (globalEvent: GlobalEvent) => {
+  console.log(
+    globalEvent.name,
+    componentPathToString(globalEvent.componentPath),
+    JSON.stringify(globalEvent.payload),
+  );
+  //reducer
+  updateSofterRootState(
+    testStore.state,
+    testStore.rootComponentDef,
+    globalEvent,
+    testStore.stateManager,
+  );
+
+  //console.log(JSON.stringify(testStore.state, null, 2));
+
+  //event forwarding
+  const newEvents = generateEventsToForward(
+    testStore.state,
+    testStore.rootComponentDef,
+    globalEvent,
+    testStore.stateManager,
+  );
+  newEvents.forEach(whenEventOccurs(testStore));
+
+  //effects
+  testStore.effectsManager.eventOccurred(
+    globalEvent,
+    testStore.state,
+    whenEventOccurs(testStore),
+  );
+};
+
+const thenExpect =
+  (testContext: any): any =>
+  (componentPath: ComponentPath) => {
+    const componentDef = findComponentDef(
+      testContext.rootComponentDef,
+      componentPath,
+    );
+    const componentState = testContext.stateManager.readState(
+      testContext.state,
+      componentPath,
+    );
+    return {
+      ...Object.fromEntries(
+        Object.entries(componentDef.selectors).map(
+          ([selectorName, selector]) => [
+            selectorName,
+            expectWrapper(
+              componentState,
+              selector,
+              componentPath,
+              selectorName,
+            ),
+          ],
+        ),
+      ),
+      toBeUndefined: () => expect(componentState).toBe(undefined),
     };
   };
 
-const thenExpectComponentAtPath = (testContext: any) => (path: string) => {
-  const componentPath = stringToComponentPath(path);
-  const componentDef = findComponentDef(
-    testContext.rootComponentDef,
-    componentPath,
-  );
-  const componentState = testContext.stateManager.readState(
-    testContext.state,
-    componentPath,
-  );
-  return Object.fromEntries(
-    Object.entries(componentDef.selectors).map(([selectorName, selector]) => [
-      selectorName,
-      expect(selector(componentState)),
-    ]),
-  );
+const expectWrapper = (
+  componentState: State,
+  selector,
+  componentPath,
+  selectorName,
+) => {
+  if (isUndefined(componentState)) {
+    return expect(
+      undefined,
+      `state at ${componentPathToString(componentPath)} is undefined.`,
+    );
+  }
+  let value: OptionalValue;
+  try {
+    value = selector(componentState);
+    return expect(value);
+  } catch (e) {
+    return expect(
+      undefined,
+      `cannot read value of ${selectorName} at ${componentPathToString(componentPath)}. ${e.message}.`,
+    );
+  }
 };

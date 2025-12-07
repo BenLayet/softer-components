@@ -106,7 +106,7 @@ export type Event<
   TEventName extends string = string,
 > = {
   readonly name: TEventName;
-  readonly payload: TPayload;
+  readonly payload?: TPayload;
 };
 /**
  * Defines withPayload property for event forwarders

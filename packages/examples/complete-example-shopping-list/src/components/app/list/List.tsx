@@ -17,7 +17,7 @@ export const List = ({ path = "" }) => {
       <form
         onSubmit={e => {
           e.preventDefault();
-          d.nextItemSubmitted();
+          d.newItemSubmitted();
         }}
       >
         <input
