@@ -2,11 +2,11 @@ import {
   ComponentContract,
   ComponentEventsContract,
   ComponentValuesContract,
+  Effects,
 } from "@softer-components/types";
 import { useDispatch, useSelector, useStore } from "react-redux";
 import { SofterStore } from "./softer-store";
 import { useEffect } from "react";
-import { Effects } from "@softer-components/utils";
 
 type EventsContractToUiDispatchers<
   TEventsContract extends ComponentEventsContract,

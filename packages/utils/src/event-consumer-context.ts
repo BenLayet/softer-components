@@ -2,20 +2,12 @@ import {
   ComponentContract,
   ComponentDef,
   Event,
+  EventConsumerContext,
   Payload,
-  Values as ValueProviders,
 } from "@softer-components/types";
 import { GlobalEvent } from "./utils.type";
 import { RelativePathStateReader } from "./relative-path-state-manager";
 import { createValueProviders } from "./value-providers";
-
-export type EventConsumerContext<
-  TPayload extends Payload = Payload,
-  TComponentContract extends ComponentContract = ComponentContract,
-> = ValueProviders<TComponentContract> & {
-  payload: TPayload;
-  childKey?: string;
-};
 
 export function eventConsumerContextProvider<
   TPayload extends Payload,

@@ -1,4 +1,4 @@
-import { OptionalValue, State } from "@softer-components/types";
+import { Payload, State } from "@softer-components/types";
 import {
   assertIsNotUndefined,
   assertValueIsUndefined,
@@ -14,7 +14,7 @@ import {
 export type ReduxDispatch = (action: ReduxAction) => void;
 type ReduxAction = {
   type: string;
-  payload: OptionalValue;
+  payload: Payload;
 };
 
 export function isSofterEvent(action: ReduxAction): boolean {

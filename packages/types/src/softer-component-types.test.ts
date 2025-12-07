@@ -1,10 +1,10 @@
+import { ignore } from "./type-testing-utiliy-test";
 import {
-  ComponentDef,
   ExtractComponentChildrenContract,
   ExtractComponentValuesContract,
   Selectors,
-} from "./softer-component-types";
-import { ignore } from "./type-testing-utiliy-test";
+} from "./helpers";
+import { ComponentDef } from "./component-def";
 
 /////////////////////
 // ITEM
@@ -30,6 +30,7 @@ const selectors = {
 
 export type ItemContract = {
   values: ExtractComponentValuesContract<typeof selectors>;
+
   events: ItemEvents;
   children: {};
   state: ItemState;

@@ -3,7 +3,6 @@ import {
   ComponentDef,
   State,
   Values,
-  Values as ValueProviders,
 } from "@softer-components/types";
 import { assertValueIsNotUndefined } from "./predicate.functions";
 import { RelativePathStateReader } from "./relative-path-state-manager";
@@ -16,7 +15,7 @@ export function createValueProviders<
 >(
   componentDef: ComponentDef<TComponentContract>,
   stateReader: RelativePathStateReader,
-): ValueProviders<TComponentContract> {
+): Values<TComponentContract> {
   // Create own values
   const selectors = createOwnSelectors(componentDef, stateReader);
 
@@ -40,7 +39,7 @@ export function createValueProviders<
     }),
   );
 
-  return { selectors, children } as ValueProviders<TComponentContract>;
+  return { selectors, children } as Values<TComponentContract>;
 }
 
 function createOwnSelectors<

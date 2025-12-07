@@ -1,19 +1,20 @@
 import { ComponentPath, GlobalEvent, SofterRootState } from "./utils.type";
-import { Effect, Effects, Unregister } from "./effects";
 import { isUndefined } from "./predicate.functions";
 import { eventConsumerContextProvider } from "./event-consumer-context";
-import {
-  ComponentContract,
-  ComponentDef,
-  EventEffectDispatchers,
-  ExtractEventNames,
-  Payload,
-} from "@softer-components/types";
 import { StateReader } from "./state-manager";
 import { findComponentDef } from "./component-def-tree";
 import { RelativePathStateReader } from "./relative-path-state-manager";
 import { componentPathToString } from "./component-path";
+import {
+  ComponentContract,
+  ComponentDef,
+  Effect,
+  Effects,
+  EventEffectDispatchers,
+  Payload,
+} from "@softer-components/types";
 
+type Unregister = () => void;
 export class EffectsManager {
   private readonly effectsMap: {
     [pathStr: string]: { [eventName: string]: Effect[] };
@@ -32,7 +33,7 @@ export class EffectsManager {
   };
   registerEffect<
     TComponentContract extends ComponentContract,
-    TEventName extends ExtractEventNames<TComponentContract> & string,
+    TEventName extends keyof TComponentContract["events"] & string,
   >(pathStr: string, eventName: TEventName, effect: Effect): Unregister {
     if (isUndefined(this.effectsMap[pathStr])) {
       this.effectsMap[pathStr] = {};

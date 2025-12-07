@@ -3,8 +3,7 @@ import { initializeRootState } from "./state-initializer";
 import {
   ComponentContract,
   ComponentDef,
-  OptionalValue,
-  Payload,
+  Effects,
   State,
 } from "@softer-components/types";
 import { updateSofterRootState } from "./reducer";
@@ -15,7 +14,6 @@ import {
   stringToComponentPath,
 } from "./component-path";
 import { EffectsManager } from "./effects-manager";
-import { Effects } from "./effects";
 import { generateEventsToForward } from "./event-forwarding";
 import { ComponentPath, GlobalEvent } from "./utils.type";
 import { expect } from "vitest";
@@ -137,7 +135,7 @@ const expectWrapper = (
       `state at ${componentPathToString(componentPath)} is undefined.`,
     );
   }
-  let value: OptionalValue;
+  let value: any;
   try {
     value = selector(componentState);
     return expect(value);
