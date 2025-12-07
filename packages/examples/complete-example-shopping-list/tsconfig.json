@@ -23,7 +23,6 @@
     "noFallthroughCasesInSwitch": true,
     "noUncheckedSideEffectImports": true,
     "types": ["vitest/globals"],
-
     "paths": {
       "@softer-components/redux-adapter": ["../../redux-adapter/src"],
       "@softer-components/utils": ["../../utils/src"],

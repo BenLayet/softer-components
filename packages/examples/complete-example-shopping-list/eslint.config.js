@@ -11,6 +11,7 @@ const eslintConfig = config(
     name: "global-ignores",
     ignores: [
       "**/*.snap",
+      "**/lib/",
       "**/dist/",
       "**/.yalc/",
       "**/build/",
