@@ -15,7 +15,7 @@
     "dist"
   ],
   "scripts": {
-    "clean": "rm -rf dist & rm tsconfig.tsbuildinfo",
+    "clean": "rimraf dist node_modules *.tsbuildinfo",
     "build": "tsc -b",
     "build:watch": "tsc -b --watch",
     "lint": "eslint src/",

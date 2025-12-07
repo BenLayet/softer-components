@@ -4,7 +4,7 @@
   "version": "0.2.0",
   "type": "module",
   "scripts": {
-    "clean": "rm -rf dist",
+    "clean": "rimraf dist node_modules *.tsbuildinfo",
     "build": "tsc -b && vite build",
     "dev": "vite",
     "format:check": "prettier --check .",
