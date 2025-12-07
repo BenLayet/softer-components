@@ -1,4 +1,4 @@
-import { Effects } from "@softer-components/utils";
+import { Effects } from "@softer-components/types";
 import { listService } from "../../../service/list-service.ts";
 import { ListContract } from "./list.component.ts";
 import { List } from "../../../model";
