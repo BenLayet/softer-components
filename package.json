@@ -1,6 +1,6 @@
 {
   "name": "softer-components",
-  "version": "1.0.0",
+  "version": "0.2.0",
   "description": "A TypeScript component types library that is state-manager-agnostic and reusable",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
