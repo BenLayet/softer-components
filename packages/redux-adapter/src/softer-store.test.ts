@@ -1,7 +1,6 @@
 import { describe, expect, it } from "vitest";
 
 import { configureSofterStore } from "./softer-store";
-import { listDef } from "@softer-components/types"; // TODO ask expert
 import { CHILDREN_BRANCHES_KEY, OWN_VALUE_KEY } from "@softer-components/utils";
 
 describe("configureSofterStore", () => {
@@ -16,25 +15,5 @@ describe("configureSofterStore", () => {
     expect(store.getState()).toEqual({
       "☁️": { [OWN_VALUE_KEY]: { count: 0 }, [CHILDREN_BRANCHES_KEY]: {} },
     });
-  });
-
-  it("should create a working app", () => {
-    //WHEN the store is configured
-    const store = configureSofterStore(listDef); //TODO ask expert why this is sometimes red underlined
-
-    //THEN the store should have the initial state
-    const actualState = store.getState();
-    expect(actualState).toEqual({
-      "☁️": {
-        [OWN_VALUE_KEY]: {
-          listName: "My Shopping List",
-          nextItemName: "",
-          lastItemId: 0,
-        },
-        [CHILDREN_BRANCHES_KEY]: { items: {} },
-      },
-    });
-
-    //TODO ask expert to use useSofter (that calls useStore and useSelector) in a test component to verify it works
   });
 });

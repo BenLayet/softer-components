@@ -38,6 +38,7 @@ describe("event forwarding tests", () => {
         name: "incrementRequested",
         payload: undefined,
         componentPath: [],
+        source: "➡️",
       },
     ]);
   });
@@ -85,6 +86,7 @@ describe("event forwarding tests", () => {
         name: "incrementRequested",
         payload: undefined,
         componentPath: [],
+        source: "👂",
       },
     ]);
   });
@@ -133,6 +135,7 @@ describe("event forwarding tests", () => {
         name: "incrementRequested",
         payload: undefined,
         componentPath: [["child", "0"]],
+        source: "📢",
       },
     ]);
   });
@@ -145,6 +148,7 @@ describe("event forwarding tests", () => {
           name: "incrementRequested",
           payload: undefined,
           componentPath: [],
+          source: "➡️",
         },
       ],
     },
@@ -244,6 +248,7 @@ describe("event forwarding tests", () => {
         name: "incrementRequested",
         payload: 42,
         componentPath: [],
+        source: "➡️",
       },
     ]);
   });
@@ -290,11 +295,13 @@ describe("event forwarding tests", () => {
         name: "incrementRequested",
         payload: undefined,
         componentPath: [["child", "key1"]],
+        source: "📢",
       },
       {
         name: "incrementRequested",
         payload: undefined,
         componentPath: [["child", "key2"]],
+        source: "📢",
       },
     ]);
   });

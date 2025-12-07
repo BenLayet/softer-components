@@ -2,6 +2,7 @@ import { ComponentPath } from "./utils.type";
 
 const COMPONENT_SEPARATOR = "/";
 const KEY_SEPARATOR = ":";
+const SINGLE_CHILD_KEY = "0";
 export function componentPathToString(componentPath: ComponentPath): string {
   return (
     COMPONENT_SEPARATOR +
@@ -29,7 +30,7 @@ export function stringToComponentPath(pathString: string): ComponentPath {
   parts.pop(); // remove trailing empty part due to trailing separator
   return parts.map((part) => {
     const [componentName, instanceKey] = part.split(KEY_SEPARATOR);
-    return [componentName, instanceKey ?? undefined] as const;
+    return [componentName, instanceKey ?? SINGLE_CHILD_KEY] as const;
   });
 }
 export function eventNameWithoutComponentPath(globalEventName: string): string {

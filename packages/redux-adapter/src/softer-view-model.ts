@@ -141,7 +141,12 @@ export class SofterApplicationViewModel implements SofterViewModel {
             eventName,
             (payload: any) =>
               dispatch(
-                eventToAction({ componentPath, name: eventName, payload }),
+                eventToAction({
+                  componentPath,
+                  name: eventName,
+                  payload,
+                  source: "🖱️",
+                }),
               ),
           ];
         }),

@@ -1,6 +1,6 @@
 {
   "name": "@softer-components/types",
-  "version": "0.2.0",
+  "version": "0.2.1",
   "type": "module",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
@@ -15,7 +15,7 @@
     "dist"
   ],
   "scripts": {
-    "clean": "rm -rf dist & rm tsconfig.tsbuildinfo",
+    "clean": "rimraf dist node_modules *.tsbuildinfo",
     "build": "tsc -b",
     "build:watch": "tsc -b --watch",
     "lint": "eslint src/",

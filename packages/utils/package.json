@@ -1,7 +1,7 @@
 {
   "name": "@softer-components/utils",
   "type": "module",
-  "version": "0.2.0",
+  "version": "0.2.1",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
   "license": "MIT",
@@ -12,7 +12,7 @@
     }
   },
   "scripts": {
-    "clean": "rm -rf dist & rm tsconfig.tsbuildinfo",
+    "clean": "rimraf dist node_modules *.tsbuildinfo",
     "build": "tsc -b",
     "build:watch": "tsc -b --watch",
     "test": "vitest",

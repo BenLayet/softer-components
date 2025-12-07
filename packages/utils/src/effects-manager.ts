@@ -1,19 +1,20 @@
 import { ComponentPath, GlobalEvent, SofterRootState } from "./utils.type";
-import { Effect, Effects, Unregister } from "./effects";
 import { isUndefined } from "./predicate.functions";
 import { eventConsumerContextProvider } from "./event-consumer-context";
-import {
-  ComponentContract,
-  ComponentDef,
-  EventEffectDispatchers,
-  ExtractEventNames,
-  Payload,
-} from "@softer-components/types";
 import { StateReader } from "./state-manager";
 import { findComponentDef } from "./component-def-tree";
 import { RelativePathStateReader } from "./relative-path-state-manager";
 import { componentPathToString } from "./component-path";
+import {
+  ComponentContract,
+  ComponentDef,
+  Effect,
+  Effects,
+  EventEffectDispatchers,
+  Payload,
+} from "@softer-components/types";
 
+type Unregister = () => void;
 export class EffectsManager {
   private readonly effectsMap: {
     [pathStr: string]: { [eventName: string]: Effect[] };
@@ -21,18 +22,21 @@ export class EffectsManager {
 
   constructor(
     private readonly rootComponentDef: ComponentDef,
-    private readonly stateReader: StateReader,
+    private readonly stateReader: StateReader
   ) {}
 
-  registerEffects = (pathStr: string, effects: Effects<any>): Unregister => {
+  registerEffects = <TComponentContract extends ComponentContract>(
+    pathStr: string,
+    effects: Effects<TComponentContract>
+  ): Unregister => {
     const unregisterFunctions = Object.entries(effects).map(
-      ([eventName, effect]) => this.registerEffect(pathStr, eventName, effect),
+      ([eventName, effect]) => this.registerEffect(pathStr, eventName, effect)
     );
     return () => unregisterFunctions.forEach((f) => f());
   };
   registerEffect<
     TComponentContract extends ComponentContract,
-    TEventName extends ExtractEventNames<TComponentContract> & string,
+    TEventName extends keyof TComponentContract["events"] & string,
   >(pathStr: string, eventName: TEventName, effect: Effect): Unregister {
     if (isUndefined(this.effectsMap[pathStr])) {
       this.effectsMap[pathStr] = {};
@@ -59,7 +63,7 @@ export class EffectsManager {
   eventOccurred(
     event: GlobalEvent,
     softerRootState: SofterRootState,
-    dispatchEvent: (event: GlobalEvent) => void,
+    dispatchEvent: (event: GlobalEvent) => void
   ): void {
     const pathStr = componentPathToString(event.componentPath);
     const effects = this.effectsMap[pathStr]?.[event.name] as
@@ -70,24 +74,24 @@ export class EffectsManager {
     }
     const componentDefOfEvent = findComponentDef(
       this.rootComponentDef,
-      event.componentPath,
+      event.componentPath
     );
 
     const relativePathStateManager = new RelativePathStateReader(
       softerRootState,
       this.stateReader,
-      event.componentPath,
+      event.componentPath
     );
     const eventContext = eventConsumerContextProvider(
       componentDefOfEvent,
       event,
-      relativePathStateManager,
+      relativePathStateManager
     );
     const dispatchers = createEventEffectDispatchers(
       event.name,
       componentDefOfEvent,
       event.componentPath,
-      dispatchEvent,
+      dispatchEvent
     );
     effects.forEach((effect) => effect(dispatchers, eventContext()));
   }
@@ -97,7 +101,7 @@ const createEventEffectDispatchers = (
   triggeringEventName: string,
   componentDef: ComponentDef,
   componentPath: ComponentPath,
-  dispatchEvent: (event: GlobalEvent) => void,
+  dispatchEvent: (event: GlobalEvent) => void
 ): EventEffectDispatchers =>
   Object.fromEntries(
     (componentDef["effects"]?.[triggeringEventName] ?? []).map(
@@ -108,7 +112,8 @@ const createEventEffectDispatchers = (
             componentPath,
             name: dispatchableEventName,
             payload,
+            source: "📡",
           }),
-      ],
-    ),
+      ]
+    )
   ) as EventEffectDispatchers;

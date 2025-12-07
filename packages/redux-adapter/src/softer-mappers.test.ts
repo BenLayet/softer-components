@@ -4,7 +4,10 @@ import { actionToEvent, eventToAction } from "./softer-mappers";
 describe("softer mapper tests", () => {
   it("should convert redux action to softer event", () => {
     //WHEN
-    const result = actionToEvent({ type: "☁️/child:0/answered", payload: 42 });
+    const result = actionToEvent({
+      type: "☁️🖱️/child:0/answered",
+      payload: 42,
+    });
 
     //THEN
     expect(result).toEqual({
@@ -19,9 +22,10 @@ describe("softer mapper tests", () => {
       name: "answered",
       payload: 42,
       componentPath: [["child", "0"]],
+      source: "🖱️",
     });
 
     //THEN
-    expect(result).toEqual({ type: "☁️/child:0/answered", payload: 42 });
+    expect(result).toEqual({ type: "☁️🖱️/child:0/answered", payload: 42 });
   });
 });

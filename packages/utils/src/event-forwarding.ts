@@ -1,10 +1,10 @@
-import { ComponentDef } from "@softer-components/types";
 import { GlobalEvent, SofterRootState } from "./utils.type";
 import { assertIsNotUndefined } from "./predicate.functions";
 import { findComponentDef } from "./component-def-tree";
 import { RelativePathStateReader } from "./relative-path-state-manager";
 import { StateReader } from "./state-manager";
 import { eventConsumerContextProvider } from "./event-consumer-context";
+import { ComponentDef } from "@softer-components/types";
 
 /**
  * Generate events to forward based on the triggering event
@@ -76,6 +76,7 @@ function generateEventsFromOwnComponent(
       payload: forwarder.withPayload
         ? forwarder.withPayload(eventContext())
         : triggeringEvent.payload,
+      source: "➡️",
     }));
 }
 
@@ -123,6 +124,7 @@ function generateEventsToParent(
       payload: listener.withPayload
         ? listener.withPayload(eventContext())
         : triggeringEvent.payload,
+      source: "👂",
     }));
 }
 
@@ -167,5 +169,6 @@ function generateEventsToChildren(
       payload: command.withPayload
         ? command.withPayload({ ...eventContext(), childKey })
         : triggeringEvent.payload,
+      source: "📢",
     }));
 }

@@ -10,10 +10,13 @@ export const SavedLists = ({ path = "" }) => {
     d.displayed();
   }, []);
   return (
-    <div>
-      <ul>
+    <div style={{ maxWidth: "300px" }}>
+      <ul style={{ width: "100%" }}>
         {v.savedLists.map(list => (
-          <li key={list.id}>
+          <li
+            key={list.id}
+            style={{ display: "flex", justifyContent: "space-between" }}
+          >
             <a href="#" onClick={() => d.listClicked(list)}>
               {list.name}
             </a>{" "}

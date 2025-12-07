@@ -11,14 +11,17 @@ describe("findComponentDef", () => {
   it("returns a child component", () => {
     const child = {};
     const root = { childrenComponents: { child } };
-    const result = findComponentDef(root, [["child"]]);
+    const result = findComponentDef(root, [["child", "0"]]);
     expect(result).toEqual(child);
   });
   it("returns a grand child component", () => {
     const grandChild = {};
     const child = { childrenComponents: { grandChild } };
     const root = { childrenComponents: { child } };
-    const result = findComponentDef(root, [["child"], ["grandChild"]]);
+    const result = findComponentDef(root, [
+      ["child", "0"],
+      ["grandChild", "0"],
+    ]);
     expect(result).toEqual(grandChild);
   });
 });

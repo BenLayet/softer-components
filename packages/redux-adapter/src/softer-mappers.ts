@@ -1,4 +1,4 @@
-import { OptionalValue, State } from "@softer-components/types";
+import { Payload, State } from "@softer-components/types";
 import {
   assertIsNotUndefined,
   assertValueIsUndefined,
@@ -14,7 +14,7 @@ import {
 export type ReduxDispatch = (action: ReduxAction) => void;
 type ReduxAction = {
   type: string;
-  payload: OptionalValue;
+  payload: Payload;
 };
 
 export function isSofterEvent(action: ReduxAction): boolean {
@@ -22,7 +22,7 @@ export function isSofterEvent(action: ReduxAction): boolean {
 }
 
 export function removeSofterPrefix(actionType: string) {
-  return actionType.slice(REDUX_SOFTER_PREFIX.length);
+  return actionType.slice(REDUX_SOFTER_PREFIX.length + 1);
 }
 
 export function actionToEvent(action: ReduxAction): GlobalEvent {
@@ -41,6 +41,7 @@ export function actionToEvent(action: ReduxAction): GlobalEvent {
 export function eventToAction(event: GlobalEvent): ReduxAction {
   const type =
     REDUX_SOFTER_PREFIX +
+    (event.source ?? "?") +
     componentPathToString(event.componentPath) +
     event.name;
   return {
