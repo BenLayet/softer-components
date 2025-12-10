@@ -14,7 +14,9 @@ export type Values<
   /** Child component values - access nested component values here */
   children: ChildrenValues<TComponentContract>;
 };
-export type ChildrenValues<TComponentContract extends ComponentContract> = {
+export type ChildrenValues<
+  TComponentContract extends ComponentContract = ComponentContract,
+> = {
   [ChildName in keyof TComponentContract["children"]]: {
     [ChildKey: string]: Values<TComponentContract["children"][ChildName]>;
   };

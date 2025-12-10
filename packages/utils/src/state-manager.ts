@@ -1,4 +1,4 @@
-import { ChildrenKeys, State } from "@softer-components/types";
+import { ChildrenKeys, ChildrenValues, State } from "@softer-components/types";
 import { ComponentPath, SofterRootState } from "./utils.type";
 
 /**
@@ -17,7 +17,7 @@ export interface StateReader {
    */
   getChildrenKeys(
     softerRootState: SofterRootState,
-    path: ComponentPath,
+    path: ComponentPath
   ): ChildrenKeys;
 
   /**
@@ -27,6 +27,7 @@ export interface StateReader {
     softerRootState: SofterRootState,
     path: ComponentPath,
     selector: (state: State) => T,
+    children: ChildrenValues
   ): T;
 }
 
@@ -42,7 +43,7 @@ export interface StateWriter {
   updateState(
     softerRootState: SofterRootState,
     path: ComponentPath,
-    state: State,
+    state: State
   ): void;
 
   /**
@@ -51,7 +52,7 @@ export interface StateWriter {
   createState(
     softerRootState: SofterRootState,
     path: ComponentPath,
-    state: State,
+    state: State
   ): void;
 
   /**
@@ -60,7 +61,7 @@ export interface StateWriter {
   initializeChildBranches(
     softerRootState: SofterRootState,
     parentPath: ComponentPath,
-    childName: string,
+    childName: string
   ): void;
 
   /**

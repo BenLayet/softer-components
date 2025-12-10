@@ -1,4 +1,4 @@
-import { ChildrenKeys, State } from "@softer-components/types";
+import { ChildrenKeys, ChildrenValues, State } from "@softer-components/types";
 import { ComponentPath, SofterRootState } from "./utils.type";
 import { StateManager, StateReader } from "./state-manager";
 
@@ -12,17 +12,17 @@ export class RelativePathStateReader {
   constructor(
     protected readonly softerRootState: SofterRootState,
     private readonly absolutePathStateReader: StateReader,
-    protected readonly currentPath: ComponentPath = [],
+    protected readonly currentPath: ComponentPath = []
   ) {}
 
   childStateReader(
     childName: string,
-    childKey?: string,
+    childKey?: string
   ): RelativePathStateReader {
     return new RelativePathStateReader(
       this.softerRootState,
       this.absolutePathStateReader,
-      [...this.currentPath, [childName, childKey]],
+      [...this.currentPath, [childName, childKey]]
     );
   }
   parentStateReader(): RelativePathStateReader {
@@ -32,28 +32,29 @@ export class RelativePathStateReader {
     return new RelativePathStateReader(
       this.softerRootState,
       this.absolutePathStateReader,
-      this.currentPath.slice(0, -1),
+      this.currentPath.slice(0, -1)
     );
   }
 
   readState(): State {
     return this.absolutePathStateReader.readState(
       this.softerRootState,
-      this.currentPath,
+      this.currentPath
     );
   }
   getChildrenKeys(): ChildrenKeys {
     return this.absolutePathStateReader.getChildrenKeys(
       this.softerRootState,
-      this.currentPath,
+      this.currentPath
     );
   }
 
-  selectValue<T>(selector: (state: State) => T): T {
+  selectValue<T>(selector: (state: State) => T, children: ChildrenValues): T {
     return this.absolutePathStateReader.selectValue(
       this.softerRootState,
       this.currentPath,
       selector,
+      children
     );
   }
 }
@@ -68,19 +69,19 @@ export class RelativePathStateManager extends RelativePathStateReader {
   constructor(
     softerRootState: SofterRootState,
     private readonly absolutePathStateManager: StateManager,
-    currentPath: ComponentPath = [],
+    currentPath: ComponentPath = []
   ) {
     super(softerRootState, absolutePathStateManager, currentPath);
   }
 
   childStateManager(
     childName: string,
-    childKey?: string,
+    childKey?: string
   ): RelativePathStateManager {
     return new RelativePathStateManager(
       this.softerRootState,
       this.absolutePathStateManager,
-      [...this.currentPath, [childName, childKey]],
+      [...this.currentPath, [childName, childKey]]
     );
   }
 
@@ -88,7 +89,7 @@ export class RelativePathStateManager extends RelativePathStateReader {
     this.absolutePathStateManager.createState(
       this.softerRootState,
       this.currentPath,
-      state,
+      state
     );
   }
 
@@ -96,7 +97,7 @@ export class RelativePathStateManager extends RelativePathStateReader {
     this.absolutePathStateManager.updateState(
       this.softerRootState,
       this.currentPath,
-      state,
+      state
     );
   }
 
@@ -104,14 +105,14 @@ export class RelativePathStateManager extends RelativePathStateReader {
     this.absolutePathStateManager.initializeChildBranches(
       this.softerRootState,
       this.currentPath,
-      childName,
+      childName
     );
   }
 
   removeStateTree(): void {
     this.absolutePathStateManager.removeStateTree(
       this.softerRootState,
-      this.currentPath,
+      this.currentPath
     );
   }
 }

@@ -5,7 +5,7 @@ import { RelativePathStateReader } from "./relative-path-state-manager";
 describe("createValuesProvider", () => {
   it("returns root selectors", () => {
     //GIVEN
-    const root = {
+    const rootDef = {
       selectors: {
         answer: (state: { answer: number }) => state.answer,
       },
@@ -15,7 +15,7 @@ describe("createValuesProvider", () => {
     mockStateReader.selectValue = vi.fn().mockReturnValue(42);
 
     //WHEN
-    const result = createValueProviders(root, mockStateReader);
+    const result = createValueProviders(rootDef, mockStateReader);
 
     //THEN
     expect(result.selectors.answer()).toEqual(42);

@@ -1,7 +1,7 @@
 import {
+  ChildrenValues,
   ComponentContract,
   ComponentDef,
-  State,
   Values,
 } from "@softer-components/types";
 import { assertValueIsNotUndefined } from "./predicate.functions";
@@ -14,30 +14,13 @@ export function createValueProviders<
   TComponentContract extends ComponentContract = ComponentContract,
 >(
   componentDef: ComponentDef<TComponentContract>,
-  stateReader: RelativePathStateReader,
+  stateReader: RelativePathStateReader
 ): Values<TComponentContract> {
-  // Create own values
-  const selectors = createOwnSelectors(componentDef, stateReader);
-
   // Create children's values
-  const childrenKeys = stateReader.getChildrenKeys();
-  const children = Object.fromEntries(
-    Object.entries(childrenKeys).map(([childName, childKeys]) => {
-      const childDef = componentDef.childrenComponents?.[childName];
-      assertValueIsNotUndefined({ [childName]: childDef });
+  const children = createChildrenValues(componentDef, stateReader);
 
-      const childInstancesValueProviders = Object.fromEntries(
-        childKeys.map((key) => {
-          const childValueProviders = createValueProviders(
-            childDef,
-            stateReader.childStateReader(childName, key),
-          );
-          return [key, childValueProviders];
-        }),
-      );
-      return [childName, childInstancesValueProviders];
-    }),
-  );
+  // Create own values
+  const selectors = createOwnSelectors(componentDef, stateReader, children);
 
   return { selectors, children } as Values<TComponentContract>;
 }
@@ -47,12 +30,39 @@ function createOwnSelectors<
 >(
   componentDef: ComponentDef<TComponentContract>,
   stateReader: RelativePathStateReader,
+  children: Values<TComponentContract>["children"]
 ): Values<TComponentContract>["selectors"] {
   const selectorsDef = componentDef.selectors || {};
   return Object.fromEntries(
     Object.entries(selectorsDef).map(([selectorName, selector]) => [
       selectorName,
-      () => stateReader.selectValue(selector as (state: State) => unknown),
-    ]),
+      () => stateReader.selectValue(selector as any, children),
+    ])
   ) as Values<TComponentContract>["selectors"];
+}
+
+export function createChildrenValues<
+  TComponentContract extends ComponentContract = ComponentContract,
+>(
+  componentDef: ComponentDef<TComponentContract>,
+  stateReader: RelativePathStateReader
+): ChildrenValues<TComponentContract> {
+  const childrenKeys = stateReader.getChildrenKeys();
+  return Object.fromEntries(
+    Object.entries(childrenKeys).map(([childName, childKeys]) => {
+      const childDef = componentDef.childrenComponents?.[childName];
+      assertValueIsNotUndefined({ [childName]: childDef });
+
+      const childInstancesValueProviders = Object.fromEntries(
+        childKeys.map((key) => {
+          const childValueProviders = createValueProviders(
+            childDef,
+            stateReader.childStateReader(childName, key)
+          );
+          return [key, childValueProviders];
+        })
+      );
+      return [childName, childInstancesValueProviders];
+    })
+  ) as ChildrenValues<TComponentContract>;
 }

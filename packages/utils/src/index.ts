@@ -6,6 +6,8 @@ export * from "./predicate.functions";
 export * from "./state-manager";
 export * from "./utils.type";
 export * from "./tree-state-manager";
+export * from "./relative-path-state-manager";
 export * from "./tree";
 export * from "./effects-manager";
 export * from "./component-path";
+export * from "./value-providers";
