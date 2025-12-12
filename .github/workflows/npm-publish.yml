@@ -2,12 +2,12 @@ name: Publish Package
 
 on:
   push:
-    tags:
-      - "v*"
+    branches:
+      - main # ✅ Trigger on push to main, not tags
 
 permissions:
+  contents: write # ✅ Need write to create tags
   id-token: write # Required for OIDC
-  contents: read
 
 jobs:
   publish:
