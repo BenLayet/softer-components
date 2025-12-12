@@ -1,0 +1,10 @@
+{
+  "files": [],
+  "references": [
+    { "path": "./packages/examples/basic-example-counter" },
+    { "path": "./packages/examples/complete-example-shopping-list" },
+    { "path": "./packages/redux-adapter" },
+    { "path": "./packages/types" },
+    { "path": "./packages/utils" }
+  ]
+}
