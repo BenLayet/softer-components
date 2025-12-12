@@ -38,7 +38,4 @@ jobs:
         run: pnpm -r test:ci
 
       - name: Publish
-        uses: changesets/action@v1
-        with:
-          publish: pnpm changeset publish
-          version: pnpm changeset version
+        run: pnpm -r publish --access public --no-git-checks
