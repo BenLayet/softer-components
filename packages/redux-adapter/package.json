@@ -2,9 +2,14 @@
   "name": "@softer-components/redux-adapter",
   "type": "module",
   "version": "0.3.0",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/BenLayet/softer-components.git",
+    "directory": "packages/redux-adapter"
+  },
   "main": "lib/index.js",
   "types": "lib/index.d.ts",
-  "license": "MIT",
   "scripts": {
     "clean": "rimraf lib",
     "build": "vite build",
