@@ -23,7 +23,7 @@
     "format": "pnpx prettier --write ."
   },
   "dependencies": {
-    "@softer-components/types": "workspace:*",
+    "@softer-components/types": "^0.3.0",
     "immer": "^10.2.0",
     "lodash": "^4.17.21"
   },
