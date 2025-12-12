@@ -25,11 +25,8 @@ jobs:
         with:
           version: 8
 
-      - name: List files
-        run: ls -la
-
       - name: Install dependencies
-        run: pnpm install
+        run: pnpm install --frozen-lockfile
 
       - name: Build packages
         run: pnpm -r build
@@ -37,14 +34,8 @@ jobs:
       - name: Run tests
         run: pnpm -r test:ci
 
-      - name: Update npm
-        run: npm install -g npm@latest
-
-      - name: Publish types
-        run: npm publish ./packages/types/
-
-      - name: Publish utils
-        run: npm publish ./packages/utils/
-
-      - name: Publish redux-adapter
-        run: npm publish ./packages/redux-adapter/
+      - name: Publish
+        uses: changesets/action@v1
+        with:
+          publish: pnpm changeset publish
+          version: pnpm changeset version
