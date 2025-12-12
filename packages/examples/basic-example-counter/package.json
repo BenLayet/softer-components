@@ -11,7 +11,8 @@
     "lint": "eslint .",
     "preview": "vite preview",
     "start": "vite",
-    "test": "vitest --run",
+    "test": "vitest",
+    "test:ci": "vitest run",
     "type-check": "tsc -b --noEmit",
     "type-check:watch": "tsc -b --noEmit --watch"
   },

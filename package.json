@@ -4,8 +4,9 @@
   "private": true,
   "description": "A TypeScript component types library that is state-manager-agnostic and reusable",
   "scripts": {
-    "ci": "pnpm -r clean && pnpm -r test && pnpm -r build",
-    "publish": "pnpm -r publish"
+    "clean": "pnpm -r clean",
+    "test:ci": "pnpm -r test:ci",
+    "build": "pnpm -r build"
   },
   "author": "BenLayet",
   "license": "MIT",
