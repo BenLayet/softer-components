@@ -1,5 +1,13 @@
 # @softer-components/utils
 
+## 0.3.1
+
+### Patch Changes
+
+- fixes selectors that use children values
+- Updated dependencies
+  - @softer-components/types@0.3.1
+
 ## 0.3.0
 
 ### Minor Changes
