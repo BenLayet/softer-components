@@ -41,5 +41,5 @@ jobs:
         run: npm install -g npm@latest
 
       - name: Publish types
-        run: pnpm -r publish
+        run: pnpm -r publish --no-git-checks
 
