@@ -25,8 +25,11 @@ jobs:
         with:
           version: 8
 
+      - name: List files
+        run: ls -la
+
       - name: Install dependencies
-        run: pnpm install --frozen-lockfile
+        run: pnpm install
 
       - name: Build packages
         run: pnpm -r build
@@ -34,8 +37,9 @@ jobs:
       - name: Run tests
         run: pnpm -r test:ci
 
-      - name: Publish
-        uses: changesets/action@v1
-        with:
-          publish: pnpm changeset publish
-          version: pnpm changeset version
+      - name: Update npm
+        run: npm install -g npm@latest
+
+      - name: Publish types
+        run: pnpm -r publish
+
