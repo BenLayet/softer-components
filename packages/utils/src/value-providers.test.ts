@@ -1,11 +1,12 @@
 import { describe, it, expect, vi } from "vitest";
 import { createValueProviders } from "./value-providers";
 import { RelativePathStateReader } from "./relative-path-state-manager";
+import { ComponentDef } from "@softer-components/types";
 
 describe("createValuesProvider", () => {
   it("returns root selectors", () => {
     //GIVEN
-    const rootDef = {
+    const rootDef: ComponentDef = {
       selectors: {
         answer: (state: { answer: number }) => state.answer,
       },
@@ -23,12 +24,12 @@ describe("createValuesProvider", () => {
   });
   it("returns a child selector", () => {
     //GIVEN
-    const childDef = {
+    const childDef: ComponentDef = {
       selectors: {
         answer: (state: { answer: number }) => state.answer,
       },
     };
-    const rootDef = {
+    const rootDef: ComponentDef = {
       childrenComponents: { child: childDef },
     };
     const mockStateReader = {} as RelativePathStateReader;

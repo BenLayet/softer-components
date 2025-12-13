@@ -9,6 +9,7 @@ import {
   isUndefined,
 } from "./predicate.functions";
 import { ComponentPath } from "./utils.type";
+import { componentPathToString } from "./component-path";
 
 // tree constants
 export const CHILDREN_BRANCHES_KEY = "🪾";
@@ -31,6 +32,10 @@ export const findSubTree = <T>(
   if (componentPath.length === 0) {
     return treeAtRootOfPath;
   }
+  assertIsNotUndefined(
+    treeAtRootOfPath,
+    `state sub tree at ${componentPathToString(componentPath)} should not be undefined`,
+  );
   const childrenBranches = treeAtRootOfPath[CHILDREN_BRANCHES_KEY];
   if (isUndefined(childrenBranches)) {
     return undefined;

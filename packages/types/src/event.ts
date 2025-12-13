@@ -6,7 +6,7 @@ export type Event<
   TEventName extends string = string,
 > = {
   readonly name: TEventName;
-  readonly payload?: TPayload;
+  readonly payload: TPayload;
 };
 
 export type Dispatcher<TPayload extends Payload = Payload> =

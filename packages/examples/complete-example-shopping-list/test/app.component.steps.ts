@@ -14,6 +14,7 @@ export const USER_SUBMITS_NEW_LIST = (): GlobalEvent[] => [
   {
     name: "createNewListClicked",
     componentPath: LIST_SELECT,
+    payload: undefined,
   },
 ];
 export const USER_SETS_NEXT_ITEM_NAME = (name: string): GlobalEvent[] => [
@@ -27,18 +28,21 @@ export const USER_SUBMITS_NEW_ITEM = (): GlobalEvent[] => [
   {
     name: "newItemSubmitted",
     componentPath: LIST,
+    payload: undefined,
   },
 ];
 export const USER_INCREMENTS_QUANTITY_OF_FIRST_ITEM = (): GlobalEvent[] => [
   {
     name: "incrementRequested",
     componentPath: FIRST_ITEM,
+    payload: undefined,
   },
 ];
 export const USER_DECREMENTS_QUANTITY_OF_FIRST_ITEM = (): GlobalEvent[] => [
   {
     name: "decrementRequested",
     componentPath: FIRST_ITEM,
+    payload: undefined,
   },
 ];
 export const USER_CREATES_NEW_LIST = (name: string): GlobalEvent[] => [

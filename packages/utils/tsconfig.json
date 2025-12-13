@@ -5,7 +5,9 @@
     "lib": ["ES2020"],
     "moduleResolution": "Bundler",
     "module": "ESNext",
+    "skipLibCheck": true,
     "noEmit": true,
+    "strict": true,
     "paths": {
       "@softer-components/types": ["../types/src"]
     }

@@ -209,10 +209,10 @@ importers:
         specifier: ^2.6.1
         version: 2.9.0(react-redux@9.2.0(@types/react@19.1.13)(react@19.1.1)(redux@5.0.1))(react@19.1.1)
       '@softer-components/types':
-        specifier: workspace:*
+        specifier: workspace:^
         version: link:../types
       '@softer-components/utils':
-        specifier: workspace:*
+        specifier: workspace:^
         version: link:../utils
       lodash:
         specifier: ^4.17.21
@@ -291,7 +291,7 @@ importers:
   packages/utils:
     dependencies:
       '@softer-components/types':
-        specifier: workspace:*
+        specifier: workspace:^
         version: link:../types
       immer:
         specifier: ^10.2.0

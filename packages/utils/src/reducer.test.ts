@@ -293,7 +293,7 @@ describe("reducer tests", () => {
         Object.entries(expectedCalls).forEach(([method, callsArgs]) =>
           callsArgs
             .map((args: {}, index: number) => [method, args, index] as const)
-            .forEach(([method, args, index]) => {
+            .forEach(([method, args, index]: [any, any, any]) => {
               expect(
                 stateManager[method as keyof StateManager],
                 `method ${method} should have been called ${index + 1} time(s) with args: ${JSON.stringify(args, null, 2)}`,

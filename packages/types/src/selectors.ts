@@ -1,17 +1,12 @@
 import { ComponentContract } from "./component-contract";
+import { State } from "./state";
 import { ChildrenValues } from "./values";
 
-export type Selectors<TComponentContract extends ComponentContract> = {
-  [TSelectorName in keyof TComponentContract["values"]]: Selector<
-    TComponentContract,
-    TSelectorName
-  >;
-};
+export type Selectors<
+  TState extends State,
+  TChildren extends Record<string, ComponentContract> = {},
+> = Record<string, Selector<TState, TChildren>>;
 export type Selector<
-  TComponentContract extends ComponentContract,
-  TSelectorName extends
-    keyof TComponentContract["values"] = keyof TComponentContract["values"],
-> = (
-  state: TComponentContract["state"],
-  children: ChildrenValues<TComponentContract>
-) => TComponentContract["values"][TSelectorName];
+  TState extends State,
+  TChildren extends Record<string, ComponentContract> = {},
+> = (state: TState, children: ChildrenValues<TChildren>) => any;

@@ -1,5 +1,5 @@
 import { GlobalEvent, SofterRootState } from "./utils.type";
-import { assertIsNotUndefined } from "./predicate.functions";
+import { assertIsNotUndefined, isNotUndefined } from "./predicate.functions";
 import { findComponentDef } from "./component-def-tree";
 import { RelativePathStateReader } from "./relative-path-state-manager";
 import { StateReader } from "./state-manager";
@@ -136,7 +136,7 @@ function generateEventsToChildren(
   const childrenCommands = Object.entries(
     componentDef.childrenConfig ?? {},
   ).flatMap(([childName, childConfig]) =>
-    (childConfig.commands ?? [])
+    (childConfig?.commands ?? [])
       .filter((command) => command.from === triggeringEvent.name)
       .map((command) => ({ childName, command })),
   );

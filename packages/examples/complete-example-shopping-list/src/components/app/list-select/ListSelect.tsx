@@ -8,7 +8,9 @@ export const ListSelect = ({ path = "" }) => {
   useSofterEffects(path, listSelectEffects);
   return (
     <div>
-      <p style={{ textAlign: "start", width: "300px" }}>All lists</p>
+      <p style={{ textAlign: "start", width: "300px" }}>
+        All lists ({v.savedListsCount})
+      </p>
       <SavedLists path={c.savedLists} />
       <div className="horizontal">
         <form

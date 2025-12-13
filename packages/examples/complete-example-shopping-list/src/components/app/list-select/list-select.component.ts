@@ -7,6 +7,14 @@ import {
 import { List } from "../../../model";
 import { savedListsDef } from "./saved-lists/saved-lists.component.ts";
 
+// Children components definition
+const childrenComponents = {
+  savedLists: savedListsDef,
+};
+type ChildrenContract = ExtractComponentChildrenContract<
+  typeof childrenComponents
+>;
+
 type ErrorMessage = string;
 type Error = "NAME_REQUIRED" | "SAVE_FAILED" | "LIST_ALREADY_EXISTS";
 // Initial state definition
@@ -14,6 +22,8 @@ const initialState = {
   listName: "",
   errors: [] as Error[],
 };
+type State = typeof initialState;
+
 const selectors = {
   listName: state => state.listName,
   isListNameValid: state => state.listName.trim() !== "",
@@ -21,7 +31,9 @@ const selectors = {
   hasSaveFailedError: state => state.errors.includes("SAVE_FAILED"),
   hasListAlreadyExistsError: state =>
     state.errors.includes("LIST_ALREADY_EXISTS"),
-} satisfies Selectors<typeof initialState>;
+  savedListsCount: (_, children) =>
+    children.savedLists[0].selectors.savedListCount(),
+} satisfies Selectors<State, ChildrenContract>;
 
 // Events type declaration
 type ListSelectEvents = {
@@ -36,15 +48,11 @@ type ListSelectEvents = {
   listSelected: { payload: List };
 };
 
-const childrenComponents = {
-  savedLists: savedListsDef,
-};
-
 export type ListSelectContract = {
-  state: typeof initialState;
+  state: State;
   values: ExtractComponentValuesContract<typeof selectors>;
   events: ListSelectEvents;
-  children: ExtractComponentChildrenContract<typeof childrenComponents>;
+  children: ChildrenContract;
 };
 
 // Component definition

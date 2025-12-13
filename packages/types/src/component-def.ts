@@ -10,7 +10,10 @@ import { Selectors } from "./selectors";
  */
 export type ComponentDef<TComponentContract extends ComponentContract = any> = {
   initialState?: TComponentContract["state"];
-  selectors?: Selectors<TComponentContract>;
+  selectors?: Selectors<
+    TComponentContract["state"],
+    TComponentContract["children"]
+  >;
   uiEvents?: (keyof TComponentContract["events"] & string)[];
   updaters?: {
     [EventName in keyof TComponentContract["events"]]?: (

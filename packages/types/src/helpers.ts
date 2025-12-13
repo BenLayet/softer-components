@@ -4,10 +4,11 @@ import { ComponentDef } from "./component-def";
  *                       HELPER TYPES TO EXTRACT CONTRACTS FROM DEFINITIONS
  ***************************************************************************************************************/
 export type ExtractComponentValuesContract<
-  TSelectors extends Record<string, (state: any) => any>,
+  TSelectors extends Record<string, (state: any, children: any) => any>,
 > = {
   [SelectorName in keyof TSelectors]: TSelectors[SelectorName] extends (
-    state: any
+    state: any,
+    children: any
   ) => infer TResult
     ? TResult
     : never;

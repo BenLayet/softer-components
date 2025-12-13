@@ -1,4 +1,5 @@
 import { ComponentPath } from "./utils.type";
+import { assertIsNotUndefined } from "./predicate.functions";
 
 const COMPONENT_SEPARATOR = "/";
 const KEY_SEPARATOR = ":";
@@ -34,5 +35,7 @@ export function stringToComponentPath(pathString: string): ComponentPath {
   });
 }
 export function eventNameWithoutComponentPath(globalEventName: string): string {
-  return globalEventName.split(COMPONENT_SEPARATOR).pop();
+  const eventName = globalEventName.split(COMPONENT_SEPARATOR).pop();
+  assertIsNotUndefined(eventName);
+  return eventName;
 }

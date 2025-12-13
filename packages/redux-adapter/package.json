@@ -21,8 +21,8 @@
   },
   "dependencies": {
     "@reduxjs/toolkit": "^2.6.1",
-    "@softer-components/types": "^0.3.0",
-    "@softer-components/utils": "^0.3.0",
+    "@softer-components/types": "workspace:^",
+    "@softer-components/utils": "workspace:^",
     "lodash": "^4.17.21",
     "react": "^19.1.1",
     "react-redux": "^9.2.0",

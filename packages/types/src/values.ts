@@ -12,12 +12,15 @@ export type Values<
     [K in keyof TComponentContract["values"]]: () => TComponentContract["values"][K];
   };
   /** Child component values - access nested component values here */
-  children: ChildrenValues<TComponentContract>;
+  children: ChildrenValues<TComponentContract["children"]>;
 };
 export type ChildrenValues<
-  TComponentContract extends ComponentContract = ComponentContract,
+  TChildren extends Record<string, ComponentContract> = Record<
+    string,
+    ComponentContract
+  >,
 > = {
-  [ChildName in keyof TComponentContract["children"]]: {
-    [ChildKey: string]: Values<TComponentContract["children"][ChildName]>;
+  [ChildName in keyof TChildren]: {
+    [ChildKey: string]: Values<TChildren[ChildName]>;
   };
 };
