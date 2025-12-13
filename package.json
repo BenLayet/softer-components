@@ -9,6 +9,7 @@
   "description": "A TypeScript component types library that is state-manager-agnostic and reusable",
   "scripts": {
     "clean": "pnpm -r clean",
+    "test": "pnpm -r test:ci",
     "test:ci": "pnpm -r test:ci",
     "build": "pnpm -r build"
   },
