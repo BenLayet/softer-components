@@ -1,5 +1,13 @@
 # @softer-components/utils
 
+## 0.3.2
+
+### Patch Changes
+
+- ead9fb8: fixes selectors (part 2)
+- Updated dependencies [ead9fb8]
+  - @softer-components/types@0.3.2
+
 ## 0.3.1
 
 ### Patch Changes
