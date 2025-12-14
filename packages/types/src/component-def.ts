@@ -21,7 +21,7 @@ export type ComponentDef<TComponentContract extends ComponentContract = any> = {
         state: TComponentContract["state"]; //mutable
         childrenKeys: ChildrenKeys<TComponentContract["children"]>; //mutable
         payload: TComponentContract["events"][EventName]["payload"];
-      }
+      },
     ) => void | TComponentContract["state"];
   };
   eventForwarders?: InternalEventForwarders<TComponentContract>;

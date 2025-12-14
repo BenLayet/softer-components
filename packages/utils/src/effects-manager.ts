@@ -22,15 +22,15 @@ export class EffectsManager {
 
   constructor(
     private readonly rootComponentDef: ComponentDef,
-    private readonly stateReader: StateReader
+    private readonly stateReader: StateReader,
   ) {}
 
   registerEffects = <TComponentContract extends ComponentContract>(
     pathStr: string,
-    effects: Effects<TComponentContract>
+    effects: Effects<TComponentContract>,
   ): Unregister => {
     const unregisterFunctions = Object.entries(effects).map(
-      ([eventName, effect]) => this.registerEffect(pathStr, eventName, effect)
+      ([eventName, effect]) => this.registerEffect(pathStr, eventName, effect),
     );
     return () => unregisterFunctions.forEach((f) => f());
   };
@@ -63,7 +63,7 @@ export class EffectsManager {
   eventOccurred(
     event: GlobalEvent,
     softerRootState: SofterRootState,
-    dispatchEvent: (event: GlobalEvent) => void
+    dispatchEvent: (event: GlobalEvent) => void,
   ): void {
     const pathStr = componentPathToString(event.componentPath);
     const effects = this.effectsMap[pathStr]?.[event.name] as
@@ -74,24 +74,24 @@ export class EffectsManager {
     }
     const componentDefOfEvent = findComponentDef(
       this.rootComponentDef,
-      event.componentPath
+      event.componentPath,
     );
 
     const relativePathStateManager = new RelativePathStateReader(
       softerRootState,
       this.stateReader,
-      event.componentPath
+      event.componentPath,
     );
     const eventContext = eventConsumerContextProvider(
       componentDefOfEvent,
       event,
-      relativePathStateManager
+      relativePathStateManager,
     );
     const dispatchers = createEventEffectDispatchers(
       event.name,
       componentDefOfEvent,
       event.componentPath,
-      dispatchEvent
+      dispatchEvent,
     );
     effects.forEach((effect) => effect(dispatchers, eventContext()));
   }
@@ -101,7 +101,7 @@ const createEventEffectDispatchers = (
   triggeringEventName: string,
   componentDef: ComponentDef,
   componentPath: ComponentPath,
-  dispatchEvent: (event: GlobalEvent) => void
+  dispatchEvent: (event: GlobalEvent) => void,
 ): EventEffectDispatchers =>
   Object.fromEntries(
     (componentDef["effects"]?.[triggeringEventName] ?? []).map(
@@ -114,6 +114,6 @@ const createEventEffectDispatchers = (
             payload,
             source: "📡",
           }),
-      ]
-    )
+      ],
+    ),
   ) as EventEffectDispatchers;
