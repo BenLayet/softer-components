@@ -1,5 +1,4 @@
 import { useSofter } from "@softer-components/redux-adapter";
-import { useState } from "react";
 
 import { CounterContract } from "./counter.component.ts";
 

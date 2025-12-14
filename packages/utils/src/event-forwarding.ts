@@ -2,7 +2,7 @@ import { ComponentDef } from "@softer-components/types";
 
 import { findComponentDef } from "./component-def-tree";
 import { eventConsumerContextProvider } from "./event-consumer-context";
-import { assertIsNotUndefined, isNotUndefined } from "./predicate.functions";
+import { assertIsNotUndefined } from "./predicate.functions";
 import { RelativePathStateReader } from "./relative-path-state-manager";
 import { StateReader } from "./state-manager";
 import { GlobalEvent, SofterRootState } from "./utils.type";
