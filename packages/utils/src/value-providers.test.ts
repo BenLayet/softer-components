@@ -1,7 +1,8 @@
-import { describe, it, expect, vi } from "vitest";
-import { createValueProviders } from "./value-providers";
-import { RelativePathStateReader } from "./relative-path-state-manager";
 import { ComponentDef } from "@softer-components/types";
+import { describe, expect, it, vi } from "vitest";
+
+import { RelativePathStateReader } from "./relative-path-state-manager";
+import { createValueProviders } from "./value-providers";
 
 describe("createValuesProvider", () => {
   it("returns root selectors", () => {

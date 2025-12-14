@@ -1,13 +1,14 @@
-import { describe, expect, it, vi } from "vitest";
-import { updateSofterRootState } from "./reducer";
-import { GlobalEvent } from "./utils.type";
-import { StateManager } from "./state-manager";
 import {
   ComponentDef,
   ExtractComponentChildrenContract,
   ExtractComponentValuesContract,
   Selectors,
 } from "@softer-components/types";
+import { describe, expect, it, vi } from "vitest";
+
+import { updateSofterRootState } from "./reducer";
+import { StateManager } from "./state-manager";
+import { GlobalEvent } from "./utils.type";
 
 describe("reducer tests", () => {
   it("should update simple state", () => {
@@ -321,9 +322,9 @@ type ItemEvents = {
 };
 
 const selectors = {
-  name: (state) => state.name,
-  quantity: (state) => state.quantity,
-  isEmpty: (state) => state.quantity < 1,
+  name: state => state.name,
+  quantity: state => state.quantity,
+  isEmpty: state => state.quantity < 1,
 } satisfies Selectors<ItemState>;
 
 export type ItemContract = {
@@ -383,9 +384,9 @@ const childrenComponents = {
 };
 
 const listSelectors = {
-  listName: (state) => state.listName,
-  nextItemName: (state) => state.nextItemName.trim(),
-  nextItemId: (state) => state.lastItemId + 1,
+  listName: state => state.listName,
+  nextItemName: state => state.nextItemName.trim(),
+  nextItemId: state => state.lastItemId + 1,
 } satisfies Selectors<ListState>;
 
 type ListContract = {
@@ -428,9 +429,7 @@ const listDef: ComponentDef<ListContract> = {
       from: "addItemRequested",
       to: "createItemRequested",
       onCondition: ({ children: { items }, payload: itemName }) =>
-        Object.values(items).every(
-          (item) => item.selectors.name() !== itemName,
-        ),
+        Object.values(items).every(item => item.selectors.name() !== itemName),
       withPayload: ({ selectors, payload: itemName }) => ({
         itemName,
         itemId: selectors.nextItemId(),
@@ -440,7 +439,7 @@ const listDef: ComponentDef<ListContract> = {
       from: "addItemRequested",
       to: "incrementItemQuantityRequested",
       onCondition: ({ children: { items }, payload: itemName }) =>
-        Object.values(items).some((item) => item.selectors.name() === itemName),
+        Object.values(items).some(item => item.selectors.name() === itemName),
       withPayload: ({ children: { items }, payload: itemName }) =>
         Object.entries(items)
           .filter(([, item]) => item.selectors.name() === itemName)

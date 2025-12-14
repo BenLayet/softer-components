@@ -1,9 +1,9 @@
-import { describe, it, expect, vi } from "vitest";
+import { ComponentDef } from "@softer-components/types";
+import { describe, expect, it, vi } from "vitest";
 
 import { generateEventsToForward } from "./event-forwarding";
-import { ComponentDef } from "@softer-components/types";
-import { GlobalEvent } from "./utils.type";
 import { StateManager } from "./state-manager";
+import { GlobalEvent } from "./utils.type";
 
 describe("event forwarding tests", () => {
   it("generates an event from a simple event forwarder", () => {
@@ -68,9 +68,7 @@ describe("event forwarding tests", () => {
     const stateManager = {} as StateManager;
     stateManager.getChildrenKeys = vi
       .fn()
-      .mockImplementation((path) =>
-        path.length === 0 ? { child: ["0"] } : {},
-      );
+      .mockImplementation(path => (path.length === 0 ? { child: ["0"] } : {}));
 
     // WHEN
     const result = generateEventsToForward(
@@ -117,9 +115,7 @@ describe("event forwarding tests", () => {
     const stateManager = {} as StateManager;
     stateManager.getChildrenKeys = vi
       .fn()
-      .mockImplementation((path) =>
-        path.length === 0 ? { child: ["0"] } : {},
-      );
+      .mockImplementation(path => (path.length === 0 ? { child: ["0"] } : {}));
 
     // WHEN
     const result = generateEventsToForward(
@@ -170,7 +166,7 @@ describe("event forwarding tests", () => {
           values: { isPassing: boolean };
         }> = {
           selectors: {
-            isPassing: (state) => state.isPassing,
+            isPassing: state => state.isPassing,
           },
           eventForwarders: [
             {
@@ -215,7 +211,7 @@ describe("event forwarding tests", () => {
       children: {};
       values: { nextPayload: number };
     }> = {
-      selectors: { nextPayload: (state) => state.nextPayload },
+      selectors: { nextPayload: state => state.nextPayload },
       eventForwarders: [
         {
           from: "btnClicked",

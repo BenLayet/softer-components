@@ -1,5 +1,5 @@
-import { ComponentPath } from "./utils.type";
 import { assertIsNotUndefined } from "./predicate.functions";
+import { ComponentPath } from "./utils.type";
 
 const COMPONENT_SEPARATOR = "/";
 const KEY_SEPARATOR = ":";
@@ -13,7 +13,7 @@ export function componentPathToString(componentPath: ComponentPath): string {
           ? `${componentName}${KEY_SEPARATOR}${instanceKey}`
           : componentName,
       )
-      .map((segment) => segment + COMPONENT_SEPARATOR)
+      .map(segment => segment + COMPONENT_SEPARATOR)
       .join("")
   );
 }
@@ -29,7 +29,7 @@ export function stringToComponentPath(pathString: string): ComponentPath {
   }
   parts.shift(); // remove prefix
   parts.pop(); // remove trailing empty part due to trailing separator
-  return parts.map((part) => {
+  return parts.map(part => {
     const [componentName, instanceKey] = part.split(KEY_SEPARATOR);
     return [componentName, instanceKey ?? SINGLE_CHILD_KEY] as const;
   });

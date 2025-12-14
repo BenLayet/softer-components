@@ -1,6 +1,6 @@
-import { describe, it, expect } from "vitest";
+import { describe, expect, it } from "vitest";
 
-import { CHILDREN_BRANCHES_KEY, findSubTree, OWN_VALUE_KEY } from "./tree";
+import { CHILDREN_BRANCHES_KEY, OWN_VALUE_KEY, findSubTree } from "./tree";
 
 describe("findSubTree", () => {
   it("returns root ", () => {

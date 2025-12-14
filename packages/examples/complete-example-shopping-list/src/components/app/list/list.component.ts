@@ -4,6 +4,7 @@ import {
   ExtractComponentValuesContract,
   Selectors,
 } from "@softer-components/types";
+
 import { ItemId, List, ListId, ListItem } from "../../../model";
 import { itemRowDef } from "./item-row/item-row.component.ts";
 

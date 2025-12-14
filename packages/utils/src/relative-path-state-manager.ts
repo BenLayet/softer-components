@@ -1,6 +1,7 @@
 import { ChildrenKeys, ChildrenValues, State } from "@softer-components/types";
-import { ComponentPath, SofterRootState } from "./utils.type";
+
 import { StateManager, StateReader } from "./state-manager";
+import { ComponentPath, SofterRootState } from "./utils.type";
 
 /**
  * Wrapper around StateManager that manages relative paths.

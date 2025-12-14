@@ -6,18 +6,19 @@ import {
   State,
 } from "@softer-components/types";
 import { expect } from "vitest";
+
 import { findComponentDef } from "./component-def-tree";
 import { componentPathToString } from "./component-path";
 import { EffectsManager } from "./effects-manager";
 import { generateEventsToForward } from "./event-forwarding";
 import { isUndefined } from "./predicate.functions";
 import { updateSofterRootState } from "./reducer";
+import { RelativePathStateReader } from "./relative-path-state-manager";
 import { initializeRootState } from "./state-initializer";
+import { OWN_VALUE_KEY, Tree } from "./tree";
 import { TreeStateManager } from "./tree-state-manager";
 import { ComponentPath, GlobalEvent } from "./utils.type";
 import { createChildrenValues } from "./value-providers";
-import { RelativePathStateReader } from "./relative-path-state-manager";
-import { OWN_VALUE_KEY, Tree } from "./tree";
 
 type TestStore = {
   rootState: Tree<State>;

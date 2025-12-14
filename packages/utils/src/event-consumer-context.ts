@@ -5,8 +5,9 @@ import {
   EventConsumerContext,
   Payload,
 } from "@softer-components/types";
-import { GlobalEvent } from "./utils.type";
+
 import { RelativePathStateReader } from "./relative-path-state-manager";
+import { GlobalEvent } from "./utils.type";
 import { createValueProviders } from "./value-providers";
 
 export function eventConsumerContextProvider<

@@ -1,5 +1,6 @@
 import { ComponentDef } from "@softer-components/types";
 import { describe, expect, it, vi } from "vitest";
+
 import { initializeRootState } from "./state-initializer";
 import { StateManager } from "./state-manager";
 

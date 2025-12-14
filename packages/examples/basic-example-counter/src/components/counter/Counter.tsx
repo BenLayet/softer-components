@@ -1,6 +1,7 @@
 import { useSofter } from "@softer-components/redux-adapter";
-import { CounterContract } from "./counter.component.ts";
 import { useState } from "react";
+
+import { CounterContract } from "./counter.component.ts";
 
 export const Counter = ({ path = "/" }) => {
   const [{ count }, { incrementRequested, decrementRequested }] =

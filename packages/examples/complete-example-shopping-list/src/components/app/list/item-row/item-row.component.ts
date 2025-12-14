@@ -3,7 +3,9 @@ import {
   ExtractComponentValuesContract,
   Selectors,
 } from "@softer-components/types";
+
 import { ListItem } from "../../../../model";
+
 // Initial state definition
 type ItemRowState = ListItem;
 

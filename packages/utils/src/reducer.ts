@@ -1,13 +1,13 @@
 import { ComponentDef } from "@softer-components/types";
-
-import { assertIsNotUndefined, isNotUndefined } from "./predicate.functions";
-import { initializeStateRecursively } from "./state-initializer";
-import { findComponentDef } from "./component-def-tree";
-import { GlobalEvent, SofterRootState } from "./utils.type";
-import { RelativePathStateManager } from "./relative-path-state-manager";
-import { createValueProviders } from "./value-providers";
 import { produce } from "immer";
+
+import { findComponentDef } from "./component-def-tree";
+import { assertIsNotUndefined, isNotUndefined } from "./predicate.functions";
+import { RelativePathStateManager } from "./relative-path-state-manager";
+import { initializeStateRecursively } from "./state-initializer";
 import { StateManager } from "./state-manager";
+import { GlobalEvent, SofterRootState } from "./utils.type";
+import { createValueProviders } from "./value-providers";
 
 /**
  * Update the global state tree based on the given event
@@ -112,15 +112,15 @@ function updateChildrenState(
     const previousKeys = (previousChildrenKeys[childName] ?? []) as string[];
     // Remove the state of deleted keys
     previousKeys
-      .filter((key) => !desiredKeys.includes(key))
-      .map((key) => stateManager.childStateManager(childName, key))
-      .forEach((childStateManager) => childStateManager.removeStateTree());
+      .filter(key => !desiredKeys.includes(key))
+      .map(key => stateManager.childStateManager(childName, key))
+      .forEach(childStateManager => childStateManager.removeStateTree());
 
     // Initialize the state of desired keys
     desiredKeys
-      .filter((key) => !previousKeys.includes(key))
-      .map((key) => stateManager.childStateManager(childName, key))
-      .forEach((childStateManager) =>
+      .filter(key => !previousKeys.includes(key))
+      .map(key => stateManager.childStateManager(childName, key))
+      .forEach(childStateManager =>
         initializeStateRecursively(childDef, childStateManager),
       );
   });

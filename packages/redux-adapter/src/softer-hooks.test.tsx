@@ -1,10 +1,11 @@
-import { describe, expect, it } from "vitest";
-import { renderHook, act } from "@testing-library/react";
-import { Provider } from "react-redux";
-import { configureSofterStore } from "./softer-store";
-import { useSofter, useSofterSelectors } from "./softer-hooks";
 import { ComponentDef } from "@softer-components/types";
+import { act, renderHook } from "@testing-library/react";
 import React from "react";
+import { Provider } from "react-redux";
+import { describe, expect, it } from "vitest";
+
+import { useSofter, useSofterSelectors } from "./softer-hooks";
+import { configureSofterStore } from "./softer-store";
 
 describe("useSofter with memoization", () => {
   it("should memoize selectors and prevent unnecessary re-renders", () => {
@@ -19,8 +20,8 @@ describe("useSofter with memoization", () => {
     const counterDef: ComponentDef<CounterContract> = {
       initialState: { count: 0 },
       selectors: {
-        doubled: (state) => state.count * 2,
-        tripled: (state) => state.count * 3,
+        doubled: state => state.count * 2,
+        tripled: state => state.count * 3,
       },
       uiEvents: ["incrementRequested"],
       updaters: {
@@ -65,7 +66,7 @@ describe("useSofter with memoization", () => {
     const counterDef: ComponentDef<CounterContract> = {
       initialState: { count: 0 },
       selectors: {
-        doubled: (state) => state.count * 2,
+        doubled: state => state.count * 2,
       },
       uiEvents: ["increment"],
       updaters: {
@@ -122,7 +123,7 @@ describe("useSofter with memoization", () => {
     const itemDef: ComponentDef<ItemContract> = {
       initialState: { name: "", active: true },
       selectors: {
-        displayName: (state) => state.name,
+        displayName: state => state.name,
       },
     };
 

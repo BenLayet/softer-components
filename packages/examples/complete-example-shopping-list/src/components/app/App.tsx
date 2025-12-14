@@ -1,6 +1,7 @@
-import { ListSelect } from "./list-select/ListSelect.tsx";
 import { useSofterSingleChildrenPaths } from "@softer-components/redux-adapter";
+
 import { AppComponentContract } from "./app.component.ts";
+import { ListSelect } from "./list-select/ListSelect.tsx";
 import { List } from "./list/List.tsx";
 
 export const App = ({ path = "" }) => {
