@@ -37,10 +37,9 @@ export type ComponentDef<TComponentContract extends ComponentContract = any> = {
       TComponentContract["children"][ChildName]
     >;
   };
-  effects?: {
-    [EventName in keyof TComponentContract["events"]]?: TComponentContract["events"][EventName]["canTrigger"] extends infer DispatchableEventNames extends
-      string[]
-      ? DispatchableEventNames
-      : never;
-  };
+  effects?: EffectsDef<(keyof TComponentContract["events"] & string)[]>;
+};
+
+export type EffectsDef<TEventNames extends readonly string[]> = {
+  [TEventName in TEventNames[number]]?: TEventNames[number][];
 };

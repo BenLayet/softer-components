@@ -1,5 +1,7 @@
 import {
   ComponentDef,
+  ComponentEventsContract,
+  EffectsDef,
   ExtractComponentChildrenContract,
   ExtractComponentValuesContract,
   Selectors,
@@ -11,30 +13,47 @@ import { itemRowDef } from "./item-row/item-row.component.ts";
 // State
 type Error = "SAVE_FAILED";
 type ErrorMessage = string;
-type ListState = {
+type State = {
   id: ListId;
   name: string;
   nextItemName: string;
   isSaving: boolean;
   errors: { [key in Error]?: {} };
 };
-type ListEvents = {
-  initialize: { payload: List };
-  goBackClicked: { payload: undefined };
-  nextItemNameChanged: { payload: string };
-  newItemSubmitted: { payload: undefined };
-  createItemOrIncrementQuantityRequested: { payload: string };
-  resetNextItemNameRequested: { payload: undefined };
-  incrementItemQuantityRequested: { payload: ItemId };
-  createItemRequested: { payload: ListItem };
-  removeItemRequested: { payload: ItemId };
-  saveRequested: {
-    payload: undefined;
-    canTrigger: ["saveSucceeded", "saveFailed"];
-  };
-  saveSucceeded: { payload: undefined };
-  saveFailed: { payload: ErrorMessage };
-};
+
+// Events
+const eventNames = [
+  "initialize",
+  "goBackClicked",
+  "nextItemNameChanged",
+  "newItemSubmitted",
+  "createItemOrIncrementQuantityRequested",
+  "resetNextItemNameRequested",
+  "incrementItemQuantityRequested",
+  "createItemRequested",
+  "removeItemRequested",
+  "saveRequested",
+  "saveSucceeded",
+  "saveFailed",
+] as const;
+
+type Events = ComponentEventsContract<
+  typeof eventNames,
+  {
+    initialize: List;
+    nextItemNameChanged: string;
+    createItemOrIncrementQuantityRequested: string;
+    createItemRequested: ListItem;
+    incrementItemQuantityRequested: ItemId;
+    removeItemRequested: ItemId;
+    saveFailed: ErrorMessage;
+  }
+>;
+
+// Effects
+const effects = {
+  saveRequested: ["saveSucceeded", "saveFailed"],
+} satisfies EffectsDef<typeof eventNames>;
 
 const childrenComponents = {
   itemRows: itemRowDef,
@@ -48,13 +67,14 @@ const listSelectors = {
   isNextItemNameValid: state => state.nextItemName.trim().length > 0,
   hasSaveFailedError: state => state.errors["SAVE_FAILED"] !== undefined,
   isSaving: state => state.isSaving,
-} satisfies Selectors<ListState>;
+} satisfies Selectors<State>;
 
 export type ListContract = {
-  state: ListState;
+  state: State;
   values: ExtractComponentValuesContract<typeof listSelectors>;
-  events: ListEvents;
+  events: Events;
   children: ExtractComponentChildrenContract<typeof childrenComponents>;
+  effects: typeof effects;
 };
 
 export const listDef: ComponentDef<ListContract> = {
@@ -194,7 +214,5 @@ export const listDef: ComponentDef<ListContract> = {
       ],
     },
   },
-  effects: {
-    saveRequested: ["saveSucceeded", "saveFailed"],
-  },
+  effects,
 };

@@ -48,7 +48,8 @@ export const givenRootComponent = <
   };
 };
 const withEffects =
-  (testStore: TestStore) => (effects: { [componentPath: string]: Effects }) => {
+  (testStore: TestStore) =>
+  (effects: { [componentPath: string]: Effects<any> }) => {
     Object.entries(effects).forEach(([componentPathStr, componentEffects]) =>
       testStore.effectsManager.registerEffects(
         componentPathStr,

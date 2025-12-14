@@ -58,7 +58,7 @@ The React component contains only presentation logic, retrieving typed event dis
 # install the dependencies
 pnpm install
 
-# Navigate to the redux-adapter 
+# Navigate to the redux-adapter
 cd ./packages/redux-adapter
 
 # build the library

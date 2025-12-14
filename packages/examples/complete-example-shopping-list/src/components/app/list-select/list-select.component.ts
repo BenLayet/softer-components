@@ -1,5 +1,7 @@
 import {
   ComponentDef,
+  ComponentEventsContract,
+  EffectsDef,
   ExtractComponentChildrenContract,
   ExtractComponentValuesContract,
   Selectors,
@@ -37,23 +39,37 @@ const selectors = {
 } satisfies Selectors<State, ChildrenContract>;
 
 // Events type declaration
-type ListSelectEvents = {
-  listNameChanged: { payload: string };
-  createNewListClicked: { payload: undefined };
-  createNewListRequested: {
-    payload: string;
-    canTrigger: ["createNewListSucceeded", "createNewListFailed"];
-  };
-  createNewListSucceeded: { payload: List };
-  createNewListFailed: { payload: ErrorMessage };
-  listSelected: { payload: List };
-};
+const eventNames = [
+  "listNameChanged",
+  "createNewListClicked",
+  "createNewListRequested",
+  "createNewListSucceeded",
+  "createNewListFailed",
+  "listSelected",
+] as const;
+
+type ListSelectEvents = ComponentEventsContract<
+  typeof eventNames,
+  {
+    listNameChanged: string;
+    createNewListRequested: string;
+    createNewListSucceeded: List;
+    createNewListFailed: ErrorMessage;
+    listSelected: List;
+  }
+>;
+
+// Events type declaration
+const effects = {
+  createNewListRequested: ["createNewListSucceeded", "createNewListFailed"],
+} satisfies EffectsDef<typeof eventNames>;
 
 export type ListSelectContract = {
   state: State;
   values: ExtractComponentValuesContract<typeof selectors>;
   events: ListSelectEvents;
   children: ChildrenContract;
+  effects: typeof effects;
 };
 
 // Component definition
@@ -97,7 +113,5 @@ export const listSelectDef: ComponentDef<ListSelectContract> = {
       listeners: [{ from: "listSelected", to: "listSelected" }],
     },
   },
-  effects: {
-    createNewListRequested: ["createNewListSucceeded", "createNewListFailed"],
-  },
+  effects,
 };

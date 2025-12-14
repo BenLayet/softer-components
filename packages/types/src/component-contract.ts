@@ -1,14 +1,20 @@
+import { EffectsDef } from "./component-def";
 import { Payload } from "./event";
 import { State } from "./state";
 
 export type ComponentValuesContract = { [SelectorName in string]: any };
+
 export type ComponentEventsContract<
-  EventNames extends string = string,
-  DispatchableEventNames extends EventNames = EventNames,
+  TEventNames extends readonly string[] = string[],
+  TPayloads extends { [EventName in TEventNames[number]]?: Payload } = Record<
+    TEventNames[number],
+    Payload
+  >,
 > = {
-  [EventName in EventNames]: {
-    payload: Payload;
-    canTrigger?: DispatchableEventNames[];
+  [TEventName in TEventNames[number]]: {
+    payload: TPayloads[TEventName] extends infer TPayload extends Payload
+      ? TPayload
+      : undefined;
   };
 };
 
@@ -19,6 +25,7 @@ export type ComponentEventsContract<
 export type ComponentContract<EventNames extends string = string> = {
   state: State;
   values: ComponentValuesContract;
-  events: ComponentEventsContract<EventNames>;
+  events: ComponentEventsContract<EventNames[]>;
   children: Record<string, ComponentContract>;
+  effects?: EffectsDef<EventNames[]>;
 };

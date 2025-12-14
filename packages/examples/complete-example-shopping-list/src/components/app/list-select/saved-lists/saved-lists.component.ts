@@ -1,5 +1,7 @@
 import {
   ComponentDef,
+  ComponentEventsContract,
+  EffectsDef,
   ExtractComponentValuesContract,
   Selectors,
 } from "@softer-components/types";
@@ -28,24 +30,38 @@ const selectors = {
 } satisfies Selectors<typeof initialState>;
 
 // Events type declaration
-type Events = {
-  displayed: { payload: undefined };
-  fetchRequested: {
-    payload: undefined;
-    canTrigger: ["fetchSucceeded", "fetchFailed"];
-  };
-  fetchSucceeded: { payload: List[] };
-  fetchFailed: { payload: ErrorMessage };
-  listClicked: { payload: List };
-  listSelected: { payload: List };
-  deleteClicked: { payload: List };
-  deleteRequested: {
-    payload: ListId;
-    canTrigger: ["deleteSucceeded", "deleteFailed"];
-  };
-  deleteSucceeded: { payload: ListId };
-  deleteFailed: { payload: ErrorMessage };
-};
+const eventNames = [
+  "displayed",
+  "fetchRequested",
+  "fetchSucceeded",
+  "fetchFailed",
+  "listClicked",
+  "listSelected",
+  "deleteClicked",
+  "deleteRequested",
+  "deleteSucceeded",
+  "deleteFailed",
+] as const;
+
+// Effects definition
+const effects = {
+  fetchRequested: ["fetchSucceeded", "fetchFailed"],
+  deleteRequested: ["deleteSucceeded", "deleteFailed"],
+} satisfies EffectsDef<typeof eventNames>;
+
+type Events = ComponentEventsContract<
+  typeof eventNames,
+  {
+    fetchSucceeded: List[];
+    fetchFailed: ErrorMessage;
+    listClicked: List;
+    listSelected: List;
+    deleteClicked: List;
+    deleteRequested: ListId;
+    deleteSucceeded: ListId;
+    deleteFailed: ErrorMessage;
+  }
+>;
 
 // Contract definition
 type Contract = {
@@ -53,6 +69,7 @@ type Contract = {
   values: ExtractComponentValuesContract<typeof selectors>;
   events: Events;
   children: {};
+  effects: typeof effects;
 };
 
 // Component definition

@@ -1,5 +1,6 @@
 import {
   ComponentDef,
+  ComponentEventsContract,
   ExtractComponentValuesContract,
   Selectors,
 } from "@softer-components/types";
@@ -9,15 +10,23 @@ import { ListItem } from "../../../../model";
 // Initial state definition
 type ItemRowState = ListItem;
 
-// Events type declaration
-type ItemRowEvents = {
-  initialize: { payload: ListItem };
-  removeItemRequested: { payload: undefined };
-  incrementRequested: { payload: undefined };
-  decrementRequested: { payload: undefined };
-  itemChanged: { payload: undefined };
-};
+// Events
+const eventNames = [
+  "initialize",
+  "removeItemRequested",
+  "incrementRequested",
+  "decrementRequested",
+  "itemChanged",
+] as const;
 
+type Events = ComponentEventsContract<
+  typeof eventNames,
+  {
+    initialize: ListItem;
+  }
+>;
+
+// selectors
 const selectors = {
   listItem: state => state,
   item: state => state.item,
@@ -29,7 +38,7 @@ const selectors = {
 
 export type ItemRowContract = {
   state: ItemRowState;
-  events: ItemRowEvents;
+  events: Events;
   children: {};
   values: ExtractComponentValuesContract<typeof selectors>;
 };

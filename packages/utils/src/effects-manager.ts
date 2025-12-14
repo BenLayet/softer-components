@@ -2,11 +2,10 @@ import {
   ComponentContract,
   ComponentDef,
   Effect,
-  Effects,
-  EventEffectDispatchers,
   Payload,
 } from "@softer-components/types";
 
+import { Effects } from "../../types/lib";
 import { findComponentDef } from "./component-def-tree";
 import { componentPathToString } from "./component-path";
 import { eventConsumerContextProvider } from "./event-consumer-context";
@@ -31,7 +30,8 @@ export class EffectsManager {
     effects: Effects<TComponentContract>,
   ): Unregister => {
     const unregisterFunctions = Object.entries(effects).map(
-      ([eventName, effect]) => this.registerEffect(pathStr, eventName, effect),
+      ([eventName, effect]) =>
+        this.registerEffect(pathStr, eventName, effect as Effect),
     );
     return () => unregisterFunctions.forEach(f => f());
   };
@@ -103,7 +103,7 @@ const createEventEffectDispatchers = (
   componentDef: ComponentDef,
   componentPath: ComponentPath,
   dispatchEvent: (event: GlobalEvent) => void,
-): EventEffectDispatchers =>
+) =>
   Object.fromEntries(
     (componentDef["effects"]?.[triggeringEventName] ?? []).map(
       (dispatchableEventName: string) => [
@@ -117,4 +117,4 @@ const createEventEffectDispatchers = (
           }),
       ],
     ),
-  ) as EventEffectDispatchers;
+  );

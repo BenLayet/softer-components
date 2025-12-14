@@ -1,4 +1,6 @@
+import { givenRootComponent } from "@softer-components/utils/test-utilities";
 import { describe, it } from "vitest";
+
 import { appDef } from "../src/components/app/app.component";
 import {
   FIRST_ITEM,
@@ -9,7 +11,6 @@ import {
   USER_INCREMENTS_QUANTITY_OF_FIRST_ITEM,
   USER_SETS_LIST_NAME,
 } from "./app.component.steps.ts";
-import { givenRootComponent } from "@softer-components/utils/test-utilities";
 import { mockEffects } from "./mock-effects.ts";
 
 describe("app.component", () => {
