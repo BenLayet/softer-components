@@ -1,16 +1,17 @@
 import { Payload, State } from "@softer-components/types";
 import {
-  assertIsNotUndefined,
-  assertValueIsUndefined,
   CHILDREN_BRANCHES_KEY,
   GlobalEvent,
-  SofterRootState,
   OWN_VALUE_KEY,
+  SofterRootState,
   Tree,
+  assertIsNotUndefined,
+  assertValueIsUndefined,
   componentPathToString,
-  stringToComponentPath,
   eventNameWithoutComponentPath,
+  stringToComponentPath,
 } from "@softer-components/utils";
+
 export type ReduxDispatch = (action: ReduxAction) => void;
 type ReduxAction = {
   type: string;

@@ -4,6 +4,7 @@ import {
   ComponentDef,
   Values,
 } from "@softer-components/types";
+
 import {
   assertIsNotUndefined,
   assertValueIsNotUndefined,
@@ -65,7 +66,7 @@ export function createChildrenValues<
         `Child component '${childName}' not found in childrenComponents`,
       );
       const childInstancesValueProviders = Object.fromEntries(
-        childKeys.map((key) => {
+        childKeys.map(key => {
           const childValueProviders = createValueProviders(
             childDef,
             stateReader.childStateReader(childName, key),

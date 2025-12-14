@@ -1,10 +1,11 @@
-import { GlobalEvent, SofterRootState } from "./utils.type";
-import { assertIsNotUndefined, isNotUndefined } from "./predicate.functions";
+import { ComponentDef } from "@softer-components/types";
+
 import { findComponentDef } from "./component-def-tree";
+import { eventConsumerContextProvider } from "./event-consumer-context";
+import { assertIsNotUndefined, isNotUndefined } from "./predicate.functions";
 import { RelativePathStateReader } from "./relative-path-state-manager";
 import { StateReader } from "./state-manager";
-import { eventConsumerContextProvider } from "./event-consumer-context";
-import { ComponentDef } from "@softer-components/types";
+import { GlobalEvent, SofterRootState } from "./utils.type";
 
 /**
  * Generate events to forward based on the triggering event
@@ -52,7 +53,7 @@ function generateEventsFromOwnComponent(
   stateReader: RelativePathStateReader,
 ): GlobalEvent[] {
   const forwarders = (componentDef.eventForwarders ?? []).filter(
-    (forwarder) => forwarder.from === triggeringEvent.name,
+    forwarder => forwarder.from === triggeringEvent.name,
   );
 
   if (forwarders.length === 0) {
@@ -67,10 +68,10 @@ function generateEventsFromOwnComponent(
 
   return forwarders
     .filter(
-      (forwarder) =>
+      forwarder =>
         !forwarder.onCondition || forwarder.onCondition(eventContext()),
     )
-    .map((forwarder) => ({
+    .map(forwarder => ({
       name: forwarder.to,
       componentPath: triggeringEvent.componentPath,
       payload: forwarder.withPayload
@@ -102,7 +103,7 @@ function generateEventsToParent(
 
   const childListeners = parentComponentDef.childrenConfig?.[
     childName
-  ]?.listeners?.filter((listener) => listener.from === triggeringEvent.name);
+  ]?.listeners?.filter(listener => listener.from === triggeringEvent.name);
 
   if (!childListeners || childListeners.length === 0) {
     return [];
@@ -115,10 +116,9 @@ function generateEventsToParent(
 
   return childListeners
     .filter(
-      (listener) =>
-        !listener.onCondition || listener.onCondition(eventContext()),
+      listener => !listener.onCondition || listener.onCondition(eventContext()),
     )
-    .map((listener) => ({
+    .map(listener => ({
       name: listener.to,
       componentPath: parentComponentPath,
       payload: listener.withPayload
@@ -137,8 +137,8 @@ function generateEventsToChildren(
     componentDef.childrenConfig ?? {},
   ).flatMap(([childName, childConfig]) =>
     (childConfig?.commands ?? [])
-      .filter((command) => command.from === triggeringEvent.name)
-      .map((command) => ({ childName, command })),
+      .filter(command => command.from === triggeringEvent.name)
+      .map(command => ({ childName, command })),
   );
 
   if (childrenCommands.length === 0) {
@@ -161,7 +161,7 @@ function generateEventsToChildren(
         ? command.toKeys(eventContext())
         : // default to all children
           stateReader.getChildrenKeys()[childName]
-      ).map((childKey) => ({ childName, command, childKey })),
+      ).map(childKey => ({ childName, command, childKey })),
     )
     .map(({ childName, command, childKey }) => ({
       name: command.to,

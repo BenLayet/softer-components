@@ -1,7 +1,8 @@
 import { ComponentDef } from "@softer-components/types";
+
 import { RelativePathStateManager } from "./relative-path-state-manager";
-import { SofterRootState } from "./utils.type";
 import { StateManager } from "./state-manager";
+import { SofterRootState } from "./utils.type";
 
 const INITIAL_KEY = "0";
 /**
@@ -43,8 +44,8 @@ function initializeChildrenState(
     ([childName, childDef]) => {
       stateManager.initializeChildBranches(childName);
       (componentDef.initialChildrenKeys?.[childName] ?? [INITIAL_KEY])
-        .map((key) => stateManager.childStateManager(childName, key))
-        .forEach((childStateManager) => {
+        .map(key => stateManager.childStateManager(childName, key))
+        .forEach(childStateManager => {
           initializeStateRecursively(childDef, childStateManager);
         });
     },

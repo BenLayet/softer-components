@@ -1,10 +1,3 @@
-import { ComponentPath, GlobalEvent, SofterRootState } from "./utils.type";
-import { isUndefined } from "./predicate.functions";
-import { eventConsumerContextProvider } from "./event-consumer-context";
-import { StateReader } from "./state-manager";
-import { findComponentDef } from "./component-def-tree";
-import { RelativePathStateReader } from "./relative-path-state-manager";
-import { componentPathToString } from "./component-path";
 import {
   ComponentContract,
   ComponentDef,
@@ -13,6 +6,14 @@ import {
   EventEffectDispatchers,
   Payload,
 } from "@softer-components/types";
+
+import { findComponentDef } from "./component-def-tree";
+import { componentPathToString } from "./component-path";
+import { eventConsumerContextProvider } from "./event-consumer-context";
+import { isUndefined } from "./predicate.functions";
+import { RelativePathStateReader } from "./relative-path-state-manager";
+import { StateReader } from "./state-manager";
+import { ComponentPath, GlobalEvent, SofterRootState } from "./utils.type";
 
 type Unregister = () => void;
 export class EffectsManager {
@@ -32,7 +33,7 @@ export class EffectsManager {
     const unregisterFunctions = Object.entries(effects).map(
       ([eventName, effect]) => this.registerEffect(pathStr, eventName, effect),
     );
-    return () => unregisterFunctions.forEach((f) => f());
+    return () => unregisterFunctions.forEach(f => f());
   };
   registerEffect<
     TComponentContract extends ComponentContract,
@@ -51,7 +52,7 @@ export class EffectsManager {
     return () => {
       this.effectsMap[pathStr][eventName] = this.effectsMap[pathStr][
         eventName
-      ].filter((f) => f !== effect);
+      ].filter(f => f !== effect);
       if (this.effectsMap[pathStr][eventName].length === 0) {
         delete this.effectsMap[pathStr][eventName];
       }
@@ -93,7 +94,7 @@ export class EffectsManager {
       event.componentPath,
       dispatchEvent,
     );
-    effects.forEach((effect) => effect(dispatchers, eventContext()));
+    effects.forEach(effect => effect(dispatchers, eventContext()));
   }
 }
 

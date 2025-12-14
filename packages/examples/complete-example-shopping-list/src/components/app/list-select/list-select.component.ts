@@ -4,6 +4,7 @@ import {
   ExtractComponentValuesContract,
   Selectors,
 } from "@softer-components/types";
+
 import { List } from "../../../model";
 import { savedListsDef } from "./saved-lists/saved-lists.component.ts";
 

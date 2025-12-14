@@ -1,9 +1,9 @@
-import { Values } from "./values";
 import {
   ComponentContract,
   ComponentEventsContract,
 } from "./component-contract";
-import { Payload, Event } from "./event";
+import { Event, Payload } from "./event";
+import { Values } from "./values";
 
 /**
  * Defines withPayload property for event forwarders

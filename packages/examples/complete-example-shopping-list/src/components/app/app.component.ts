@@ -2,9 +2,11 @@ import {
   ComponentDef,
   ExtractComponentChildrenContract,
 } from "@softer-components/types";
+
 import { List } from "../../model";
 import { listSelectDef } from "./list-select/list-select.component.ts";
 import { listDef } from "./list/list.component.ts";
+
 // Events
 type AppEvents = {
   listSelected: { payload: List };

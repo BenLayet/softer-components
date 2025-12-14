@@ -1,4 +1,5 @@
 import { ComponentDef } from "@softer-components/types";
+
 import { ComponentPath } from "./utils.type";
 
 /**

@@ -6,13 +6,14 @@ import {
 import { ComponentDef } from "@softer-components/types";
 import {
   EffectsManager,
-  generateEventsToForward,
   GlobalEvent,
-  initializeRootState,
   StateManager,
   StateReader,
+  generateEventsToForward,
+  initializeRootState,
   updateSofterRootState,
 } from "@softer-components/utils";
+
 import {
   actionToEvent,
   addSofterRootTree,

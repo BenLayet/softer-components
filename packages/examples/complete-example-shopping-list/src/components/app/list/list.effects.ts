@@ -1,7 +1,8 @@
 import { Effects } from "@softer-components/types";
+
+import { List } from "../../../model";
 import { listService } from "../../../service/list-service.ts";
 import { ListContract } from "./list.component.ts";
-import { List } from "../../../model";
 
 export const listEffects: Effects<ListContract> = {
   saveRequested: async (

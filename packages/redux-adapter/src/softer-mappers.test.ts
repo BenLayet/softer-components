@@ -1,4 +1,5 @@
 import { describe, expect, it } from "vitest";
+
 import { actionToEvent, eventToAction } from "./softer-mappers";
 
 describe("softer mapper tests", () => {

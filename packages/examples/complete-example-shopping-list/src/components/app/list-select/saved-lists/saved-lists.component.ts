@@ -3,6 +3,7 @@ import {
   ExtractComponentValuesContract,
   Selectors,
 } from "@softer-components/types";
+
 import { List, ListId } from "../../../../model";
 
 // Initial state definition

@@ -1,7 +1,8 @@
 import { useSofter, useSofterEffects } from "@softer-components/redux-adapter";
+
 import { ListSelectContract } from "./list-select.component.ts";
-import { SavedLists } from "./saved-lists/SavedLists.tsx";
 import { listSelectEffects } from "./list-select.effects.ts";
+import { SavedLists } from "./saved-lists/SavedLists.tsx";
 
 export const ListSelect = ({ path = "" }) => {
   const [v, d, c] = useSofter<ListSelectContract>(path);

@@ -3,13 +3,14 @@
  * State Managers could use these utilities to read/write states at specific paths or create their own structures.
  */
 import { ChildrenKeys } from "@softer-components/types";
+
+import { componentPathToString } from "./component-path";
 import {
   assertIsNotUndefined,
   isNotUndefined,
   isUndefined,
 } from "./predicate.functions";
 import { ComponentPath } from "./utils.type";
-import { componentPathToString } from "./component-path";
 
 // tree constants
 export const CHILDREN_BRANCHES_KEY = "🪾";

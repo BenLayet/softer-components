@@ -1,16 +1,17 @@
 import { ChildrenKeys, State } from "@softer-components/types";
-import { ComponentPath } from "./utils.type";
+
 import { StateManager } from "./state-manager";
 import {
+  Tree,
   createValueAtPath,
   findSubTree,
   getChildrenKeys,
   getValueAtPath,
   initializeChildBranches,
   removeSubTree,
-  Tree,
   updateValueAtPath,
 } from "./tree";
+import { ComponentPath } from "./utils.type";
 
 /**
  * Manages a state tree.

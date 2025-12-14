@@ -1,7 +1,8 @@
 import { useSofter, useSofterEffects } from "@softer-components/redux-adapter";
+import { useEffect } from "react";
+
 import { SavedListsContract } from "./saved-lists.component.ts";
 import { savedListsEffects } from "./saved-lists.effects.ts";
-import { useEffect } from "react";
 
 export const SavedLists = ({ path = "" }) => {
   const [v, d] = useSofter<SavedListsContract>(path);

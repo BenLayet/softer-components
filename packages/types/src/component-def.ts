@@ -1,8 +1,8 @@
-import { Values } from "./values";
 import { ChildConfig, ChildrenKeys } from "./children";
-import { InternalEventForwarders } from "./event-forwarder";
 import { ComponentContract } from "./component-contract";
+import { InternalEventForwarders } from "./event-forwarder";
 import { Selectors } from "./selectors";
+import { Values } from "./values";
 
 /**
  * Definition of a component
