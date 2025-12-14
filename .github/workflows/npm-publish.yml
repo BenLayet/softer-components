@@ -7,6 +7,7 @@ on:
 
 permissions:
   contents: write # ✅ Need write to create tags
+  pull-requests: write # ✅ Need write to create version PRs
   id-token: write # Required for OIDC
 
 jobs:
