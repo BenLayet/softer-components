@@ -8,7 +8,7 @@ export type ExtractComponentValuesContract<
 > = {
   [SelectorName in keyof TSelectors]: TSelectors[SelectorName] extends (
     state: any,
-    children: any
+    children: any,
   ) => infer TResult
     ? TResult
     : never;
