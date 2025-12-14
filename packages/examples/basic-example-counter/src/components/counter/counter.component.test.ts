@@ -12,6 +12,7 @@ describe("counter.component", () => {
       .when({
         name: "incrementRequested",
         componentPath: [],
+        payload: undefined,
       })
       .thenExpect([])
       .count.toBe(1);
@@ -22,6 +23,7 @@ describe("counter.component", () => {
       .when({
         name: "decrementRequested",
         componentPath: [],
+        payload: undefined,
       })
       .thenExpect([])
       .count.toBe(-1);

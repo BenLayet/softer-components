@@ -6,7 +6,6 @@ import {
   TreeStateManager,
   componentPathToString,
   createChildrenValues,
-  createValueProviders,
   findComponentDef,
   findSubTree,
   isUndefined,
