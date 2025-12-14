@@ -11,7 +11,8 @@
     "clean": "pnpm -r clean",
     "test": "pnpm -r test:ci",
     "test:ci": "pnpm -r test:ci",
-    "build": "pnpm -r build"
+    "build": "pnpm -r build",
+    "format": "pnpm -r format"
   },
   "author": "BenLayet",
   "license": "MIT",

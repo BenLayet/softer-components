@@ -2,10 +2,10 @@ import {
   ComponentContract,
   ComponentDef,
   Effect,
+  Effects,
   Payload,
 } from "@softer-components/types";
 
-import { Effects } from "../../types/lib";
 import { findComponentDef } from "./component-def-tree";
 import { componentPathToString } from "./component-path";
 import { eventConsumerContextProvider } from "./event-consumer-context";
@@ -15,6 +15,7 @@ import { StateReader } from "./state-manager";
 import { ComponentPath, GlobalEvent, SofterRootState } from "./utils.type";
 
 type Unregister = () => void;
+
 export class EffectsManager {
   private readonly effectsMap: {
     [pathStr: string]: { [eventName: string]: Effect[] };
@@ -35,6 +36,7 @@ export class EffectsManager {
     );
     return () => unregisterFunctions.forEach(f => f());
   };
+
   registerEffect<
     TComponentContract extends ComponentContract,
     TEventName extends keyof TComponentContract["events"] & string,
@@ -61,6 +63,7 @@ export class EffectsManager {
       }
     };
   }
+
   eventOccurred(
     event: GlobalEvent,
     softerRootState: SofterRootState,

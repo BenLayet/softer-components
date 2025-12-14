@@ -7,5 +7,5 @@ export type EventConsumerContext<
   TComponentContract extends ComponentContract = ComponentContract,
 > = Values<TComponentContract> & {
   payload: TPayload;
-  childKey?: string;
+  childKey: string;
 };

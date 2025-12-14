@@ -22,7 +22,7 @@ type WithPayloadDef<
         readonly withPayload?: (
           params: Values<TComponentContract> & {
             payload: TFromPayload;
-            childKey?: string;
+            childKey: string;
           },
         ) => TToPayload;
       }
@@ -94,7 +94,7 @@ export type FromEventContractToChildEventContract<
       toKeys?: (
         params: Values<TComponentContract> & {
           payload: TFromEvents[TFromEventName & string]["payload"];
-          childKey?: string;
+          childKey: string;
         },
       ) => string[];
     };
