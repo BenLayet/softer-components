@@ -25,9 +25,6 @@ jobs:
         with:
           version: 8
 
-      - name: List files
-        run: ls -la
-
       - name: Install dependencies
         run: pnpm install
 
@@ -40,6 +37,9 @@ jobs:
       - name: Update npm
         run: npm install -g npm@latest
 
-      - name: Publish types
-        run: pnpm -r publish --no-git-checks
-
+      - name: Create Release Pull Request or Publish
+        uses: changesets/action@v1
+        with:
+          publish: pnpm changeset publish
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
