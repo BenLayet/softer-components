@@ -1,17 +1,21 @@
-import { ChildrenKeys, State } from "@softer-components/types";
-
+import {
+  ChildrenKeys,
+  ChildrenValues,
+  Selector,
+  State,
+} from "@softer-components/types";
+import { ComponentPath } from "./utils.type";
 import { StateManager } from "./state-manager";
 import {
-  Tree,
   createValueAtPath,
   findSubTree,
   getChildrenKeys,
   getValueAtPath,
   initializeChildBranches,
   removeSubTree,
+  Tree,
   updateValueAtPath,
 } from "./tree";
-import { ComponentPath } from "./utils.type";
 
 /**
  * Manages a state tree.
@@ -26,7 +30,7 @@ export class TreeStateManager implements StateManager {
   createState(
     rootStateTree: Tree<State>,
     path: ComponentPath,
-    state: State,
+    state: State
   ): void {
     createValueAtPath(rootStateTree, path, state);
   }
@@ -34,7 +38,7 @@ export class TreeStateManager implements StateManager {
   initializeChildBranches(
     rootStateTree: Tree<State>,
     parentPath: ComponentPath,
-    childName: string,
+    childName: string
   ): void {
     initializeChildBranches(rootStateTree, parentPath, childName);
   }
@@ -51,7 +55,7 @@ export class TreeStateManager implements StateManager {
   updateState(
     rootStateTree: Tree<State>,
     path: ComponentPath,
-    state: State,
+    state: State
   ): void {
     try {
       updateValueAtPath(rootStateTree, path, state);
@@ -63,7 +67,7 @@ export class TreeStateManager implements StateManager {
 
   getChildrenKeys(
     rootStateTree: Tree<State>,
-    path: ComponentPath,
+    path: ComponentPath
   ): ChildrenKeys {
     return getChildrenKeys(findSubTree(rootStateTree, path));
   }
@@ -71,8 +75,9 @@ export class TreeStateManager implements StateManager {
   selectValue<T>(
     rootStateTree: Tree<State>,
     path: ComponentPath,
-    selector: (state: State) => T,
+    selector: Selector<State>,
+    children: ChildrenValues
   ): T {
-    return selector(this.readState(rootStateTree, path));
+    return selector(this.readState(rootStateTree, path), children);
   }
 }
