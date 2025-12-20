@@ -11,16 +11,15 @@ import { ListItem } from "../../../../model";
 type ItemRowState = ListItem;
 
 // Events
-const eventNames = [
-  "initialize",
-  "removeItemRequested",
-  "incrementRequested",
-  "decrementRequested",
-  "itemChanged",
-] as const;
+type eventNames =
+  | "initialize"
+  | "removeItemRequested"
+  | "incrementRequested"
+  | "decrementRequested"
+  | "itemChanged";
 
 type Events = ComponentEventsContract<
-  typeof eventNames,
+  eventNames,
   {
     initialize: ListItem;
   }

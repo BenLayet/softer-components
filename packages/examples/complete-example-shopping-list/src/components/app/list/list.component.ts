@@ -22,23 +22,22 @@ type State = {
 };
 
 // Events
-const eventNames = [
-  "initialize",
-  "goBackClicked",
-  "nextItemNameChanged",
-  "newItemSubmitted",
-  "createItemOrIncrementQuantityRequested",
-  "resetNextItemNameRequested",
-  "incrementItemQuantityRequested",
-  "createItemRequested",
-  "removeItemRequested",
-  "saveRequested",
-  "saveSucceeded",
-  "saveFailed",
-] as const;
+type eventNames =
+  | "initialize"
+  | "goBackClicked"
+  | "nextItemNameChanged"
+  | "newItemSubmitted"
+  | "createItemOrIncrementQuantityRequested"
+  | "resetNextItemNameRequested"
+  | "incrementItemQuantityRequested"
+  | "createItemRequested"
+  | "removeItemRequested"
+  | "saveRequested"
+  | "saveSucceeded"
+  | "saveFailed";
 
 type Events = ComponentEventsContract<
-  typeof eventNames,
+  eventNames,
   {
     initialize: List;
     nextItemNameChanged: string;
@@ -53,7 +52,7 @@ type Events = ComponentEventsContract<
 // Effects
 const effects = {
   saveRequested: ["saveSucceeded", "saveFailed"],
-} satisfies EffectsDef<typeof eventNames>;
+} satisfies EffectsDef<eventNames>;
 
 const childrenComponents = {
   itemRows: itemRowDef,

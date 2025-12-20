@@ -30,27 +30,25 @@ const selectors = {
 } satisfies Selectors<typeof initialState>;
 
 // Events type declaration
-const eventNames = [
-  "displayed",
-  "fetchRequested",
-  "fetchSucceeded",
-  "fetchFailed",
-  "listClicked",
-  "listSelected",
-  "deleteClicked",
-  "deleteRequested",
-  "deleteSucceeded",
-  "deleteFailed",
-] as const;
-
+type eventNames =
+  | "displayed"
+  | "fetchRequested"
+  | "fetchSucceeded"
+  | "fetchFailed"
+  | "listClicked"
+  | "listSelected"
+  | "deleteClicked"
+  | "deleteRequested"
+  | "deleteSucceeded"
+  | "deleteFailed";
 // Effects definition
 const effects = {
   fetchRequested: ["fetchSucceeded", "fetchFailed"],
   deleteRequested: ["deleteSucceeded", "deleteFailed"],
-} satisfies EffectsDef<typeof eventNames>;
+} satisfies EffectsDef<eventNames>;
 
 type Events = ComponentEventsContract<
-  typeof eventNames,
+  eventNames,
   {
     fetchSucceeded: List[];
     fetchFailed: ErrorMessage;

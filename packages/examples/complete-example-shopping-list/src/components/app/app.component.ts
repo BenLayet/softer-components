@@ -1,5 +1,6 @@
 import {
   ComponentDef,
+  ComponentEventsContract,
   ExtractComponentChildrenContract,
 } from "@softer-components/types";
 
@@ -8,10 +9,8 @@ import { listSelectDef } from "./list-select/list-select.component.ts";
 import { listDef } from "./list/list.component.ts";
 
 // Events
-type AppEvents = {
-  listSelected: { payload: List };
-  selectListRequested: { payload: undefined };
-};
+type eventNames = "listSelected" | "selectListRequested";
+type AppEvents = ComponentEventsContract<eventNames, { listSelected: List }>;
 const childrenComponents = {
   listSelect: listSelectDef,
   list: listDef,

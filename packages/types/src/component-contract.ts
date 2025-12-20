@@ -5,13 +5,13 @@ import { State } from "./state";
 export type ComponentValuesContract = { [SelectorName in string]: any };
 
 export type ComponentEventsContract<
-  TEventNames extends readonly string[] = string[],
-  TPayloads extends { [EventName in TEventNames[number]]?: Payload } = Record<
-    TEventNames[number],
-    Payload
+  TEventNames extends string = string, // expect union
+  TPayloads extends { [EventName in TEventNames]?: Payload } = Record<
+    TEventNames,
+    undefined
   >,
 > = {
-  [TEventName in TEventNames[number]]: {
+  [TEventName in TEventNames]: {
     payload: TPayloads[TEventName] extends infer TPayload extends Payload
       ? TPayload
       : undefined;
@@ -22,10 +22,13 @@ export type ComponentEventsContract<
  * Contract of a component: defines how the component can be used by the UI and by other components
  *
  */
-export type ComponentContract<EventNames extends string = string> = {
+export type ComponentContract<TEventNames extends string = string> = {
   state: State;
   values: ComponentValuesContract;
-  events: ComponentEventsContract<EventNames[]>;
+  events: ComponentEventsContract<
+    TEventNames,
+    { [EventName in TEventNames]?: Payload }
+  >;
   children: Record<string, ComponentContract>;
-  effects?: EffectsDef<EventNames[]>;
+  effects?: EffectsDef<TEventNames>;
 };

@@ -39,17 +39,16 @@ const selectors = {
 } satisfies Selectors<State, ChildrenContract>;
 
 // Events type declaration
-const eventNames = [
-  "listNameChanged",
-  "createNewListClicked",
-  "createNewListRequested",
-  "createNewListSucceeded",
-  "createNewListFailed",
-  "listSelected",
-] as const;
+type eventNames =
+  | "listNameChanged"
+  | "createNewListClicked"
+  | "createNewListRequested"
+  | "createNewListSucceeded"
+  | "createNewListFailed"
+  | "listSelected";
 
 type ListSelectEvents = ComponentEventsContract<
-  typeof eventNames,
+  eventNames,
   {
     listNameChanged: string;
     createNewListRequested: string;
@@ -62,7 +61,7 @@ type ListSelectEvents = ComponentEventsContract<
 // Events type declaration
 const effects = {
   createNewListRequested: ["createNewListSucceeded", "createNewListFailed"],
-} satisfies EffectsDef<typeof eventNames>;
+} satisfies EffectsDef<eventNames>;
 
 export type ListSelectContract = {
   state: State;

@@ -1,5 +1,6 @@
 import {
   ComponentDef,
+  ComponentEventsContract,
   ExtractComponentChildrenContract,
   ExtractComponentValuesContract,
   Selectors,
@@ -314,12 +315,16 @@ type ItemState = {
   quantity: number;
 };
 
-type ItemEvents = {
-  removeRequested: { payload: undefined };
-  incrementQuantityRequested: { payload: undefined };
-  decrementQuantityRequested: { payload: undefined };
-  initialize: { payload: string };
-};
+type ItemEventName =
+  | "incrementQuantityRequested"
+  | "decrementQuantityRequested"
+  | "removeRequested"
+  | "initialize";
+
+type ItemEvents = ComponentEventsContract<
+  ItemEventName,
+  { initialize: string }
+>;
 
 const selectors = {
   name: state => state.name,
@@ -329,7 +334,6 @@ const selectors = {
 
 export type ItemContract = {
   values: ExtractComponentValuesContract<typeof selectors>;
-
   events: ItemEvents;
   children: {};
   state: ItemState;
@@ -369,15 +373,24 @@ const initialState = {
 };
 
 type ListState = typeof initialState;
-type ListEvents = {
-  nextItemNameChanged: { payload: string };
-  newItemSubmitted: { payload: undefined };
-  addItemRequested: { payload: string };
-  resetItemNameRequested: { payload: undefined };
-  incrementItemQuantityRequested: { payload: number };
-  createItemRequested: { payload: { itemName: string; itemId: number } };
-  removeItemRequested: { payload: number };
-};
+type ListEventName =
+  | "nextItemNameChanged"
+  | "addItemRequested"
+  | "createItemRequested"
+  | "incrementItemQuantityRequested"
+  | "resetItemNameRequested"
+  | "removeItemRequested"
+  | "newItemSubmitted";
+type ListEvents = ComponentEventsContract<
+  ListEventName,
+  {
+    nextItemNameChanged: string;
+    addItemRequested: string;
+    removeItemRequested: number;
+    incrementItemQuantityRequested: number;
+    createItemRequested: { itemName: string; itemId: number };
+  }
+>;
 
 const childrenComponents = {
   items: itemDef,
