@@ -71,7 +71,7 @@ function generateEventsFromOwnComponent(
       forwarder =>
         !forwarder.onCondition || forwarder.onCondition(eventContext()),
     )
-    .map(forwarder => ({
+    .map((forwarder: any) => ({
       name: forwarder.to,
       componentPath: triggeringEvent.componentPath,
       payload: forwarder.withPayload
@@ -118,7 +118,7 @@ function generateEventsToParent(
     .filter(
       listener => !listener.onCondition || listener.onCondition(eventContext()),
     )
-    .map(listener => ({
+    .map((listener: any) => ({
       name: listener.to,
       componentPath: parentComponentPath,
       payload: listener.withPayload
@@ -163,12 +163,25 @@ function generateEventsToChildren(
           stateReader.getChildrenKeys()[childName]
       ).map(childKey => ({ childName, command, childKey })),
     )
-    .map(({ childName, command, childKey }) => ({
-      name: command.to,
-      componentPath: [...triggeringEvent.componentPath, [childName, childKey]],
-      payload: command.withPayload
-        ? command.withPayload({ ...eventContext(), childKey })
-        : triggeringEvent.payload,
-      source: "📢",
-    }));
+    .map(
+      ({
+        childName,
+        command,
+        childKey,
+      }: {
+        childName: string;
+        childKey: string;
+        command: any;
+      }) => ({
+        name: command.to,
+        componentPath: [
+          ...triggeringEvent.componentPath,
+          [childName, childKey],
+        ],
+        payload: command.withPayload
+          ? command.withPayload({ ...eventContext(), childKey })
+          : triggeringEvent.payload,
+        source: "📢",
+      }),
+    );
 }

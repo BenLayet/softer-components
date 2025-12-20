@@ -149,26 +149,25 @@ export class SofterApplicationViewModel implements SofterViewModel {
     let cachedDispatchers: any;
     const dispatchers = (dispatch: ReduxDispatch) => {
       if (!cachedDispatchers) {
-        cachedDispatchers =  Object.fromEntries(
-            (componentDef.uiEvents ?? []).map(eventName => {
-              return [
-                eventName,
-                (payload: any) =>
-                    dispatch(
-                        eventToAction({
-                          componentPath,
-                          name: eventName,
-                          payload,
-                          source: "🖱️",
-                        }),
-                    ),
-              ];
-            }),
+        cachedDispatchers = Object.fromEntries(
+          (componentDef.uiEvents ?? []).map(eventName => {
+            return [
+              eventName,
+              (payload: any) =>
+                dispatch(
+                  eventToAction({
+                    componentPath,
+                    name: eventName,
+                    payload,
+                    source: "🖱️",
+                  }),
+                ),
+            ];
+          }),
         ) as any;
       }
       return cachedDispatchers;
-    }
-
+    };
 
     return {
       dispatchers,

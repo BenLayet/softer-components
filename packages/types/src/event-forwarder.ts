@@ -13,11 +13,11 @@ type WithPayloadDef<
   TComponentContract extends ComponentContract,
   TFromPayload extends Payload,
   TToPayload extends Payload,
-> = TToPayload extends undefined
+> = [TToPayload] extends [undefined]
   ? {
       readonly withPayload?: never;
     }
-  : TFromPayload extends TToPayload
+  : [TFromPayload] extends [TToPayload]
     ? {
         readonly withPayload?: (
           params: Values<TComponentContract> & {
