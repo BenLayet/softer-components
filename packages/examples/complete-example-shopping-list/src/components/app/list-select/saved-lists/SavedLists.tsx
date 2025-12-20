@@ -9,7 +9,7 @@ export const SavedLists = ({ path = "" }) => {
   useSofterEffects(path, savedListsEffects);
   useEffect(() => {
     d.displayed();
-  }, []);
+  }, [d]);
   return (
     <div style={{ maxWidth: "300px" }}>
       <ul style={{ width: "100%" }}>

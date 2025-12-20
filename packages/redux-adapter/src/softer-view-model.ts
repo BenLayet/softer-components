@@ -5,7 +5,6 @@ import {
   RelativePathStateReader,
   TreeStateManager,
   componentPathToString,
-  createChildrenValues,
   createValueProviders,
   findComponentDef,
   findSubTree,
@@ -147,23 +146,29 @@ export class SofterApplicationViewModel implements SofterViewModel {
       return values;
     });
     const componentDef = findComponentDef(this.rootComponentDef, componentPath);
-    const dispatchers = (dispatch: ReduxDispatch) =>
-      Object.fromEntries(
-        (componentDef.uiEvents ?? []).map(eventName => {
-          return [
-            eventName,
-            (payload: any) =>
-              dispatch(
-                eventToAction({
-                  componentPath,
-                  name: eventName,
-                  payload,
-                  source: "🖱️",
-                }),
-              ),
-          ];
-        }),
-      ) as any;
+    let cachedDispatchers: any;
+    const dispatchers = (dispatch: ReduxDispatch) => {
+      if (!cachedDispatchers) {
+        cachedDispatchers =  Object.fromEntries(
+            (componentDef.uiEvents ?? []).map(eventName => {
+              return [
+                eventName,
+                (payload: any) =>
+                    dispatch(
+                        eventToAction({
+                          componentPath,
+                          name: eventName,
+                          payload,
+                          source: "🖱️",
+                        }),
+                    ),
+              ];
+            }),
+        ) as any;
+      }
+      return cachedDispatchers;
+    }
+
 
     return {
       dispatchers,
