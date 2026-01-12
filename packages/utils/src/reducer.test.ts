@@ -287,6 +287,8 @@ describe("reducer tests", () => {
         stateManager.updateState = vi.fn();
         stateManager.createState = vi.fn();
         stateManager.removeStateTree = vi.fn();
+        stateManager.initializeChildBranches = vi.fn();
+        stateManager.reorderChildStates = vi.fn();
 
         // WHEN
         updateSofterRootState({}, listDef, event as GlobalEvent, stateManager);
@@ -358,7 +360,7 @@ const itemDef: ComponentDef<ItemContract> = {
     {
       from: "decrementQuantityRequested",
       to: "removeRequested",
-      onCondition: ({ selectors }) => selectors.isEmpty(),
+      onCondition: ({ values }) => values.isEmpty(),
     },
   ],
 };
@@ -406,7 +408,9 @@ type ListContract = {
   state: ListState;
   values: ExtractComponentValuesContract<typeof listSelectors>;
   events: ListEvents;
-  children: ExtractComponentChildrenContract<typeof childrenComponents>;
+  children: ExtractComponentChildrenContract<typeof childrenComponents> & {
+    items: { isCollection: true };
+  };
 };
 const listDef: ComponentDef<ListContract> = {
   initialState,
@@ -420,14 +424,14 @@ const listDef: ComponentDef<ListContract> = {
       state.nextItemName = "";
     },
     createItemRequested: ({
-      childrenKeys: { items },
+      children: { items },
       payload: { itemId },
       state,
     }) => {
       items.push(`${itemId}`);
       state.lastItemId = itemId;
     },
-    removeItemRequested: ({ childrenKeys: { items }, payload: idToRemove }) => {
+    removeItemRequested: ({ children: { items }, payload: idToRemove }) => {
       items.splice(items.indexOf(`${idToRemove}`), 1);
     },
   },
@@ -435,27 +439,27 @@ const listDef: ComponentDef<ListContract> = {
     {
       from: "newItemSubmitted",
       to: "addItemRequested",
-      withPayload: ({ selectors }) => selectors.nextItemName().trim(),
-      onCondition: ({ selectors }) => selectors.nextItemName().trim() !== "",
+      withPayload: ({ values }) => values.nextItemName().trim(),
+      onCondition: ({ values }) => values.nextItemName().trim() !== "",
     },
     {
       from: "addItemRequested",
       to: "createItemRequested",
-      onCondition: ({ children: { items }, payload: itemName }) =>
-        Object.values(items).every(item => item.selectors.name() !== itemName),
-      withPayload: ({ selectors, payload: itemName }) => ({
+      onCondition: ({ childrenValues: { items }, payload: itemName }) =>
+        Object.values(items).every(item => item.values.name() !== itemName),
+      withPayload: ({ values, payload: itemName }) => ({
         itemName,
-        itemId: selectors.nextItemId(),
+        itemId: values.nextItemId(),
       }),
     },
     {
       from: "addItemRequested",
       to: "incrementItemQuantityRequested",
-      onCondition: ({ children: { items }, payload: itemName }) =>
-        Object.values(items).some(item => item.selectors.name() === itemName),
-      withPayload: ({ children: { items }, payload: itemName }) =>
+      onCondition: ({ childrenValues: { items }, payload: itemName }) =>
+        Object.values(items).some(item => item.values.name() === itemName),
+      withPayload: ({ childrenValues: { items }, payload: itemName }) =>
         Object.entries(items)
-          .filter(([, item]) => item.selectors.name() === itemName)
+          .filter(([, item]) => item.values.name() === itemName)
           .map(([key]) => parseInt(key))[0],
     },
     {
@@ -463,8 +467,8 @@ const listDef: ComponentDef<ListContract> = {
       to: "resetItemNameRequested",
     },
   ],
-  childrenComponents,
-  initialChildrenKeys: { items: [] },
+  childrenComponentDefs: childrenComponents,
+  initialChildren: { items: [] },
   childrenConfig: {
     items: {
       commands: [

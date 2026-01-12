@@ -90,23 +90,21 @@ export class SofterApplicationViewModel implements SofterViewModel {
     const stateTreeSelector = (globalState: GlobalState) =>
       findSubTree(getSofterRootTree(globalState), componentPath);
 
-    const childrenKeysSelector = createSelector([stateTreeSelector], subTree =>
+    const childrenSelector = createSelector([stateTreeSelector], subTree =>
       isUndefined(subTree)
         ? undefined
         : this.stateManager.getChildrenKeys(subTree, []),
     );
 
-    const childrenPathsSelector = createSelector(
-      [childrenKeysSelector],
-      childrenKeys =>
-        Object.fromEntries(
-          Object.entries(childrenKeys ?? {}).map(([childName, childKeys]) => [
-            childName,
-            childKeys.map(key =>
-              componentPathToString([...componentPath, [childName, key]]),
-            ),
-          ]),
-        ),
+    const childrenPathsSelector = createSelector([childrenSelector], children =>
+      Object.fromEntries(
+        Object.entries(children ?? {}).map(([childName, childKeys]) => [
+          childName,
+          childKeys.map(key =>
+            componentPathToString([...componentPath, [childName, key]]),
+          ),
+        ]),
+      ),
     );
     const pathOfFirstInstanceOfEachChildSelector = createSelector(
       [childrenPathsSelector],
@@ -132,11 +130,11 @@ export class SofterApplicationViewModel implements SofterViewModel {
         componentDef,
         new RelativePathStateReader(stateTree, this.stateManager, []),
       );
-      Object.entries(valueProviders.selectors ?? {}).forEach(
-        ([selectorName, selector]) => {
-          Object.defineProperty(values, selectorName, {
+      Object.entries(valueProviders.values ?? {}).forEach(
+        ([valueName, valueProvider]) => {
+          Object.defineProperty(values, valueName, {
             get() {
-              return selector();
+              return valueProvider();
             },
             enumerable: false,
             configurable: false,

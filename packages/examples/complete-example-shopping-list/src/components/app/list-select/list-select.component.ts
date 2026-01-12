@@ -34,8 +34,7 @@ const selectors = {
   hasSaveFailedError: state => state.errors.includes("SAVE_FAILED"),
   hasListAlreadyExistsError: state =>
     state.errors.includes("LIST_ALREADY_EXISTS"),
-  savedListsCount: (_, children) =>
-    children.savedLists[0].selectors.savedListCount(),
+  savedListsCount: (_, children) => children.savedLists.values.savedListCount(),
 } satisfies Selectors<State, ChildrenContract>;
 
 // Events type declaration
@@ -83,11 +82,11 @@ export const listSelectDef: ComponentDef<ListSelectContract> = {
     },
     createNewListClicked: ({
       state,
-      selectors: { listName },
-      children: { savedLists },
+      values: { listName },
+      childrenValues: { savedLists },
     }) => {
       listName() === "" && state.errors.push("NAME_REQUIRED");
-      savedLists["0"].selectors.savedListNames().includes(listName()) &&
+      savedLists.values.savedListNames().includes(listName()) &&
         state.errors.push("LIST_ALREADY_EXISTS");
     },
     createNewListFailed: ({ state }) => {
@@ -102,11 +101,11 @@ export const listSelectDef: ComponentDef<ListSelectContract> = {
     {
       from: "createNewListClicked",
       to: "createNewListRequested",
-      onCondition: ({ selectors }) => selectors.listName().trim() !== "",
-      withPayload: ({ selectors }) => selectors.listName(),
+      onCondition: ({ values }) => values.listName().trim() !== "",
+      withPayload: ({ values }) => values.listName(),
     },
   ],
-  childrenComponents,
+  childrenComponentDefs: childrenComponents,
   childrenConfig: {
     savedLists: {
       listeners: [{ from: "listSelected", to: "listSelected" }],

@@ -2,8 +2,6 @@
  * Tree structure and utilities to manipulate it.
  * State Managers could use these utilities to read/write states at specific paths or create their own structures.
  */
-import { ChildrenKeys } from "@softer-components/types";
-
 import { componentPathToString } from "./component-path";
 import {
   assertIsNotUndefined,
@@ -155,4 +153,24 @@ export const initializeChildBranches = <T>(
     childrenBranches[childName] = {};
   }
   return childrenBranches[childName];
+};
+export type ChildrenKeys = Record<string, string[]>;
+
+export const reorderChildStates = <T>(
+  treeAtRootOfPath: Tree<T>,
+  childName: string,
+  desiredKeys: string[],
+): void => {
+  const childrenBranches = treeAtRootOfPath[CHILDREN_BRANCHES_KEY]?.[childName];
+  assertIsNotUndefined(childrenBranches);
+  const originalChildrenBranches = { ...childrenBranches };
+  for (const key of desiredKeys) {
+    const keyStr = String(key);
+    const childBranch = originalChildrenBranches[keyStr];
+    assertIsNotUndefined(
+      childBranch,
+      `Cannot reorder child states for child ${childName} because key ${keyStr} does not exist`,
+    );
+    childrenBranches[keyStr] = childBranch;
+  }
 };

@@ -7,14 +7,14 @@ import { ListContract } from "./list.component.ts";
 export const listEffects: Effects<ListContract> = {
   saveRequested: async (
     { saveSucceeded, saveFailed },
-    { selectors, children },
+    { values, childrenValues },
   ) => {
     try {
       const list: List = {
-        id: selectors.id(),
-        name: selectors.name(),
-        listItems: Object.values(children.itemRows).map(values =>
-          values.selectors.listItem(),
+        id: values.id(),
+        name: values.name(),
+        listItems: Object.values(childrenValues.itemRows).map(itemRow =>
+          itemRow.values.listItem(),
         ),
       };
       await listService.save(list);

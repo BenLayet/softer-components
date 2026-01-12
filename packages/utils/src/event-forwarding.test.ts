@@ -46,7 +46,7 @@ describe("event forwarding tests", () => {
     // GIVEN
     const child = {};
     const componentDef = {
-      childrenComponents: {
+      childrenComponentDefs: {
         child,
       },
       childrenConfig: {
@@ -92,7 +92,7 @@ describe("event forwarding tests", () => {
     // GIVEN
     const child = {};
     const componentDef = {
-      childrenComponents: {
+      childrenComponentDefs: {
         child,
       },
       childrenConfig: {
@@ -172,7 +172,7 @@ describe("event forwarding tests", () => {
             {
               from: "btnClicked",
               to: "incrementRequested",
-              onCondition: ({ selectors }) => selectors.isPassing(),
+              onCondition: ({ values }) => values.isPassing(),
             },
           ],
         };
@@ -216,7 +216,7 @@ describe("event forwarding tests", () => {
         {
           from: "btnClicked",
           to: "incrementRequested",
-          withPayload: ({ selectors }) => selectors.nextPayload(),
+          withPayload: ({ values }) => values.nextPayload(),
         },
       ],
     };
@@ -253,7 +253,7 @@ describe("event forwarding tests", () => {
     // GIVEN
     const child = {};
     const componentDef = {
-      childrenComponents: {
+      childrenComponentDefs: {
         child,
       },
       childrenConfig: {

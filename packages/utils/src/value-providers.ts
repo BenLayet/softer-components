@@ -5,6 +5,7 @@ import {
   Values,
 } from "@softer-components/types";
 
+import { isCollectionChild } from "./component-def-tree";
 import {
   assertIsNotUndefined,
   assertValueIsNotUndefined,
@@ -21,33 +22,36 @@ export function createValueProviders<
   stateReader: RelativePathStateReader,
 ): Values<TComponentContract> {
   // Create children's values
-  const children = createChildrenValues(componentDef, stateReader);
+  const childrenValues = createChildrenValues(componentDef, stateReader);
 
-  assertValueIsNotUndefined({ children });
+  assertValueIsNotUndefined({ childrenValues });
 
   // Create own values
-  const selectors = createOwnSelectors(componentDef, stateReader, children);
+  const values = createOwnValues(componentDef, stateReader, childrenValues);
 
-  return { selectors, children } as Values<TComponentContract>;
+  return {
+    values,
+    childrenValues,
+  } as Values<TComponentContract>;
 }
 
-function createOwnSelectors<
+function createOwnValues<
   TComponentContract extends ComponentContract = ComponentContract,
 >(
   componentDef: ComponentDef<TComponentContract>,
   stateReader: RelativePathStateReader,
-  children: Values<TComponentContract>["children"],
-): Values<TComponentContract>["selectors"] {
+  childrenValues: Values<TComponentContract>["childrenValues"],
+): Values<TComponentContract>["values"] {
   const selectorsDef = componentDef.selectors || {};
   return Object.fromEntries(
     Object.entries(selectorsDef).map(([selectorName, selector]) => [
       selectorName,
       () => {
-        assertValueIsNotUndefined({ children });
-        return stateReader.selectValue(selector as any, children);
+        assertValueIsNotUndefined({ childrenValues });
+        return stateReader.selectValue(selector as any, childrenValues);
       },
     ]),
-  ) as Values<TComponentContract>["selectors"];
+  ) as Values<TComponentContract>["values"];
 }
 
 export function createChildrenValues<
@@ -60,21 +64,42 @@ export function createChildrenValues<
   assertValueIsNotUndefined({ childrenKeys });
   return Object.fromEntries(
     Object.entries(childrenKeys).map(([childName, childKeys]) => {
-      const childDef = componentDef.childrenComponents?.[childName];
+      const childDef = componentDef.childrenComponentDefs?.[childName];
       assertIsNotUndefined(
         childDef,
         `Child component '${childName}' not found in childrenComponents`,
       );
-      const childInstancesValueProviders = Object.fromEntries(
-        childKeys.map(key => {
-          const childValueProviders = createValueProviders(
-            childDef,
-            stateReader.childStateReader(childName, key),
+
+      if (isCollectionChild(componentDef, childName)) {
+        const childInstancesValueProviders = Object.fromEntries(
+          childKeys.map(key => {
+            const childValueProviders = createValueProviders(
+              childDef,
+              stateReader.childStateReader(childName, key),
+            );
+            return [key, childValueProviders];
+          }),
+        );
+        return [childName, childInstancesValueProviders];
+      } else {
+        if (childKeys.length === 0) {
+          return [childName, undefined];
+        }
+        if (childKeys.length > 1) {
+          throw new Error(
+            `Multiple instances found for non-collection child '${childName}'. Keys = ${JSON.stringify(
+              childKeys,
+            )}`,
           );
-          return [key, childValueProviders];
-        }),
-      );
-      return [childName, childInstancesValueProviders];
+        }
+        return [
+          childName,
+          createValueProviders(
+            childDef,
+            stateReader.firstChildStateReader(childName),
+          ),
+        ];
+      }
     }),
   ) as ChildrenValues<TComponentContract["children"]>;
 }

@@ -61,7 +61,7 @@ export const itemRowDef: ComponentDef<ItemRowContract> = {
     {
       from: "decrementRequested",
       to: "removeItemRequested",
-      onCondition: ({ selectors }) => selectors.isQuantityZero(),
+      onCondition: ({ values }) => values.isQuantityZero(),
     },
     {
       from: "incrementRequested",

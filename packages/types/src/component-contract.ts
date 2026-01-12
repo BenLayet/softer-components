@@ -18,6 +18,10 @@ export type ComponentEventsContract<
   };
 };
 
+export type ChildInstanceContract =
+  | { isOptional?: false; isCollection?: false }
+  | { isCollection: true; isOptional?: false }
+  | { isOptional: true; isCollection?: false }; // allows for type narrowing
 /**
  * Contract of a component: defines how the component can be used by the UI and by other components
  *
@@ -29,6 +33,6 @@ export type ComponentContract<TEventNames extends string = string> = {
     TEventNames,
     { [EventName in TEventNames]?: Payload }
   >;
-  children: Record<string, ComponentContract>;
+  children: Record<string, ComponentContract & ChildInstanceContract>;
   effects?: EffectsDef<TEventNames>;
 };
