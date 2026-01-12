@@ -15,7 +15,7 @@ export const findComponentDef = (
   if (componentPath.length === 0) {
     return componentDef;
   }
-  const children = componentDef.childrenComponents ?? {};
+  const children = componentDef.childrenComponentDefs ?? {};
   const childName = componentPath[0][0];
   const child = children[childName];
   if (!child) {
@@ -25,3 +25,11 @@ export const findComponentDef = (
   }
   return findComponentDef(child, componentPath.slice(1));
 };
+
+export function isCollectionChild(
+  componentDef: ComponentDef,
+  childName: string,
+): boolean {
+  const initialChildInstancesDef = componentDef.initialChildren?.[childName];
+  return Array.isArray(initialChildInstancesDef);
+}

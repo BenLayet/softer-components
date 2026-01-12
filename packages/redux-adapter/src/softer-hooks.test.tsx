@@ -116,7 +116,7 @@ describe("useSofter with memoization", () => {
       values: { activeItemCount: number };
       events: { setFilter: { payload: string } };
       children: {
-        itemRows: ItemContract;
+        itemRows: ItemContract & { isCollection: true };
       };
     };
 
@@ -138,10 +138,10 @@ describe("useSofter with memoization", () => {
           state.filter = payload;
         },
       },
-      childrenComponents: {
+      childrenComponentDefs: {
         itemRows: itemDef,
       },
-      initialChildrenKeys: { itemRows: [] },
+      initialChildren: { itemRows: [] },
     };
 
     const store = configureSofterStore(listDef);

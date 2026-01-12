@@ -5,7 +5,7 @@ import { ListContract } from "./list.component.ts";
 import { listEffects } from "./list.effects.ts";
 
 export const List = ({ path = "" }) => {
-  const [v, d, {}, c] = useSofter<ListContract>(path);
+  const [v, d, _, c] = useSofter<ListContract>(path);
   useSofterEffects(path, listEffects);
   return (
     <div>

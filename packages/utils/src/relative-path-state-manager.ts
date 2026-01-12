@@ -1,6 +1,11 @@
-import { ChildrenKeys, ChildrenValues, State } from "@softer-components/types";
+import {
+  ChildrenInstancesDefs,
+  ChildrenValues,
+  State,
+} from "@softer-components/types";
 
 import { StateManager, StateReader } from "./state-manager";
+import { ChildrenKeys } from "./tree";
 import { ComponentPath, SofterRootState } from "./utils.type";
 
 /**
@@ -20,6 +25,17 @@ export class RelativePathStateReader {
     childName: string,
     childKey: string,
   ): RelativePathStateReader {
+    return new RelativePathStateReader(
+      this.softerRootState,
+      this.absolutePathStateReader,
+      [...this.currentPath, [childName, childKey]],
+    );
+  }
+  firstChildStateReader(childName: string): RelativePathStateReader {
+    const childKey = this.getChildrenKeys()[childName]?.[0];
+    if (!childKey) {
+      throw new Error(`No child key found for child ${childName}`);
+    }
     return new RelativePathStateReader(
       this.softerRootState,
       this.absolutePathStateReader,
@@ -85,6 +101,17 @@ export class RelativePathStateManager extends RelativePathStateReader {
       [...this.currentPath, [childName, childKey]],
     );
   }
+  firstChildStateManager(childName: string): RelativePathStateManager {
+    const childKey = this.getChildrenKeys()[childName]?.[0];
+    if (!childKey) {
+      throw new Error(`No child key found for child ${childName}`);
+    }
+    return new RelativePathStateManager(
+      this.softerRootState,
+      this.absolutePathStateManager,
+      [...this.currentPath, [childName, childKey]],
+    );
+  }
 
   createState(state: State): void {
     this.absolutePathStateManager.createState(
@@ -114,6 +141,15 @@ export class RelativePathStateManager extends RelativePathStateReader {
     this.absolutePathStateManager.removeStateTree(
       this.softerRootState,
       this.currentPath,
+    );
+  }
+
+  reorderChildStates(childName: string, desiredKeys: string[]) {
+    this.absolutePathStateManager.reorderChildStates(
+      this.softerRootState,
+      this.currentPath,
+      childName,
+      desiredKeys,
     );
   }
 }

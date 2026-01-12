@@ -54,7 +54,7 @@ const effects = {
   saveRequested: ["saveSucceeded", "saveFailed"],
 } satisfies EffectsDef<eventNames>;
 
-const childrenComponents = {
+const childrenComponentDefs = {
   itemRows: itemRowDef,
 };
 
@@ -72,7 +72,9 @@ export type ListContract = {
   state: State;
   values: ExtractComponentValuesContract<typeof listSelectors>;
   events: Events;
-  children: ExtractComponentChildrenContract<typeof childrenComponents>;
+  children: ExtractComponentChildrenContract<typeof childrenComponentDefs> & {
+    itemRows: { isCollection: true };
+  };
   effects: typeof effects;
 };
 
@@ -80,10 +82,8 @@ export const listDef: ComponentDef<ListContract> = {
   selectors: listSelectors,
   uiEvents: ["nextItemNameChanged", "newItemSubmitted", "goBackClicked"],
   updaters: {
-    initialize: ({ payload: list, childrenKeys }) => {
-      childrenKeys.itemRows = list.listItems.map(
-        listItem => `${listItem.item.id}`,
-      );
+    initialize: ({ payload: list, children }) => {
+      children.itemRows = list.listItems.map(listItem => `${listItem.item.id}`);
       return {
         id: list.id,
         name: list.name,
@@ -98,16 +98,10 @@ export const listDef: ComponentDef<ListContract> = {
     resetNextItemNameRequested: ({ state }) => {
       state.nextItemName = "";
     },
-    createItemRequested: ({
-      childrenKeys: { itemRows },
-      payload: listItem,
-    }) => {
+    createItemRequested: ({ children: { itemRows }, payload: listItem }) => {
       itemRows.push(`${listItem.item.id}`);
     },
-    removeItemRequested: ({
-      childrenKeys: { itemRows },
-      payload: idToRemove,
-    }) => {
+    removeItemRequested: ({ children: { itemRows }, payload: idToRemove }) => {
       itemRows.splice(itemRows.indexOf(`${idToRemove}`), 1);
     },
     saveRequested: ({ state }) => {
@@ -127,17 +121,17 @@ export const listDef: ComponentDef<ListContract> = {
     {
       from: "newItemSubmitted",
       to: "createItemOrIncrementQuantityRequested",
-      withPayload: ({ selectors }) => selectors.nextItemSanitizedName(),
-      onCondition: ({ selectors }) => selectors.isNextItemNameValid(),
+      withPayload: ({ values }) => values.nextItemSanitizedName(),
+      onCondition: ({ values }) => values.isNextItemNameValid(),
     },
     {
       from: "createItemOrIncrementQuantityRequested",
       to: "createItemRequested",
-      onCondition: ({ children: { itemRows }, payload: itemName }) =>
+      onCondition: ({ childrenValues: { itemRows }, payload: itemName }) =>
         Object.values(itemRows).every(
-          itemRow => itemRow.selectors.name() !== itemName,
+          itemRow => itemRow.values.name() !== itemName,
         ),
-      withPayload: ({ payload: name, children: { itemRows } }) => ({
+      withPayload: ({ payload: name, childrenValues: { itemRows } }) => ({
         item: {
           name,
           id:
@@ -151,13 +145,13 @@ export const listDef: ComponentDef<ListContract> = {
     {
       from: "createItemOrIncrementQuantityRequested",
       to: "incrementItemQuantityRequested",
-      onCondition: ({ children: { itemRows }, payload: itemName }) =>
+      onCondition: ({ childrenValues: { itemRows }, payload: itemName }) =>
         Object.values(itemRows).some(
-          itemRow => itemRow.selectors.name() === itemName,
+          itemRow => itemRow.values.name() === itemName,
         ),
-      withPayload: ({ children: { itemRows }, payload: itemName }) =>
+      withPayload: ({ childrenValues: { itemRows }, payload: itemName }) =>
         Object.entries(itemRows)
-          .filter(([, item]) => item.selectors.name() === itemName)
+          .filter(([, item]) => item.values.name() === itemName)
           .map(([key]) => key)
           .map(Number)[0],
     },
@@ -174,8 +168,8 @@ export const listDef: ComponentDef<ListContract> = {
       to: "saveRequested",
     },
   ],
-  childrenComponents,
-  initialChildrenKeys: { itemRows: [] },
+  childrenComponentDefs,
+  initialChildren: { itemRows: [] },
   childrenConfig: {
     itemRows: {
       commands: [

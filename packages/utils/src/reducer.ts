@@ -1,10 +1,18 @@
-import { ComponentDef } from "@softer-components/types";
+import { ChildrenInstancesDefs, ComponentDef } from "@softer-components/types";
 import { produce } from "immer";
 
-import { findComponentDef } from "./component-def-tree";
-import { assertIsNotUndefined, isNotUndefined } from "./predicate.functions";
+import { findComponentDef, isCollectionChild } from "./component-def-tree";
+import {
+  assertIsArray,
+  assertIsNotUndefined,
+  assertIsNumber,
+  isNotUndefined,
+} from "./predicate.functions";
 import { RelativePathStateManager } from "./relative-path-state-manager";
-import { initializeStateRecursively } from "./state-initializer";
+import {
+  initializeChildState,
+  initializeStateRecursively,
+} from "./state-initializer";
 import { StateManager } from "./state-manager";
 import { GlobalEvent, SofterRootState } from "./utils.type";
 import { createValueProviders } from "./value-providers";
@@ -43,15 +51,15 @@ function updateStateOfComponentOfEvent(
   const updater = componentDef.updaters?.[event.name];
   if (!updater) return;
 
-  const { selectors, children, childrenKeys, state, payload } =
+  const { values, children, childrenValues, state, payload } =
     prepareUpdaterParams(componentDef, event, stateManager);
 
-  const next = produce({ state, childrenKeys }, (draft: any) => {
+  const next = produce({ state, children }, (draft: any) => {
     const returnedValue = updater({
-      selectors,
-      children,
+      values,
+      childrenValues,
       payload,
-      childrenKeys: draft.childrenKeys,
+      children: draft.children,
       state: draft.state,
     });
 
@@ -64,12 +72,7 @@ function updateStateOfComponentOfEvent(
   stateManager.updateState(next.state);
 
   // update children state
-  updateChildrenState(
-    componentDef,
-    childrenKeys,
-    next.childrenKeys,
-    stateManager,
-  );
+  updateChildrenState(componentDef, children, next.children, stateManager);
 }
 
 /**
@@ -80,48 +83,125 @@ function prepareUpdaterParams(
   event: GlobalEvent,
   stateManager: RelativePathStateManager,
 ) {
-  const { selectors, children } = createValueProviders(
+  const { values, childrenValues } = createValueProviders(
     componentDef,
     stateManager,
   );
   const childrenKeys = stateManager.getChildrenKeys();
+  const children = childrenKeysToBooleanOrArray(childrenKeys, componentDef);
   const state = stateManager.readState();
   const payload = event.payload;
 
   return {
-    selectors,
+    values,
     children,
     payload,
-    childrenKeys,
+    childrenValues,
     state,
   };
 }
 
 /**
- * Update children state based on changed childrenKeys
+ * Update children state based on changed children
  */
 function updateChildrenState(
   componentDef: ComponentDef,
-  previousChildrenKeys: Record<string, string[]>,
-  desiredChildrenKeys: Record<string, string[]>,
+  previousChildrenKeys: Record<string, boolean | string[]>,
+  desiredChildrenKeys: Record<string, boolean | string[]>,
   stateManager: RelativePathStateManager,
 ) {
   Object.entries(desiredChildrenKeys).forEach(([childName, desiredKeys]) => {
-    const childDef = componentDef.childrenComponents?.[childName];
+    const childDef = componentDef.childrenComponentDefs?.[childName];
     assertIsNotUndefined(childDef);
-    const previousKeys = (previousChildrenKeys[childName] ?? []) as string[];
+    const previousKeys = previousChildrenKeys[childName];
+
     // Remove the state of deleted keys
+    removeStateOfDeletedKeys(
+      previousKeys,
+      desiredKeys,
+      childName,
+      stateManager,
+    );
+
+    // Initialize the state of desired keys
+    initialiseChildStateOfAddedKeys(
+      componentDef,
+      previousKeys,
+      desiredKeys,
+      childName,
+      stateManager,
+    );
+    // reorder child states if needed
+    if (Array.isArray(desiredKeys) && desiredKeys.length > 0) {
+      assertIsArray(
+        previousKeys,
+        `Expected previousKeys to be an array for child ${childName}, but got ${typeof previousKeys}`,
+      );
+      const areDifferent =
+        desiredKeys.length !== previousKeys.length ||
+        desiredKeys.some((key, index) => key !== previousKeys[index]);
+      if (areDifferent) {
+        stateManager.reorderChildStates(childName, desiredKeys);
+      }
+    }
+  });
+}
+
+function initialiseChildStateOfAddedKeys(
+  componentDef: ComponentDef,
+  previousKeys: boolean | string[],
+  desiredKeys: boolean | string[],
+  childName: string,
+  stateManager: RelativePathStateManager,
+) {
+  if (Array.isArray(previousKeys)) {
+    assertIsArray(
+      desiredKeys,
+      `Expected desiredKeys to be an array for child ${childName}, but got ${typeof desiredKeys}`,
+    );
+    const newKeys = desiredKeys.filter(key => !previousKeys.includes(key));
+    initializeChildState(stateManager, componentDef, childName, newKeys);
+  } else {
+    if (desiredKeys !== false && previousKeys === false) {
+      initializeChildState(stateManager, componentDef, childName, true);
+    }
+  }
+}
+
+function removeStateOfDeletedKeys(
+  previousKeys: boolean | string[],
+  desiredKeys: boolean | string[],
+  childName: string,
+  stateManager: RelativePathStateManager,
+) {
+  if (Array.isArray(previousKeys)) {
+    assertIsArray(
+      desiredKeys,
+      `Expected desiredKeys to be an array for child ${childName}, but got ${typeof desiredKeys} `,
+    );
     previousKeys
       .filter(key => !desiredKeys.includes(key))
       .map(key => stateManager.childStateManager(childName, key))
       .forEach(childStateManager => childStateManager.removeStateTree());
+  } else {
+    if (previousKeys !== false && desiredKeys === false) {
+      const childStateManager = stateManager.firstChildStateManager(childName);
+      childStateManager.removeStateTree();
+    }
+  }
+}
 
-    // Initialize the state of desired keys
-    desiredKeys
-      .filter(key => !previousKeys.includes(key))
-      .map(key => stateManager.childStateManager(childName, key))
-      .forEach(childStateManager =>
-        initializeStateRecursively(childDef, childStateManager),
-      );
+function childrenKeysToBooleanOrArray(
+  childrenKeys: Record<string, string[]>,
+  componentDef: ComponentDef,
+): Record<string, boolean | string[]> {
+  const ret: Record<string, boolean | string[]> = {};
+  Object.entries(childrenKeys).forEach(([childName, keys]) => {
+    if (isCollectionChild(componentDef, childName)) {
+      ret[childName] = keys;
+    } else {
+      ret[childName] = keys.length > 0;
+    }
   });
+  return ret;
 }

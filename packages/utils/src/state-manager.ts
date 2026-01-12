@@ -1,5 +1,10 @@
-import { ChildrenKeys, ChildrenValues, State } from "@softer-components/types";
+import {
+  ChildrenInstancesDefs,
+  ChildrenValues,
+  State,
+} from "@softer-components/types";
 
+import { ChildrenKeys } from "./tree";
 import { ComponentPath, SofterRootState } from "./utils.type";
 
 /**
@@ -69,6 +74,16 @@ export interface StateWriter {
    * Remove the entire state at the given path
    */
   removeStateTree(softerRootState: SofterRootState, path: ComponentPath): void;
+
+  /**
+   * Reorder child states at the given path
+   */
+  reorderChildStates(
+    softerRootState: SofterRootState,
+    currentPath: ComponentPath,
+    childName: string,
+    desiredKeys: string[],
+  ): void;
 
   /**
    * Sets a listener to be notified with the specific path when a state tree is removed.

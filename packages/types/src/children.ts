@@ -1,20 +1,36 @@
-import { ComponentContract } from "./component-contract";
+import { ChildInstanceContract, ComponentContract } from "./component-contract";
 import {
   FromEventContractToChildEventContract,
   FromEventContractToEventContract,
 } from "./event-forwarder";
 
 /***************************************************************************************************************
- *                         CHILDREN KEYS
+ *                         CHILDREN INSTANCES DEFINITIONS
  ***************************************************************************************************************/
-type ChildKeys = string[];
-export type ChildrenKeys<
-  TChildrenContract extends Record<string, ComponentContract> = Record<
-    string,
-    ComponentContract
-  >,
-> = {
-  [ChildName in keyof TChildrenContract]: ChildKeys;
+type ChildInstancesDef<TCollectionContract extends ChildInstanceContract> =
+  TCollectionContract extends {
+    isCollection: true;
+  }
+    ? string[]
+    : TCollectionContract extends {
+          isOptional: true;
+        }
+      ? boolean | undefined
+      : never;
+export type ChildrenInstancesDefs<
+  TChildrenContract extends Record<string, ChildInstanceContract>,
+> = MakeUndefinedOptional<{
+  [ChildName in keyof TChildrenContract]: ChildInstancesDef<
+    TChildrenContract[ChildName]
+  >;
+}>;
+type MakeUndefinedOptional<T> = {
+  [K in keyof T as undefined extends T[K] ? K : never]?: Exclude<
+    T[K],
+    undefined
+  >;
+} & {
+  [K in keyof T as undefined extends T[K] ? never : K]: T[K];
 };
 
 /***************************************************************************************************************

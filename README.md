@@ -1,17 +1,17 @@
 # ☁️ Softer Components
 
 A state-manager-agnostic component library built with TypeScript in a monorepo structure, designed for creating reusable UI components.
+
 ## ✨ Features
 
 - **🔒 Full Type Safety**: Complete TypeScript support with strict typing
 - **⚡ Minimal Runtime Dependencies**: Lightweight core types package
 - **🌐 State-Manager Agnostic**: Core types work with any state management solution
-- **🔄 Redux Integration**: Built-in Redux adapter, and React hooks, using a 🪾 tree state  
+- **🔄 Redux Integration**: Built-in Redux adapter, and React hooks, using a 🪾 tree state
 - **📖 Well Documented**: Comprehensive documentation with real examples
 - **🧩 Composable**: Build complex apps from simple components that encapsulate their own logic
 - **♻️ Reusable**: Designed so components can be reused in different contexts
 - **🔄 Event Forwarding**: Support for parent-child communication via listeners and commands
-
 
 ## 🤔 Why Softer Components?
 
@@ -42,6 +42,7 @@ To address some of these new issues, the second step is to slice the global stor
   - grouping which components into which features is not straightforward: different developers might use different practices, resulting in an inconsistent codebase
 
 Softer Components goes one step further:
+
 - 1 UI component = 1 'softer component' managing its own slice of the store
 - Complete break down of application complexity into simple component logic while keeping a unique global state
   - a component is unaware of its 'path' in the component tree and can be reused anywhere, multiple times
@@ -80,9 +81,10 @@ Each component communicates with the rest of the application through events that
 - _coming in issue #11_: **by a component to a context**: e.g., login component `loginSubmitted` => security context: `authenticationRequested`
 
 Inspired by NgRx concept of Good Action Hygiene https://www.youtube.com/watch?v=JmnsEvoy-gY&themeRefresh=1, events in Softer Components:
- - they tell where they are dispatched from
- - they tell what event has occurred (in the past)
- - they are unaware about who will consume them
+
+- they tell where they are dispatched from
+- they tell what event has occurred (in the past)
+- they are unaware about who will consume them
 
 ## 📦 Installation
 
@@ -110,7 +112,7 @@ type CounterContract = {
   };
 
   // Computed values (from selectors)
- values: {
+  values: {
     doubled: number;
     isEven: boolean;
   };
@@ -138,8 +140,8 @@ export const counterDef: ComponentDef<CounterContract> = {
 
   // Selectors - compute derived values
   selectors: {
-    doubled: (state) => state.count * 2,
-    isEven: (state) => state.count % 2 === 0,
+    doubled: state => state.count * 2,
+    isEven: state => state.count % 2 === 0,
   },
 
   // UI events that can be dispatched from the component
@@ -217,7 +219,7 @@ export const counterDef: ComponentDef<CounterContract> = {
   initialState: { count: 0 },
 
   selectors: {
-    count: (state) => state.count,
+    count: state => state.count,
   },
 
   uiEvents: ["btnClicked"],
@@ -245,7 +247,7 @@ export const counterDef: ComponentDef<CounterContract> = {
 ```typescript
 type ItemContract = {
   state: { name: string };
- selectors: { displayName: string };
+  selectors: { displayName: string };
   events: {
     removed: { payload: undefined };
   };
@@ -267,12 +269,12 @@ export const listDef: ComponentDef<ListContract> = {
   initialState: { items: [] },
 
   selectors: {
-    itemCount: (state) => state.items.length,
+    itemCount: state => state.items.length,
   },
 
   updaters: {
     itemRemoved: ({ state, payload }) => {
-      state.items = state.items.filter((id) => id !== payload);
+      state.items = state.items.filter(id => id !== payload);
     },
   },
 
@@ -338,50 +340,50 @@ eventForwarders: [
 
 ```typescript
 type ListContract = {
-    state: { nextId: number };
-    values: { itemCount: number };
-    events: {
-        addItem: { payload: string };
-        removeItem: { payload: string };
-    };
-    children: {
-        items: ItemContract;
-    };
+  state: { nextId: number };
+  values: { itemCount: number };
+  events: {
+    addItem: { payload: string };
+    removeItem: { payload: string };
+  };
+  children: {
+    items: ItemContract;
+  };
 };
 
 export const listDef: ComponentDef<ListContract> = {
-    initialState: {nextId: 0},
+  initialState: { nextId: 0 },
 
-    // Initial children keys
-    initialChildrenKeys: {
-        items: [], // Start with no items
+  // Initial children
+  initialChildren: {
+    items: [], // Start with no items
+  },
+
+  updaters: {
+    addItem: ({ state, children, payload }) => {
+      const newId = String(state.nextId);
+      state.nextId += 1;
+
+      // 🔧 Mutate children to add child
+      children.items.push(newId);
     },
 
-    updaters: {
-        addItem: ({state, childrenKeys, payload}) => {
-            const newId = String(state.nextId);
-            state.nextId += 1;
-
-            // 🔧 Mutate childrenKeys to add child
-            childrenKeys.items.push(newId);
-        },
-
-        removeItem: ({childrenKeys, payload}) => {
-            // 🔧 Mutate childrenKeys to remove child
-            const index = childrenKeys.items.indexOf(payload);
-            if (index > -1) {
-                childrenKeys.items.splice(index, 1);
-            }
-        },
+    removeItem: ({ children, payload }) => {
+      // 🔧 Mutate children to remove child
+      const index = children.items.indexOf(payload);
+      if (index > -1) {
+        children.items.splice(index, 1);
+      }
     },
+  },
 
-    childrenComponents: {
-        items: itemDef,
-    },
+  childrenComponents: {
+    items: itemDef,
+  },
 };
 ```
 
-## 🎯 Complete Examples 
+## 🎯 Complete Examples
 
 - [app with a most basic component](./packages/examples/basic-example-counter)
 - [app with several components, event forwarding, listening and commands](./packages/examples/complete-example-shopping-list)
@@ -444,16 +446,16 @@ type ComponentContract = {
 ```typescript
 type ComponentDef<TComponentContract extends ComponentContract> = {
   initialState?: TComponentContract["state"];
-  initialChildrenKeys?: ChildrenKeys<TComponentContract["children"]>;
+  initialChildren?: ChildrenKeys<TComponentContract["children"]>;
   selectors?: {
     [K in keyof TComponentContract["values"]]: (
-      state: TComponentContract["state"]
+      state: TComponentContract["state"],
     ) => TComponentContract["values"][K];
   };
   uiEvents?: (keyof TComponentContract["events"])[];
   updaters?: {
     [K in keyof TComponentContract["events"]]?: (
-      params: UpdaterParams
+      params: UpdaterParams,
     ) => void | TComponentContract["state"];
   };
   eventForwarders?: InternalEventForwarders<TComponentContract>;
@@ -525,6 +527,7 @@ Hook for accessing only children's paths (first instance only), as a string that
 ```typescript
 const children = useSofterSingleChildrenPaths<CounterContract["children"]>("");
 ```
+
 #### `useSofterChildrenPaths<TChildrenContract>(path)`
 
 Hook for accessing only children's paths, as arrays of strings:

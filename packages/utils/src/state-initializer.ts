@@ -40,14 +40,40 @@ function initializeChildrenState(
   componentDef: ComponentDef,
   stateManager: RelativePathStateManager,
 ) {
-  Object.entries(componentDef.childrenComponents ?? {}).forEach(
-    ([childName, childDef]) => {
-      stateManager.initializeChildBranches(childName);
-      (componentDef.initialChildrenKeys?.[childName] ?? [INITIAL_KEY])
-        .map(key => stateManager.childStateManager(childName, key))
-        .forEach(childStateManager => {
-          initializeStateRecursively(childDef, childStateManager);
-        });
+  Object.entries(componentDef.childrenComponentDefs ?? {}).forEach(
+    ([childName]) => {
+      initializeChildState(
+        stateManager,
+        componentDef,
+        childName,
+        componentDef.initialChildren?.[childName],
+      );
     },
   );
+}
+export function initializeChildState(
+  stateManager: RelativePathStateManager,
+  componentDef: ComponentDef,
+  childName: string,
+  keys?: string[] | boolean,
+) {
+  stateManager.initializeChildBranches(childName);
+  booleanOrArrayToKeys(keys)
+    .map(key => stateManager.childStateManager(childName, key))
+    .forEach(childStateManager => {
+      initializeStateRecursively(
+        componentDef.childrenComponentDefs?.[childName] ?? {},
+        childStateManager,
+      );
+    });
+}
+
+function booleanOrArrayToKeys(value: boolean | string[] | undefined): string[] {
+  if (value === true || value === undefined) {
+    return [INITIAL_KEY];
+  } else if (value === false) {
+    return [];
+  } else {
+    return value;
+  }
 }

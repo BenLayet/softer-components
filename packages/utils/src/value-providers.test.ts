@@ -5,7 +5,7 @@ import { RelativePathStateReader } from "./relative-path-state-manager";
 import { createValueProviders } from "./value-providers";
 
 describe("createValuesProvider", () => {
-  it("returns root selectors", () => {
+  it("returns root values provider", () => {
     //GIVEN
     const rootDef: ComponentDef = {
       selectors: {
@@ -20,10 +20,10 @@ describe("createValuesProvider", () => {
     const result = createValueProviders(rootDef, mockStateReader);
 
     //THEN
-    expect(result.selectors.answer()).toEqual(42);
-    expect(result.children).toEqual({});
+    expect(result.values.answer()).toEqual(42);
+    expect(result.childrenValues).toEqual({});
   });
-  it("returns a child selector", () => {
+  it("returns a single child values provider", () => {
     //GIVEN
     const childDef: ComponentDef = {
       selectors: {
@@ -31,12 +31,12 @@ describe("createValuesProvider", () => {
       },
     };
     const rootDef: ComponentDef = {
-      childrenComponents: { child: childDef },
+      childrenComponentDefs: { child: childDef },
     };
     const mockStateReader = {} as RelativePathStateReader;
     const mockChildStateReader = {} as RelativePathStateReader;
     mockStateReader.getChildrenKeys = vi.fn().mockReturnValue({ child: ["0"] });
-    mockStateReader.childStateReader = vi
+    mockStateReader.firstChildStateReader = vi
       .fn()
       .mockReturnValue(mockChildStateReader);
     mockChildStateReader.getChildrenKeys = vi.fn().mockReturnValue({});
@@ -46,8 +46,8 @@ describe("createValuesProvider", () => {
     const result = createValueProviders(rootDef, mockStateReader);
 
     //THEN
-    expect(result.children.child["0"].selectors.answer()).toEqual(42);
-    expect(result.selectors).toEqual({});
-    expect(result.children.child["0"].children).toEqual({});
+    expect((result.childrenValues.child?.values as any).answer()).toEqual(42);
+    expect(result.values).toEqual({});
+    expect(result.childrenValues.child?.childrenValues).toEqual({});
   });
 });

@@ -64,3 +64,12 @@ export function assertIsNumber(
     throw new Error(message || `Expected number, got ${typeof value}`);
   }
 }
+
+export function assertIsArray(
+  value: unknown,
+  message?: string,
+): asserts value is number {
+  if (!Array.isArray(value)) {
+    throw new Error(message || `Expected array, got ${typeof value}`);
+  }
+}

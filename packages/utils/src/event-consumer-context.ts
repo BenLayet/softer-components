@@ -40,7 +40,7 @@ function createEventConsumerContext<
   event: GlobalEvent<Event<TPayload>>,
   stateReader: RelativePathStateReader,
 ): EventConsumerContext<TPayload, TComponentContract> {
-  const { selectors, children } = createValueProviders(
+  const { values, childrenValues: children } = createValueProviders(
     componentDef,
     stateReader,
   );
@@ -48,8 +48,8 @@ function createEventConsumerContext<
   const childKey = event.componentPath?.[event.componentPath?.length - 1]?.[1];
 
   return {
-    selectors,
-    children,
+    values,
+    childrenValues: children,
     payload,
     childKey,
   };

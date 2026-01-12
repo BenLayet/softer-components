@@ -105,19 +105,19 @@ const componentDef: ComponentDef<Contract> = {
     {
       from: "listClicked",
       to: "listSelected",
-      withPayload: ({ payload: list, selectors }) =>
-        selectors.isNotLoading() ? list : list,
+      withPayload: ({ payload: list, values }) =>
+        values.isNotLoading() ? list : list,
     },
     {
       from: "deleteClicked",
       to: "deleteRequested",
-      withPayload: ({ payload: { id }, selectors }) =>
-        selectors.isNotLoading() ? id : id,
+      withPayload: ({ payload: { id }, values }) =>
+        values.isNotLoading() ? id : id,
     },
     {
       from: "displayed",
       to: "fetchRequested",
-      onCondition: ({ selectors }) => selectors.isNotLoading(),
+      onCondition: ({ values }) => values.isNotLoading(),
     },
   ],
   effects: {

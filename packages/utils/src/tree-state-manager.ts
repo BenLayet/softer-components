@@ -1,12 +1,10 @@
-import {
-  ChildrenKeys,
-  ChildrenValues,
-  Selector,
-  State,
-} from "@softer-components/types";
+import { ChildrenValues, Selector, State } from "@softer-components/types";
 
+import { componentPathToString } from "./component-path";
+import { assertIsNotUndefined } from "./predicate.functions";
 import { StateManager } from "./state-manager";
 import {
+  ChildrenKeys,
   Tree,
   createValueAtPath,
   findSubTree,
@@ -14,6 +12,7 @@ import {
   getValueAtPath,
   initializeChildBranches,
   removeSubTree,
+  reorderChildStates,
   updateValueAtPath,
 } from "./tree";
 import { ComponentPath } from "./utils.type";
@@ -47,6 +46,22 @@ export class TreeStateManager implements StateManager {
   removeStateTree(rootStateTree: Tree<State>, path: ComponentPath): void {
     removeSubTree(rootStateTree, path);
     this.removeStateTreeListener(path);
+  }
+
+  reorderChildStates(
+    rootStateTree: Tree<State>,
+    parentPath: ComponentPath,
+    childName: string,
+    desiredKeys: string[],
+  ): void {
+    const treeAtPath = findSubTree(rootStateTree, parentPath);
+    assertIsNotUndefined(
+      treeAtPath,
+      `Cannot reorder child states at path ${componentPathToString(
+        parentPath,
+      )} as it does not exist`,
+    );
+    reorderChildStates(treeAtPath, childName, desiredKeys);
   }
 
   readState(rootStateTree: Tree<State>, path: ComponentPath): State {

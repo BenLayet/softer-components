@@ -11,7 +11,7 @@ import { listDef } from "./list/list.component.ts";
 // Events
 type eventNames = "listSelected" | "selectListRequested";
 type AppEvents = ComponentEventsContract<eventNames, { listSelected: List }>;
-const childrenComponents = {
+const childrenComponentDefs = {
   listSelect: listSelectDef,
   list: listDef,
 };
@@ -19,23 +19,26 @@ const childrenComponents = {
 export type AppComponentContract = {
   state: undefined;
   events: AppEvents;
-  children: ExtractComponentChildrenContract<typeof childrenComponents>;
+  children: ExtractComponentChildrenContract<typeof childrenComponentDefs> & {
+    list: { isOptional: true };
+    listSelect: { isOptional: true };
+  };
   values: {};
 };
 // Component definition
 export const appDef: ComponentDef<AppComponentContract> = {
   updaters: {
-    listSelected: ({ childrenKeys }) => {
-      childrenKeys.list = ["0"];
-      childrenKeys.listSelect = [];
+    listSelected: ({ children }) => {
+      children.list = true;
+      children.listSelect = false;
     },
-    selectListRequested: ({ childrenKeys }) => {
-      childrenKeys.list = [];
-      childrenKeys.listSelect = ["0"];
+    selectListRequested: ({ children }) => {
+      children.list = false;
+      children.listSelect = true;
     },
   },
-  initialChildrenKeys: { listSelect: ["0"], list: [] },
-  childrenComponents,
+  initialChildren: { list: false },
+  childrenComponentDefs,
   childrenConfig: {
     list: {
       commands: [{ from: "listSelected", to: "initialize" }],
