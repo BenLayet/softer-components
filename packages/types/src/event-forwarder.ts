@@ -3,7 +3,6 @@ import {
   ComponentEventsContract,
 } from "./component-contract";
 import { Event, Payload } from "./event";
-import { IfAny, IsAny } from "./util";
 import { Values } from "./values";
 
 /**
