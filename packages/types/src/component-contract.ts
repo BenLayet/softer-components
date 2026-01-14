@@ -22,6 +22,7 @@ export type ChildInstanceContract =
   | { isOptional?: false; isCollection?: false }
   | { isCollection: true; isOptional?: false }
   | { isOptional: true; isCollection?: false }; // allows for type narrowing
+
 /**
  * Contract of a component: defines how the component can be used by the UI and by other components
  *

@@ -3,6 +3,7 @@ import {
   ComponentEventsContract,
 } from "./component-contract";
 import { Event, Payload } from "./event";
+import { IfAny, IsAny } from "./util";
 import { Values } from "./values";
 
 /**
@@ -74,14 +75,33 @@ export type FromEventToEvent<
   ToEventDef<TComponentContract, TFromEvent, TToEvent> &
   OnConditionDef<TComponentContract, TFromEvent["payload"]>;
 
+export type FromEventToChildEvent<
+  TComponentContract extends ComponentContract,
+  TIsDestinationACollection extends boolean | undefined,
+  TFromEvent extends Event, //not expecting a union
+  TToEvent extends Event, //not expecting a union
+> = FromEventToEvent<TComponentContract, TFromEvent, TToEvent> &
+  (TIsDestinationACollection extends undefined | false
+    ? {}
+    : {
+        toKeys?: (
+          params: Values<TComponentContract> & {
+            payload: TFromEvent["payload"];
+            childKey: string;
+          },
+        ) => string[];
+      });
+
 export type FromEventContractToChildEventContract<
   TComponentContract extends ComponentContract,
+  TIsDestinationACollection extends boolean | undefined,
   TFromEvents extends ComponentEventsContract,
   TToEvents extends ComponentEventsContract,
 > = {
   [TFromEventName in keyof TFromEvents]: {
-    [TToEventName in keyof TToEvents]: FromEventToEvent<
+    [TToEventName in keyof TToEvents]: FromEventToChildEvent<
       TComponentContract,
+      TIsDestinationACollection,
       {
         name: TFromEventName & string;
         payload: TFromEvents[TFromEventName & string]["payload"];
@@ -90,14 +110,7 @@ export type FromEventContractToChildEventContract<
         name: TToEventName & string;
         payload: TToEvents[TToEventName & string]["payload"];
       }
-    > & {
-      toKeys?: (
-        params: Values<TComponentContract> & {
-          payload: TFromEvents[TFromEventName & string]["payload"];
-          childKey: string;
-        },
-      ) => string[];
-    };
+    >;
   }[keyof TToEvents];
 }[keyof TFromEvents];
 
