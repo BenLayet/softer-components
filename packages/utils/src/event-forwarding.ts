@@ -1,4 +1,8 @@
-import { ComponentDef } from "@softer-components/types";
+import { CommandsDef, ComponentDef } from "@softer-components/types";
+import {
+  FromEventContractToChildEventContract,
+  FromEventToChildEvent,
+} from "@softer-components/types/src/event-forwarder";
 
 import { findComponentDef } from "./component-def-tree";
 import { eventConsumerContextProvider } from "./event-consumer-context";
@@ -138,13 +142,15 @@ function generateEventsToChildren(
   ).flatMap(([childName, childConfig]) =>
     (childConfig?.commands ?? [])
       .filter(command => command.from === triggeringEvent.name)
-      .map(command => ({ childName, command })),
+      .map(command => ({
+        childName,
+        command: command as FromEventToChildEvent<any, true, any, any>,
+      })),
   );
 
   if (childrenCommands.length === 0) {
     return [];
   }
-
   const eventContext = eventConsumerContextProvider(
     componentDef,
     triggeringEvent,

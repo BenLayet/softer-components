@@ -41,7 +41,12 @@ export const appDef: ComponentDef<AppComponentContract> = {
   childrenComponentDefs,
   childrenConfig: {
     list: {
-      commands: [{ from: "listSelected", to: "initialize" }],
+      commands: [
+        {
+          from: "listSelected",
+          to: "initialize",
+        },
+      ],
       listeners: [{ from: "goBackClicked", to: "selectListRequested" }],
     },
     listSelect: {
