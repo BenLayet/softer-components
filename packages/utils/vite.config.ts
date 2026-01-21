@@ -13,5 +13,8 @@ export default defineConfig({
         "test-utilities": "src/test-utilities.ts",
       },
     },
+    rollupOptions: {
+      external: ["@softer-components/types", "immer", "lodash", "vitest"],
+    },
   },
 });

@@ -1,8 +1,4 @@
-import { CommandsDef, ComponentDef } from "@softer-components/types";
-import {
-  FromEventContractToChildEventContract,
-  FromEventToChildEvent,
-} from "@softer-components/types/src/event-forwarder";
+import { ComponentDef, FromEventToChildEvent } from "@softer-components/types";
 
 import { findComponentDef } from "./component-def-tree";
 import { eventConsumerContextProvider } from "./event-consumer-context";

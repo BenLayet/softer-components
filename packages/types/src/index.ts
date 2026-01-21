@@ -8,3 +8,4 @@ export * from "./children";
 export * from "./event-consumer";
 export * from "./effects";
 export * from "./helpers";
+export * from "./event-forwarder";

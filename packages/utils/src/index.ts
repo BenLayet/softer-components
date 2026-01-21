@@ -11,3 +11,4 @@ export * from "./tree";
 export * from "./effects-manager";
 export * from "./component-path";
 export * from "./value-providers";
+export * from "./effects-manager";

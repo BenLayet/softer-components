@@ -28,7 +28,8 @@
     "test": "vitest",
     "test:ci": "vitest run",
     "test-for-debug": "vitest --testTimeout=100000 --bail=1",
-    "format": "pnpx prettier --write ."
+    "format": "pnpx prettier --write .",
+    "tsc": "tsc --noEmit"
   },
   "dependencies": {
     "@softer-components/types": "workspace:^",
