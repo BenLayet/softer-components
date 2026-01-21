@@ -1,5 +1,14 @@
 # @softer-components/redux-adapter
 
+## 0.4.2
+
+### Patch Changes
+
+- 3afefc0: fixes packing (excludes src)
+- Updated dependencies [3afefc0]
+  - @softer-components/types@0.4.2
+  - @softer-components/utils@0.4.2
+
 ## 0.4.1
 
 ### Patch Changes
