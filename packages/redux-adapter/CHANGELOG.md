@@ -1,5 +1,14 @@
 # @softer-components/redux-adapter
 
+## 0.4.1
+
+### Patch Changes
+
+- 5a64dc6: removes src from export
+- Updated dependencies [5a64dc6]
+  - @softer-components/types@0.4.1
+  - @softer-components/utils@0.4.1
+
 ## 0.4.0
 
 ### Minor Changes
