@@ -2,9 +2,7 @@ import {
   ComponentContract,
   ComponentEventsContract,
   ComponentValuesContract,
-  Effects,
 } from "@softer-components/types";
-import { useEffect } from "react";
 import { useDispatch, useSelector, useStore } from "react-redux";
 
 import { SofterStore } from "./softer-store";
@@ -34,7 +32,7 @@ export const useSofterSelectors = <
 >(
   pathStr: string,
 ): TValueContract => {
-  const store = useStore() as SofterStore;
+  const store = useStore() as SofterStore<any>;
   // Subscribe to Redux state with useSelector
   return useSelector(
     store.softerViewModel.valuesSelector(pathStr),
@@ -46,7 +44,7 @@ export const useSofterEvents = <
 >(
   pathStr: string,
 ): EventsContractToUiDispatchers<TEventsContract> => {
-  const store = useStore() as SofterStore;
+  const store = useStore() as SofterStore<any>;
   return store.softerViewModel.dispatchers(
     pathStr,
     useDispatch(),
@@ -58,7 +56,7 @@ export const useSofterChildrenPaths = <
 >(
   pathStr: string,
 ): ExtractChildrenPaths<TChildrenContract> => {
-  const store = useStore() as SofterStore;
+  const store = useStore() as SofterStore<any>;
   // Subscribe to Redux state with useSelector
   return useSelector(
     store.softerViewModel.childrenPathsSelector(pathStr),
@@ -69,7 +67,7 @@ export const useSofterSingleChildrenPaths = <
 >(
   pathStr: string,
 ): ExtractSingleChildrenPaths<TChildrenContract> => {
-  const store = useStore() as SofterStore;
+  const store = useStore() as SofterStore<any>;
   // Subscribe to Redux state with useSelector
   return useSelector(
     store.softerViewModel.pathOfFirstInstanceOfEachChildSelector(pathStr),
@@ -89,11 +87,3 @@ export const useSofter = <TComponentContract extends ComponentContract>(
   useSofterSingleChildrenPaths<TComponentContract["children"]>(pathStr),
   useSofterChildrenPaths<TComponentContract["children"]>(pathStr),
 ];
-
-export function useSofterEffects<TComponentContract extends ComponentContract>(
-  pathStr: string,
-  effects: Effects<TComponentContract>,
-) {
-  const store = useStore() as SofterStore;
-  useEffect(() => store.softerEffectsManager.registerEffects(pathStr, effects));
-}

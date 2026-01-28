@@ -3,7 +3,7 @@ import {
   createListenerMiddleware,
   createReducer,
 } from "@reduxjs/toolkit";
-import { ComponentDef } from "@softer-components/types";
+import { ComponentContract, ComponentDef } from "@softer-components/types";
 import {
   EffectsManager,
   GlobalEvent,
@@ -26,9 +26,11 @@ import {
   SofterViewModel,
 } from "./softer-view-model";
 
-export type SofterStore = ReturnType<typeof configureStore> & {
+export type SofterStore<T extends ComponentContract> = ReturnType<
+  typeof configureStore
+> & {
   softerViewModel: SofterViewModel;
-  softerEffectsManager: EffectsManager;
+  configureEffects: EffectsManager<T>["configureEffects"];
 };
 type ReduxEffect = (action: any, listenerApi: any) => void;
 
@@ -45,10 +47,13 @@ export function createSofterStoreConfiguration(rootComponentDef: ComponentDef) {
     stateManager,
   );
   const effectsManager = new EffectsManager(rootComponentDef, stateManager);
-  const eventForwarding = softerEventForwarding(rootComponentDef, stateManager);
-  const effects = softerEffects(effectsManager);
+  const eventProcessor = softerEventProcessor(
+    rootComponentDef,
+    stateManager,
+    effectsManager,
+  );
 
-  const softerMiddleware = createSofterMiddleware(eventForwarding, effects);
+  const softerMiddleware = createSofterMiddleware(eventProcessor);
   return {
     softerViewModel,
     initialGlobalState,
@@ -58,24 +63,17 @@ export function createSofterStoreConfiguration(rootComponentDef: ComponentDef) {
   };
 }
 
-export function createSofterMiddleware(
-  softerEventForwarding: ReduxEffect,
-  softerEffects: ReduxEffect,
-) {
+export function createSofterMiddleware(eventProcessor: ReduxEffect) {
   const listenerMiddleware = createListenerMiddleware();
   listenerMiddleware.startListening({
     predicate: () => true,
-    effect: softerEventForwarding,
-  });
-  listenerMiddleware.startListening({
-    predicate: () => true,
-    effect: softerEffects,
+    effect: eventProcessor,
   });
   return listenerMiddleware.middleware;
 }
-export function configureSofterStore(
-  rootComponentDef: ComponentDef,
-): SofterStore {
+export function configureSofterStore<T extends ComponentContract>(
+  rootComponentDef: ComponentDef<T>,
+): SofterStore<T> {
   const config = createSofterStoreConfiguration(rootComponentDef);
   return {
     ...configureStore({
@@ -85,7 +83,7 @@ export function configureSofterStore(
         getDefaultMiddleware({ thunk: false }).prepend(config.softerMiddleware),
     }),
     softerViewModel: config.softerViewModel,
-    softerEffectsManager: config.effectsManager,
+    configureEffects: config.effectsManager.configureEffects,
   };
 }
 function initializeGlobalState(
@@ -123,34 +121,37 @@ function createSofterReducer(
   });
 }
 
-const softerEventForwarding =
-  (rootComponentDef: ComponentDef, stateReader: StateReader) =>
+const softerEventProcessor =
+  (
+    rootComponentDef: ComponentDef,
+    stateReader: StateReader,
+    effectsManager: EffectsManager<any>,
+  ) =>
   (action: any, listenerApi: any) => {
     if (!isSofterEvent(action)) {
       return;
     }
+    // map state, dispatch and event to softer objects
     const dispatchEvent = (event: GlobalEvent) =>
       listenerApi.dispatch(eventToAction(event));
     const softerRootState = getSofterRootTree(listenerApi.getState());
     const event = actionToEvent(action);
-    const nextActions = generateEventsToForward(
+
+    // create the next events chain
+    const nextEvents = generateEventsToForward(
       softerRootState,
       rootComponentDef,
       event,
       stateReader,
     );
-    nextActions.forEach(dispatchEvent);
-  };
-const softerEffects =
-  (effectsManager: EffectsManager) => (action: any, listenerApi: any) => {
-    if (!isSofterEvent(action)) {
-      return;
-    }
-    const dispatchEvent = (event: GlobalEvent) =>
-      setTimeout(() => listenerApi.dispatch(eventToAction(event)));
+    nextEvents.forEach(dispatchEvent);
+
+    // process effects
+    const dispatchEventAsynchronously = (event: GlobalEvent) =>
+      setTimeout(() => dispatchEvent(event));
     effectsManager.eventOccurred(
-      actionToEvent(action),
-      getSofterRootTree(listenerApi.getState()),
-      dispatchEvent,
+      event,
+      softerRootState,
+      dispatchEventAsynchronously,
     );
   };

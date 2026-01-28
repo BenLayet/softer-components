@@ -7,7 +7,6 @@ import {
 } from "@softer-components/types";
 
 import { findComponentDef } from "./component-def-tree";
-import { componentPathToString } from "./component-path";
 import { eventConsumerContextProvider } from "./event-consumer-context";
 import { isUndefined } from "./predicate.functions";
 import { RelativePathStateReader } from "./relative-path-state-manager";
@@ -15,51 +14,91 @@ import { StateReader } from "./state-manager";
 import { ComponentPath, GlobalEvent, SofterRootState } from "./utils.type";
 
 type Unregister = () => void;
+// Recursive type to get all component paths
+export type ComponentPaths<T> =
+  | "/"
+  | (T extends { children: infer C }
+      ? C extends Record<string, any>
+        ? {
+            [K in keyof C & string]:
+              | `/${K}`
+              | `/${K}${Exclude<ComponentPaths<C[K]>, "/">}`;
+          }[keyof C & string]
+        : never
+      : never);
 
-export class EffectsManager {
+// Utility type to get ComponentContract at a specific path
+export type GetContractAtPath<T, Path extends string> = Path extends "/"
+  ? T
+  : Path extends `/${infer First}/${infer Rest}`
+    ? T extends { children: infer C }
+      ? First extends keyof C
+        ? GetContractAtPath<C[First], `/${Rest}`>
+        : never
+      : never
+    : Path extends `/${infer Only}`
+      ? T extends { children: infer C }
+        ? Only extends keyof C
+          ? C[Only]
+          : never
+        : never
+      : never;
+
+export class EffectsManager<TRootComponentContract extends ComponentContract> {
   private readonly effectsMap: {
-    [pathStr: string]: { [eventName: string]: Effect[] };
+    [componentDefPath: string]: { [eventName: string]: Effect[] };
   } = {};
 
   constructor(
-    private readonly rootComponentDef: ComponentDef,
+    private readonly rootComponentDef: ComponentDef<TRootComponentContract>,
     private readonly stateReader: StateReader,
   ) {}
-
-  registerEffects = <TComponentContract extends ComponentContract>(
-    pathStr: string,
+  configureEffects = <Path extends ComponentPaths<TRootComponentContract>>(
+    componentDefPath: Path,
+    effects: Effects<GetContractAtPath<TRootComponentContract, Path>>,
+  ) => {
+    return this._registerEffects<
+      GetContractAtPath<TRootComponentContract, Path>
+    >(componentDefPath, effects);
+  };
+  private _registerEffects = <TComponentContract extends ComponentContract>(
+    componentDefPath: string,
     effects: Effects<TComponentContract>,
   ): Unregister => {
     const unregisterFunctions = Object.entries(effects).map(
       ([eventName, effect]) =>
-        this.registerEffect(pathStr, eventName, effect as Effect),
+        this._registerEffect(componentDefPath, eventName, effect as Effect),
     );
     return () => unregisterFunctions.forEach(f => f());
   };
 
-  registerEffect<
+  private _registerEffect<
     TComponentContract extends ComponentContract,
     TEventName extends keyof TComponentContract["events"] & string,
-  >(pathStr: string, eventName: TEventName, effect: Effect): Unregister {
-    if (isUndefined(this.effectsMap[pathStr])) {
-      this.effectsMap[pathStr] = {};
+  >(
+    componentDefPath: string,
+    eventName: TEventName,
+    effect: Effect,
+  ): Unregister {
+    if (isUndefined(this.effectsMap[componentDefPath])) {
+      this.effectsMap[componentDefPath] = {};
     }
-    if (isUndefined(this.effectsMap[pathStr][eventName])) {
-      this.effectsMap[pathStr][eventName] = [];
+    if (isUndefined(this.effectsMap[componentDefPath][eventName])) {
+      this.effectsMap[componentDefPath][eventName] = [];
     }
-    if (this.effectsMap[pathStr][eventName].includes(effect)) {
+    if (this.effectsMap[componentDefPath][eventName].includes(effect)) {
       throw new Error("Effect already registered");
     }
-    this.effectsMap[pathStr][eventName].push(effect);
+    this.effectsMap[componentDefPath][eventName].push(effect);
     return () => {
-      this.effectsMap[pathStr][eventName] = this.effectsMap[pathStr][
-        eventName
-      ].filter(f => f !== effect);
-      if (this.effectsMap[pathStr][eventName].length === 0) {
-        delete this.effectsMap[pathStr][eventName];
+      this.effectsMap[componentDefPath][eventName] = this.effectsMap[
+        componentDefPath
+      ][eventName].filter(f => f !== effect);
+      if (this.effectsMap[componentDefPath][eventName].length === 0) {
+        delete this.effectsMap[componentDefPath][eventName];
       }
-      if (Object.keys(this.effectsMap[pathStr]).length === 0) {
-        delete this.effectsMap[pathStr];
+      if (Object.keys(this.effectsMap[componentDefPath]).length === 0) {
+        delete this.effectsMap[componentDefPath];
       }
     };
   }
@@ -69,23 +108,26 @@ export class EffectsManager {
     softerRootState: SofterRootState,
     dispatchEvent: (event: GlobalEvent) => void,
   ): void {
-    const pathStr = componentPathToString(event.componentPath);
-    const effects = this.effectsMap[pathStr]?.[event.name] as
+    const componentDefPath =
+      "/" + event.componentPath.map(([child, _key]) => child).join("/");
+    const effects = this.effectsMap[componentDefPath]?.[event.name] as
       | Effect[]
       | undefined;
     if (isUndefined(effects)) {
       return;
+    }
+    const relativePathStateManager = new RelativePathStateReader(
+      softerRootState,
+      this.stateReader,
+      event.componentPath,
+    );
+    if (relativePathStateManager.readState()) {
     }
     const componentDefOfEvent = findComponentDef(
       this.rootComponentDef,
       event.componentPath,
     );
 
-    const relativePathStateManager = new RelativePathStateReader(
-      softerRootState,
-      this.stateReader,
-      event.componentPath,
-    );
     const eventContext = eventConsumerContextProvider(
       componentDefOfEvent,
       event,
