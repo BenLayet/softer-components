@@ -146,13 +146,11 @@ const softerEffects =
     if (!isSofterEvent(action)) {
       return;
     }
-    setTimeout(() => {
-      const dispatchEvent = (event: GlobalEvent) =>
-        listenerApi.dispatch(eventToAction(event));
-      effectsManager.eventOccurred(
-        actionToEvent(action),
-        getSofterRootTree(listenerApi.getState()),
-        dispatchEvent,
-      );
-    });
+    const dispatchEvent = (event: GlobalEvent) =>
+      setTimeout(() => listenerApi.dispatch(eventToAction(event)));
+    effectsManager.eventOccurred(
+      actionToEvent(action),
+      getSofterRootTree(listenerApi.getState()),
+      dispatchEvent,
+    );
   };
