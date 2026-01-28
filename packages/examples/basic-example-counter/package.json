@@ -1,5 +1,5 @@
 {
-  "name": "vite-template-redux",
+  "name": "basic-example-counter",
   "private": true,
   "version": "0.2.1",
   "type": "module",
