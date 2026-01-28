@@ -1,8 +1,4 @@
-import {
-  ChildrenInstancesDefs,
-  ChildrenValues,
-  State,
-} from "@softer-components/types";
+import { ChildrenValues, State } from "@softer-components/types";
 
 import { ChildrenKeys } from "./tree";
 import { ComponentPath, SofterRootState } from "./utils.type";

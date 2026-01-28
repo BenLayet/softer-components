@@ -51,7 +51,7 @@ const withEffects =
   (testStore: TestStore) =>
   (effects: { [componentPath: string]: Effects<any> }) => {
     Object.entries(effects).forEach(([componentPathStr, componentEffects]) =>
-      testStore.effectsManager.registerEffects(
+      testStore.effectsManager.configureEffects(
         componentPathStr,
         componentEffects,
       ),

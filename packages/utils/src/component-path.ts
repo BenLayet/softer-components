@@ -17,7 +17,6 @@ export function componentPathToString(componentPath: ComponentPath): string {
       .join("")
   );
 }
-
 export function stringToComponentPath(pathString: string): ComponentPath {
   if (!pathString) {
     return []; // tolerates empty string as root path

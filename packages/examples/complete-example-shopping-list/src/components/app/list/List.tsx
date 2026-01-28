@@ -1,12 +1,10 @@
-import { useSofter, useSofterEffects } from "@softer-components/redux-adapter";
+import { useSofter } from "@softer-components/redux-adapter";
 
 import { ItemRow } from "./item-row/ItemRow.tsx";
 import { ListContract } from "./list.component.ts";
-import { listEffects } from "./list.effects.ts";
 
 export const List = ({ path = "" }) => {
   const [v, d, _, c] = useSofter<ListContract>(path);
-  useSofterEffects(path, listEffects);
   return (
     <div>
       <p style={{ textAlign: "start", width: "300px" }}>

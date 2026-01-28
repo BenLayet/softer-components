@@ -1,12 +1,10 @@
-import { useSofter, useSofterEffects } from "@softer-components/redux-adapter";
+import { useSofter } from "@softer-components/redux-adapter";
 
 import { ListSelectContract } from "./list-select.component.ts";
-import { listSelectEffects } from "./list-select.effects.ts";
 import { SavedLists } from "./saved-lists/SavedLists.tsx";
 
 export const ListSelect = ({ path = "" }) => {
   const [v, d, c] = useSofter<ListSelectContract>(path);
-  useSofterEffects(path, listSelectEffects);
   return (
     <div>
       <p style={{ textAlign: "start", width: "300px" }}>
