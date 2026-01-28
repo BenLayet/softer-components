@@ -210,6 +210,152 @@ export const Counter = ({ path = "" }: CounterProps) => {
 
 ## 🔄 Detailed Features
 
+### Component Contract
+The component contract is a `typescript` type that defines how the component is viewed by the UI and by other components:
+ - state: that is used in the selectors and updaters. (will be removed from the contract in the future)
+ - values: their name and return type (corresponding to the selectors)
+ - events: their name and payload type
+ - children: their name and contract, and configuration (optional / collection / unique)
+ - effects: their name and configuration
+
+#### Replacing a component definition implementation of the same contract
+The UI component only depends on the component contract, and not on the component definition, so the component definition can be changed without impacting the UI component.
+
+Parent component use the component definition in `childrenComponentDefs`, but otherwise only use the component contract (in `listeners`, `commands` and `childrenValues`). So replacing the component definition by another implementation of the same contract has minimal impact on the parent component.
+
+### Component Definition
+#### State
+* The state is immutable and must be serializable: POJO (plain old javascript object) with zero dependencies.
+
+#### Selectors
+* Selectors are functions that compute derived values from the component state tree (own state of the component, and state of its children).
+* They must be pure functions.
+* Adapters typically memoize the results of selectors to avoid recomputing them unnecessarily.
+* The values selected by the selectors are exposed to the component through the `values` property of the component contract, they are provided to the UI through the `useSofter` and `useSofterValues` hook.
+* They are also provided to the updaters, the parent selectors, the effects, the event forwarders, listeners, and commands, through the `values` argument of the `onCondition` function.
+
+#### UI events
+* Events that can be dispatched from the UI component need to be declared in the `uiEvents` property of the component definition.
+* There are available in React Component with the `useSofter` and `useSofterEvents` hook.
+
+#### Updaters
+* Updaters are functions that handle events and update the component state and the children instances
+* They must be pure functions.
+* They can mutate the state of the component that they receive as an argument (as it is an Immer draft), or they can return a new state
+
+#### eventForwarders
+* They are defined as a list of forwarders that forward events from the component to its children.
+* cf [Event Forwarding (Internal)](#event-forwarding-internal)
+#### initialChildren
+- by default, a child is unique and non-optional, so they would not and cannot be declared in the `initialChildren` property of the component definition.
+- to declare a child as optional, add `isOptional: true` in the component contract.
+- to declare a child as a collection, add `isCollection: true` in the component contract.
+
+
+#### childrenComponentDefs
+* They are defined as a map of component name to component definition that matches the children contract of the component.
+* By default, they are instantiated when the component is instantiated and destroyed when the component is destroyed (i.e. their state is created in the state tree when the component state is added to the state tree)
+  * exceptions: children that are declared as optional or collection in the component contract
+  * cf [Managing Children Instances](#managing-children-instances)
+
+#### childrenConfig
+* They are defined as a map of component name to a configuration object that contains:
+  * `commands`: a list of commands to send to the children instances
+  * `listeners`: a list of listeners to subscribe to events from the children instances
+  * cf [Parent-Child Communication](#parent-child-communication)
+
+#### effects
+* They are defined as a map of event names to an array of event names that can be dispatched from the effect
+* They are configured outside the component definition, using the `effectManager` provided by `configureSofterStore`, so the component definition has minimum dependency.
+* cf [Effects](#effects)
+
+
+### Managing Children Instances
+
+#### Collection children
+- initialize with an array of keys (`string[]`) in `initialChildren`
+- update collection of keys in `updaters`
+
+
+```typescript
+type ListContract = {
+    state: { nextId: number };
+    values: { itemCount: number };
+    events: {
+        addItem: { payload: string };
+        removeItem: { payload: string };
+    };
+    children: {
+        items: ItemContract & {isCollection:true};
+    };
+};
+
+export const listDef: ComponentDef<ListContract> = {
+    initialState: { nextId: 0 },
+
+    // Initial children
+    initialChildren: {
+        items: [], // Start with no items
+    },
+
+    updaters: {
+        addItem: ({ state, children, payload }) => {
+            const newId = String(state.nextId);
+            state.nextId += 1;
+
+            // 🔧 Mutate children to add child
+            children.items.push(newId);
+        },
+
+        removeItem: ({ children, payload }) => {
+            // 🔧 Mutate children to remove child
+            const index = children.items.indexOf(payload);
+            if (index > -1) {
+                children.items.splice(index, 1);
+            }
+        },
+    },
+
+    childrenComponents: {
+        items: itemDef,
+    },
+};
+```
+#### Optional child
+
+- initialize with a `boolean` (`true` by default) in `initialChildren`
+- update in `updaters`
+```typescript
+import {ListSelectContract} from "./list-select.component";
+
+export type AppComponentContract = {
+    state: undefined;
+    events: AppEvents;
+    children: {
+        list: ListContract & { isOptional: true };
+        listSelect: ListSelectContract & { isOptional: true  };
+    };
+    values: {};
+}
+    ;
+// Component definition
+export const appDef: ComponentDef<AppComponentContract> = {
+    updaters: {
+        listSelected: ({children}) => {
+            children.list = true;
+            children.listSelect = false;
+        },
+        selectListRequested: ({children}) => {
+            children.list = false;
+            children.listSelect = true;
+        },
+    },
+    initialChildren: {list: false},
+    childrenComponentDefs,
+    //...
+};
+```
+
 ### Event Forwarding (Internal)
 
 Forward events within the same component:
@@ -233,9 +379,17 @@ export const counterDef: ComponentDef<CounterContract> = {
   // 🔄 Forward btnClicked -> incrementRequested
   eventForwarders: [
     {
-      from: "btnClicked",
-      to: "incrementRequested",
-    },
+        from: "itemClicked",
+        to: "itemSelected",
+        // Only forward if condition is met
+        onCondition: ({ values }) => {
+            return values.isEnabled;
+        },
+        // Transform payload
+        withPayload: ({ payload :{id}}) => {
+            return { id, nextId: id+1 };
+        }
+    }
   ],
 };
 ```
@@ -317,71 +471,28 @@ export const listDef: ComponentDef<ListContract> = {
 };
 ```
 
-### Conditional Event Forwarding
 
-```typescript
-eventForwarders: [
-  {
-    from: "itemClicked",
-    to: "itemSelected",
-    // Only forward if condition is met
-    onCondition: ({ values, payload }) => {
-      return values.isEnabled && payload !== null;
-    },
-    // Transform payload
-    withPayload: ({ payload :{id}) => {
-      return { id, nextId: id+1) };
-    },
-  },
-]
-```
+## Processing of events
 
-### Managing Children Instances With Keys
+Starting from `GlobalState#0`, when an event `Event1` occurs on component `Component1`:
+1. the updater of `Event1` is called, updating the state of `Component1`, and its optional and collection children
+    - if a child is removed, its state tree is removed
+    - if a child is added, its state tree is initialized
+    - this gives `GlobalState#1`
+2. a collection of events is created, using `GlobalState#1` in `values` argument of `onCondition`, and `withPayload` arguments :
+    - first from its own forwarders, in the order they are defined in of `Component1.eventForwarders`,
+    - then from the commands to its children, in the order they are defined in `Component1.childrenConfig.[].commands`,
+    - then from the listeners of its parent, in the order they are defined in`ParentComponent1.childrenConfig.component1.listeners`,
+3. the effects of the event are processed, in the order they are defined `Component1.effects.event1`, still using `GlobalState#1` in `values` argument of `onCondition`, and `withPayload`
+     - the effects are ran 'synchronously', i.e., before the UI is updated, so they can call API that requires to be called 'immediately after a user interaction', like `window.open()`, `audio.load()`, etc...
+     - if they dispatch an event, it dispatches it 'asynchronously', i.e., after the current event chained has been entirely processed, and the UI updated. So events dispatched from effects are not part of the event chain.
+4. the event chain created in step 2 is dispatched
+     - each new event can potentially create a new event chain that would be processed before the UI is refreshed.
+     - we make sure that there is no infinite loop of events by checking that the event chain is not cyclic.
+5. the UI is updated, using the new global state, resulting from the complete event chain.
+6. the events from the effects are processed, in the order they are defined `Component1.effects.event1`, still using `GlobalState#1` in `values` argument of `onCondition`, and `withPayload`
 
-```typescript
-type ListContract = {
-  state: { nextId: number };
-  values: { itemCount: number };
-  events: {
-    addItem: { payload: string };
-    removeItem: { payload: string };
-  };
-  children: {
-    items: ItemContract;
-  };
-};
 
-export const listDef: ComponentDef<ListContract> = {
-  initialState: { nextId: 0 },
-
-  // Initial children
-  initialChildren: {
-    items: [], // Start with no items
-  },
-
-  updaters: {
-    addItem: ({ state, children, payload }) => {
-      const newId = String(state.nextId);
-      state.nextId += 1;
-
-      // 🔧 Mutate children to add child
-      children.items.push(newId);
-    },
-
-    removeItem: ({ children, payload }) => {
-      // 🔧 Mutate children to remove child
-      const index = children.items.indexOf(payload);
-      if (index > -1) {
-        children.items.splice(index, 1);
-      }
-    },
-  },
-
-  childrenComponents: {
-    items: itemDef,
-  },
-};
-```
 
 ## 🎯 Complete Examples
 
