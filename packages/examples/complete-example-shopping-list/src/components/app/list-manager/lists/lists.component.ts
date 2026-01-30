@@ -50,7 +50,6 @@ type Events = ComponentEventsContract<
     listSelected: List;
     deleteClicked: List;
     deleteRequested: ListId;
-    deleteSucceeded: ListId;
     deleteFailed: ErrorMessage;
     listNamesChanged: string[];
   }
@@ -89,12 +88,12 @@ const componentDef: ComponentDef<Contract> = {
       state.isLoading = false;
       state.errors["FETCH_ERROR"] = errorMessage;
     },
-    deleteRequested: ({ state }) => {
+    deleteRequested: ({ state, payload: id }) => {
       state.isLoading = true;
-    },
-    deleteSucceeded: ({ state, payload: id }) => {
-      state.isLoading = false;
       state.lists = state.lists.filter(list => list.id !== id);
+    },
+    deleteSucceeded: ({ state }) => {
+      state.isLoading = false;
       state.errors = {};
     },
     deleteFailed: ({ state, payload: errorMessage }) => {

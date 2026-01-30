@@ -3,8 +3,8 @@ import { describe, it } from "vitest";
 
 import { appDef } from "../src/components/app/app.component";
 import {
+  CREATE_LIST,
   FIRST_ITEM,
-  LIST_SELECT,
   USER_CREATES_NEW_ITEM,
   USER_CREATES_NEW_LIST,
   USER_DECREMENTS_QUANTITY_OF_FIRST_ITEM,
@@ -15,17 +15,17 @@ import { mockEffects } from "./mock-effects.ts";
 
 describe("app.component", () => {
   it("initial list name is empty", () => {
-    givenRootComponent(appDef).thenExpect(LIST_SELECT).listName.toBe("");
+    givenRootComponent(appDef).thenExpect(CREATE_LIST).listName.toBe("");
   });
   it("list name is set", () => {
     givenRootComponent(appDef)
       .when(USER_SETS_LIST_NAME("Groceries"))
-      .thenExpect(LIST_SELECT)
+      .thenExpect(CREATE_LIST)
       .listName.toBe("Groceries");
   });
   it("when one list and one item are created, and quantity is incremented, quantity of first item should be 2", () => {
     givenRootComponent(appDef)
-      .withEffects(mockEffects)
+      .withEffects(mockEffects([]))
       .when(USER_CREATES_NEW_LIST("Groceries"))
       .and(USER_CREATES_NEW_ITEM("milk"))
       .and(USER_INCREMENTS_QUANTITY_OF_FIRST_ITEM())
@@ -34,7 +34,7 @@ describe("app.component", () => {
   });
   it("when list, and item are created, and quantity is decremented, item should be removed", () => {
     givenRootComponent(appDef)
-      .withEffects(mockEffects)
+      .withEffects(mockEffects([]))
       .when(USER_CREATES_NEW_LIST("Groceries"))
       .and(USER_CREATES_NEW_ITEM("milk"))
       .and(USER_DECREMENTS_QUANTITY_OF_FIRST_ITEM())

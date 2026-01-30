@@ -15,12 +15,13 @@ import { isUndefined } from "./predicate.functions";
 import { updateSofterRootState } from "./reducer";
 import { RelativePathStateReader } from "./relative-path-state-manager";
 import { initializeRootState } from "./state-initializer";
-import { OWN_VALUE_KEY, Tree } from "./tree";
+import { OWN_VALUE_KEY, Tree, findSubTree } from "./tree";
 import { TreeStateManager } from "./tree-state-manager";
 import { ComponentPath, GlobalEvent } from "./utils.type";
 import { createChildrenValues } from "./value-providers";
 
 type TestStore = {
+  events: GlobalEvent[];
   rootState: Tree<State>;
   rootComponentDef: ComponentDef;
   stateManager: TreeStateManager;
@@ -36,17 +37,34 @@ export const givenRootComponent = <
   const rootState: Tree<State> = { [OWN_VALUE_KEY]: undefined };
   initializeRootState(rootState, rootComponentDef, stateManager);
   const testStore: TestStore = {
+    events: [],
     rootComponentDef,
     stateManager,
     rootState,
     effectsManager,
   };
   return {
-    withEffects: withEffects(testStore),
-    when: whenEventSequenceOccurs(testStore),
-    thenExpect: thenExpect(testStore),
+    withEffects: debugWrapper(testStore, withEffects),
+    when: debugWrapper(testStore, whenEventSequenceOccurs),
+    thenExpect: debugWrapper(testStore, thenExpect),
   };
 };
+
+const debugWrapper = <T>(
+  testStore: TestStore,
+  func: (testStore: TestStore) => T,
+) => {
+  try {
+    return func(testStore);
+  } catch (e: any) {
+    if (process.env.SOFTER_DEBUG) {
+      console.log("SOFTER DEBUG: Error occurred in test.");
+      console.error(JSON.stringify(testStore.rootState));
+    }
+    throw e;
+  }
+};
+
 const withEffects =
   (testStore: TestStore) =>
   (effects: { [componentPath: string]: Effects<any> }) => {
@@ -75,24 +93,42 @@ const whenEventSequenceOccurs =
     };
   };
 const whenEventOccurs = (testStore: any) => (globalEvent: GlobalEvent) => {
+  testStore.events.push(globalEvent);
   let previousStateStr = "";
   if (process.env.SOFTER_DEBUG) {
     previousStateStr = JSON.stringify(testStore.rootState);
     console.log(
+      `EVT#${testStore.events.length}: `,
       globalEvent.name,
       componentPathToString(globalEvent.componentPath),
       JSON.stringify(globalEvent.payload),
     );
   }
-  //reducer
-  updateSofterRootState(
-    testStore.rootState,
-    testStore.rootComponentDef,
-    globalEvent,
-    testStore.stateManager,
-  );
+  try {
+    //reducer
+    updateSofterRootState(
+      testStore.rootState,
+      testStore.rootComponentDef,
+      globalEvent,
+      testStore.stateManager,
+    );
+  } catch (e: any) {
+    console.error(`Error occurred in updater for event ${globalEvent.name}`);
+    console.error(`Last global state:`);
+    console.error(JSON.stringify(testStore.rootState));
+    console.error(
+      `Last component state at event's component path ${componentPathToString(globalEvent.componentPath)}:`,
+    );
+    console.error(
+      JSON.stringify(
+        findSubTree(testStore.rootState, globalEvent.componentPath),
+      ),
+    );
+    throw e;
+  }
   if (process.env.SOFTER_DEBUG) {
     console.log(
+      `EVT#${testStore.events.length}-diff: `,
       JSON.stringify(diff(JSON.parse(previousStateStr), testStore.rootState)),
     );
   }
@@ -125,23 +161,38 @@ const thenExpect =
       testStore.rootState,
       componentPath,
     );
-    return {
-      ...Object.fromEntries(
-        Object.entries(componentDef.selectors ?? {}).map(
-          ([selectorName, selector]) => [
-            selectorName,
-            expectWrapper(
-              componentState,
-              selector,
-              componentPath,
+    return new Proxy(
+      {
+        ...Object.fromEntries(
+          Object.entries(componentDef.selectors ?? {}).map(
+            ([selectorName, selector]) => [
               selectorName,
-              testStore,
-            ),
-          ],
+              expectWrapper(
+                componentState,
+                selector,
+                componentPath,
+                selectorName,
+                testStore,
+              ),
+            ],
+          ),
         ),
-      ),
-      toBeUndefined: () => expect(componentState).toBe(undefined),
-    };
+        toBeUndefined: () => expect(componentState).toBe(undefined),
+      },
+      {
+        get(t: any, selectorName: string) {
+          if (selectorName in t) return t[selectorName];
+          if (process.env.SOFTER_DEBUG) {
+            console.log("Last state before 'read value' error:");
+            console.log(JSON.stringify(testStore.rootState));
+          }
+          return expect(
+            undefined,
+            `cannot read value of selector ${selectorName} at ${componentPathToString(componentPath)}`,
+          );
+        },
+      },
+    );
   };
 
 const expectWrapper = (
@@ -172,10 +223,11 @@ const expectWrapper = (
     value = selector(componentState, children);
     return expect(value);
   } catch (e: any) {
-    return expect(
-      undefined,
-      `cannot read value of ${selectorName} at ${componentPathToString(componentPath)}.${e.message}.`,
-    );
+    if (process.env.SOFTER_DEBUG) {
+      console.log("Last state before 'expect' error:");
+      console.log(JSON.stringify(testStore.rootState));
+    }
+    throw e;
   }
 };
 // typescript

@@ -44,7 +44,7 @@ type ListSelectEvents = ComponentEventsContract<
   }
 >;
 
-export type ListSelectContract = {
+export type ListManagerContract = {
   state: State;
   values: ExtractComponentValuesContract<typeof selectors>;
   events: ListSelectEvents;
@@ -52,7 +52,7 @@ export type ListSelectContract = {
 };
 
 // Component definition
-export const listSelectDef: ComponentDef<ListSelectContract> = {
+export const listManagerDef: ComponentDef<ListManagerContract> = {
   selectors,
   uiEvents: ["displayed"],
   eventForwarders: [

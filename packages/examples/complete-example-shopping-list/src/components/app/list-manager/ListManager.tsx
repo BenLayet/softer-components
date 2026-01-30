@@ -1,12 +1,12 @@
 import { useSofter } from "@softer-components/redux-adapter";
 import { useEffect } from "react";
 
-import { CreateList } from "./create-list/CreateList.tsx";
-import { ListSelectContract } from "./list-select.component.ts";
-import { Lists } from "./lists/Lists.tsx";
+import { CreateList } from "./create-list/CreateList";
+import { ListManagerContract } from "./list-manager.component";
+import { Lists } from "./lists/Lists";
 
-export const ListSelect = ({ path = "" }) => {
-  const [v, d, c] = useSofter<ListSelectContract>(path);
+export const ListManager = ({ path = "" }) => {
+  const [v, d, c] = useSofter<ListManagerContract>(path);
   useEffect(() => {
     d.displayed();
   }, [d]);

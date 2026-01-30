@@ -6,9 +6,9 @@ import { List } from "../src/model";
 export const mockEffects = (
   savedList: List[],
 ): ComponentTreeEffects<AppComponentContract> => ({
-  "/listSelect": {
-    createNewListRequested: (dispatchers: any, { payload }: any) =>
-      dispatchers.createNewListSucceeded({
+  "/listManager/createList": {
+    createNewListRequested: ({ createNewListSucceeded }, { payload }) =>
+      createNewListSucceeded({
         name: payload,
         id: "fake-uuid",
         listItems: [],
@@ -20,7 +20,7 @@ export const mockEffects = (
       saveSucceeded();
     },
   },
-  "/listSelect/savedLists": {
+  "/listManager/lists": {
     deleteRequested: ({ deleteSucceeded }, { payload }) => {
       savedList.splice(
         savedList.findIndex(l => l.id === payload),
