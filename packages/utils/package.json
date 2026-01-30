@@ -34,7 +34,7 @@
   "dependencies": {
     "@softer-components/types": "workspace:^",
     "immer": "^10.2.0",
-    "lodash": "^4.17.21"
+    "lodash": "^4.17.23"
   },
   "devDependencies": {
     "vite": "^7.2.4",

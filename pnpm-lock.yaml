@@ -4,12 +4,6 @@ settings:
   autoInstallPeers: true
   excludeLinksFromLockfile: false
 
-overrides:
-  diff@>=6.0.0 <8.0.3: '>=8.0.3'
-  js-yaml@>=4.0.0 <4.1.1: '>=4.1.1'
-  lodash-es@>=4.0.0 <=4.17.22: '>=4.17.23'
-  lodash@>=4.0.0 <=4.17.22: '>=4.17.23'
-
 importers:
 
   .:
@@ -224,7 +218,7 @@ importers:
         specifier: workspace:^
         version: link:../utils
       lodash:
-        specifier: '>=4.17.23'
+        specifier: ^4.17.23
         version: 4.17.23
       react:
         specifier: ^19.1.1
@@ -300,7 +294,7 @@ importers:
         specifier: ^10.2.0
         version: 10.2.0
       lodash:
-        specifier: '>=4.17.23'
+        specifier: ^4.17.23
         version: 4.17.23
     devDependencies:
       vite:

@@ -4,9 +4,3 @@ packages:
   - packages/redux-adapter
   - packages/examples/basic-example-counter
   - packages/examples/complete-example-shopping-list
-
-overrides:
-  diff@>=6.0.0 <8.0.3: '>=8.0.3'
-  js-yaml@>=4.0.0 <4.1.1: '>=4.1.1'
-  lodash-es@>=4.0.0 <=4.17.22: '>=4.17.23'
-  lodash@>=4.0.0 <=4.17.22: '>=4.17.23'
