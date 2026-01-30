@@ -1,5 +1,18 @@
 # @softer-components/utils
 
+## 0.5.0
+
+### Minor Changes
+
+- cc07468: Configures effects at configuration time
+- 22acad4: simplifies effects registration
+
+### Patch Changes
+
+- Updated dependencies [cc07468]
+- Updated dependencies [22acad4]
+  - @softer-components/types@0.5.0
+
 ## 0.4.2
 
 ### Patch Changes
