@@ -1,5 +1,12 @@
 # @softer-components/types
 
+## 0.5.0
+
+### Minor Changes
+
+- e518a7c: Simplifies effect registration
+- cc07468: Configures effects at configuration time
+
 ## 0.4.2
 
 ### Patch Changes
