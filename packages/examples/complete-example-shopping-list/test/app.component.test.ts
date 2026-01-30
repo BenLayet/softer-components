@@ -23,7 +23,7 @@ describe("app.component", () => {
       .thenExpect(LIST_SELECT)
       .listName.toBe("Groceries");
   });
-  it("when list, and item are created, and quantity is incremented, quantity of first item should be 2", () => {
+  it("when one list and one item are created, and quantity is incremented, quantity of first item should be 2", () => {
     givenRootComponent(appDef)
       .withEffects(mockEffects)
       .when(USER_CREATES_NEW_LIST("Groceries"))

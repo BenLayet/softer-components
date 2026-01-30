@@ -1,12 +1,12 @@
 // Recursive type to get all component paths
-export type ComponentPaths<T> =
+export type ComponentTreePaths<T> =
   | "/"
   | (T extends { children: infer C }
       ? C extends Record<string, any>
         ? {
             [K in keyof C & string]:
               | `/${K}`
-              | `/${K}${Exclude<ComponentPaths<C[K]>, "/">}`;
+              | `/${K}${Exclude<ComponentTreePaths<C[K]>, "/">}`;
           }[keyof C & string]
         : never
       : never);

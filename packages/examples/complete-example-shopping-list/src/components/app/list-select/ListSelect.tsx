@@ -1,41 +1,27 @@
 import { useSofter } from "@softer-components/redux-adapter";
+import { useEffect } from "react";
 
+import { CreateList } from "./create-list/CreateList.tsx";
 import { ListSelectContract } from "./list-select.component.ts";
-import { SavedLists } from "./saved-lists/SavedLists.tsx";
+import { Lists } from "./lists/Lists.tsx";
 
 export const ListSelect = ({ path = "" }) => {
   const [v, d, c] = useSofter<ListSelectContract>(path);
+  useEffect(() => {
+    d.displayed();
+  }, [d]);
   return (
     <div>
-      <p style={{ textAlign: "start", width: "300px" }}>
-        All lists ({v.savedListsCount})
-      </p>
-      <SavedLists path={c.savedLists} />
-      <div className="horizontal">
-        <form
-          onSubmit={e => {
-            e.preventDefault();
-            d.createNewListClicked();
-          }}
-        >
-          <input
-            type="text"
-            placeholder="New list name"
-            value={v.listName}
-            required
-            autoFocus
-            onChange={e => d.listNameChanged(e.target.value)}
-          />
-          {v.hasNameRequiredError && <p className="error">Name is required</p>}
-          {v.hasListAlreadyExistsError && (
-            <p className="error">{v.listName} already exists</p>
-          )}
-          <button type="submit">Create new list</button>
-          {v.hasSaveFailedError && (
-            <p className="error">Error while saving...</p>
-          )}
-        </form>
-      </div>
+      {v.hasAnyList && (
+        <div>
+          {" "}
+          <p style={{ textAlign: "start", width: "300px" }}>
+            All lists ({v.listCount})
+          </p>
+          <Lists path={c.lists} />
+        </div>
+      )}
+      <CreateList path={c.createList} />
     </div>
   );
 };

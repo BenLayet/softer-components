@@ -12,41 +12,35 @@ import { List, ListId } from "../../../../model";
 type Error = "FETCH_ERROR" | "DELETE_ERROR";
 type ErrorMessage = string;
 const initialState = {
-  savedLists: [] as List[],
+  lists: [] as List[],
   isLoading: false,
   errors: {} as { [error in Error]?: {} },
 };
 
 // Selectors
 const selectors = {
-  savedLists: state => state.savedLists,
-  savedListCount: state => state.savedLists.length,
-  savedListNames: state => state.savedLists.map(list => list.name),
+  lists: state => state.lists,
+  listCount: state => state.lists.length,
+  listNames: state => state.lists.map(list => list.name),
   isLoading: state => state.isLoading,
   isNotLoading: state => !state.isLoading,
   hasFetchError: state => state.errors["FETCH_ERROR"] !== undefined,
   hasDeleteError: state => state.errors["DELETE_ERROR"] !== undefined,
-  shouldDisplayCount: state => state.savedLists.length > 0,
 } satisfies Selectors<typeof initialState>;
 
 // Events type declaration
 type eventNames =
-  | "displayed"
+  | "initializeRequested"
   | "fetchRequested"
   | "fetchSucceeded"
   | "fetchFailed"
+  | "listNamesChanged"
   | "listClicked"
   | "listSelected"
   | "deleteClicked"
   | "deleteRequested"
   | "deleteSucceeded"
   | "deleteFailed";
-// Effects definition
-const effects = {
-  fetchRequested: ["fetchSucceeded", "fetchFailed"],
-  deleteRequested: ["deleteSucceeded", "deleteFailed"],
-} satisfies EffectsDef<eventNames>;
-
 type Events = ComponentEventsContract<
   eventNames,
   {
@@ -58,8 +52,15 @@ type Events = ComponentEventsContract<
     deleteRequested: ListId;
     deleteSucceeded: ListId;
     deleteFailed: ErrorMessage;
+    listNamesChanged: string[];
   }
 >;
+
+// Effects definition
+const effects = {
+  fetchRequested: ["fetchSucceeded", "fetchFailed"],
+  deleteRequested: ["deleteSucceeded", "deleteFailed"],
+} satisfies EffectsDef<eventNames>;
 
 // Contract definition
 type Contract = {
@@ -74,14 +75,14 @@ type Contract = {
 const componentDef: ComponentDef<Contract> = {
   initialState,
   selectors,
-  uiEvents: ["listClicked", "displayed", "deleteClicked"],
+  uiEvents: ["listClicked", "deleteClicked"],
   updaters: {
     fetchRequested: ({ state }) => {
       state.isLoading = true;
       state.errors = {};
     },
-    fetchSucceeded: ({ state, payload: savedLists }) => {
-      state.savedLists = savedLists;
+    fetchSucceeded: ({ state, payload: lists }) => {
+      state.lists = lists;
       state.isLoading = false;
     },
     fetchFailed: ({ state, payload: errorMessage }) => {
@@ -93,7 +94,7 @@ const componentDef: ComponentDef<Contract> = {
     },
     deleteSucceeded: ({ state, payload: id }) => {
       state.isLoading = false;
-      state.savedLists = state.savedLists.filter(list => list.id !== id);
+      state.lists = state.lists.filter(list => list.id !== id);
       state.errors = {};
     },
     deleteFailed: ({ state, payload: errorMessage }) => {
@@ -115,9 +116,19 @@ const componentDef: ComponentDef<Contract> = {
         values.isNotLoading() ? id : id,
     },
     {
-      from: "displayed",
+      from: "initializeRequested",
       to: "fetchRequested",
       onCondition: ({ values }) => values.isNotLoading(),
+    },
+    {
+      from: "fetchSucceeded",
+      to: "listNamesChanged",
+      withPayload: ({ values }) => values.listNames(),
+    },
+    {
+      from: "deleteSucceeded",
+      to: "listNamesChanged",
+      withPayload: ({ values }) => values.listNames(),
     },
   ],
   effects: {
@@ -127,5 +138,5 @@ const componentDef: ComponentDef<Contract> = {
 };
 
 // Exports
-export const savedListsDef = componentDef;
-export type SavedListsContract = Contract;
+export const listsDef = componentDef;
+export type ListsContract = Contract;

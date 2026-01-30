@@ -1,115 +1,83 @@
 import {
   ComponentDef,
   ComponentEventsContract,
-  EffectsDef,
   ExtractComponentChildrenContract,
   ExtractComponentValuesContract,
   Selectors,
 } from "@softer-components/types";
 
 import { List } from "../../../model";
-import { savedListsDef } from "./saved-lists/saved-lists.component.ts";
+import { createListDef } from "./create-list/create-list.component";
+import { listsDef } from "./lists/lists.component";
 
 // Children components definition
 const childrenComponents = {
-  savedLists: savedListsDef,
+  lists: listsDef,
+  createList: createListDef,
 };
 type ChildrenContract = ExtractComponentChildrenContract<
   typeof childrenComponents
 >;
 
-type ErrorMessage = string;
-type Error = "NAME_REQUIRED" | "SAVE_FAILED" | "LIST_ALREADY_EXISTS";
 // Initial state definition
-const initialState = {
-  listName: "",
-  errors: [] as Error[],
-};
+const initialState = {};
 type State = typeof initialState;
 
 const selectors = {
-  listName: state => state.listName,
-  isListNameValid: state => state.listName.trim() !== "",
-  hasNameRequiredError: state => state.errors.includes("NAME_REQUIRED"),
-  hasSaveFailedError: state => state.errors.includes("SAVE_FAILED"),
-  hasListAlreadyExistsError: state =>
-    state.errors.includes("LIST_ALREADY_EXISTS"),
-  savedListsCount: (_, children) => children.savedLists.values.savedListCount(),
+  listCount: (_, children) => children.lists.values.listCount(),
+  hasAnyList: (_, children) => children.lists.values.listCount() > 0,
 } satisfies Selectors<State, ChildrenContract>;
 
 // Events type declaration
 type eventNames =
-  | "listNameChanged"
-  | "createNewListClicked"
-  | "createNewListRequested"
-  | "createNewListSucceeded"
-  | "createNewListFailed"
-  | "listSelected";
+  | "displayed"
+  | "emptyListCreated"
+  | "listSelected"
+  | "listNamesChanged";
 
 type ListSelectEvents = ComponentEventsContract<
   eventNames,
   {
-    listNameChanged: string;
-    createNewListRequested: string;
-    createNewListSucceeded: List;
-    createNewListFailed: ErrorMessage;
+    emptyListCreated: List;
     listSelected: List;
+    listNamesChanged: string[];
   }
 >;
-
-// Events type declaration
-const effects = {
-  createNewListRequested: ["createNewListSucceeded", "createNewListFailed"],
-} satisfies EffectsDef<eventNames>;
 
 export type ListSelectContract = {
   state: State;
   values: ExtractComponentValuesContract<typeof selectors>;
   events: ListSelectEvents;
   children: ChildrenContract;
-  effects: typeof effects;
 };
 
 // Component definition
 export const listSelectDef: ComponentDef<ListSelectContract> = {
-  initialState,
   selectors,
-  uiEvents: ["createNewListClicked", "listNameChanged"],
-  updaters: {
-    listNameChanged: ({ state, payload: listName }) => {
-      state.listName = listName;
-      state.errors = [];
-    },
-    createNewListClicked: ({
-      state,
-      values: { listName },
-      childrenValues: { savedLists },
-    }) => {
-      listName() === "" && state.errors.push("NAME_REQUIRED");
-      savedLists.values.savedListNames().includes(listName()) &&
-        state.errors.push("LIST_ALREADY_EXISTS");
-    },
-    createNewListFailed: ({ state }) => {
-      state.errors.push("SAVE_FAILED");
-    },
-  },
+  uiEvents: ["displayed"],
   eventForwarders: [
     {
-      from: "createNewListSucceeded",
+      from: "emptyListCreated",
       to: "listSelected",
-    },
-    {
-      from: "createNewListClicked",
-      to: "createNewListRequested",
-      onCondition: ({ values }) => values.listName().trim() !== "",
-      withPayload: ({ values }) => values.listName(),
     },
   ],
   childrenComponentDefs: childrenComponents,
   childrenConfig: {
-    savedLists: {
-      listeners: [{ from: "listSelected", to: "listSelected" }],
+    lists: {
+      commands: [{ from: "displayed", to: "initializeRequested" }],
+      listeners: [
+        { from: "listSelected", to: "listSelected" },
+        { from: "listNamesChanged", to: "listNamesChanged" },
+      ],
+    },
+    createList: {
+      commands: [
+        {
+          from: "listNamesChanged",
+          to: "setExistingListNames",
+        },
+      ],
+      listeners: [{ from: "createNewListSucceeded", to: "emptyListCreated" }],
     },
   },
-  effects,
 };
