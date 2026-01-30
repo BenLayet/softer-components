@@ -211,21 +211,21 @@ export const Counter = ({ path = "" }: CounterProps) => {
 ## 🔄 Detailed Features
 
 ### Component Contract
-The component contract is a `typescript` type that defines how the component is viewed by the UI and by other components:
- - state: that is used in the selectors and updaters. (will be removed from the contract in the future)
+The component contract is a `typescript` type that defines how the component can be used by the UI and by other components:
  - values: their name and return type (corresponding to the selectors)
  - events: their name and payload type
- - children: their name and contract, and configuration (optional / collection / unique)
- - effects: their name and configuration
+ - children: their name, contract, and configuration (optional / collection / unique)
+ - effects: their name and the list of events that can be dispatched from them
 
-#### Replacing a component definition implementation of the same contract
-The UI component only depends on the component contract, and not on the component definition, so the component definition can be changed without impacting the UI component.
+#### Reusability
+The UI component only depends on the component contract, and not on the component definition, so the component definition can be changed without impacting the UI component, as long as the contract stays the same.
 
 Parent component use the component definition in `childrenComponentDefs`, but otherwise only use the component contract (in `listeners`, `commands` and `childrenValues`). So replacing the component definition by another implementation of the same contract has minimal impact on the parent component.
 
 ### Component Definition
-#### State
-* The state is immutable and must be serializable: POJO (plain old javascript object) with zero dependencies.
+#### Initial State
+* The state is immutable and must be serializable.
+* The initial state should be a POJO (Plain Old JavaScript object) with zero dependencies.
 
 #### Selectors
 * Selectors are functions that compute derived values from the component state tree (own state of the component, and state of its children).

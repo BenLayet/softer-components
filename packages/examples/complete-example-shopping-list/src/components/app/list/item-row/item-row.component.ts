@@ -8,7 +8,7 @@ import {
 import { ListItem } from "../../../../model";
 
 // Initial state definition
-type ItemRowState = ListItem;
+type State = ListItem;
 
 // Events
 type eventNames =
@@ -33,17 +33,16 @@ const selectors = {
   name: state => state.item.name,
   quantity: state => state.quantity,
   isQuantityZero: state => state.quantity === 0,
-} satisfies Selectors<ItemRowState>;
+} satisfies Selectors<State>;
 
 export type ItemRowContract = {
-  state: ItemRowState;
   events: Events;
   children: {};
   values: ExtractComponentValuesContract<typeof selectors>;
 };
 
 // Component definition
-export const itemRowDef: ComponentDef<ItemRowContract> = {
+export const itemRowDef: ComponentDef<ItemRowContract, State> = {
   selectors,
   uiEvents: ["removeItemRequested", "incrementRequested", "decrementRequested"],
   updaters: {

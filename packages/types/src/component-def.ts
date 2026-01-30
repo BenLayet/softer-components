@@ -2,27 +2,28 @@ import { ChildConfig, ChildrenInstancesDefs } from "./children";
 import { ComponentContract } from "./component-contract";
 import { InternalEventForwarders } from "./event-forwarder";
 import { Selectors } from "./selectors";
+import { State } from "./state";
 import { Values } from "./values";
 
 /**
  * Definition of a component
  * @param TComponentContract - Contract of the component.
  */
-export type ComponentDef<TComponentContract extends ComponentContract = any> = {
-  initialState?: TComponentContract["state"];
-  selectors?: Selectors<
-    TComponentContract["state"],
-    TComponentContract["children"]
-  >;
+export type ComponentDef<
+  TComponentContract extends ComponentContract = any,
+  TState extends State = any,
+> = {
+  initialState?: TState;
+  selectors?: Selectors<TState, TComponentContract["children"]>;
   uiEvents?: (keyof TComponentContract["events"] & string)[];
   updaters?: {
     [EventName in keyof TComponentContract["events"]]?: (
       params: Values<TComponentContract> & {
-        state: TComponentContract["state"]; //mutable
+        state: TState; //mutable
         children: ChildrenInstancesDefs<TComponentContract["children"]>; //mutable
         payload: TComponentContract["events"][EventName]["payload"];
       },
-    ) => void | TComponentContract["state"];
+    ) => void | TState;
   };
   eventForwarders?: InternalEventForwarders<TComponentContract>;
   childrenComponentDefs?: {

@@ -1,6 +1,5 @@
 import { EffectsDef } from "./component-def";
 import { Payload } from "./event";
-import { State } from "./state";
 
 export type ComponentValuesContract = { [SelectorName in string]: any };
 
@@ -28,7 +27,6 @@ export type ChildInstanceContract =
  *
  */
 export type ComponentContract<TEventNames extends string = string> = {
-  state: State;
   values: ComponentValuesContract;
   events: ComponentEventsContract<
     TEventNames,

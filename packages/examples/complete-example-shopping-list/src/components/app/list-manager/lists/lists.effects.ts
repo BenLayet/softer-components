@@ -18,7 +18,7 @@ export const listsEffects: Effects<ListsContract> = {
   ) => {
     try {
       await listService.delete(listId);
-      deleteSucceeded(listId);
+      deleteSucceeded();
     } catch (e: any) {
       deleteFailed(e.message);
       console.error(e);

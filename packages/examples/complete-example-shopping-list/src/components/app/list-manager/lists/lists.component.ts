@@ -16,6 +16,7 @@ const initialState = {
   isLoading: false,
   errors: {} as { [error in Error]?: {} },
 };
+type State = typeof initialState;
 
 // Selectors
 const selectors = {
@@ -25,8 +26,7 @@ const selectors = {
   isLoading: state => state.isLoading,
   isNotLoading: state => !state.isLoading,
   hasFetchError: state => state.errors["FETCH_ERROR"] !== undefined,
-  hasDeleteError: state => state.errors["DELETE_ERROR"] !== undefined,
-} satisfies Selectors<typeof initialState>;
+} satisfies Selectors<State>;
 
 // Events type declaration
 type eventNames =
@@ -71,7 +71,7 @@ type Contract = {
 };
 
 // Component definition
-const componentDef: ComponentDef<Contract> = {
+const componentDef: ComponentDef<Contract, State> = {
   initialState,
   selectors,
   uiEvents: ["listClicked", "deleteClicked"],

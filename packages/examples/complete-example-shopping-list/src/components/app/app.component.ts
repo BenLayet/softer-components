@@ -17,7 +17,6 @@ const childrenComponentDefs = {
 };
 
 export type AppComponentContract = {
-  state: undefined;
   events: AppEvents;
   children: ExtractComponentChildrenContract<typeof childrenComponentDefs> & {
     list: { isOptional: true };

@@ -78,14 +78,13 @@ const listSelectors = {
 } satisfies Selectors<State, Children>;
 
 export type ListContract = {
-  state: State;
   values: ExtractComponentValuesContract<typeof listSelectors>;
   events: Events;
   children: Children;
   effects: typeof effects;
 };
 
-export const listDef: ComponentDef<ListContract> = {
+export const listDef: ComponentDef<ListContract, State> = {
   selectors: listSelectors,
   uiEvents: ["nextItemNameChanged", "newItemSubmitted", "goBackClicked"],
   updaters: {

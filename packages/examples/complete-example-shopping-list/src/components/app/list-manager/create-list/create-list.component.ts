@@ -70,7 +70,6 @@ const effects = {
 } satisfies EffectsDef<eventNames>;
 
 export type CreateListContract = {
-  state: State;
   values: ExtractComponentValuesContract<typeof selectors>;
   events: ListSelectEvents;
   children: {};
@@ -78,7 +77,7 @@ export type CreateListContract = {
 };
 
 // Component definition
-export const createListDef: ComponentDef<CreateListContract> = {
+export const createListDef: ComponentDef<CreateListContract, State> = {
   initialState,
   selectors,
   uiEvents: ["createNewListSubmitted", "listNameChanged"],
