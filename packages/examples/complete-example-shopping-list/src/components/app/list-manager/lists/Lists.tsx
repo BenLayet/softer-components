@@ -1,17 +1,13 @@
 import { useSofter } from "@softer-components/redux-adapter";
-import { useEffect } from "react";
 
-import { SavedListsContract } from "./saved-lists.component.ts";
+import { ListsContract } from "./lists.component.ts";
 
-export const SavedLists = ({ path = "" }) => {
-  const [v, d] = useSofter<SavedListsContract>(path);
-  useEffect(() => {
-    d.displayed();
-  }, [d]);
+export const Lists = ({ path = "" }) => {
+  const [v, d] = useSofter<ListsContract>(path);
   return (
     <div style={{ maxWidth: "300px" }}>
       <ul style={{ width: "100%" }}>
-        {v.savedLists.map(list => (
+        {v.lists.map(list => (
           <li
             key={list.id}
             style={{ display: "flex", justifyContent: "space-between" }}
@@ -35,7 +31,6 @@ export const SavedLists = ({ path = "" }) => {
       {v.hasFetchError && (
         <p className="error">An error occurred while deleting the list</p>
       )}
-      {v.shouldDisplayCount && <p>Number of saved lists: {v.savedListCount}</p>}
     </div>
   );
 };

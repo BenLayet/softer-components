@@ -1,16 +1,16 @@
 import { useSofterSingleChildrenPaths } from "@softer-components/redux-adapter";
 
 import { AppComponentContract } from "./app.component.ts";
-import { ListSelect } from "./list-select/ListSelect.tsx";
+import { ListManager } from "./list-manager/ListManager.tsx";
 import { List } from "./list/List.tsx";
 
 export const App = ({ path = "" }) => {
-  const { listSelect, list } =
+  const { listManager, list } =
     useSofterSingleChildrenPaths<AppComponentContract["children"]>(path);
   return (
     <div>
-      <h1>ShopShop App</h1>
-      {listSelect && <ListSelect path={listSelect} />}
+      <h1>Shopping List Example</h1>
+      {listManager && <ListManager path={listManager} />}
       {list && <List path={list} />}
     </div>
   );

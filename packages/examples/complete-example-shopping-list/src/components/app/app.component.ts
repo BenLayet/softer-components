@@ -5,14 +5,14 @@ import {
 } from "@softer-components/types";
 
 import { List } from "../../model";
-import { listSelectDef } from "./list-select/list-select.component.ts";
+import { listManagerDef } from "./list-manager/list-manager.component";
 import { listDef } from "./list/list.component.ts";
 
 // Events
 type eventNames = "listSelected" | "selectListRequested";
 type AppEvents = ComponentEventsContract<eventNames, { listSelected: List }>;
 const childrenComponentDefs = {
-  listSelect: listSelectDef,
+  listManager: listManagerDef,
   list: listDef,
 };
 
@@ -21,7 +21,7 @@ export type AppComponentContract = {
   events: AppEvents;
   children: ExtractComponentChildrenContract<typeof childrenComponentDefs> & {
     list: { isOptional: true };
-    listSelect: { isOptional: true };
+    listManager: { isOptional: true };
   };
   values: {};
 };
@@ -30,11 +30,11 @@ export const appDef: ComponentDef<AppComponentContract> = {
   updaters: {
     listSelected: ({ children }) => {
       children.list = true;
-      children.listSelect = false;
+      children.listManager = false;
     },
     selectListRequested: ({ children }) => {
       children.list = false;
-      children.listSelect = true;
+      children.listManager = true;
     },
   },
   initialChildren: { list: false },
@@ -49,7 +49,7 @@ export const appDef: ComponentDef<AppComponentContract> = {
       ],
       listeners: [{ from: "goBackClicked", to: "selectListRequested" }],
     },
-    listSelect: {
+    listManager: {
       listeners: [
         {
           from: "listSelected",

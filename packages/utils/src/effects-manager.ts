@@ -1,7 +1,7 @@
 import {
   ComponentContract,
   ComponentDef,
-  ComponentPaths,
+  ComponentTreePaths,
   Effect,
   Effects,
   GetContractAtPath,
@@ -25,7 +25,7 @@ export class EffectsManager<TRootComponentContract extends ComponentContract> {
     private readonly rootComponentDef: ComponentDef<TRootComponentContract>,
     private readonly stateReader: StateReader,
   ) {}
-  configureEffects = <Path extends ComponentPaths<TRootComponentContract>>(
+  configureEffects = <Path extends ComponentTreePaths<TRootComponentContract>>(
     componentDefPath: Path,
     effects: Effects<GetContractAtPath<TRootComponentContract, Path>>,
   ) => {

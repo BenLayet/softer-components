@@ -1,19 +1,20 @@
 import { GlobalEvent, stringToComponentPath } from "@softer-components/utils";
 
-export const LIST_SELECT = stringToComponentPath("/listSelect/");
+export const CREATE_LIST = stringToComponentPath("/listManager/createList/");
+export const LISTS = stringToComponentPath("/listManager/lists");
 export const LIST = stringToComponentPath("/list/");
 export const FIRST_ITEM = stringToComponentPath("/list/itemRows:0/");
 export const USER_SETS_LIST_NAME = (name: string): GlobalEvent[] => [
   {
     payload: name,
     name: "listNameChanged",
-    componentPath: LIST_SELECT,
+    componentPath: CREATE_LIST,
   },
 ];
 export const USER_SUBMITS_NEW_LIST = (): GlobalEvent[] => [
   {
-    name: "createNewListClicked",
-    componentPath: LIST_SELECT,
+    name: "createNewListSubmitted",
+    componentPath: CREATE_LIST,
     payload: undefined,
   },
 ];
