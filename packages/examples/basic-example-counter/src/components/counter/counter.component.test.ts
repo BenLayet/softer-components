@@ -1,14 +1,14 @@
 import { givenRootComponent } from "@softer-components/utils/test-utilities";
 import { describe, it } from "vitest";
 
-import { counterComponentDef } from "./counter.component";
+import { counterDef } from "./counter.component";
 
 describe("counter.component", () => {
   it("initialState is { count: 0 }", () => {
-    givenRootComponent(counterComponentDef).thenExpect([]).count.toBe(0);
+    givenRootComponent(counterDef).thenExpect([]).count.toBe(0);
   });
   it("when increment is requested then count should be + 1", () => {
-    givenRootComponent(counterComponentDef)
+    givenRootComponent(counterDef)
       .when({
         name: "incrementRequested",
         componentPath: [],
@@ -19,7 +19,7 @@ describe("counter.component", () => {
   });
 
   it("when decrement is requested then count should be - 1", () => {
-    givenRootComponent(counterComponentDef)
+    givenRootComponent(counterDef)
       .when({
         name: "decrementRequested",
         componentPath: [],

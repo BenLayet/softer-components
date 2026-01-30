@@ -17,7 +17,7 @@ export type CounterContract = {
   children: {};
 };
 // Component definition
-export const counterComponentDef: ComponentDef<CounterContract> = {
+export const counterDef: ComponentDef<CounterContract> = {
   initialState,
   selectors: {
     count: state => state.count,
