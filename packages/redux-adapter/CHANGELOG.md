@@ -1,5 +1,19 @@
 # @softer-components/redux-adapter
 
+## 0.5.0
+
+### Minor Changes
+
+- e518a7c: Simplifies effect registration
+- cc07468: Configures effects at configuration time
+
+### Patch Changes
+
+- Updated dependencies [e518a7c]
+- Updated dependencies [cc07468]
+  - @softer-components/types@0.5.0
+  - @softer-components/utils@0.5.0
+
 ## 0.4.2
 
 ### Patch Changes
