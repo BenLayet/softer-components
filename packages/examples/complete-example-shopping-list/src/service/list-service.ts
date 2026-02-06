@@ -24,4 +24,3 @@ export class ListService {
     await this.listStorageService.saveList(list);
   }
 }
-export const listService = new ListService();
