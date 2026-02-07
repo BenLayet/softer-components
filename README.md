@@ -223,20 +223,25 @@ The UI component only depends on the component contract, and not on the componen
 Parent component use the component definition in `childrenComponentDefs`, but otherwise only use the component contract (in `listeners`, `commands` and `childrenValues`). So replacing the component definition by another implementation of the same contract has minimal impact on the parent component.
 
 ### Component Definition
-#### Initial State
+
+####  `initialState` and `State` type
 * The state is immutable and must be serializable.
 * The initial state should be a POJO (Plain Old JavaScript object) with zero dependencies.
+* The `State` type is typically derived as `typeof initialState`
 
-#### Selectors
-* Selectors are functions that compute derived values from the component state tree (own state of the component, and state of its children).
+#### `selectors` and `Values` type
+* Selectors are functions that compute derived values from the component state tree (own state of the component, and values of its children).
 * They must be pure functions.
 * Adapters typically memoize the results of selectors to avoid recomputing them unnecessarily.
 * The values selected by the selectors are exposed to the component through the `values` property of the component contract, they are provided to the UI through the `useSofter` and `useSofterValues` hook.
 * They are also provided to the updaters, the parent selectors, the effects, the event forwarders, listeners, and commands, through the `values` argument of the `onCondition` function.
 
-#### UI events
-* Events that can be dispatched from the UI component need to be declared in the `uiEvents` property of the component definition.
-* There are available in React Component with the `useSofter` and `useSofterEvents` hook.
+#### `Events` type
+* the `Events` type defines the list of events names, and for each event 
+  * the payload type
+  * if the event can be dispatched from the UI component
+  * if the event can trigger an effect and if so, to dispatch which events 
+* UI events are available in React Component with the `useSofter` and `useSofterEvents` hook.
 
 #### Updaters
 * Updaters are functions that handle events and update the component state and the children instances
