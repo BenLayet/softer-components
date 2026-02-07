@@ -1,9 +1,9 @@
 import { useSofter } from "@softer-components/redux-adapter";
 
-import { CreateListContract } from "./create-list.component";
+import { Contract } from "./create-list.component";
 
 export const CreateList = ({ path = "" }) => {
-  const [v, d] = useSofter<CreateListContract>(path);
+  const [v, d] = useSofter<Contract>(path);
   return (
     <div>
       <div className="horizontal">

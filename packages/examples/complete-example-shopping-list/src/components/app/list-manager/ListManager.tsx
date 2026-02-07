@@ -2,7 +2,7 @@ import { useSofter } from "@softer-components/redux-adapter";
 import { useEffect } from "react";
 
 import { CreateList } from "./create-list/CreateList";
-import { ListManagerContract } from "./list-manager.component";
+import { Contract } from "./list-manager.component";
 import { Lists } from "./lists/Lists";
 
 export const ListManager = ({ path = "" }) => {

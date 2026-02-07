@@ -1,7 +1,6 @@
 import {
   ComponentContract,
   ComponentDef,
-  Effects,
   Selector,
   State,
 } from "@softer-components/types";
@@ -21,6 +20,7 @@ import { ComponentPath, GlobalEvent } from "./utils.type";
 import { createChildrenValues } from "./value-providers";
 
 type TestStore = {
+  eventsQueuedByEffects: GlobalEvent[];
   events: GlobalEvent[];
   rootState: Tree<State>;
   rootComponentDef: ComponentDef;
@@ -38,13 +38,13 @@ export const givenRootComponent = <
   initializeRootState(rootState, rootComponentDef, stateManager);
   const testStore: TestStore = {
     events: [],
+    eventsQueuedByEffects: [],
     rootComponentDef,
     stateManager,
     rootState,
     effectsManager,
   };
   return {
-    withEffects: debugWrapper(testStore, withEffects),
     when: debugWrapper(testStore, whenEventSequenceOccurs),
     thenExpect: debugWrapper(testStore, thenExpect),
   };
@@ -58,97 +58,98 @@ const debugWrapper = <T>(
     return func(testStore);
   } catch (e: any) {
     if (process.env.SOFTER_DEBUG) {
-      console.log("SOFTER DEBUG: Error occurred in test.");
+      console.error("SOFTER DEBUG: Error occurred in test.");
       console.error(JSON.stringify(testStore.rootState));
     }
     throw e;
   }
 };
-
-const withEffects =
-  (testStore: TestStore) =>
-  (effects: { [componentPath: string]: Effects<any> }) => {
-    Object.entries(effects).forEach(([componentPathStr, componentEffects]) =>
-      testStore.effectsManager.configureEffects(
-        componentPathStr as any,
-        componentEffects,
-      ),
-    );
-    return {
-      withEffects: withEffects(testStore),
-      when: whenEventSequenceOccurs(testStore),
-      thenExpect: thenExpect(testStore),
-    };
-  };
-
 const whenEventSequenceOccurs =
-  (testStore: TestStore) => (input: GlobalEvent[] | GlobalEvent) => {
+  (testStore: TestStore) => async (input: GlobalEvent[] | GlobalEvent) => {
     // Normalize to an array
     const globalEvents: GlobalEvent[] = Array.isArray(input) ? input : [input];
 
-    globalEvents.forEach(whenEventOccurs(testStore));
+    await Promise.all(
+      globalEvents.map(async globalEvent => {
+        if (process.env.SOFTER_DEBUG) {
+          console.log(
+            `EVT#${testStore.events.length + 1}: `,
+            `New sequence starts ${globalEvent.name}`,
+          );
+        }
+        await whenEventOccurs(testStore)(globalEvent);
+        const queuedEvents = [...testStore.eventsQueuedByEffects];
+        testStore.eventsQueuedByEffects = [];
+        await whenEventSequenceOccurs(testStore)(queuedEvents);
+      }),
+    );
+
     return {
-      and: whenEventSequenceOccurs(testStore),
-      thenExpect: thenExpect(testStore),
+      and: debugWrapper(testStore, whenEventSequenceOccurs),
+      thenExpect: debugWrapper(testStore, thenExpect),
     };
   };
-const whenEventOccurs = (testStore: any) => (globalEvent: GlobalEvent) => {
-  testStore.events.push(globalEvent);
-  let previousStateStr = "";
-  if (process.env.SOFTER_DEBUG) {
-    previousStateStr = JSON.stringify(testStore.rootState);
-    console.log(
-      `EVT#${testStore.events.length}: `,
-      globalEvent.name,
-      componentPathToString(globalEvent.componentPath),
-      JSON.stringify(globalEvent.payload),
-    );
-  }
-  try {
-    //reducer
-    updateSofterRootState(
+const whenEventOccurs =
+  (testStore: any) => async (globalEvent: GlobalEvent) => {
+    testStore.events.push(globalEvent);
+    let previousStateStr = "";
+    if (process.env.SOFTER_DEBUG) {
+      previousStateStr = JSON.stringify(testStore.rootState);
+      console.log(
+        `EVT#${testStore.events.length}: `,
+        globalEvent.name,
+        componentPathToString(globalEvent.componentPath),
+        JSON.stringify(globalEvent.payload),
+      );
+    }
+    try {
+      //reducer
+      updateSofterRootState(
+        testStore.rootState,
+        testStore.rootComponentDef,
+        globalEvent,
+        testStore.stateManager,
+      );
+    } catch (e: any) {
+      console.log(`Error occurred in updater for event ${globalEvent.name}`);
+      console.log(`Last global state:`);
+      console.log(JSON.stringify(testStore.rootState));
+      console.log(
+        `Last component state at event's component path ${componentPathToString(globalEvent.componentPath)}:`,
+      );
+      console.log(
+        JSON.stringify(
+          findSubTree(testStore.rootState, globalEvent.componentPath),
+        ),
+      );
+      throw e;
+    }
+    if (process.env.SOFTER_DEBUG) {
+      console.log(
+        `EVT#${testStore.events.length}-diff: `,
+        JSON.stringify(diff(JSON.parse(previousStateStr), testStore.rootState)),
+      );
+    }
+
+    //event forwarding
+    const newEvents = generateEventsToForward(
       testStore.rootState,
       testStore.rootComponentDef,
       globalEvent,
       testStore.stateManager,
     );
-  } catch (e: any) {
-    console.error(`Error occurred in updater for event ${globalEvent.name}`);
-    console.error(`Last global state:`);
-    console.error(JSON.stringify(testStore.rootState));
-    console.error(
-      `Last component state at event's component path ${componentPathToString(globalEvent.componentPath)}:`,
+    newEvents.forEach(whenEventOccurs(testStore));
+
+    //effects
+    await testStore.effectsManager.eventOccurred(
+      globalEvent,
+      testStore.rootState,
+      (evt: GlobalEvent) => testStore.eventsQueuedByEffects.push(evt),
     );
-    console.error(
-      JSON.stringify(
-        findSubTree(testStore.rootState, globalEvent.componentPath),
-      ),
-    );
-    throw e;
-  }
-  if (process.env.SOFTER_DEBUG) {
     console.log(
-      `EVT#${testStore.events.length}-diff: `,
-      JSON.stringify(diff(JSON.parse(previousStateStr), testStore.rootState)),
+      testStore.eventsQueuedByEffects.map((evt: GlobalEvent) => evt.name),
     );
-  }
-
-  //event forwarding
-  const newEvents = generateEventsToForward(
-    testStore.rootState,
-    testStore.rootComponentDef,
-    globalEvent,
-    testStore.stateManager,
-  );
-  newEvents.forEach(whenEventOccurs(testStore));
-
-  //effects
-  testStore.effectsManager.eventOccurred(
-    globalEvent,
-    testStore.rootState,
-    whenEventOccurs(testStore),
-  );
-};
+  };
 
 const thenExpect =
   (testStore: TestStore): any =>

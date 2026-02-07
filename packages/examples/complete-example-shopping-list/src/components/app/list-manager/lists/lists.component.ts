@@ -1,12 +1,13 @@
 import {
   ComponentDef,
   ComponentEventsContract,
-  EffectsDef,
+  Effects,
   ExtractComponentValuesContract,
   Selectors,
 } from "@softer-components/types";
 
 import { List, ListId } from "../../../../model";
+import { ListService } from "../../../../port/list.service";
 
 // Initial state definition
 type Error = "FETCH_ERROR" | "DELETE_ERROR";
@@ -56,10 +57,10 @@ type Events = ComponentEventsContract<
 >;
 
 // Effects definition
-const effects = {
-  fetchRequested: ["fetchSucceeded", "fetchFailed"],
-  deleteRequested: ["deleteSucceeded", "deleteFailed"],
-} satisfies EffectsDef<eventNames>;
+type EffectsContract = {
+  fetchRequested: ["fetchSucceeded", "fetchFailed"];
+  deleteRequested: ["deleteSucceeded", "deleteFailed"];
+};
 
 // Contract definition
 type Contract = {
@@ -67,11 +68,40 @@ type Contract = {
   values: ExtractComponentValuesContract<typeof selectors>;
   events: Events;
   children: {};
-  effects: typeof effects;
+  effects: EffectsContract;
 };
+//effects
+type Dependencies = {
+  listService: ListService;
+};
+const effects: (dependencies: Dependencies) => Effects<ListsContract> = ({
+  listService,
+}) => ({
+  fetchRequested: async ({ fetchSucceeded, fetchFailed }) => {
+    try {
+      const allLists = await listService.getAll();
+      fetchSucceeded(allLists);
+    } catch (e: any) {
+      fetchFailed(e.message);
+    }
+  },
+  deleteRequested: async (
+    { deleteSucceeded, deleteFailed },
+    { payload: listId },
+  ) => {
+    try {
+      await listService.delete(listId);
+      deleteSucceeded();
+    } catch (e: any) {
+      deleteFailed(e.message);
+    }
+  },
+});
 
 // Component definition
-const componentDef: ComponentDef<Contract, State> = {
+const componentDef: (
+  dependencies: Dependencies,
+) => ComponentDef<Contract, State> = configuration => ({
   initialState,
   selectors,
   uiEvents: ["listClicked", "deleteClicked"],
@@ -130,12 +160,10 @@ const componentDef: ComponentDef<Contract, State> = {
       withPayload: ({ values }) => values.listNames(),
     },
   ],
-  effects: {
-    fetchRequested: ["fetchSucceeded", "fetchFailed"],
-    deleteRequested: ["deleteSucceeded", "deleteFailed"],
-  },
-};
+  effects: effects(configuration),
+});
 
 // Exports
 export const listsDef = componentDef;
 export type ListsContract = Contract;
+export type ListsDependencies = Dependencies;

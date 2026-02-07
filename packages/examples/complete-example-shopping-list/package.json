@@ -13,7 +13,7 @@
     "start": "vite",
     "test": "vitest",
     "test:ci": "vitest run",
-    "test-for-debug": "SOFTER_DEBUG=true vitest --testTimeout=100000 --bail=1",
+    "test-for-debug": "SOFTER_DEBUG=true vitest --testTimeout=100000",
     "type-check": "tsc -b --noEmit"
   },
   "dependencies": {

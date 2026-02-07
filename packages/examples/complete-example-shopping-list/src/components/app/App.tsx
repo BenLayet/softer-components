@@ -1,6 +1,6 @@
 import { useSofterSingleChildrenPaths } from "@softer-components/redux-adapter";
 
-import { AppComponentContract } from "./app.component";
+import { Contract } from "./app.component";
 import { ListManager } from "./list-manager/ListManager.tsx";
 import { List } from "./list/List.tsx";
 

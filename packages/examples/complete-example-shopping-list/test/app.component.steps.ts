@@ -1,7 +1,6 @@
 import { GlobalEvent, stringToComponentPath } from "@softer-components/utils";
 
 export const CREATE_LIST = stringToComponentPath("/listManager/createList/");
-export const LISTS = stringToComponentPath("/listManager/lists");
 export const LIST = stringToComponentPath("/list/");
 export const FIRST_ITEM = stringToComponentPath("/list/itemRows:0/");
 export const USER_SETS_LIST_NAME = (name: string): GlobalEvent[] => [

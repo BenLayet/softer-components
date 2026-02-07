@@ -26,11 +26,8 @@ import {
   SofterViewModel,
 } from "./softer-view-model";
 
-export type SofterStore<T extends ComponentContract> = ReturnType<
-  typeof configureStore
-> & {
+export type SofterStore = ReturnType<typeof configureStore> & {
   softerViewModel: SofterViewModel;
-  configureEffects: EffectsManager<T>["configureEffects"];
 };
 type ReduxEffect = (action: any, listenerApi: any) => void;
 
@@ -73,7 +70,7 @@ export function createSofterMiddleware(eventProcessor: ReduxEffect) {
 }
 export function configureSofterStore<T extends ComponentContract>(
   rootComponentDef: ComponentDef<T>,
-): SofterStore<T> {
+): SofterStore {
   const config = createSofterStoreConfiguration(rootComponentDef);
   return {
     ...configureStore({
@@ -83,7 +80,6 @@ export function configureSofterStore<T extends ComponentContract>(
         getDefaultMiddleware({ thunk: false }).prepend(config.softerMiddleware),
     }),
     softerViewModel: config.softerViewModel,
-    configureEffects: config.effectsManager.configureEffects,
   };
 }
 function initializeGlobalState(

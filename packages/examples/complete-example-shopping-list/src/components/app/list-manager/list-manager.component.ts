@@ -1,23 +1,27 @@
 import {
   ComponentDef,
   ComponentEventsContract,
-  ExtractComponentChildrenContract,
   ExtractComponentValuesContract,
   Selectors,
 } from "@softer-components/types";
 
 import { List } from "../../../model";
-import { createListDef } from "./create-list/create-list.component";
-import { listsDef } from "./lists/lists.component";
+import {
+  CreateListContract,
+  CreateListDependencies,
+  createListDef,
+} from "./create-list/create-list.component";
+import {
+  ListsContract,
+  ListsDependencies,
+  listsDef,
+} from "./lists/lists.component";
 
 // Children components definition
-const childrenComponents = {
-  lists: listsDef,
-  createList: createListDef,
+type ChildrenContract = {
+  lists: ListsContract;
+  createList: CreateListContract;
 };
-type ChildrenContract = ExtractComponentChildrenContract<
-  typeof childrenComponents
->;
 
 // Initial state definition
 const initialState = {};
@@ -44,14 +48,18 @@ type ListSelectEvents = ComponentEventsContract<
   }
 >;
 
-export type ListManagerContract = {
+type Contract = {
   values: ExtractComponentValuesContract<typeof selectors>;
   events: ListSelectEvents;
   children: ChildrenContract;
 };
 
+type Dependencies = CreateListDependencies & ListsDependencies;
+
 // Component definition
-export const listManagerDef: ComponentDef<ListManagerContract, State> = {
+const componentDef: (
+  dependencies: Dependencies,
+) => ComponentDef<Contract, State> = dependencies => ({
   selectors,
   uiEvents: ["displayed"],
   eventForwarders: [
@@ -60,7 +68,10 @@ export const listManagerDef: ComponentDef<ListManagerContract, State> = {
       to: "listSelected",
     },
   ],
-  childrenComponentDefs: childrenComponents,
+  childrenComponentDefs: {
+    lists: listsDef(dependencies),
+    createList: createListDef(dependencies),
+  },
   childrenConfig: {
     lists: {
       commands: [{ from: "displayed", to: "initializeRequested" }],
@@ -79,4 +90,9 @@ export const listManagerDef: ComponentDef<ListManagerContract, State> = {
       listeners: [{ from: "createNewListSucceeded", to: "emptyListCreated" }],
     },
   },
-};
+});
+
+// Exporting the component definition as a function to allow dependencies injection
+export const listManagerDef = componentDef;
+export type ListManagerContract = Contract;
+export type ListManagerDependencies = Dependencies;

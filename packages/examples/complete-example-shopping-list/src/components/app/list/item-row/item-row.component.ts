@@ -35,14 +35,14 @@ const selectors = {
   isQuantityZero: state => state.quantity === 0,
 } satisfies Selectors<State>;
 
-export type ItemRowContract = {
+type Contract = {
   events: Events;
   children: {};
   values: ExtractComponentValuesContract<typeof selectors>;
 };
 
 // Component definition
-export const itemRowDef: ComponentDef<ItemRowContract, State> = {
+const componentDef: () => ComponentDef<Contract, State> = () => ({
   selectors,
   uiEvents: ["removeItemRequested", "incrementRequested", "decrementRequested"],
   updaters: {
@@ -68,4 +68,8 @@ export const itemRowDef: ComponentDef<ItemRowContract, State> = {
     },
     { from: "decrementRequested", to: "itemChanged" },
   ],
-};
+});
+
+// Exporting the component definition
+export const itemRowDef = componentDef;
+export type ItemRowContract = Contract;
