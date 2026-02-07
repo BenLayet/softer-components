@@ -1,6 +1,6 @@
 import { ComponentTreeEffects } from "@softer-components/types";
 
-import { AppComponentContract } from "../src/components/app/app.component.ts";
+import { AppComponentContract } from "../src/components/app/app.component";
 import { List } from "../src/model";
 
 export const mockEffects = (

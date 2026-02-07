@@ -1,9 +1,11 @@
 import { Effects } from "@softer-components/types";
 
-import { listService } from "../../../../service/list-service.ts";
-import { CreateListContract } from "./create-list.component.ts";
+import { ListService } from "../../../../port/list.service";
+import { CreateListContract } from "./create-list.component";
 
-export const createListEffects: Effects<CreateListContract> = {
+export const createListEffects: (configuration: {
+  listService: ListService;
+}) => Effects<CreateListContract> = ({ listService }) => ({
   createNewListRequested: async (
     { createNewListSucceeded, createNewListFailed },
     { payload: name },
@@ -16,4 +18,4 @@ export const createListEffects: Effects<CreateListContract> = {
       console.error(e);
     }
   },
-};
+});

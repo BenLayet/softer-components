@@ -1,9 +1,9 @@
 import { configureSofterStore } from "@softer-components/redux-adapter";
 
-import { appDef } from "./components/app/app.component.ts";
-import { createListEffects } from "./components/app/list-manager/create-list/create-list.effects.ts";
-import { listsEffects } from "./components/app/list-manager/lists/lists.effects.ts";
-import { listEffects } from "./components/app/list/list.effects.ts";
+import { appDef } from "./components/app/app.component";
+import { createListEffects } from "./components/app/list-manager/create-list/create-list.effects";
+import { listsEffects } from "./components/app/list-manager/lists/lists.effects";
+import { listEffects } from "./components/app/list/list.effects";
 
 export const store = configureSofterStore(appDef);
 store.configureEffects("/listManager/lists", listsEffects);

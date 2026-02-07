@@ -1,8 +1,8 @@
 import { EffectsConfiguration } from "@softer-components/utils";
 
-import { ListService } from "../../../service/list-service.ts";
-import { ListManagerContract } from "./list-manager.component.ts";
-import { configureLists } from "./lists/lists.configuration.ts";
+import { ListService } from "../../../adapter/list-service";
+import { ListManagerContract } from "./list-manager.component";
+import { configureLists } from "./lists/lists.configuration";
 
 export const configureListManager = (
   configuration: {

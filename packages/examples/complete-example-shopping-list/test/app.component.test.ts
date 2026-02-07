@@ -11,7 +11,7 @@ import {
   USER_INCREMENTS_QUANTITY_OF_FIRST_ITEM,
   USER_SETS_LIST_NAME,
 } from "./app.component.steps.ts";
-import { mockEffects } from "./mock-effects.ts";
+import { mockEffects } from "./mock-effects";
 
 describe("app.component", () => {
   it("initial list name is empty", () => {

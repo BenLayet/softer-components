@@ -7,7 +7,7 @@ import {
 } from "@softer-components/types";
 
 import { ItemId, List, ListId, ListItem } from "../../../model";
-import { ItemRowContract, itemRowDef } from "./item-row/item-row.component.ts";
+import { ItemRowContract, itemRowDef } from "./item-row/item-row.component";
 
 // State
 type Error = "SAVE_FAILED";

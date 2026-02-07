@@ -1,5 +1,5 @@
-import { ListService } from "../../../../service/list-service.ts";
-import { listsEffects } from "./lists.effects.ts";
+import { ListService } from "../../../../adapter/list-service";
+import { listsEffects } from "./lists.effects";
 
 export const configureLists = (
   configuration: {

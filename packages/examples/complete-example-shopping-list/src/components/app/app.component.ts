@@ -6,7 +6,7 @@ import {
 
 import { List } from "../../model";
 import { listManagerDef } from "./list-manager/list-manager.component";
-import { listDef } from "./list/list.component.ts";
+import { listDef } from "./list/list.component";
 
 // Events
 type eventNames = "listSelected" | "selectListRequested";

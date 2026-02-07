@@ -1,6 +1,6 @@
 import { EffectsManager } from "@softer-components/utils";
 
-import { CreateListContract } from "./create-list.component.ts";
+import { CreateListContract } from "./create-list.component";
 
 export const configureCreateList = (
   effectsManager: EffectsManager<CreateListContract>,

@@ -1,7 +1,7 @@
 import { Effects } from "@softer-components/types";
 
-import { listService } from "../../../../service/list-service.ts";
-import { ListsContract } from "./lists.component.ts";
+import { listService } from "../../../../adapter/list-service";
+import { ListsContract } from "./lists.component";
 
 export const listsEffects: Effects<ListsContract> = {
   fetchRequested: async ({ fetchSucceeded, fetchFailed }) => {

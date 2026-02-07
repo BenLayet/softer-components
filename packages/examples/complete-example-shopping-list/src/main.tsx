@@ -4,7 +4,7 @@ import { Provider } from "react-redux";
 
 import { App } from "./components/app/App";
 import "./index.css";
-import { store } from "./store.ts";
+import { store } from "./store";
 
 const container = document.getElementById("root");
 

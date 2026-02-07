@@ -1,6 +1,6 @@
 import { useSofter } from "@softer-components/redux-adapter";
 
-import { ListsContract } from "./lists.component.ts";
+import { ListsContract } from "./lists.component";
 
 export const Lists = ({ path = "" }) => {
   const [v, d] = useSofter<ListsContract>(path);
