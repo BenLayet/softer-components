@@ -1,6 +1,5 @@
 import { ChildConfig, ChildrenInstancesDefs } from "./children";
 import { ComponentContract } from "./component-contract";
-import { EffectsDef } from "./effects";
 import { InternalEventForwarders } from "./event-forwarder";
 import { Selectors } from "./selectors";
 import { State } from "./state";
@@ -42,4 +41,9 @@ export type ComponentDef<
       TComponentContract["children"][ChildName]
     >;
   };
+  effects?: EffectsDef<keyof TComponentContract["events"] & string>;
+};
+
+export type EffectsDef<TEventNames extends string> = {
+  [TEventName in TEventNames]?: TEventNames[];
 };
