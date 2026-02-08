@@ -27,7 +27,9 @@ export function stringToComponentPath(pathString: string): ComponentPath {
     throw new Error(`invalid component path string: '${pathString}'`);
   }
   parts.shift(); // remove prefix
-  parts.pop(); // remove trailing empty part due to trailing separator
+  if (!parts[parts.length - 1]) {
+    parts.pop(); // remove trailing empty part due to trailing separator
+  }
   return parts.map(part => {
     const [componentName, instanceKey] = part.split(KEY_SEPARATOR);
     return [componentName, instanceKey ?? SINGLE_CHILD_KEY] as const;

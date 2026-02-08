@@ -13,6 +13,9 @@ import { ComponentPath } from "./utils.type";
 // tree constants
 export const CHILDREN_BRANCHES_KEY = "🪾";
 export const OWN_VALUE_KEY = "🫒";
+export function baseTree<T>(t: T): Tree<T> {
+  return { [OWN_VALUE_KEY]: t };
+}
 
 export type Tree<T> = {
   [OWN_VALUE_KEY]: T;
