@@ -2,10 +2,16 @@ import { ComponentDef, FromEventToChildEvent } from "@softer-components/types";
 
 import { findComponentDef } from "./component-def-tree";
 import { eventConsumerContextProvider } from "./event-consumer-context";
+import {
+  FORWARDED_FROM_CHILD_TO_PARENT,
+  FORWARDED_FROM_PARENT_TO_CHILD,
+  FORWARDED_INTERNALLY,
+  GlobalEvent,
+} from "./global-event";
 import { assertIsNotUndefined } from "./predicate.functions";
 import { RelativePathStateReader } from "./relative-path-state-manager";
+import { SofterRootState } from "./state-initializer";
 import { StateReader } from "./state-manager";
-import { GlobalEvent, SofterRootState } from "./utils.type";
 
 /**
  * Generate events to forward based on the triggering event
@@ -20,12 +26,16 @@ export function generateEventsToForward(
   const stateReader = new RelativePathStateReader(
     softerRootState,
     absoluteStateReader,
-    triggeringEvent.componentPath || [],
+    triggeringEvent.statePath || [],
   );
 
   const componentDef = findComponentDef(
     rootComponentDef,
-    triggeringEvent.componentPath,
+    triggeringEvent.statePath,
+  );
+
+  result.push(
+    ...generateEventsToChildren(componentDef, triggeringEvent, stateReader),
   );
 
   result.push(
@@ -38,10 +48,6 @@ export function generateEventsToForward(
 
   result.push(
     ...generateEventsToParent(rootComponentDef, triggeringEvent, stateReader),
-  );
-
-  result.push(
-    ...generateEventsToChildren(componentDef, triggeringEvent, stateReader),
   );
 
   return result;
@@ -73,11 +79,11 @@ function generateEventsFromOwnComponent(
     )
     .map((forwarder: any) => ({
       name: forwarder.to,
-      componentPath: triggeringEvent.componentPath,
+      statePath: triggeringEvent.statePath,
       payload: forwarder.withPayload
         ? forwarder.withPayload(eventContext())
         : triggeringEvent.payload,
-      source: "➡️",
+      source: FORWARDED_INTERNALLY,
     }));
 }
 
@@ -86,19 +92,17 @@ function generateEventsToParent(
   triggeringEvent: GlobalEvent,
   stateReader: RelativePathStateReader,
 ): GlobalEvent[] {
-  if (!triggeringEvent.componentPath?.length) {
+  if (!triggeringEvent.statePath?.length) {
     return [];
   }
 
-  const parentComponentPath = triggeringEvent.componentPath.slice(0, -1);
+  const parentComponentPath = triggeringEvent.statePath.slice(0, -1);
   const parentComponentDef = findComponentDef(
     rootComponentDef,
     parentComponentPath,
   );
   const childName =
-    triggeringEvent.componentPath[
-      triggeringEvent.componentPath.length - 1
-    ]?.[0];
+    triggeringEvent.statePath[triggeringEvent.statePath.length - 1]?.[0];
   assertIsNotUndefined(childName);
 
   const childListeners = parentComponentDef.childrenConfig?.[
@@ -120,11 +124,11 @@ function generateEventsToParent(
     )
     .map((listener: any) => ({
       name: listener.to,
-      componentPath: parentComponentPath,
+      statePath: parentComponentPath,
       payload: listener.withPayload
         ? listener.withPayload(eventContext())
         : triggeringEvent.payload,
-      source: "👂",
+      source: FORWARDED_FROM_CHILD_TO_PARENT,
     }));
 }
 
@@ -176,14 +180,11 @@ function generateEventsToChildren(
         command: any;
       }) => ({
         name: command.to,
-        componentPath: [
-          ...triggeringEvent.componentPath,
-          [childName, childKey],
-        ],
+        statePath: [...triggeringEvent.statePath, [childName, childKey]],
         payload: command.withPayload
           ? command.withPayload({ ...eventContext(), childKey })
           : triggeringEvent.payload,
-        source: "📢",
+        source: FORWARDED_FROM_PARENT_TO_CHILD,
       }),
     );
 }

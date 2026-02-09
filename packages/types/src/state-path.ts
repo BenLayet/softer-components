@@ -2,7 +2,7 @@
 import { GetContractAtPath } from "./component-path";
 
 export type StatePaths<T> =
-  | "/"
+  | ""
   | (T extends { children: infer Children }
       ? Children extends Record<string, any>
         ? {
@@ -14,8 +14,8 @@ export type StatePaths<T> =
       : never);
 type StateKey<C> = C extends { isCollection: true } ? `:${string}` : "";
 
-export type StatePathToComponentPath<Path extends string> = Path extends "/"
-  ? "/"
+export type StatePathToComponentPath<Path extends string> = Path extends ""
+  ? ""
   : Path extends `/${infer Segment}/${infer Rest}`
     ? Segment extends `${infer Name}:${string}`
       ? `/${Name}${StatePathToComponentPath<`/${Rest}`>}`

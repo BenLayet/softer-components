@@ -1,12 +1,8 @@
-import {
-  ChildrenInstancesDefs,
-  ChildrenValues,
-  State,
-} from "@softer-components/types";
+import { ChildrenValues, State } from "@softer-components/types";
 
+import { SofterRootState } from "./state-initializer";
 import { StateManager, StateReader } from "./state-manager";
-import { ChildrenKeys } from "./tree";
-import { ComponentPath, SofterRootState } from "./utils.type";
+import { ChildrenKeys, StatePath } from "./state-tree";
 
 /**
  * Wrapper around StateManager that manages relative paths.
@@ -18,7 +14,7 @@ export class RelativePathStateReader {
   constructor(
     protected readonly softerRootState: SofterRootState,
     private readonly absolutePathStateReader: StateReader,
-    protected readonly currentPath: ComponentPath = [],
+    protected readonly currentPath: StatePath = [],
   ) {}
 
   childStateReader(
@@ -86,7 +82,7 @@ export class RelativePathStateManager extends RelativePathStateReader {
   constructor(
     softerRootState: SofterRootState,
     private readonly absolutePathStateManager: StateManager,
-    currentPath: ComponentPath = [],
+    currentPath: StatePath = [],
   ) {
     super(softerRootState, absolutePathStateManager, currentPath);
   }

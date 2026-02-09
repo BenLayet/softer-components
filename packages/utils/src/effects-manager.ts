@@ -1,19 +1,13 @@
-import {
-  ComponentContract,
-  ComponentDef,
-  ComponentTreePaths,
-  Effect,
-  Effects,
-  GetContractAtPath,
-  Payload,
-} from "@softer-components/types";
+import { ComponentContract, ComponentDef } from "@softer-components/types";
 
 import { findComponentDef } from "./component-def-tree";
 import { eventConsumerContextProvider } from "./event-consumer-context";
+import { DISPATCHED_BY_EFFECT, GlobalEvent } from "./global-event";
 import { isUndefined } from "./predicate.functions";
 import { RelativePathStateReader } from "./relative-path-state-manager";
+import { SofterRootState } from "./state-initializer";
 import { StateReader } from "./state-manager";
-import { ComponentPath, GlobalEvent, SofterRootState } from "./utils.type";
+import { StatePath } from "./state-tree";
 
 export class EffectsManager<TRootComponentContract extends ComponentContract> {
   constructor(
@@ -27,7 +21,7 @@ export class EffectsManager<TRootComponentContract extends ComponentContract> {
   ): Promise<void> {
     const componentDefOfEvent = findComponentDef(
       this.rootComponentDef,
-      event.componentPath,
+      event.statePath,
     );
     const effect = componentDefOfEvent.effects?.[event.name];
     if (isUndefined(effect)) {
@@ -36,7 +30,7 @@ export class EffectsManager<TRootComponentContract extends ComponentContract> {
     const relativePathStateManager = new RelativePathStateReader(
       softerRootState,
       this.stateReader,
-      event.componentPath,
+      event.statePath,
     );
     if (relativePathStateManager.readState()) {
     }
@@ -47,7 +41,7 @@ export class EffectsManager<TRootComponentContract extends ComponentContract> {
       relativePathStateManager,
     );
     const dispatchers = createEventEffectDispatchers(
-      event.componentPath,
+      event.statePath,
       dispatchEvent,
     );
     return effect(dispatchers, eventContext()) ?? Promise.resolve();
@@ -55,7 +49,7 @@ export class EffectsManager<TRootComponentContract extends ComponentContract> {
 }
 
 const createEventEffectDispatchers = (
-  componentPath: ComponentPath,
+  statePath: StatePath,
   dispatchEvent: (event: GlobalEvent) => void,
 ) =>
   new Proxy(
@@ -63,10 +57,10 @@ const createEventEffectDispatchers = (
     {
       get: (_, prop: string) => (payload?: any) =>
         dispatchEvent({
-          componentPath,
+          statePath: statePath,
           name: prop,
           payload,
-          source: "📡",
+          source: DISPATCHED_BY_EFFECT,
         }),
     },
   );

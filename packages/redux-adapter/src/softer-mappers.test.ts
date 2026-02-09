@@ -14,7 +14,7 @@ describe("softer mapper tests", () => {
     expect(result).toEqual({
       name: "answered",
       payload: 42,
-      componentPath: [["child", "0"]],
+      statePath: [["child", "0"]],
     });
   });
   it("should convert softer event to redux action", () => {
@@ -22,7 +22,7 @@ describe("softer mapper tests", () => {
     const result = eventToAction({
       name: "answered",
       payload: 42,
-      componentPath: [["child", "0"]],
+      statePath: [["child", "0"]],
       source: "🖱️",
     });
 

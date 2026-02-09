@@ -1,31 +1,32 @@
-import { givenRootComponent } from "@softer-components/utils/test-utilities";
-import { describe, it } from "vitest";
+import {
+  TestStore,
+  initTestStore,
+} from "@softer-components/utils/test-utilities";
+import { describe, expect, it } from "vitest";
 
-import { counterDef } from "./counter.component";
+import { CounterContract, counterDef } from "./counter.component";
 
 describe("counter.component", () => {
-  it("initialState is { count: 0 }", () => {
-    givenRootComponent(counterDef).thenExpect([]).count.toBe(0);
+  let testStore: TestStore<CounterContract>;
+  beforeEach(() => {
+    testStore = initTestStore(counterDef);
   });
-  it("when increment is requested then count should be + 1", () => {
-    givenRootComponent(counterDef)
-      .when({
-        name: "incrementRequested",
-        componentPath: [],
-        payload: undefined,
-      })
-      .thenExpect([])
-      .count.toBe(1);
+  it("initialState is { count: 0 }", () => {
+    expect(testStore.getValues().count()).toBe(0);
+  });
+  it("when increment is requested then count should be + 1", async () => {
+    await testStore.when({
+      name: "incrementRequested",
+      statePath: [],
+    });
+    expect(testStore.getValues().count()).toBe(1);
   });
 
-  it("when decrement is requested then count should be - 1", () => {
-    givenRootComponent(counterDef)
-      .when({
-        name: "decrementRequested",
-        componentPath: [],
-        payload: undefined,
-      })
-      .thenExpect([])
-      .count.toBe(-1);
+  it("when decrement is requested then count should be - 1", async () => {
+    await testStore.when({
+      name: "decrementRequested",
+      statePath: [],
+    });
+    expect(testStore.getValues().count()).toBe(-1);
   });
 });

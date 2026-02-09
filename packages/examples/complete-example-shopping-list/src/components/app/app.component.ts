@@ -39,6 +39,14 @@ const componentDef = (dependencies: Dependencies): ComponentDef<Contract> => ({
   },
   initialChildren: { list: false },
   childrenConfig: {
+    listManager: {
+      listeners: [
+        {
+          from: "listSelected",
+          to: "listSelected",
+        },
+      ],
+    },
     list: {
       commands: [
         {
@@ -47,14 +55,6 @@ const componentDef = (dependencies: Dependencies): ComponentDef<Contract> => ({
         },
       ],
       listeners: [{ from: "goBackClicked", to: "selectListRequested" }],
-    },
-    listManager: {
-      listeners: [
-        {
-          from: "listSelected",
-          to: "listSelected",
-        },
-      ],
     },
   },
   childrenComponentDefs: {

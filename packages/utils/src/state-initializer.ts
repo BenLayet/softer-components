@@ -2,9 +2,12 @@ import { ComponentDef } from "@softer-components/types";
 
 import { RelativePathStateManager } from "./relative-path-state-manager";
 import { StateManager } from "./state-manager";
-import { SofterRootState } from "./utils.type";
+import { SINGLE_CHILD_KEY } from "./state-tree";
 
-const INITIAL_KEY = "0";
+// contains state for the whole application,
+// and each state of each component is stored inside it
+// (as a map or tree or whatever structure the real state manager uses)
+export type SofterRootState = {};
 /**
  * Initialize the complete state from the root component definition
  */
@@ -70,7 +73,7 @@ export function initializeChildState(
 
 function booleanOrArrayToKeys(value: boolean | string[] | undefined): string[] {
   if (value === true || value === undefined) {
-    return [INITIAL_KEY];
+    return [SINGLE_CHILD_KEY];
   } else if (value === false) {
     return [];
   } else {

@@ -1,29 +1,29 @@
 import { ComponentDef } from "@softer-components/types";
 
-import { ComponentPath } from "./utils.type";
+import { StatePath } from "./state-tree";
 
 /**
  * Find the component definition at the given path within the root component definition
  * @param componentDef - Root component definition
- * @param componentPath - Path to the desired component
+ * @param statePath - Path to the desired component
  * @returns Component definition at the given path
  */
 export const findComponentDef = (
   componentDef: ComponentDef,
-  componentPath: ComponentPath,
+  statePath: StatePath,
 ): ComponentDef => {
-  if (componentPath.length === 0) {
+  if (statePath.length === 0) {
     return componentDef;
   }
   const children = componentDef.childrenComponentDefs ?? {};
-  const childName = componentPath[0][0];
+  const childName = statePath[0][0];
   const child = children[childName];
   if (!child) {
     throw new Error(
       `invalid path: childName = '${childName}' not found. Valid children names = ${JSON.stringify(Object.keys(children))}`,
     );
   }
-  return findComponentDef(child, componentPath.slice(1));
+  return findComponentDef(child, statePath.slice(1));
 };
 
 export function isCollectionChild(

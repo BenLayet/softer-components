@@ -1,17 +1,23 @@
-import { Payload, State } from "@softer-components/types";
+import { Payload } from "@softer-components/types";
 import {
   CHILDREN_BRANCHES_KEY,
   GlobalEvent,
   OWN_VALUE_KEY,
   SofterRootState,
-  Tree,
+  StateTree,
   assertIsNotUndefined,
   assertValueIsUndefined,
-  componentPathToString,
-  eventNameWithoutComponentPath,
-  stringToComponentPath,
+  statePathToString,
+  stringToStatePath,
 } from "@softer-components/utils";
 
+const EVENT_SEPARATOR = "/";
+
+function eventNameWithoutComponentPath(globalEventName: string): string {
+  const eventName = globalEventName.split(EVENT_SEPARATOR).pop();
+  assertIsNotUndefined(eventName);
+  return eventName;
+}
 export type ReduxDispatch = (action: ReduxAction) => void;
 type ReduxAction = {
   type: string;
@@ -31,19 +37,22 @@ export function actionToEvent(action: ReduxAction): GlobalEvent {
     throw new Error(`Not a softer event: '${action.type}'`);
   }
   const pathStr = removeSofterPrefix(action.type);
-  const componentPath = stringToComponentPath(pathStr);
-  return {
-    name: eventNameWithoutComponentPath(action.type),
-    componentPath,
-    payload: action.payload,
-  };
+  const name = eventNameWithoutComponentPath(action.type);
+  const statePathStr = pathStr.substring(
+    0,
+    pathStr.length - (name.length + EVENT_SEPARATOR.length),
+  );
+  const statePath = stringToStatePath(statePathStr);
+  const payload = action.payload;
+  return { name, statePath, payload };
 }
 
 export function eventToAction(event: GlobalEvent): ReduxAction {
   const type =
     REDUX_SOFTER_PREFIX +
     (event.source ?? "?") +
-    componentPathToString(event.componentPath) +
+    statePathToString(event.statePath) +
+    EVENT_SEPARATOR +
     event.name;
   return {
     type,
@@ -53,9 +62,9 @@ export function eventToAction(event: GlobalEvent): ReduxAction {
 
 //component path string conversion
 const REDUX_SOFTER_PREFIX = "☁️";
-export type GlobalState = { [REDUX_SOFTER_PREFIX]?: Tree<State> };
+export type GlobalState = { [REDUX_SOFTER_PREFIX]?: StateTree };
 export function addSofterRootTree(globalState: GlobalState): {
-  [REDUX_SOFTER_PREFIX]: Tree<State>;
+  [REDUX_SOFTER_PREFIX]: StateTree;
 } {
   assertValueIsUndefined(
     { softerRootTree: globalState[REDUX_SOFTER_PREFIX] },
@@ -65,11 +74,11 @@ export function addSofterRootTree(globalState: GlobalState): {
     [OWN_VALUE_KEY]: {},
     [CHILDREN_BRANCHES_KEY]: {},
   };
-  return globalState as { [REDUX_SOFTER_PREFIX]: Tree<State> };
+  return globalState as { [REDUX_SOFTER_PREFIX]: StateTree };
 }
 export function getSofterRootTree(
-  globalState: SofterRootState & { [REDUX_SOFTER_PREFIX]?: Tree<State> },
-): Tree<State> {
+  globalState: SofterRootState & { [REDUX_SOFTER_PREFIX]?: StateTree },
+): StateTree {
   assertIsNotUndefined(
     globalState[REDUX_SOFTER_PREFIX],
     "Global state does not have softer root tree",

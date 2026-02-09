@@ -1,6 +1,13 @@
 import { describe, expect, it } from "vitest";
 
-import { CHILDREN_BRANCHES_KEY, OWN_VALUE_KEY, findSubTree } from "./tree";
+import {
+  CHILDREN_BRANCHES_KEY,
+  OWN_VALUE_KEY,
+  StatePath,
+  findSubTree,
+  statePathToString,
+  stringToStatePath,
+} from "./state-tree";
 
 describe("findSubTree", () => {
   it("returns root ", () => {
@@ -32,5 +39,37 @@ describe("findSubTree", () => {
       ["grandChild", "0"],
     ]);
     expect(result).toEqual(grandChildTree);
+  });
+  [
+    { pathStr: "", path: [] },
+    { pathStr: "/child:0", path: [["child", "0"]] },
+    {
+      pathStr: "/child1/child2",
+      path: [
+        ["child1", "0"],
+        ["child2", "0"],
+      ],
+    },
+  ].forEach(({ pathStr, path }) => {
+    it(`should convert '${pathStr}' to path`, () => {
+      const result = stringToStatePath(pathStr);
+      expect(result).toEqual(path);
+    });
+  });
+  [
+    { pathStr: "", path: [] as StatePath },
+    { pathStr: "/child:0", path: [["child", "0"]] as StatePath },
+    {
+      pathStr: "/child1:0/child2:0",
+      path: [
+        ["child1", "0"],
+        ["child2", "0"],
+      ] as StatePath,
+    },
+  ].forEach(({ pathStr, path }) => {
+    it(`should convert from path to '${pathStr}'`, () => {
+      const result = statePathToString(path);
+      expect(result).toEqual(pathStr);
+    });
   });
 });

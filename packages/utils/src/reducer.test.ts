@@ -7,9 +7,9 @@ import {
 } from "@softer-components/types";
 import { describe, expect, it, vi } from "vitest";
 
+import { GlobalEvent } from "./global-event";
 import { updateSofterRootState } from "./reducer";
 import { StateManager } from "./state-manager";
-import { GlobalEvent } from "./utils.type";
 
 describe("reducer tests", () => {
   it("should update simple state", () => {
@@ -34,7 +34,7 @@ describe("reducer tests", () => {
     const event: GlobalEvent = {
       name: "incrementRequested",
       payload: null,
-      componentPath: [],
+      statePath: [],
     };
 
     const stateManager = {} as StateManager;
@@ -73,7 +73,7 @@ describe("reducer tests", () => {
     const event: GlobalEvent = {
       name: "otherEvent",
       payload: null,
-      componentPath: [],
+      statePath: [],
     };
     const stateManager = {} as StateManager;
     stateManager.readState = vi.fn().mockReturnValue(initialState);
@@ -98,7 +98,7 @@ describe("reducer tests", () => {
       whenEventOccurs: {
         name: "nextItemNameChanged",
         payload: "milk",
-        componentPath: [],
+        statePath: [],
       },
       thenExpectsCalls: {
         updateState: [
@@ -123,7 +123,7 @@ describe("reducer tests", () => {
       whenEventOccurs: {
         name: "addItemRequested",
         payload: { itemName: "milk", itemId: 1 },
-        componentPath: [],
+        statePath: [],
       },
       thenExpectsCalls: {
         updateState: [
@@ -148,7 +148,7 @@ describe("reducer tests", () => {
       whenEventOccurs: {
         name: "createItemRequested",
         payload: { itemName: "milk", itemId: 1 },
-        componentPath: [],
+        statePath: [],
       },
       thenExpectsCalls: {
         updateState: [
@@ -181,7 +181,7 @@ describe("reducer tests", () => {
       whenEventOccurs: {
         name: "initialize",
         payload: "milk",
-        componentPath: [["items", "1"]],
+        statePath: [["items", "1"]],
       },
       thenExpectsCalls: {
         updateState: [
@@ -206,7 +206,7 @@ describe("reducer tests", () => {
       whenEventOccurs: {
         name: "incrementQuantityRequested",
         payload: undefined,
-        componentPath: [["items", "1"]],
+        statePath: [["items", "1"]],
       },
       thenExpectsCalls: {
         updateState: [
@@ -228,7 +228,7 @@ describe("reducer tests", () => {
       whenEventOccurs: {
         name: "decrementQuantityRequested",
         payload: undefined,
-        componentPath: [["items", "1"]],
+        statePath: [["items", "1"]],
       },
       thenExpectsCalls: {
         updateState: [
@@ -250,7 +250,7 @@ describe("reducer tests", () => {
       whenEventOccurs: {
         name: "removeItemRequested",
         payload: 1,
-        componentPath: [],
+        statePath: [],
       },
       thenExpectsCalls: {
         removeStateTree: [

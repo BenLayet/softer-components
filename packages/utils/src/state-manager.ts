@@ -1,7 +1,7 @@
 import { ChildrenValues, State } from "@softer-components/types";
 
-import { ChildrenKeys } from "./tree";
-import { ComponentPath, SofterRootState } from "./utils.type";
+import { SofterRootState } from "./state-initializer";
+import { ChildrenKeys, StatePath } from "./state-tree";
 
 /**
  * StateReader
@@ -12,14 +12,14 @@ export interface StateReader {
   /**
    * Read state at the given path
    */
-  readState(softerRootState: SofterRootState, path: ComponentPath): State;
+  readState(softerRootState: SofterRootState, path: StatePath): State;
 
   /**
    * Get all children's keys at the given path
    */
   getChildrenKeys(
     softerRootState: SofterRootState,
-    path: ComponentPath,
+    path: StatePath,
   ): ChildrenKeys;
 
   /**
@@ -27,7 +27,7 @@ export interface StateReader {
    */
   selectValue<T>(
     softerRootState: SofterRootState,
-    path: ComponentPath,
+    path: StatePath,
     selector: (state: State) => T,
     children: ChildrenValues,
   ): T;
@@ -44,7 +44,7 @@ export interface StateWriter {
    */
   updateState(
     softerRootState: SofterRootState,
-    path: ComponentPath,
+    path: StatePath,
     state: State,
   ): void;
 
@@ -53,7 +53,7 @@ export interface StateWriter {
    */
   createState(
     softerRootState: SofterRootState,
-    path: ComponentPath,
+    path: StatePath,
     state: State,
   ): void;
 
@@ -62,21 +62,21 @@ export interface StateWriter {
    */
   initializeChildBranches(
     softerRootState: SofterRootState,
-    parentPath: ComponentPath,
+    parentPath: StatePath,
     childName: string,
   ): void;
 
   /**
    * Remove the entire state at the given path
    */
-  removeStateTree(softerRootState: SofterRootState, path: ComponentPath): void;
+  removeStateTree(softerRootState: SofterRootState, path: StatePath): void;
 
   /**
    * Reorder child states at the given path
    */
   reorderChildStates(
     softerRootState: SofterRootState,
-    currentPath: ComponentPath,
+    currentPath: StatePath,
     childName: string,
     desiredKeys: string[],
   ): void;
@@ -85,7 +85,7 @@ export interface StateWriter {
    * Sets a listener to be notified with the specific path when a state tree is removed.
    * @param listener
    */
-  setRemoveStateTreeListener(listener: (path: ComponentPath) => void): void;
+  setRemoveStateTreeListener(listener: (path: StatePath) => void): void;
 }
 
 export interface StateManager extends StateReader, StateWriter {}

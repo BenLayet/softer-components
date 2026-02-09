@@ -143,11 +143,5 @@ const softerEventProcessor =
     nextEvents.forEach(dispatchEvent);
 
     // process effects
-    const dispatchEventAsynchronously = (event: GlobalEvent) =>
-      setTimeout(() => dispatchEvent(event));
-    effectsManager.eventOccurred(
-      event,
-      softerRootState,
-      dispatchEventAsynchronously,
-    );
+    void effectsManager.eventOccurred(event, softerRootState, dispatchEvent);
   };

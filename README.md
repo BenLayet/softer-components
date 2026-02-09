@@ -76,7 +76,7 @@ Each component communicates with the rest of the application through events that
 - **by internal event chain**: e.g. `buttonClicked` => `submitRequested` to encourage separation of UI event and behavior events, and flexibility about UI interaction
 - **by listening to a child component**: e.g., if a table is listening to a pager: `pageSelected` from the pager => `fetchPageRequested`
 - **by a parent component**: e.g. `selectAllRequested` from a checkboxList => `selectRequested` for each checkbox
-- _coming in issue #4_: **by an effect**: e.g. `httpFetchSucceeded`, `timeoutExpired`
+- **by an effect**: e.g. `httpFetchSucceeded`, `timeoutExpired`
 - _coming in issue #11_: **by listening to a context**: e.g., if a basket component is listening to security context: `authenticationSuceeded` => `loadPreviouslySavedBasket`
 - _coming in issue #11_: **by a component to a context**: e.g., login component `loginSubmitted` => security context: `authenticationRequested`
 
@@ -271,9 +271,7 @@ Parent component use the component definition in `childrenComponentDefs`, but ot
 
 #### effects
 * They are defined as a map of event names to an array of event names that can be dispatched from the effect
-* They are configured outside the component definition, using the `effectManager` provided by `configureSofterStore`, so the component definition has minimum dependency.
-* cf [Effects](#effects)
-
+* They can be configured outside the component definition, so the component definition itself has minimum dependency.
 
 ### Managing Children Instances
 

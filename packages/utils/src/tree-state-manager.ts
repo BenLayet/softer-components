@@ -1,11 +1,11 @@
 import { ChildrenValues, Selector, State } from "@softer-components/types";
 
-import { componentPathToString } from "./component-path";
 import { assertIsNotUndefined } from "./predicate.functions";
 import { StateManager } from "./state-manager";
+import { StatePath, statePathToString } from "./state-tree";
 import {
   ChildrenKeys,
-  Tree,
+  StateTree,
   createValueAtPath,
   findSubTree,
   getChildrenKeys,
@@ -14,65 +14,56 @@ import {
   removeSubTree,
   reorderChildStates,
   updateValueAtPath,
-} from "./tree";
-import { ComponentPath } from "./utils.type";
+} from "./state-tree";
 
 /**
  * Manages a state tree.
  * State is passed through each method call - no internal state reference.
  */
 export class TreeStateManager implements StateManager {
-  private removeStateTreeListener: (path: ComponentPath) => void = () => {};
-  setRemoveStateTreeListener(listener: (path: ComponentPath) => void): void {
+  private removeStateTreeListener: (path: StatePath) => void = () => {};
+  setRemoveStateTreeListener(listener: (path: StatePath) => void): void {
     this.removeStateTreeListener = listener;
   }
 
-  createState(
-    rootStateTree: Tree<State>,
-    path: ComponentPath,
-    state: State,
-  ): void {
+  createState(rootStateTree: StateTree, path: StatePath, state: State): void {
     createValueAtPath(rootStateTree, path, state);
   }
 
   initializeChildBranches(
-    rootStateTree: Tree<State>,
-    parentPath: ComponentPath,
+    rootStateTree: StateTree,
+    parentPath: StatePath,
     childName: string,
   ): void {
     initializeChildBranches(rootStateTree, parentPath, childName);
   }
 
-  removeStateTree(rootStateTree: Tree<State>, path: ComponentPath): void {
+  removeStateTree(rootStateTree: StateTree, path: StatePath): void {
     removeSubTree(rootStateTree, path);
     this.removeStateTreeListener(path);
   }
 
   reorderChildStates(
-    rootStateTree: Tree<State>,
-    parentPath: ComponentPath,
+    rootStateTree: StateTree,
+    parentPath: StatePath,
     childName: string,
     desiredKeys: string[],
   ): void {
     const treeAtPath = findSubTree(rootStateTree, parentPath);
     assertIsNotUndefined(
       treeAtPath,
-      `Cannot reorder child states at path ${componentPathToString(
+      `Cannot reorder child states at path ${statePathToString(
         parentPath,
       )} as it does not exist`,
     );
     reorderChildStates(treeAtPath, childName, desiredKeys);
   }
 
-  readState(rootStateTree: Tree<State>, path: ComponentPath): State {
+  readState(rootStateTree: StateTree, path: StatePath): State {
     return getValueAtPath(rootStateTree, path);
   }
 
-  updateState(
-    rootStateTree: Tree<State>,
-    path: ComponentPath,
-    state: State,
-  ): void {
+  updateState(rootStateTree: StateTree, path: StatePath, state: State): void {
     try {
       updateValueAtPath(rootStateTree, path, state);
     } catch (e) {
@@ -81,16 +72,13 @@ export class TreeStateManager implements StateManager {
     }
   }
 
-  getChildrenKeys(
-    rootStateTree: Tree<State>,
-    path: ComponentPath,
-  ): ChildrenKeys {
+  getChildrenKeys(rootStateTree: StateTree, path: StatePath): ChildrenKeys {
     return getChildrenKeys(findSubTree(rootStateTree, path));
   }
 
   selectValue<T>(
-    rootStateTree: Tree<State>,
-    path: ComponentPath,
+    rootStateTree: StateTree,
+    path: StatePath,
     selector: Selector<State>,
     children: ChildrenValues,
   ): T {

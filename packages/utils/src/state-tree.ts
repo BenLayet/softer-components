@@ -2,48 +2,88 @@
  * Tree structure and utilities to manipulate it.
  * State Managers could use these utilities to read/write states at specific paths or create their own structures.
  */
-import { componentPathToString } from "./component-path";
+import { State } from "@softer-components/types";
+
 import {
   assertIsNotUndefined,
   isNotUndefined,
   isUndefined,
 } from "./predicate.functions";
-import { ComponentPath } from "./utils.type";
 
+type ComponentName = string;
+type ChildKey = string;
+export type StatePathSegment = [ComponentName, ChildKey];
+export type StatePath = StatePathSegment[];
 // tree constants
 export const CHILDREN_BRANCHES_KEY = "🪾";
 export const OWN_VALUE_KEY = "🫒";
-export function baseTree<T>(t: T): Tree<T> {
+export function baseTree(t: State): StateTree {
   return { [OWN_VALUE_KEY]: t };
 }
 
-export type Tree<T> = {
-  [OWN_VALUE_KEY]: T;
+export type StateTree = {
+  [OWN_VALUE_KEY]: State;
   // ----------------------------- child name --  key --- child tree
-  [CHILDREN_BRANCHES_KEY]?: Record<string, Record<string, Tree<T>>>;
+  [CHILDREN_BRANCHES_KEY]?: Record<string, Record<string, StateTree>>;
 };
+
+const COMPONENT_SEPARATOR = "/";
+const KEY_SEPARATOR = ":";
+export const SINGLE_CHILD_KEY = "0";
+
+/**
+ * Converts a state path to a string representation that can be used in event names or as keys in maps.
+ * @param statePath
+ * @returns string representation of the state path, with component names separated with "/" and keys separated by ":". Starts with a "/" but does not end with a "/". For example: "/ComponentA:instance1/ComponentB/ComponentC:instance2"
+ */
+export function statePathToString(statePath: StatePath): string {
+  return statePath
+    .map(([componentName, instanceKey]) =>
+      instanceKey
+        ? `${COMPONENT_SEPARATOR}${componentName}${KEY_SEPARATOR}${instanceKey}`
+        : `${COMPONENT_SEPARATOR}${componentName}`,
+    )
+    .join("");
+}
+
+/**
+ * Converts a string representation of a state path back to a StatePath.
+ * The string is typically in the format produced by statePathToString.
+ * For example: "/ComponentA:instance1/ComponentB/ComponentC:instance2"
+ * but ":0" can be omitted for single child components, so "/ComponentA/ComponentB/ComponentC" is also valid and will be parsed as if it were "/ComponentA:0/ComponentB:0/ComponentC:0"
+ * @param statePathStr
+ */
+export function stringToStatePath(statePathStr: string): StatePath {
+  const parts = statePathStr.split(COMPONENT_SEPARATOR);
+  parts.shift(); // remove prefix
+  return parts.map(part => {
+    const [componentName, instanceKey] = part.split(KEY_SEPARATOR);
+    return [componentName, instanceKey ?? SINGLE_CHILD_KEY] as const;
+  });
+}
+
 /**
  * @param treeAtRootOfPath
- * @param componentPath
+ * @param statePath
  * @returns sub-tree of the global tree for the component at the given path
  */
-export const findSubTree = <T>(
-  treeAtRootOfPath: Tree<T>,
-  componentPath: ComponentPath,
-): Tree<T> | undefined => {
-  if (componentPath.length === 0) {
+export const findSubTree = (
+  treeAtRootOfPath: StateTree,
+  statePath: StatePath,
+): StateTree | undefined => {
+  if (statePath.length === 0) {
     return treeAtRootOfPath;
   }
   assertIsNotUndefined(
     treeAtRootOfPath,
-    `state sub tree at ${componentPathToString(componentPath)} should not be undefined`,
+    `state sub tree at ${statePathToString(statePath)} should not be undefined`,
   );
   const childrenBranches = treeAtRootOfPath[CHILDREN_BRANCHES_KEY];
   if (isUndefined(childrenBranches)) {
     return undefined;
   }
 
-  const pathSegment = componentPath[0];
+  const pathSegment = statePath[0];
   assertIsNotUndefined(pathSegment);
 
   const [childName, key] = pathSegment;
@@ -55,17 +95,17 @@ export const findSubTree = <T>(
     return undefined;
   }
 
-  return findSubTree(subTree, componentPath.slice(1));
+  return findSubTree(subTree, statePath.slice(1));
 };
 
-export const removeSubTree = <T>(
-  treeAtRootOfPath: Tree<T>,
-  componentPath: ComponentPath,
+export const removeSubTree = (
+  treeAtRootOfPath: StateTree,
+  statePath: StatePath,
 ) => {
-  if (componentPath.length === 0) {
+  if (statePath.length === 0) {
     throw new Error("Cannot remove the root of the tree");
   }
-  const parentPath = componentPath.slice(0, -1);
+  const parentPath = statePath.slice(0, -1);
   const parentSubTree = findSubTree(treeAtRootOfPath, parentPath);
   assertIsNotUndefined(parentSubTree);
 
@@ -73,7 +113,7 @@ export const removeSubTree = <T>(
   if (!childrenBranches) {
     return;
   }
-  const [childName, key] = componentPath[componentPath.length - 1];
+  const [childName, key] = statePath[statePath.length - 1];
   assertIsNotUndefined(childName);
   assertIsNotUndefined(key);
   const childBranches = childrenBranches[childName];
@@ -83,27 +123,27 @@ export const removeSubTree = <T>(
   delete childBranches[key];
 };
 
-export const getValueAtPath = <T>(
-  treeAtRootOfPath: Tree<T>,
-  path: ComponentPath,
-): T | undefined => {
+export const getValueAtPath = (
+  treeAtRootOfPath: StateTree,
+  path: StatePath,
+): State | undefined => {
   return findSubTree(treeAtRootOfPath, path)?.[OWN_VALUE_KEY];
 };
 
-export const updateValueAtPath = <T>(
-  treeAtRootOfPath: Tree<T>,
-  path: ComponentPath,
-  value: T,
+export const updateValueAtPath = (
+  treeAtRootOfPath: StateTree,
+  path: StatePath,
+  value: State,
 ) => {
   const subTree = findSubTree(treeAtRootOfPath, path);
   assertIsNotUndefined(subTree);
   subTree[OWN_VALUE_KEY] = value;
 };
 
-export const createValueAtPath = <T>(
-  treeAtRootOfPath: Tree<T>,
-  path: ComponentPath,
-  value: T,
+export const createValueAtPath = (
+  treeAtRootOfPath: StateTree,
+  path: StatePath,
+  value: State,
 ): void => {
   if (path.length === 0) {
     throw new Error(
@@ -132,7 +172,7 @@ export const createValueAtPath = <T>(
   childBranches[key] = { [OWN_VALUE_KEY]: value };
 };
 
-export const getChildrenKeys = (subTree: Tree<any> | undefined): ChildrenKeys =>
+export const getChildrenKeys = (subTree: StateTree | undefined): ChildrenKeys =>
   Object.fromEntries(
     Object.entries(subTree?.[CHILDREN_BRANCHES_KEY] || {}).map(
       ([childName, childBranch]) => {
@@ -141,9 +181,9 @@ export const getChildrenKeys = (subTree: Tree<any> | undefined): ChildrenKeys =>
     ),
   ) as ChildrenKeys;
 
-export const initializeChildBranches = <T>(
-  treeAtRootOfPath: Tree<T>,
-  parentPath: ComponentPath,
+export const initializeChildBranches = (
+  treeAtRootOfPath: StateTree,
+  parentPath: StatePath,
   childName: string,
 ) => {
   const parentSubTree = findSubTree(treeAtRootOfPath, parentPath);
@@ -159,8 +199,8 @@ export const initializeChildBranches = <T>(
 };
 export type ChildrenKeys = Record<string, string[]>;
 
-export const reorderChildStates = <T>(
-  treeAtRootOfPath: Tree<T>,
+export const reorderChildStates = (
+  treeAtRootOfPath: StateTree,
   childName: string,
   desiredKeys: string[],
 ): void => {
