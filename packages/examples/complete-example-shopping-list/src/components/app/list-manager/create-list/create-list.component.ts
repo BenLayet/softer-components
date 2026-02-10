@@ -65,11 +65,12 @@ type ListSelectEvents = ComponentEventsContract<
   }
 >;
 
-// Events type declaration
+// Effect declaration
 type EffectsContract = {
   createNewListRequested: ["createNewListSucceeded", "createNewListFailed"];
 };
 
+// Contract definition
 type Contract = {
   values: ExtractComponentValuesContract<typeof selectors>;
   events: ListSelectEvents;
