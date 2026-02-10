@@ -6,8 +6,8 @@ import {
   Payload,
 } from "@softer-components/types";
 
+import { GlobalEvent } from "./global-event";
 import { RelativePathStateReader } from "./relative-path-state-manager";
-import { GlobalEvent } from "./utils.type";
 import { createValueProviders } from "./value-providers";
 
 export function eventConsumerContextProvider<
@@ -45,7 +45,7 @@ function createEventConsumerContext<
     stateReader,
   );
   const payload = event.payload;
-  const childKey = event.componentPath?.[event.componentPath?.length - 1]?.[1];
+  const childKey = event.statePath?.[event.statePath?.length - 1]?.[1];
 
   return {
     values,

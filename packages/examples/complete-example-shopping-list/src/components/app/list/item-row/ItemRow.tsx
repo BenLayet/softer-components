@@ -1,6 +1,6 @@
 import { useSofter } from "@softer-components/redux-adapter";
 
-import { ItemRowContract } from "./item-row.component.ts";
+import { ItemRowContract } from "./item-row.component";
 
 export const ItemRow = ({ path = "" }) => {
   const [v, d] = useSofter<ItemRowContract>(path);

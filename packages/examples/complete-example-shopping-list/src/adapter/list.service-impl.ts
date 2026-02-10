@@ -1,8 +1,9 @@
 import { List } from "../model";
-import { ListStorageService } from "./list-storage-service.ts";
+import { ListService } from "../port/list-service";
+import { ListStorageService } from "./list-storage-service";
 
-export class ListService {
-  private readonly listStorageService = new ListStorageService();
+export class ListServiceImpl implements ListService {
+  constructor(private readonly listStorageService: ListStorageService) {}
   async create(name: string) {
     const list: List = {
       name,
@@ -24,4 +25,3 @@ export class ListService {
     await this.listStorageService.saveList(list);
   }
 }
-export const listService = new ListService();

@@ -2,8 +2,13 @@ import { ComponentDef } from "@softer-components/types";
 import { describe, expect, it, vi } from "vitest";
 
 import { generateEventsToForward } from "./event-forwarding";
+import {
+  FORWARDED_FROM_CHILD_TO_PARENT,
+  FORWARDED_FROM_PARENT_TO_CHILD,
+  FORWARDED_INTERNALLY,
+  GlobalEvent,
+} from "./global-event";
 import { StateManager } from "./state-manager";
-import { GlobalEvent } from "./utils.type";
 
 describe("event forwarding tests", () => {
   it("generates an event from a simple event forwarder", () => {
@@ -19,7 +24,7 @@ describe("event forwarding tests", () => {
     const event: GlobalEvent = {
       name: "btnClicked",
       payload: undefined,
-      componentPath: [],
+      statePath: [],
     };
     const stateManager = {} as StateManager;
     stateManager.getChildrenKeys = vi.fn().mockReturnValue({});
@@ -37,8 +42,8 @@ describe("event forwarding tests", () => {
       {
         name: "incrementRequested",
         payload: undefined,
-        componentPath: [],
-        source: "➡️",
+        statePath: [],
+        source: FORWARDED_INTERNALLY,
       },
     ]);
   });
@@ -63,7 +68,7 @@ describe("event forwarding tests", () => {
     const event: GlobalEvent = {
       name: "btnClicked",
       payload: undefined,
-      componentPath: [["child", "0"]],
+      statePath: [["child", "0"]],
     };
     const stateManager = {} as StateManager;
     stateManager.getChildrenKeys = vi
@@ -83,8 +88,8 @@ describe("event forwarding tests", () => {
       {
         name: "incrementRequested",
         payload: undefined,
-        componentPath: [],
-        source: "👂",
+        statePath: [],
+        source: FORWARDED_FROM_CHILD_TO_PARENT,
       },
     ]);
   });
@@ -110,7 +115,7 @@ describe("event forwarding tests", () => {
     const event: GlobalEvent = {
       name: "btnClicked",
       payload: undefined,
-      componentPath: [],
+      statePath: [],
     };
     const stateManager = {} as StateManager;
     stateManager.getChildrenKeys = vi
@@ -130,8 +135,8 @@ describe("event forwarding tests", () => {
       {
         name: "incrementRequested",
         payload: undefined,
-        componentPath: [["child", "0"]],
-        source: "📢",
+        statePath: [["child", "0"]],
+        source: FORWARDED_FROM_PARENT_TO_CHILD,
       },
     ]);
   });
@@ -143,8 +148,8 @@ describe("event forwarding tests", () => {
         {
           name: "incrementRequested",
           payload: undefined,
-          componentPath: [],
-          source: "➡️",
+          statePath: [],
+          source: FORWARDED_INTERNALLY,
         },
       ],
     },
@@ -181,7 +186,7 @@ describe("event forwarding tests", () => {
         const event: GlobalEvent = {
           name: "btnClicked",
           payload: undefined,
-          componentPath: [],
+          statePath: [],
         };
 
         const stateManager = {} as StateManager;
@@ -227,7 +232,7 @@ describe("event forwarding tests", () => {
     const event: GlobalEvent = {
       name: "btnClicked",
       payload: undefined,
-      componentPath: [],
+      statePath: [],
     };
 
     const stateManager = {} as StateManager;
@@ -247,8 +252,8 @@ describe("event forwarding tests", () => {
       {
         name: "incrementRequested",
         payload: 42,
-        componentPath: [],
-        source: "➡️",
+        statePath: [],
+        source: FORWARDED_INTERNALLY,
       },
     ]);
   });
@@ -275,7 +280,7 @@ describe("event forwarding tests", () => {
     const event: GlobalEvent = {
       name: "btnClicked",
       payload: undefined,
-      componentPath: [],
+      statePath: [],
     };
     const stateManager = {} as StateManager;
     stateManager.getChildrenKeys = vi.fn().mockReturnValue({});
@@ -294,14 +299,14 @@ describe("event forwarding tests", () => {
       {
         name: "incrementRequested",
         payload: undefined,
-        componentPath: [["child", "key1"]],
-        source: "📢",
+        statePath: [["child", "key1"]],
+        source: FORWARDED_FROM_PARENT_TO_CHILD,
       },
       {
         name: "incrementRequested",
         payload: undefined,
-        componentPath: [["child", "key2"]],
-        source: "📢",
+        statePath: [["child", "key2"]],
+        source: FORWARDED_FROM_PARENT_TO_CHILD,
       },
     ]);
   });

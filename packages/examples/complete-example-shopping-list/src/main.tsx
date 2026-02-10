@@ -1,11 +1,14 @@
+import { configureSofterStore } from "@softer-components/redux-adapter";
 import { StrictMode } from "react";
 import { createRoot } from "react-dom/client";
 import { Provider } from "react-redux";
 
 import { App } from "./components/app/App";
+import { appDef } from "./components/app/app.component";
+import { configuration } from "./configuration";
 import "./index.css";
-import { store } from "./store.ts";
 
+export const store = configureSofterStore(appDef(configuration));
 const container = document.getElementById("root");
 
 if (container) {

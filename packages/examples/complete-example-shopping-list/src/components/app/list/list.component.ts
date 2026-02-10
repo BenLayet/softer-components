@@ -1,13 +1,14 @@
 import {
   ComponentDef,
   ComponentEventsContract,
-  EffectsDef,
+  Effects,
   ExtractComponentValuesContract,
   Selectors,
 } from "@softer-components/types";
 
 import { ItemId, List, ListId, ListItem } from "../../../model";
-import { ItemRowContract, itemRowDef } from "./item-row/item-row.component.ts";
+import { ListService } from "../../../port/list.service";
+import { ItemRowContract, itemRowDef } from "./item-row/item-row.component";
 
 // State
 type Error = "SAVE_FAILED";
@@ -49,13 +50,10 @@ type Events = ComponentEventsContract<
 >;
 
 // Effects
-const effects = {
-  saveRequested: ["saveSucceeded", "saveFailed"],
-} satisfies EffectsDef<eventNames>;
-
-const childrenComponentDefs = {
-  itemRows: itemRowDef,
+type EffectsContract = {
+  saveRequested: ["saveSucceeded", "saveFailed"];
 };
+
 type Children = { itemRows: ItemRowContract & { isCollection: true } };
 const listSelectors = {
   id: state => state.id,
@@ -77,14 +75,33 @@ const listSelectors = {
   },
 } satisfies Selectors<State, Children>;
 
-export type ListContract = {
+type Contract = {
   values: ExtractComponentValuesContract<typeof listSelectors>;
   events: Events;
   children: Children;
-  effects: typeof effects;
+  effects: EffectsContract;
 };
 
-export const listDef: ComponentDef<ListContract, State> = {
+//Effects definition
+type Dependencies = {
+  listService: ListService;
+};
+const effects: (dependencies: Dependencies) => Effects<Contract> = ({
+  listService,
+}) => ({
+  saveRequested: async ({ saveSucceeded, saveFailed }, { values }) => {
+    try {
+      await listService.save(values.list());
+      saveSucceeded();
+    } catch (e: any) {
+      saveFailed(e.message);
+    }
+  },
+});
+
+const componentDef: (
+  dependencies: Dependencies,
+) => ComponentDef<Contract, State> = dependencies => ({
   selectors: listSelectors,
   uiEvents: ["nextItemNameChanged", "newItemSubmitted", "goBackClicked"],
   updaters: {
@@ -174,7 +191,9 @@ export const listDef: ComponentDef<ListContract, State> = {
       to: "saveRequested",
     },
   ],
-  childrenComponentDefs,
+  childrenComponentDefs: {
+    itemRows: itemRowDef(),
+  },
   initialChildren: { itemRows: [] },
   childrenConfig: {
     itemRows: {
@@ -213,5 +232,10 @@ export const listDef: ComponentDef<ListContract, State> = {
       ],
     },
   },
-  effects,
-};
+  effects: effects(dependencies),
+});
+
+// Exporting the component definition
+export const listDef = componentDef;
+export type ListContract = Contract;
+export type ListDependencies = Dependencies;

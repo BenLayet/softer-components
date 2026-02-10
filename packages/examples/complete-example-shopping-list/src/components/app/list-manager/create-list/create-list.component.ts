@@ -1,13 +1,14 @@
 import {
   ComponentDef,
   ComponentEventsContract,
-  EffectsDef,
+  Effects,
   ExtractComponentValuesContract,
   Selectors,
 } from "@softer-components/types";
 import { not, or } from "@softer-components/utils";
 
 import { List } from "../../../../model";
+import { ListService } from "../../../../port/list.service";
 
 type ErrorMessage = string;
 // Initial state definition
@@ -65,19 +66,39 @@ type ListSelectEvents = ComponentEventsContract<
 >;
 
 // Events type declaration
-const effects = {
-  createNewListRequested: ["createNewListSucceeded", "createNewListFailed"],
-} satisfies EffectsDef<eventNames>;
+type EffectsContract = {
+  createNewListRequested: ["createNewListSucceeded", "createNewListFailed"];
+};
 
-export type CreateListContract = {
+type Contract = {
   values: ExtractComponentValuesContract<typeof selectors>;
   events: ListSelectEvents;
   children: {};
-  effects: typeof effects;
+  effects: EffectsContract;
 };
+type Dependencies = {
+  listService: ListService;
+};
+const effects: (dependencies: Dependencies) => Effects<Contract> = ({
+  listService,
+}) => ({
+  createNewListRequested: async (
+    { createNewListSucceeded, createNewListFailed },
+    { payload: name },
+  ) => {
+    try {
+      const list = await listService.create(name);
+      createNewListSucceeded(list);
+    } catch (e: any) {
+      createNewListFailed(e.message);
+    }
+  },
+});
 
 // Component definition
-export const createListDef: ComponentDef<CreateListContract, State> = {
+const componentDef = (
+  dependencies: Dependencies,
+): ComponentDef<Contract, State> => ({
   initialState,
   selectors,
   uiEvents: ["createNewListSubmitted", "listNameChanged"],
@@ -112,5 +133,10 @@ export const createListDef: ComponentDef<CreateListContract, State> = {
       withPayload: ({ values }) => values.listName(),
     },
   ],
-  effects,
-};
+  effects: effects(dependencies),
+});
+
+// Exports
+export const createListDef = componentDef;
+export type CreateListContract = Contract;
+export type CreateListDependencies = Dependencies;

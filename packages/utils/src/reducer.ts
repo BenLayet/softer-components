@@ -1,20 +1,16 @@
-import { ChildrenInstancesDefs, ComponentDef } from "@softer-components/types";
+import { ComponentDef } from "@softer-components/types";
 import { produce } from "immer";
 
 import { findComponentDef, isCollectionChild } from "./component-def-tree";
+import { GlobalEvent } from "./global-event";
 import {
   assertIsArray,
   assertIsNotUndefined,
-  assertIsNumber,
   isNotUndefined,
 } from "./predicate.functions";
 import { RelativePathStateManager } from "./relative-path-state-manager";
-import {
-  initializeChildState,
-  initializeStateRecursively,
-} from "./state-initializer";
+import { SofterRootState, initializeChildState } from "./state-initializer";
 import { StateManager } from "./state-manager";
-import { GlobalEvent, SofterRootState } from "./utils.type";
 import { createValueProviders } from "./value-providers";
 
 /**
@@ -37,7 +33,7 @@ export function updateSofterRootState(
     new RelativePathStateManager(
       softerRootState,
       stateManager,
-      event.componentPath,
+      event.statePath,
     ),
   );
 }
@@ -47,7 +43,7 @@ function updateStateOfComponentOfEvent(
   event: GlobalEvent,
   stateManager: RelativePathStateManager,
 ) {
-  const componentDef = findComponentDef(rootComponentDef, event.componentPath);
+  const componentDef = findComponentDef(rootComponentDef, event.statePath);
   const updater = componentDef.updaters?.[event.name];
   if (!updater) return;
 

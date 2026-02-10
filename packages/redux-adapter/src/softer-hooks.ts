@@ -32,7 +32,7 @@ export const useSofterSelectors = <
 >(
   pathStr: string,
 ): TValueContract => {
-  const store = useStore() as SofterStore<any>;
+  const store = useStore() as SofterStore;
   // Subscribe to Redux state with useSelector
   return useSelector(
     store.softerViewModel.valuesSelector(pathStr),
@@ -44,7 +44,7 @@ export const useSofterEvents = <
 >(
   pathStr: string,
 ): EventsContractToUiDispatchers<TEventsContract> => {
-  const store = useStore() as SofterStore<any>;
+  const store = useStore() as SofterStore;
   return store.softerViewModel.dispatchers(
     pathStr,
     useDispatch(),
@@ -56,7 +56,7 @@ export const useSofterChildrenPaths = <
 >(
   pathStr: string,
 ): ExtractChildrenPaths<TChildrenContract> => {
-  const store = useStore() as SofterStore<any>;
+  const store = useStore() as SofterStore;
   // Subscribe to Redux state with useSelector
   return useSelector(
     store.softerViewModel.childrenPathsSelector(pathStr),
@@ -67,7 +67,7 @@ export const useSofterSingleChildrenPaths = <
 >(
   pathStr: string,
 ): ExtractSingleChildrenPaths<TChildrenContract> => {
-  const store = useStore() as SofterStore<any>;
+  const store = useStore() as SofterStore;
   // Subscribe to Redux state with useSelector
   return useSelector(
     store.softerViewModel.pathOfFirstInstanceOfEachChildSelector(pathStr),

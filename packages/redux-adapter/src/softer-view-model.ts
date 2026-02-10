@@ -1,15 +1,16 @@
 import { createSelector } from "@reduxjs/toolkit";
 import { ComponentDef } from "@softer-components/types";
 import {
-  ComponentPath,
+  INPUTTED_BY_USER,
   RelativePathStateReader,
+  StatePath,
   TreeStateManager,
-  componentPathToString,
   createValueProviders,
   findComponentDef,
   findSubTree,
   isUndefined,
-  stringToComponentPath,
+  statePathToString,
+  stringToStatePath,
 } from "@softer-components/utils";
 
 import {
@@ -34,16 +35,16 @@ export type ComponentViewModel = {
 
 export interface SofterViewModel {
   valuesSelector(
-    pathStr: string,
+    statePathStr: string,
   ): (globalState: GlobalState) => Record<string, any>;
   pathOfFirstInstanceOfEachChildSelector(
-    pathStr: string,
+    statePathStr: string,
   ): (globalState: GlobalState) => PathOfFirstInstanceOfEachChild;
   childrenPathsSelector(
-    pathStr: string,
+    statePathStr: string,
   ): (globalState: GlobalState) => ChildrenPaths;
   dispatchers(
-    pathStr: string,
+    statePathStr: string,
     dispatch: ReduxDispatch,
   ): Record<string, (payload: any) => void>;
 }
@@ -57,38 +58,40 @@ export class SofterApplicationViewModel implements SofterViewModel {
 
   constructor(private readonly rootComponentDef: ComponentDef) {
     this.stateManager.setRemoveStateTreeListener(
-      path => delete this.componentViewModels[componentPathToString(path)],
+      path => delete this.componentViewModels[statePathToString(path)],
     );
   }
 
-  valuesSelector(pathStr: string) {
-    return this.componentViewModelAtPath(pathStr).valuesSelector;
+  valuesSelector(statePathStr: string) {
+    return this.componentViewModelAtPath(statePathStr).valuesSelector;
   }
-  childrenPathsSelector(pathStr: string) {
-    return this.componentViewModelAtPath(pathStr).childrenPathsSelector;
+  childrenPathsSelector(statePathStr: string) {
+    return this.componentViewModelAtPath(statePathStr).childrenPathsSelector;
   }
-  pathOfFirstInstanceOfEachChildSelector(pathStr: string) {
-    return this.componentViewModelAtPath(pathStr)
+  pathOfFirstInstanceOfEachChildSelector(statePathStr: string) {
+    return this.componentViewModelAtPath(statePathStr)
       .pathOfFirstInstanceOfEachChildSelector;
   }
-  dispatchers(pathStr: string, dispatch: ReduxDispatch) {
-    return this.componentViewModelAtPath(pathStr).dispatchers(dispatch);
+  dispatchers(statePathStr: string, dispatch: ReduxDispatch) {
+    return this.componentViewModelAtPath(statePathStr).dispatchers(dispatch);
   }
 
-  private componentViewModelAtPath = (pathStr: string): ComponentViewModel => {
-    if (!this.componentViewModels[pathStr]) {
-      this.componentViewModels[pathStr] = this.createComponentViewModel(
-        stringToComponentPath(pathStr),
+  private componentViewModelAtPath = (
+    statePathStr: string,
+  ): ComponentViewModel => {
+    if (!this.componentViewModels[statePathStr]) {
+      this.componentViewModels[statePathStr] = this.createComponentViewModel(
+        stringToStatePath(statePathStr),
       );
     }
-    return this.componentViewModels[pathStr];
+    return this.componentViewModels[statePathStr];
   };
 
   private readonly createComponentViewModel = (
-    componentPath: ComponentPath,
+    statePath: StatePath,
   ): ComponentViewModel => {
     const stateTreeSelector = (globalState: GlobalState) =>
-      findSubTree(getSofterRootTree(globalState), componentPath);
+      findSubTree(getSofterRootTree(globalState), statePath);
 
     const childrenSelector = createSelector([stateTreeSelector], subTree =>
       isUndefined(subTree)
@@ -101,7 +104,7 @@ export class SofterApplicationViewModel implements SofterViewModel {
         Object.entries(children ?? {}).map(([childName, childKeys]) => [
           childName,
           childKeys.map(key =>
-            componentPathToString([...componentPath, [childName, key]]),
+            statePathToString([...statePath, [childName, key]]),
           ),
         ]),
       ),
@@ -122,10 +125,7 @@ export class SofterApplicationViewModel implements SofterViewModel {
         return {};
       }
       const values: Record<string, any> = {};
-      const componentDef = findComponentDef(
-        this.rootComponentDef,
-        componentPath,
-      );
+      const componentDef = findComponentDef(this.rootComponentDef, statePath);
       const valueProviders = createValueProviders(
         componentDef,
         new RelativePathStateReader(stateTree, this.stateManager, []),
@@ -143,7 +143,7 @@ export class SofterApplicationViewModel implements SofterViewModel {
       );
       return values;
     });
-    const componentDef = findComponentDef(this.rootComponentDef, componentPath);
+    const componentDef = findComponentDef(this.rootComponentDef, statePath);
     let cachedDispatchers: any;
     const dispatchers = (dispatch: ReduxDispatch) => {
       if (!cachedDispatchers) {
@@ -154,10 +154,10 @@ export class SofterApplicationViewModel implements SofterViewModel {
               (payload: any) =>
                 dispatch(
                   eventToAction({
-                    componentPath,
+                    statePath: statePath,
                     name: eventName,
                     payload,
-                    source: "🖱️",
+                    source: INPUTTED_BY_USER,
                   }),
                 ),
             ];
