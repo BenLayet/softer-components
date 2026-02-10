@@ -1,15 +1,15 @@
-import { AuthenticationService } from "../port/authenticationService";
+import { AuthenticationService } from "../port/authentication.service";
 
 const demoUserNames = ["alice", "bob", "charlie"];
 const demoPassword = "demo";
 
 const USERNAME_COOKIE = "authenticatedUser";
 export class DemoAuthenticationService implements AuthenticationService {
-  async isAuthenticated(): Promise<boolean> {
+  async isSignedIn(): Promise<boolean> {
     const value = await cookieStore.get(USERNAME_COOKIE);
     return !!value;
   }
-  async authenticate(username: string, password: string): Promise<boolean> {
+  async signIn(username: string, password: string): Promise<boolean> {
     if (!demoUserNames.includes(username) || password !== demoPassword) {
       return Promise.resolve(false);
     }
@@ -17,7 +17,7 @@ export class DemoAuthenticationService implements AuthenticationService {
     return Promise.resolve(true);
   }
 
-  async logout(): Promise<void> {
+  async signOut(): Promise<void> {
     await cookieStore.delete(USERNAME_COOKIE);
     return Promise.resolve(undefined);
   }

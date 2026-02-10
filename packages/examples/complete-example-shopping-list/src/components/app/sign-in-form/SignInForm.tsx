@@ -1,18 +1,18 @@
 import { useSofter } from "@softer-components/redux-adapter";
 
-import { LoginContract } from "./login.component";
+import { SignInContract } from "./sign-in-form.component";
 
-export const Login = ({ path = "" }) => {
-  const [v, d] = useSofter<LoginContract>(path);
+export const SignInForm = ({ path = "" }) => {
+  const [v, d] = useSofter<SignInContract>(path);
   return (
     <div>
       <div style={{ margin: "2em" }}>
-        <a onClick={() => d.loginCancelled()}>👋 Try app without login</a>
+        <a onClick={() => d.signInCancelled()}>👋 Try app without signing in</a>
       </div>
       <form
         onSubmit={e => {
           e.preventDefault();
-          d.loginSubmitted();
+          d.signInFormSubmitted();
         }}
         style={{ alignItems: "start", maxWidth: "18em" }}
         autoComplete="off"
@@ -34,7 +34,7 @@ export const Login = ({ path = "" }) => {
         />
         <p className="hint">Use 'demo'</p>
         <div>
-          <button type="submit">🚀 Login</button>
+          <button type="submit">🚀 SignIn</button>
         </div>
       </form>
       {v.hasInvalidCredentialError && (

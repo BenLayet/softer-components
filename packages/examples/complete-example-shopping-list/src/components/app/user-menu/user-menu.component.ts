@@ -6,7 +6,7 @@ import {
   Selectors,
 } from "@softer-components/types";
 
-import { AuthenticationService } from "../../../port/authenticationService";
+import { AuthenticationService } from "../../../port/authentication.service";
 
 //State
 const initialState = {
@@ -49,7 +49,7 @@ const effects = ({
   authenticationService,
 }: Dependencies): Effects<Contract> => ({
   logoutRequested: async ({ logoutSucceeded }) => {
-    await authenticationService.logout();
+    await authenticationService.signOut();
     logoutSucceeded();
   },
 });

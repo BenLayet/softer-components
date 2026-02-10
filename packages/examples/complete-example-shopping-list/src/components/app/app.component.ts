@@ -4,7 +4,7 @@ import {
 } from "@softer-components/types";
 
 import { List } from "../../model";
-import { AuthenticationService } from "../../port/authenticationService";
+import { AuthenticationService } from "../../port/authentication.service";
 import {
   ListManagerContract,
   ListManagerDependencies,
@@ -12,10 +12,10 @@ import {
 } from "./list-manager/list-manager.component";
 import { ListContract, ListDependencies, listDef } from "./list/list.component";
 import {
-  LoginContract,
-  LoginDependencies,
-  loginComponentDef,
-} from "./login/login.component";
+  SignInContract,
+  SignInDependencies,
+  signInFormComponentDef,
+} from "./sign-in-form/sign-in-form.component";
 import { UserMenuContract, userMenuDef } from "./user-menu/user-menu.component";
 
 // Events
@@ -35,7 +35,7 @@ type Contract = {
   events: AppEvents;
   children: {
     userMenu: UserMenuContract & { isOptional: true };
-    login: LoginContract & { isOptional: true };
+    signInForm: SignInContract & { isOptional: true };
     list: ListContract & { isOptional: true };
     listManager: ListManagerContract & { isOptional: true };
   };
@@ -44,7 +44,7 @@ type Contract = {
 // Component definition
 type Dependencies = ListDependencies &
   ListManagerDependencies &
-  LoginDependencies & {
+  SignInDependencies & {
     authenticationService: AuthenticationService;
   };
 const componentDef = (dependencies: Dependencies): ComponentDef<Contract> => ({
@@ -58,23 +58,23 @@ const componentDef = (dependencies: Dependencies): ComponentDef<Contract> => ({
       children.listManager = true;
     },
     authenticated: ({ children }) => {
-      children.login = false;
+      children.signInForm = false;
       children.listManager = true;
       children.userMenu = true;
     },
     anonymousChoiceMade: ({ children }) => {
-      children.login = false;
+      children.signInForm = false;
       children.listManager = true;
       children.userMenu = true;
     },
     loginRequested: ({ children }) => {
-      children.login = true;
+      children.signInForm = true;
       children.listManager = false;
       children.userMenu = false;
       children.list = false;
     },
   },
-  initialChildren: { list: false, login: false },
+  initialChildren: { list: false, signInForm: false },
   childrenConfig: {
     listManager: {
       listeners: [
@@ -93,10 +93,10 @@ const componentDef = (dependencies: Dependencies): ComponentDef<Contract> => ({
       ],
       listeners: [{ from: "goBackClicked", to: "selectListRequested" }],
     },
-    login: {
+    signInForm: {
       listeners: [
-        { from: "loginSucceeded", to: "authenticated" },
-        { from: "loginCancelled", to: "anonymousChoiceMade" },
+        { from: "signInSucceeded", to: "authenticated" },
+        { from: "signInCancelled", to: "anonymousChoiceMade" },
       ],
     },
     userMenu: {
@@ -109,7 +109,7 @@ const componentDef = (dependencies: Dependencies): ComponentDef<Contract> => ({
   },
   childrenComponentDefs: {
     userMenu: userMenuDef(dependencies),
-    login: loginComponentDef(dependencies),
+    signInForm: signInFormComponentDef(dependencies),
     list: listDef(dependencies),
     listManager: listManagerDef(dependencies),
   },

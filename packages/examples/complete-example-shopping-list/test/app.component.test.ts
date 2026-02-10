@@ -44,4 +44,10 @@ describe("app.component", () => {
     await testStore.and(USER_DECREMENTS_QUANTITY_OF_FIRST_ITEM());
     expect(testStore.isStateDefined("/list/itemRows:0")).toBeFalsy();
   });
+  it("when list, and item are created, and quantity is decremented, item should be removed", async () => {
+    await testStore.when(USER_CREATES_NEW_LIST("Groceries"));
+    await testStore.and(USER_CREATES_NEW_ITEM("milk"));
+    await testStore.and(USER_DECREMENTS_QUANTITY_OF_FIRST_ITEM());
+    expect(testStore.isStateDefined("/list/itemRows:0")).toBeFalsy();
+  });
 });
