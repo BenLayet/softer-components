@@ -1,7 +1,10 @@
 import { ComponentContract, ComponentDef } from "@softer-components/types";
 import { produce } from "immer";
 
-import { findComponentDef, isCollectionChild } from "./component-def-tree";
+import {
+  findComponentDefFromStatePath,
+  isCollectionChild,
+} from "./component-def-tree";
 import { GlobalEvent } from "./global-event";
 import {
   assertIsArray,
@@ -43,17 +46,21 @@ function updateStateOfComponentOfEvent<T extends ComponentContract = any>(
   event: GlobalEvent,
   stateManager: RelativePathStateManager,
 ) {
-  const componentDef = findComponentDef(rootComponentDef, event.statePath);
+  const componentDef = findComponentDefFromStatePath(
+    rootComponentDef,
+    event.statePath,
+  );
   const updater = componentDef.updaters?.[event.name];
   if (!updater) return;
 
-  const { values, children, childrenValues, state, payload } =
-    prepareUpdaterParams(componentDef, event, stateManager);
+  const { values, children, childrenValues, state, payload, contextsValues } =
+    prepareUpdaterParams(rootComponentDef as ComponentDef, event, stateManager);
 
   const next = produce({ state, children }, (draft: any) => {
     const returnedValue = updater({
       values,
       childrenValues,
+      contextsValues,
       payload,
       children: draft.children,
       state: draft.state,
@@ -75,13 +82,17 @@ function updateStateOfComponentOfEvent<T extends ComponentContract = any>(
  * Prepare updater parameters from the component definition and state, recursively
  */
 function prepareUpdaterParams(
-  componentDef: ComponentDef,
+  rootComponentDef: ComponentDef,
   event: GlobalEvent,
   stateManager: RelativePathStateManager,
 ) {
-  const { values, childrenValues } = createValueProviders(
-    componentDef,
+  const { values, childrenValues, contextsValues } = createValueProviders(
+    rootComponentDef,
     stateManager,
+  );
+  const componentDef = findComponentDefFromStatePath(
+    rootComponentDef,
+    event.statePath,
   );
   const childrenKeys = stateManager.getChildrenKeys();
   const children = childrenKeysToBooleanOrArray(childrenKeys, componentDef);
@@ -93,6 +104,7 @@ function prepareUpdaterParams(
     children,
     payload,
     childrenValues,
+    contextsValues,
     state,
   };
 }
@@ -158,7 +170,7 @@ function initialiseChildStateOfAddedKeys(
     const newKeys = desiredKeys.filter(key => !previousKeys.includes(key));
     initializeChildState(stateManager, componentDef, childName, newKeys);
   } else {
-    if (desiredKeys !== false && previousKeys === false) {
+    if (desiredKeys !== false && !previousKeys) {
       initializeChildState(stateManager, componentDef, childName, true);
     }
   }
@@ -180,7 +192,7 @@ function removeStateOfDeletedKeys(
       .map(key => stateManager.childStateManager(childName, key))
       .forEach(childStateManager => childStateManager.removeStateTree());
   } else {
-    if (previousKeys !== false && desiredKeys === false) {
+    if (previousKeys && desiredKeys === false) {
       const childStateManager = stateManager.firstChildStateManager(childName);
       childStateManager.removeStateTree();
     }

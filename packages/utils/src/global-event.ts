@@ -1,6 +1,6 @@
 import { Event } from "@softer-components/types";
 
-import { StatePath } from "./state-tree";
+import { StatePath } from "./path";
 
 export const INPUTTED_BY_USER = "🖱️" as const;
 export const FORWARDED_INTERNALLY = "➡️" as const;

@@ -1,7 +1,7 @@
 import { ComponentContract } from "./component-contract";
 import { ComponentTreePaths, GetContractAtPath } from "./component-path";
 import { Dispatcher } from "./event";
-import { EventConsumerContext } from "./event-consumer";
+import { EventConsumerInput } from "./event-consumer";
 
 type TriggerableEventNames<
   TComponentContract extends ComponentContract,
@@ -24,7 +24,7 @@ export type Effect<
       TComponentContract["events"][TTriggerableEventName]["payload"]
     >;
   },
-  eventContext: EventConsumerContext<
+  input: EventConsumerInput<
     TComponentContract["events"][TEventName]["payload"],
     TComponentContract
   >,

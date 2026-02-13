@@ -4,17 +4,13 @@
  */
 import { State } from "@softer-components/types";
 
-import { normalizeContextPath } from "./path";
+import { ChildrenKeys, StatePath, statePathToString } from "./path";
 import {
   assertIsNotUndefined,
   isNotUndefined,
   isUndefined,
 } from "./predicate.functions";
 
-type ComponentName = string;
-type ChildKey = string;
-export type StatePathSegment = [ComponentName, ChildKey];
-export type StatePath = StatePathSegment[];
 // tree constants
 export const CHILDREN_BRANCHES_KEY = "🪾";
 export const OWN_VALUE_KEY = "🫒";
@@ -27,57 +23,6 @@ export type StateTree = {
   // ----------------------------- child name --  key --- child tree
   [CHILDREN_BRANCHES_KEY]?: Record<string, Record<string, StateTree>>;
 };
-
-const COMPONENT_SEPARATOR = "/";
-const KEY_SEPARATOR = ":";
-export const SINGLE_CHILD_KEY = "0";
-
-/**
- * Converts a state path to a string representation that can be used in event names or as keys in maps.
- * @param statePath
- * @returns string representation of the state path, with component names separated with "/" and keys separated by ":". Starts with a "/" but does not end with a "/". For example: "/ComponentA:instance1/ComponentB/ComponentC:instance2"
- */
-export function statePathToString(statePath: StatePath): string {
-  return statePath
-    .map(([componentName, instanceKey]) =>
-      instanceKey
-        ? `${COMPONENT_SEPARATOR}${componentName}${KEY_SEPARATOR}${instanceKey}`
-        : `${COMPONENT_SEPARATOR}${componentName}`,
-    )
-    .join("");
-}
-
-/**
- * Converts a string representation of a state path back to a StatePath.
- * The string is typically in the format produced by statePathToString.
- * For example: "/ComponentA:instance1/ComponentB/ComponentC:instance2"
- * but ":0" can be omitted for single child components, so "/ComponentA/ComponentB/ComponentC" is also valid and will be parsed as if it were "/ComponentA:0/ComponentB:0/ComponentC:0"
- * @param statePathStr
- */
-export function stringToStatePath(statePathStr: string): StatePath {
-  const parts = statePathStr.split(COMPONENT_SEPARATOR);
-  parts.shift(); // remove prefix
-  return parts.map(part => {
-    const [componentName, instanceKey] = part.split(KEY_SEPARATOR);
-    return [componentName, instanceKey ?? SINGLE_CHILD_KEY] as const;
-  });
-}
-
-/**
- * Computes a new state path by applying a relative path to a given state path.
- * @param statePath
- * @param relativePathString a string representation of a relative path, using "../" to go back up one level, "./" is ignored, and otherwise the same as statePathStr returned by componentPathToString.
- * @returns the new state path.
- */
-export function computeRelativePath(
-  statePath: StatePath,
-  relativePathString: string,
-): StatePath {
-  const normalizedRelativePathString = normalizeContextPath(
-    `${statePathToString(statePath)}/${relativePathString}`,
-  );
-  return stringToStatePath(normalizedRelativePathString);
-}
 
 /**
  * @param treeAtRootOfPath
@@ -115,6 +60,12 @@ export const findSubTree = (
   return findSubTree(subTree, statePath.slice(1));
 };
 
+/**
+ * Removes the sub-tree of the global tree for the component at the given path.
+ * Does nothing if the path does not exist. Cannot remove the root of the tree.
+ * @param treeAtRootOfPath
+ * @param statePath
+ */
 export const removeSubTree = (
   treeAtRootOfPath: StateTree,
   statePath: StatePath,
@@ -140,6 +91,11 @@ export const removeSubTree = (
   delete childBranches[key];
 };
 
+/**
+ * Gets the value of the state at the given path. Returns undefined if the path does not exist.
+ * @param treeAtRootOfPath
+ * @param path
+ */
 export const getValueAtPath = (
   treeAtRootOfPath: StateTree,
   path: StatePath,
@@ -147,6 +103,12 @@ export const getValueAtPath = (
   return findSubTree(treeAtRootOfPath, path)?.[OWN_VALUE_KEY];
 };
 
+/**
+ * Updates the value of the state at the given path. Throws if the path does not exist.
+ * @param treeAtRootOfPath
+ * @param path
+ * @param value
+ */
 export const updateValueAtPath = (
   treeAtRootOfPath: StateTree,
   path: StatePath,
@@ -157,6 +119,13 @@ export const updateValueAtPath = (
   subTree[OWN_VALUE_KEY] = value;
 };
 
+/**
+ * Creates a new value at the given path.
+ * Throws if the path already exists or if the parent path does not exist.
+ * @param treeAtRootOfPath
+ * @param path
+ * @param value
+ */
 export const createValueAtPath = (
   treeAtRootOfPath: StateTree,
   path: StatePath,
@@ -189,6 +158,11 @@ export const createValueAtPath = (
   childBranches[key] = { [OWN_VALUE_KEY]: value };
 };
 
+/**
+ * gets the children keys for a child component name.
+ * Returns an empty object if there are no children branches.
+ * @param subTree
+ */
 export const getChildrenKeys = (subTree: StateTree | undefined): ChildrenKeys =>
   Object.fromEntries(
     Object.entries(subTree?.[CHILDREN_BRANCHES_KEY] || {}).map(
@@ -198,6 +172,14 @@ export const getChildrenKeys = (subTree: StateTree | undefined): ChildrenKeys =>
     ),
   ) as ChildrenKeys;
 
+/**
+ * Initializes the children branches for a child component name at the given path.
+ * Throws if the parent path does not exist.
+ * Returns the children branches for the child component name.
+ * @param treeAtRootOfPath
+ * @param parentPath
+ * @param childName
+ */
 export const initializeChildBranches = (
   treeAtRootOfPath: StateTree,
   parentPath: StatePath,
@@ -214,8 +196,13 @@ export const initializeChildBranches = (
   }
   return childrenBranches[childName];
 };
-export type ChildrenKeys = Record<string, string[]>;
 
+/**
+ * Reorders the children branches for a child component name at the given path according to the desired keys order.
+ * @param treeAtRootOfPath
+ * @param childName
+ * @param desiredKeys
+ */
 export const reorderChildStates = (
   treeAtRootOfPath: StateTree,
   childName: string,

@@ -4,8 +4,10 @@ import {
   ExtractComponentValuesContract,
   Selectors,
 } from "@softer-components/types";
+import { SofterContext } from "@softer-components/utils";
 
 import { List } from "../../../model";
+import { UserContextContract } from "../user-context/user-context.component";
 import {
   CreateListContract,
   CreateListDependencies,
@@ -57,9 +59,13 @@ type Contract = {
 type Dependencies = CreateListDependencies & ListsDependencies;
 
 // Component definition
-const componentDef: (
-  dependencies: Dependencies,
-) => ComponentDef<Contract, State> = dependencies => ({
+const componentDef = ({
+  dependencies,
+  context,
+}: {
+  context: SofterContext<{ userContext: UserContextContract }>;
+  dependencies: Dependencies;
+}): ComponentDef<Contract, State> => ({
   selectors,
   uiEvents: ["displayed"],
   eventForwarders: [
@@ -69,7 +75,7 @@ const componentDef: (
     },
   ],
   childrenComponentDefs: {
-    lists: listsDef(dependencies),
+    lists: listsDef({ dependencies, context: context.forChild() }),
     createList: createListDef(dependencies),
   },
   childrenConfig: {

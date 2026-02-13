@@ -28,8 +28,7 @@ type eventNames =
   | "selectListRequested"
   | "authenticated"
   | "anonymousChoiceMade"
-  | "loginRequested"
-  | "logoutRequested";
+  | "signInRequested";
 type AppEvents = ComponentEventsContract<
   eventNames,
   { listSelected: List; authenticated: { username: string } }
@@ -51,6 +50,9 @@ type Dependencies = ListDependencies &
   ListManagerDependencies &
   UserContextDependencies;
 const componentDef = (dependencies: Dependencies): ComponentDef<Contract> => {
+  const context = emptyContext
+    .addContext<"userContext", UserContextContract>("userContext")
+    .forChild();
   return {
     updaters: {
       listSelected: ({ children }) => {
@@ -71,7 +73,7 @@ const componentDef = (dependencies: Dependencies): ComponentDef<Contract> => {
         children.listManager = true;
         children.userMenu = true;
       },
-      loginRequested: ({ children }) => {
+      signInRequested: ({ children }) => {
         children.signInForm = true;
         children.listManager = false;
         children.userMenu = false;
@@ -100,27 +102,24 @@ const componentDef = (dependencies: Dependencies): ComponentDef<Contract> => {
       signInForm: {
         listeners: [{ from: "signInCancelled", to: "anonymousChoiceMade" }],
       },
-      userContext: {
-        listeners: [{ from: "signInSucceeded", to: "authenticated" }],
-      },
       userMenu: {
         listeners: [
-          { from: "logoutSucceeded", to: "anonymousChoiceMade" },
-          { from: "loginRequested", to: "loginRequested" },
+          {
+            from: "signInRequested",
+            to: "signInRequested",
+          },
         ],
-        commands: [{ from: "authenticated", to: "authenticated" }],
+      },
+      userContext: {
+        listeners: [{ from: "signInSucceeded", to: "authenticated" }],
       },
     },
     childrenComponentDefs: {
       userContext: userContextDef(dependencies),
-      userMenu: userMenuDef(dependencies),
-      signInForm: signInFormComponentDef({
-        context: emptyContext
-          .addContext<"userContext", UserContextContract>("userContext")
-          .forChild(),
-      }),
+      userMenu: userMenuDef({ context }),
+      signInForm: signInFormComponentDef({ context }),
       list: listDef(dependencies),
-      listManager: listManagerDef(dependencies),
+      listManager: listManagerDef({ dependencies, context }),
     },
   };
 };

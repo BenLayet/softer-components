@@ -1,8 +1,6 @@
-import { DemoAuthenticationService } from "./adapter/demo-authentication-service";
-import { ListStorageService } from "./adapter/list-storage-service";
-import { ListServiceImpl } from "./adapter/list.service-impl";
+import { DemoAuthenticationService } from "./adapter/demo-authentication.service";
+import { DemoListService } from "./adapter/demo-list.service";
 
-export const configuration = {
-  listService: new ListServiceImpl(new ListStorageService()),
-  authenticationService: new DemoAuthenticationService(),
-};
+const authenticationService = new DemoAuthenticationService();
+const listService = new DemoListService(authenticationService);
+export const configuration = { listService, authenticationService };

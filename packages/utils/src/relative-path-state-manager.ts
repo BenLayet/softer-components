@@ -1,8 +1,12 @@
-import { ChildrenValues, State } from "@softer-components/types";
+import {
+  ChildrenValues,
+  ContextsValues,
+  State,
+} from "@softer-components/types";
 
+import { ChildrenKeys, StatePath, computeRelativePath } from "./path";
 import { SofterRootState } from "./state-initializer";
 import { StateManager, StateReader } from "./state-manager";
-import { ChildrenKeys, StatePath } from "./state-tree";
 
 /**
  * Wrapper around StateManager that manages relative paths.
@@ -14,7 +18,7 @@ export class RelativePathStateReader {
   constructor(
     protected readonly softerRootState: SofterRootState,
     private readonly absolutePathStateReader: StateReader,
-    protected readonly currentPath: StatePath = [],
+    public readonly currentPath: StatePath = [],
   ) {}
 
   childStateReader(
@@ -48,6 +52,13 @@ export class RelativePathStateReader {
       this.currentPath.slice(0, -1),
     );
   }
+  forRelativePath(contextRelativePath: string): RelativePathStateReader {
+    return new RelativePathStateReader(
+      this.softerRootState,
+      this.absolutePathStateReader,
+      computeRelativePath(this.currentPath, contextRelativePath),
+    );
+  }
 
   readState(): State {
     return this.absolutePathStateReader.readState(
@@ -62,12 +73,17 @@ export class RelativePathStateReader {
     );
   }
 
-  selectValue<T>(selector: (state: State) => T, children: ChildrenValues): T {
+  selectValue<T>(
+    selector: (state: State) => T,
+    children: ChildrenValues,
+    contextsValues: ContextsValues,
+  ): T {
     return this.absolutePathStateReader.selectValue(
       this.softerRootState,
       this.currentPath,
       selector,
       children,
+      contextsValues,
     );
   }
 }

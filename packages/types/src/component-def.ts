@@ -43,7 +43,11 @@ export type ComponentDef<
   TState extends State = any,
 > = {
   initialState?: TState;
-  selectors?: Selectors<TState, TComponentContract["children"]>;
+  selectors?: Selectors<
+    TState,
+    TComponentContract["children"],
+    TComponentContract["requiredContext"]
+  >;
   uiEvents?: UiEvents<TComponentContract>;
   updaters?: Updaters<TComponentContract, TState>;
   eventForwarders?: InternalEventForwarders<TComponentContract>;
@@ -66,7 +70,7 @@ type ContextPart<TComponentContract extends ComponentContract = any> =
         contextDefs: {
           [K in keyof TComponentContract["requiredContext"]]: string;
         };
-        contextConfig?: {
+        contextsConfig?: {
           [K in keyof TComponentContract["requiredContext"]]?: ChildConfig<
             TComponentContract,
             TComponentContract["requiredContext"][K]
@@ -75,5 +79,5 @@ type ContextPart<TComponentContract extends ComponentContract = any> =
       }
     : {
         contextDefs?: never;
-        contextConfig?: never;
+        contextsConfig?: never;
       };

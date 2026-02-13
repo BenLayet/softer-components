@@ -1,8 +1,8 @@
-import { ComponentDef } from "@softer-components/types";
+import { ComponentContract, ComponentDef } from "@softer-components/types";
 
+import { SINGLE_CHILD_KEY } from "./path";
 import { RelativePathStateManager } from "./relative-path-state-manager";
 import { StateManager } from "./state-manager";
-import { SINGLE_CHILD_KEY } from "./state-tree";
 
 // contains state for the whole application,
 // and each state of each component is stored inside it
@@ -11,9 +11,9 @@ export type SofterRootState = {};
 /**
  * Initialize the complete state from the root component definition
  */
-export function initializeRootState(
+export function initializeRootState<T extends ComponentContract>(
   softerRootState: SofterRootState,
-  rootComponentDef: ComponentDef,
+  rootComponentDef: ComponentDef<T>,
   stateManager: StateManager,
 ) {
   // Initialize the root state, even if undefined
@@ -21,7 +21,7 @@ export function initializeRootState(
 
   // Initialize children state
   initializeChildrenState(
-    rootComponentDef,
+    rootComponentDef as ComponentDef,
     new RelativePathStateManager(softerRootState, stateManager, []),
   );
 }

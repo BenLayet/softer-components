@@ -2,10 +2,14 @@ import {
   ChildrenValues,
   ComponentContract,
   ComponentDef,
+  ContextsValues,
   Values,
 } from "@softer-components/types";
 
-import { isCollectionChild } from "./component-def-tree";
+import {
+  findComponentDefFromStatePath,
+  isCollectionChild,
+} from "./component-def-tree";
 import {
   assertIsNotUndefined,
   assertValueIsNotUndefined,
@@ -18,48 +22,74 @@ import { RelativePathStateReader } from "./relative-path-state-manager";
 export function createValueProviders<
   TComponentContract extends ComponentContract = ComponentContract,
 >(
-  componentDef: ComponentDef<TComponentContract>,
+  rootComponentDef: ComponentDef,
   stateReader: RelativePathStateReader,
 ): Values<TComponentContract> {
   // Create children's values
-  const childrenValues = createChildrenValues(componentDef, stateReader);
-
-  assertValueIsNotUndefined({ childrenValues });
+  const childrenValues = createChildrenValues(rootComponentDef, stateReader);
+  assertIsNotUndefined(
+    childrenValues,
+    "childrenValues should not be undefined",
+  );
+  // Create contexts' values
+  const contextsValues = createContextsValues(
+    rootComponentDef,
+    stateReader,
+  ) as ContextsValues;
+  assertIsNotUndefined(
+    contextsValues,
+    "contextsValues should not be undefined",
+  );
 
   // Create own values
-  const values = createOwnValues(componentDef, stateReader, childrenValues);
+  const values = createOwnValues(
+    rootComponentDef,
+    stateReader,
+    childrenValues,
+    contextsValues,
+  );
 
   return {
     values,
     childrenValues,
-  } as Values<TComponentContract>;
+    contextsValues,
+  } as unknown as Values<TComponentContract>;
 }
 
-function createOwnValues<
-  TComponentContract extends ComponentContract = ComponentContract,
->(
-  componentDef: ComponentDef<TComponentContract>,
+function createOwnValues(
+  rootComponentDef: ComponentDef,
   stateReader: RelativePathStateReader,
-  childrenValues: Values<TComponentContract>["childrenValues"],
-): Values<TComponentContract>["values"] {
+  childrenValues: ChildrenValues,
+  contextsValues: ContextsValues,
+) {
+  const componentDef = findComponentDefFromStatePath(
+    rootComponentDef,
+    stateReader.currentPath,
+  );
   const selectorsDef = componentDef.selectors || {};
   return Object.fromEntries(
     Object.entries(selectorsDef).map(([selectorName, selector]) => [
       selectorName,
       () => {
         assertValueIsNotUndefined({ childrenValues });
-        return stateReader.selectValue(selector as any, childrenValues);
+        return stateReader.selectValue(
+          selector as any,
+          childrenValues,
+          contextsValues,
+        );
       },
     ]),
-  ) as Values<TComponentContract>["values"];
+  );
 }
 
-export function createChildrenValues<
-  TComponentContract extends ComponentContract = ComponentContract,
->(
-  componentDef: ComponentDef<TComponentContract>,
+function createChildrenValues(
+  rootComponentDef: ComponentDef,
   stateReader: RelativePathStateReader,
-): ChildrenValues<TComponentContract["children"]> {
+): ChildrenValues {
+  const componentDef = findComponentDefFromStatePath(
+    rootComponentDef,
+    stateReader.currentPath,
+  );
   const childrenKeys = stateReader.getChildrenKeys();
   assertValueIsNotUndefined({ childrenKeys });
   return Object.fromEntries(
@@ -74,7 +104,7 @@ export function createChildrenValues<
         const childInstancesValueProviders = Object.fromEntries(
           childKeys.map(key => {
             const childValueProviders = createValueProviders(
-              childDef,
+              rootComponentDef,
               stateReader.childStateReader(childName, key),
             );
             return [key, childValueProviders];
@@ -95,11 +125,33 @@ export function createChildrenValues<
         return [
           childName,
           createValueProviders(
-            childDef,
+            rootComponentDef,
             stateReader.firstChildStateReader(childName),
           ),
         ];
       }
     }),
-  ) as ChildrenValues<TComponentContract["children"]>;
+  ) as ChildrenValues;
+}
+
+export function createContextsValues(
+  rootComponentDef: ComponentDef,
+  stateReader: RelativePathStateReader,
+): ContextsValues {
+  const componentDef = findComponentDefFromStatePath(
+    rootComponentDef,
+    stateReader.currentPath,
+  );
+  return Object.fromEntries(
+    Object.entries(componentDef.contextDefs ?? {}).map(
+      ([contextName, contextRelativePath]) => {
+        const stateReaderForContext =
+          stateReader.forRelativePath(contextRelativePath);
+        return [
+          contextName,
+          createValueProviders(rootComponentDef, stateReaderForContext),
+        ];
+      },
+    ),
+  ) as ContextsValues;
 }

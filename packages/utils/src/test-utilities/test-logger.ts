@@ -1,5 +1,6 @@
 import { GlobalEvent } from "../global-event";
-import { StateTree, statePathToString } from "../state-tree";
+import { statePathToString } from "../path";
+import { StateTree } from "../state-tree";
 import { diff } from "./diff";
 import { EventProcessorListener } from "./event-processor";
 

@@ -34,7 +34,7 @@ export const SignInForm = ({ path = "" }) => {
         />
         <p className="hint">Use 'demo'</p>
         <div>
-          <button type="submit">🚀 SignIn</button>
+          <button type="submit">🚀 Sign In</button>
         </div>
       </form>
       {v.hasInvalidCredentialError && (

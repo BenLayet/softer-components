@@ -1,7 +1,11 @@
-import { ChildrenValues, State } from "@softer-components/types";
+import {
+  ChildrenValues,
+  ContextsValues,
+  State,
+} from "@softer-components/types";
 
+import { ChildrenKeys, StatePath } from "./path";
 import { SofterRootState } from "./state-initializer";
-import { ChildrenKeys, StatePath } from "./state-tree";
 
 /**
  * StateReader
@@ -29,7 +33,8 @@ export interface StateReader {
     softerRootState: SofterRootState,
     path: StatePath,
     selector: (state: State) => T,
-    children: ChildrenValues,
+    childrenValues: ChildrenValues,
+    contextsValues: ContextsValues,
   ): T;
 }
 
@@ -81,11 +86,25 @@ export interface StateWriter {
     desiredKeys: string[],
   ): void;
 
-  /**
-   * Sets a listener to be notified with the specific path when a state tree is removed.
-   * @param listener
-   */
-  setRemoveStateTreeListener(listener: (path: StatePath) => void): void;
+  addStateTreeListener(listener: StateTreeListener): void;
 }
 
 export interface StateManager extends StateReader, StateWriter {}
+
+export interface StateTreeListener {
+  /**
+   * Called when a new state is added at the given path.
+   * Note that this is called for every node in the new subtree,
+   * starting from the root of the subtree and going down to the leaves.
+   * @param statePath
+   */
+  onStateAdded?: (statePath: StatePath) => void;
+
+  /**
+   * Called when a state is removed at the given path.
+   * Note that this is NOT called for every node in the removed subtree,
+   * just for the root of the removed subtree.
+   * @param statePath
+   */
+  onStateRemoved?: (statePath: StatePath) => void;
+}

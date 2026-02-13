@@ -1,7 +1,6 @@
 import {
   ComponentDef,
   ComponentEventsContract,
-  ExtractComponentChildrenContract,
   ExtractComponentValuesContract,
   Selectors,
 } from "@softer-components/types";

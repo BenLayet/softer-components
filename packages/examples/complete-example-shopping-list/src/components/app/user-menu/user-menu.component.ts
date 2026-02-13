@@ -1,73 +1,74 @@
 import {
   ComponentDef,
   ComponentEventsContract,
-  Effects,
   ExtractComponentValuesContract,
   Selectors,
 } from "@softer-components/types";
+import { SofterContext } from "@softer-components/utils";
 
-import { AuthenticationService } from "../../../port/authentication.service";
-
-//State
-const initialState = {
-  isAuthenticated: false,
-  username: "",
-};
-type State = typeof initialState;
-// Selectors
-const selectors = {
-  isAuthenticated: state => state.isAuthenticated,
-  isAnonymous: state => !state.isAuthenticated,
-  username: state => state.username,
-} satisfies Selectors<State>;
+import { UserContextContract } from "../user-context/user-context.component";
 
 // Events
 type eventNames =
   | "authenticated"
-  | "logoutSucceeded"
-  | "loginRequested"
-  | "logoutRequested";
+  | "signOutRequested"
+  | "signOutSucceeded"
+  | "signInRequested";
 type AppEvents = ComponentEventsContract<
   eventNames,
   { authenticated: { username: string } }
 >;
 
+// Selectors
+type RequiredContext = {
+  userContext: UserContextContract;
+};
+const selectors = {
+  isAuthenticated: (_, __, { userContext }) =>
+    userContext.values.isAuthenticated(),
+  isAnonymous: (_, __, { userContext }) =>
+    !userContext.values.isAuthenticated(),
+  username: (_, __, { userContext }) => userContext.values.username(),
+} satisfies Selectors<{}, {}, RequiredContext>;
+
 type Contract = {
   events: AppEvents;
   children: {};
   values: ExtractComponentValuesContract<typeof selectors>;
-  effects: {
-    logoutRequested: ["logoutSucceeded"];
-  };
+  requiredContext: RequiredContext;
 };
 // Component definition
-type Dependencies = {
-  authenticationService: AuthenticationService;
-};
-// effects
-const effects = ({
-  authenticationService,
-}: Dependencies): Effects<Contract> => ({
-  logoutRequested: async ({ logoutSucceeded }) => {
-    await authenticationService.signOut();
-    logoutSucceeded();
-  },
-});
-
-const componentDef = (dependencies: Dependencies): ComponentDef<Contract> => ({
-  initialState,
+const componentDef = ({
+  context,
+}: {
+  context: SofterContext<{ userContext: UserContextContract }>;
+}): ComponentDef<Contract> => ({
   selectors,
-  uiEvents: ["logoutRequested", "loginRequested"],
-  updaters: {
-    authenticated: ({ payload: { username }, state }) => {
-      state.username = username;
-      state.isAuthenticated = true;
-    },
-    logoutSucceeded: () => initialState,
+  uiEvents: ["signOutRequested", "signOutSucceeded", "signInRequested"],
+  contextDefs: {
+    userContext: context.getContextPath<UserContextContract>("userContext"),
   },
-  effects: effects(dependencies),
+  contextsConfig: {
+    userContext: {
+      commands: [
+        {
+          from: "signOutRequested",
+          to: "signOutRequested",
+        },
+      ],
+      listeners: [
+        {
+          from: "signOutSucceeded",
+          to: "signOutSucceeded",
+        },
+        {
+          from: "authenticated",
+          to: "authenticated",
+        },
+      ],
+    },
+  },
 });
 // Exporting the component definition as a function to allow dependencies injection
 export const userMenuDef = componentDef;
 export type UserMenuContract = Contract;
-export type UserMenuDependencies = Dependencies;

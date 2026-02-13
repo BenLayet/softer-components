@@ -2,7 +2,7 @@ import {
   ComponentContract,
   ComponentDef,
   Event,
-  EventConsumerContext,
+  EventConsumerInput,
   Payload,
 } from "@softer-components/types";
 
@@ -10,47 +10,45 @@ import { GlobalEvent } from "./global-event";
 import { RelativePathStateReader } from "./relative-path-state-manager";
 import { createValueProviders } from "./value-providers";
 
-export function eventConsumerContextProvider<
+export function eventConsumerInputProvider<
   TPayload extends Payload,
   TComponentContract extends ComponentContract = ComponentContract,
 >(
-  componentDef: ComponentDef<TComponentContract>,
+  rootComponentDef: ComponentDef,
   event: GlobalEvent<Event<TPayload>>,
   stateReader: RelativePathStateReader,
-): () => EventConsumerContext<TPayload, TComponentContract> {
-  let cachedContext:
-    | EventConsumerContext<TPayload, TComponentContract>
-    | undefined;
+): () => EventConsumerInput<TPayload, TComponentContract> {
+  let cachedInput: EventConsumerInput<TPayload, TComponentContract> | undefined;
   return () => {
-    if (cachedContext) return cachedContext;
-    cachedContext = createEventConsumerContext(
-      componentDef,
+    if (cachedInput) return cachedInput;
+    cachedInput = createEventConsumerInput(
+      rootComponentDef,
       event,
       stateReader,
     );
-    return cachedContext;
+    return cachedInput;
   };
 }
 
-function createEventConsumerContext<
+function createEventConsumerInput<
   TPayload extends Payload,
   TComponentContract extends ComponentContract = ComponentContract,
 >(
-  componentDef: ComponentDef<TComponentContract>,
+  rootComponentDef: ComponentDef,
   event: GlobalEvent<Event<TPayload>>,
   stateReader: RelativePathStateReader,
-): EventConsumerContext<TPayload, TComponentContract> {
-  const { values, childrenValues: children } = createValueProviders(
-    componentDef,
+): EventConsumerInput<TPayload, TComponentContract> {
+  const { values, childrenValues } = createValueProviders<TComponentContract>(
+    rootComponentDef as ComponentDef,
     stateReader,
   );
-  const payload = event.payload;
+  const payload = event.payload as TPayload;
   const childKey = event.statePath?.[event.statePath?.length - 1]?.[1];
 
   return {
     values,
-    childrenValues: children,
+    childrenValues,
     payload,
     childKey,
-  };
+  } as EventConsumerInput<TPayload, TComponentContract>;
 }

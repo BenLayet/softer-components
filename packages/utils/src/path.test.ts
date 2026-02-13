@@ -1,25 +1,25 @@
 /// <reference types="vitest" />
 import { describe, expect, it } from "vitest";
 
-import { normalizeContextPath } from "./path";
+import { normalizePath } from "./path";
 
 describe("normalizeContextPath", () => {
   it("resolves .. and . in absolute paths", () => {
-    expect(normalizeContextPath("/a/b/../c")).toBe("/a/c");
-    expect(normalizeContextPath("/a/./b")).toBe("/a/b");
-    expect(normalizeContextPath("/a//b///c")).toBe("/a/b/c");
-    expect(normalizeContextPath("/../a")).toBe("/a");
+    expect(normalizePath("/a/b/../c")).toBe("/a/c");
+    expect(normalizePath("/a/./b")).toBe("/a/b");
+    expect(normalizePath("/a//b///c")).toBe("/a/b/c");
+    expect(normalizePath("/../a")).toBe("/a");
   });
 
   it("resolves .. and . in relative paths", () => {
-    expect(normalizeContextPath("a/b/../c")).toBe("a/c");
-    expect(normalizeContextPath("./a/b")).toBe("a/b");
-    expect(normalizeContextPath("a/../../b")).toBe("../b");
-    expect(normalizeContextPath("..")).toBe("..");
+    expect(normalizePath("a/b/../c")).toBe("a/c");
+    expect(normalizePath("./a/b")).toBe("a/b");
+    expect(normalizePath("a/../../b")).toBe("../b");
+    expect(normalizePath("..")).toBe("..");
   });
 
   it("root and empty", () => {
-    expect(normalizeContextPath("/")).toBe("/");
-    expect(normalizeContextPath("")).toBe("");
+    expect(normalizePath("/")).toBe("/");
+    expect(normalizePath("")).toBe("");
   });
 });

@@ -1,5 +1,6 @@
 import { ComponentDef } from "@softer-components/types";
 
+import { ContextEventManager } from "../context-event-manager";
 import { EffectsManager } from "../effects-manager";
 import { generateEventsToForward } from "../event-forwarding";
 import { GlobalEvent } from "../global-event";
@@ -16,6 +17,7 @@ export const whenEventOccurs = (
   rootComponentDef: ComponentDef,
   stateManager: StateManager,
   effectsManager: EffectsManager<any>,
+  contextEventManager: ContextEventManager<any>,
   listener?: EventProcessorListener,
 ) => {
   const processEvent = async (globalEvent: GlobalEvent): Promise<void> => {
@@ -34,6 +36,7 @@ export const whenEventOccurs = (
       rootComponentDef,
       globalEvent,
       stateManager,
+      contextEventManager,
     );
 
     // Process the whole event chain recursively before processing effects,

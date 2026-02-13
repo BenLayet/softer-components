@@ -35,12 +35,8 @@ type eventNames =
   | "usernameChanged"
   | "passwordChanged"
   | "signInFormSubmitted"
-  | "signInSucceeded"
   | "signInFailed";
 
-type EffectsContract = {
-  signInFormSubmitted: ["signInSucceeded", "signInFailed"];
-};
 type Contract = {
   events: ComponentEventsContract<
     eventNames,
@@ -56,7 +52,6 @@ type Contract = {
     userContext: UserContextContract;
   };
   values: ExtractComponentValuesContract<typeof selectors>;
-  effects: EffectsContract;
 };
 
 // Component definition
@@ -90,7 +85,7 @@ const componentDef = ({
   contextDefs: {
     userContext: context.getContextPath<UserContextContract>("userContext"),
   },
-  contextConfig: {
+  contextsConfig: {
     userContext: {
       commands: [
         {
@@ -103,10 +98,6 @@ const componentDef = ({
         },
       ],
       listeners: [
-        {
-          from: "signInSucceeded",
-          to: "signInSucceeded",
-        },
         {
           from: "signInFailed",
           to: "signInFailed",

@@ -1,13 +1,12 @@
 import { describe, expect, it } from "vitest";
 
+import { StatePath, statePathToString, stringToStatePath } from "./path";
 import {
   CHILDREN_BRANCHES_KEY,
   OWN_VALUE_KEY,
-  StatePath,
   findSubTree,
-  statePathToString,
-  stringToStatePath,
 } from "./state-tree";
+
 
 describe("findSubTree", () => {
   it("returns root ", () => {

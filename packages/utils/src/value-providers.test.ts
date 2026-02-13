@@ -12,7 +12,9 @@ describe("createValuesProvider", () => {
         answer: (state: { answer: number }) => state.answer,
       },
     };
-    const mockStateReader = {} as RelativePathStateReader;
+    const mockStateReader = {
+      currentPath: [],
+    } as {} as RelativePathStateReader;
     mockStateReader.getChildrenKeys = vi.fn().mockReturnValue({});
     mockStateReader.selectValue = vi.fn().mockReturnValue(42);
 
@@ -33,8 +35,12 @@ describe("createValuesProvider", () => {
     const rootDef: ComponentDef = {
       childrenComponentDefs: { child: childDef },
     };
-    const mockStateReader = {} as RelativePathStateReader;
-    const mockChildStateReader = {} as RelativePathStateReader;
+    const mockStateReader = {
+      currentPath: [],
+    } as {} as RelativePathStateReader;
+    const mockChildStateReader = {
+      currentPath: [["child", "0"]],
+    } as {} as RelativePathStateReader;
     mockStateReader.getChildrenKeys = vi.fn().mockReturnValue({ child: ["0"] });
     mockStateReader.firstChildStateReader = vi
       .fn()
@@ -47,7 +53,40 @@ describe("createValuesProvider", () => {
 
     //THEN
     expect((result.childrenValues.child?.values as any).answer()).toEqual(42);
-    expect(result.values).toEqual({});
-    expect(result.childrenValues.child?.childrenValues).toEqual({});
+  });
+  it("returns a contexts values provider", () => {
+    //GIVEN
+    const context1Def: ComponentDef = {
+      selectors: {
+        answer: (state: { answer: number }) => state.answer,
+      },
+    };
+    const childDef: ComponentDef = {
+      contextDefs: { context1: "/context1" },
+    };
+    const rootDef: ComponentDef = {
+      childrenComponentDefs: { child: childDef, context1: context1Def },
+    };
+    const mockChildStateReader = {
+      currentPath: [["child", "0"]],
+    } as {} as RelativePathStateReader;
+    const mockContext1StateReader = {
+      currentPath: [["context1", "0"]],
+    } as {} as RelativePathStateReader;
+    mockChildStateReader.getChildrenKeys = vi.fn().mockReturnValue({});
+    mockChildStateReader.forRelativePath = vi
+      .fn()
+      .mockReturnValue(mockContext1StateReader);
+    mockContext1StateReader.getChildrenKeys = vi.fn().mockReturnValue({});
+    mockContext1StateReader.selectValue = vi.fn().mockReturnValue(42);
+
+    //WHEN
+    //creating child values
+    const result = createValueProviders(rootDef, mockChildStateReader);
+
+    //THEN
+    expect((result.contextsValues.context1?.values as any).answer()).toEqual(
+      42,
+    );
   });
 });

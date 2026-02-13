@@ -20,6 +20,7 @@ type State = typeof initialState;
 // Selectors
 const selectors = {
   username: state => state.username,
+  isAuthenticated: state => state.isAuthenticated,
   isProcessing: state => state.isProcessing,
 } satisfies Selectors<State>;
 
@@ -29,10 +30,12 @@ type eventNames =
   | "signOutSucceeded"
   | "signInRequested"
   | "signInSucceeded"
-  | "signInFailed";
+  | "signInFailed"
+  | "authenticated";
 
 type EffectsContract = {
   signInRequested: ["signInSucceeded", "signInFailed"];
+  signOutRequested: ["signOutSucceeded"];
 };
 type Contract = {
   events: ComponentEventsContract<
@@ -41,6 +44,7 @@ type Contract = {
       signInFailed: AppError;
       signInRequested: { username: string; password: string };
       signInSucceeded: { username: string };
+      authenticated: { username: string };
     }
   >;
   children: {};
@@ -72,6 +76,10 @@ const effects: (dependencies: Dependencies) => Effects<Contract> = ({
       }
     }
   },
+  signOutRequested: async ({ signOutSucceeded }) => {
+    await authenticationService.signOut();
+    signOutSucceeded();
+  },
 });
 
 const componentDef = (
@@ -100,6 +108,7 @@ const componentDef = (
       state.username = "";
     },
   },
+  eventForwarders: [{ from: "signInSucceeded", to: "authenticated" }],
   effects: effects(dependencies),
 });
 // Exporting the component definition as a function to allow dependencies injection

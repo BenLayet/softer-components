@@ -8,7 +8,7 @@ export const UserMenu = ({ path = "" }) => {
     <div className="menu-item">
       {v.isAnonymous && (
         <a
-          onClick={() => d.loginRequested()}
+          onClick={() => d.signInRequested()}
           title="Sign in to share your lists"
         >
           🔓 Sign in
@@ -16,9 +16,9 @@ export const UserMenu = ({ path = "" }) => {
       )}
       {v.isAuthenticated && (
         <>
-          Hi {v.username}!{" "}
+          Hi <span style={{ textTransform: "capitalize" }}>{v.username}</span>!{" "}
           <a
-            onClick={() => d.logoutRequested()}
+            onClick={() => d.signOutRequested()}
             title="Sign out and return to anonymous mode"
           >
             sign out

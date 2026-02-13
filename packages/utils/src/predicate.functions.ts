@@ -8,6 +8,8 @@ export const or = <T = any>(...predicates: Array<(value: T) => boolean>) => {
   return (value: T) => predicates.some(predicate => predicate(value));
 };
 
+export const isEmptyString = (value: any) => value === "";
+export const isNotEmptyString = not(isEmptyString);
 export const isNull = (value: any) => value === null;
 export const isNotNull = not(isNull);
 export const isUndefined = (value: any) => typeof value === "undefined";
