@@ -20,18 +20,26 @@ type ChildInstancesDef<TCollectionContract extends ChildInstanceContract> =
 
 export type ChildrenInstancesDefs<
   TChildrenContract extends Record<string, ChildInstanceContract>,
-> = MakeUndefinedOptional<{
+> = MakeUndefinedOrNeverOptional<{
   [ChildName in keyof TChildrenContract]: ChildInstancesDef<
     TChildrenContract[ChildName]
   >;
 }>;
-type MakeUndefinedOptional<T> = {
-  [K in keyof T as undefined extends T[K] ? K : never]?: Exclude<
-    T[K],
-    undefined
-  >;
+type MakeUndefinedOrNeverOptional<T> = {
+  // Keys where the property type is `never` are omitted (mapped to `never`),
+  // keys that include `undefined` become optional with `undefined` excluded.
+  [K in keyof T as T[K] extends never
+    ? never
+    : undefined extends T[K]
+      ? K
+      : never]?: Exclude<T[K], undefined>;
 } & {
-  [K in keyof T as undefined extends T[K] ? never : K]: T[K];
+  // Remaining keys (not `never` and not including `undefined`) stay required.
+  [K in keyof T as T[K] extends never
+    ? never
+    : undefined extends T[K]
+      ? never
+      : K]: T[K];
 };
 
 /***************************************************************************************************************

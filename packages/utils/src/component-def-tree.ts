@@ -1,4 +1,8 @@
-import { ComponentDef } from "@softer-components/types";
+import {
+  ChildrenComponentDefs,
+  ComponentContract,
+  ComponentDef,
+} from "@softer-components/types";
 
 import { StatePath } from "./state-tree";
 
@@ -8,14 +12,15 @@ import { StatePath } from "./state-tree";
  * @param statePath - Path to the desired component
  * @returns Component definition at the given path
  */
-export const findComponentDef = (
-  componentDef: ComponentDef,
+export const findComponentDef = <T extends ComponentContract = any>(
+  componentDef: ComponentDef<T>,
   statePath: StatePath,
 ): ComponentDef => {
   if (statePath.length === 0) {
-    return componentDef;
+    return componentDef as ComponentDef;
   }
-  const children = componentDef.childrenComponentDefs ?? {};
+  const children =
+    componentDef.childrenComponentDefs ?? ({} as ChildrenComponentDefs<T>);
   const childName = statePath[0][0];
   const child = children[childName];
   if (!child) {

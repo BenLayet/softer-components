@@ -4,6 +4,7 @@
  */
 import { State } from "@softer-components/types";
 
+import { normalizeContextPath } from "./path";
 import {
   assertIsNotUndefined,
   isNotUndefined,
@@ -60,6 +61,22 @@ export function stringToStatePath(statePathStr: string): StatePath {
     const [componentName, instanceKey] = part.split(KEY_SEPARATOR);
     return [componentName, instanceKey ?? SINGLE_CHILD_KEY] as const;
   });
+}
+
+/**
+ * Computes a new state path by applying a relative path to a given state path.
+ * @param statePath
+ * @param relativePathString a string representation of a relative path, using "../" to go back up one level, "./" is ignored, and otherwise the same as statePathStr returned by componentPathToString.
+ * @returns the new state path.
+ */
+export function computeRelativePath(
+  statePath: StatePath,
+  relativePathString: string,
+): StatePath {
+  const normalizedRelativePathString = normalizeContextPath(
+    `${statePathToString(statePath)}/${relativePathString}`,
+  );
+  return stringToStatePath(normalizedRelativePathString);
 }
 
 /**

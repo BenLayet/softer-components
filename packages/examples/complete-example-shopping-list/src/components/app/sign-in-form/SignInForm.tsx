@@ -54,7 +54,6 @@ export const SignInForm = ({ path = "" }) => {
           ⚠️ An unknown error occurred. Please try again later.
         </p>
       )}
-      {v.isProcessing && <span className="spinner" />}
     </div>
   );
 };

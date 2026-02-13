@@ -11,3 +11,5 @@ export * from "./state-tree";
 export * from "./effects-manager";
 export * from "./value-providers";
 export * from "./effects-manager";
+export * from "./context-provider";
+export * from "./path";

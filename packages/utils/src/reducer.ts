@@ -1,4 +1,4 @@
-import { ComponentDef } from "@softer-components/types";
+import { ComponentContract, ComponentDef } from "@softer-components/types";
 import { produce } from "immer";
 
 import { findComponentDef, isCollectionChild } from "./component-def-tree";
@@ -21,9 +21,9 @@ import { createValueProviders } from "./value-providers";
  * @param event - Event to process
  * @param stateManager - State manager to read/write state
  */
-export function updateSofterRootState(
+export function updateSofterRootState<T extends ComponentContract = any>(
   softerRootState: SofterRootState,
-  rootComponentDef: ComponentDef,
+  rootComponentDef: ComponentDef<T>,
   event: GlobalEvent,
   stateManager: StateManager,
 ) {
@@ -38,8 +38,8 @@ export function updateSofterRootState(
   );
 }
 
-function updateStateOfComponentOfEvent(
-  rootComponentDef: ComponentDef,
+function updateStateOfComponentOfEvent<T extends ComponentContract = any>(
+  rootComponentDef: ComponentDef<T>,
   event: GlobalEvent,
   stateManager: RelativePathStateManager,
 ) {

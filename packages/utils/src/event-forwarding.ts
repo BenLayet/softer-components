@@ -6,12 +6,17 @@ import {
   FORWARDED_FROM_CHILD_TO_PARENT,
   FORWARDED_FROM_PARENT_TO_CHILD,
   FORWARDED_INTERNALLY,
+  FORWARDED_TO_CONTEXT,
   GlobalEvent,
 } from "./global-event";
-import { assertIsNotUndefined } from "./predicate.functions";
+import {
+  assertIsNotUndefined,
+  ensureIsNotUndefined,
+} from "./predicate.functions";
 import { RelativePathStateReader } from "./relative-path-state-manager";
 import { SofterRootState } from "./state-initializer";
 import { StateReader } from "./state-manager";
+import { computeRelativePath } from "./state-tree";
 
 /**
  * Generate events to forward based on the triggering event
@@ -48,6 +53,9 @@ export function generateEventsToForward(
 
   result.push(
     ...generateEventsToParent(rootComponentDef, triggeringEvent, stateReader),
+  );
+  result.push(
+    ...generateEventsToContext(componentDef, triggeringEvent, stateReader),
   );
 
   return result;
@@ -169,22 +177,54 @@ function generateEventsToChildren(
           stateReader.getChildrenKeys()[childName]
       ).map(childKey => ({ childName, command, childKey })),
     )
-    .map(
-      ({
-        childName,
-        command,
-        childKey,
-      }: {
-        childName: string;
-        childKey: string;
-        command: any;
-      }) => ({
-        name: command.to,
-        statePath: [...triggeringEvent.statePath, [childName, childKey]],
-        payload: command.withPayload
-          ? command.withPayload({ ...eventContext(), childKey })
-          : triggeringEvent.payload,
-        source: FORWARDED_FROM_PARENT_TO_CHILD,
-      }),
-    );
+    .map(({ childName, command, childKey }) => ({
+      name: command.to,
+      statePath: [...triggeringEvent.statePath, [childName, childKey]],
+      payload: command.withPayload
+        ? (command as any).withPayload({ ...eventContext(), childKey })
+        : triggeringEvent.payload,
+      source: FORWARDED_FROM_PARENT_TO_CHILD,
+    }));
+}
+
+function generateEventsToContext(
+  componentDef: ComponentDef,
+  triggeringEvent: GlobalEvent,
+  stateReader: RelativePathStateReader,
+): GlobalEvent[] {
+  const contextCommands = Object.entries(
+    componentDef.contextConfig ?? {},
+  ).flatMap(([contextName, contextConfig]) =>
+    (contextConfig?.commands ?? [])
+      .filter(command => command.from === triggeringEvent.name)
+      .map(command => ({
+        contextName,
+        command: command as FromEventToChildEvent<any, true, any, any>,
+      })),
+  );
+
+  if (contextCommands.length === 0) {
+    return [];
+  }
+  const eventContext = eventConsumerContextProvider(
+    componentDef,
+    triggeringEvent,
+    stateReader,
+  );
+  return contextCommands
+    .filter(
+      ({ command }) =>
+        !command.onCondition || command.onCondition(eventContext()),
+    )
+    .map(({ contextName, command }) => ({
+      name: command.to,
+      statePath: computeRelativePath(
+        triggeringEvent.statePath,
+        ensureIsNotUndefined(componentDef.contextDefs?.[contextName]),
+      ),
+      payload: command.withPayload
+        ? (command as any).withPayload({ ...eventContext() })
+        : triggeringEvent.payload,
+      source: FORWARDED_TO_CONTEXT,
+    }));
 }

@@ -33,5 +33,6 @@ export type ComponentContract<TEventNames extends string = string> = {
     { [EventName in TEventNames]?: Payload }
   >;
   children: Record<string, ComponentContract & ChildInstanceContract>;
+  requiredContext?: Record<string, ComponentContract>;
   effects?: EffectsDef<TEventNames>;
 };
