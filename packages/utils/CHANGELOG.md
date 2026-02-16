@@ -1,5 +1,16 @@
 # @softer-components/utils
 
+## 0.6.0
+
+### Minor Changes
+
+- 69d77db: Components can be passed down the component tree as 'context'
+
+### Patch Changes
+
+- Updated dependencies [69d77db]
+  - @softer-components/types@0.6.0
+
 ## 0.5.0
 
 ### Minor Changes
