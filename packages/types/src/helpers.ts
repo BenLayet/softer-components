@@ -1,10 +1,11 @@
 import { ComponentDef } from "./component-def";
+import { Selectors } from "./selectors";
 
 /***************************************************************************************************************
  *                       HELPER TYPES TO EXTRACT CONTRACTS FROM DEFINITIONS
  ***************************************************************************************************************/
 export type ExtractComponentValuesContract<
-  TSelectors extends Record<string, (state: any, children: any) => any>,
+  TSelectors extends Selectors<any, any, any>,
 > = {
   [SelectorName in keyof TSelectors]: TSelectors[SelectorName] extends (
     state: any,

@@ -13,6 +13,18 @@ export type Values<
   };
   /** Child component values - access nested component values here */
   childrenValues: ChildrenValues<TComponentContract["children"]>;
+  /** Context component values */
+  contextsValues: ContextsValues<TComponentContract["requiredContext"]>;
+};
+
+export type ContextsValues<
+  TContexts extends undefined | Record<string, ComponentContract> = undefined,
+> =
+  TContexts extends Record<string, ComponentContract>
+    ? _ContextsValues<TContexts>
+    : never;
+type _ContextsValues<TContexts extends Record<string, ComponentContract>> = {
+  [ContextName in keyof TContexts]: Values<TContexts[ContextName]>;
 };
 export type ChildrenValues<
   TChildren extends Record<string, ComponentContract & ChildInstanceContract> =

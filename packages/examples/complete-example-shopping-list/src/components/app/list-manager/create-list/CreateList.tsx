@@ -15,7 +15,7 @@ export const CreateList = ({ path = "" }) => {
         >
           <input
             type="text"
-            placeholder="New list name"
+            placeholder="Groceries, hardware store, etc."
             required
             autoFocus
             onChange={e => d.listNameChanged(e.target.value)}

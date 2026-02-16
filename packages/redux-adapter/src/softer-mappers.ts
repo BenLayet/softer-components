@@ -5,8 +5,6 @@ import {
   OWN_VALUE_KEY,
   SofterRootState,
   StateTree,
-  assertIsNotUndefined,
-  assertValueIsUndefined,
   statePathToString,
   stringToStatePath,
 } from "@softer-components/utils";
@@ -66,10 +64,9 @@ export type GlobalState = { [REDUX_SOFTER_PREFIX]?: StateTree };
 export function addSofterRootTree(globalState: GlobalState): {
   [REDUX_SOFTER_PREFIX]: StateTree;
 } {
-  assertValueIsUndefined(
-    { softerRootTree: globalState[REDUX_SOFTER_PREFIX] },
-    "Global state already has root tree",
-  );
+  if (typeof globalState[REDUX_SOFTER_PREFIX] !== "undefined") {
+    throw new Error("The global state already has a root tree");
+  }
   globalState[REDUX_SOFTER_PREFIX] = {
     [OWN_VALUE_KEY]: {},
     [CHILDREN_BRANCHES_KEY]: {},
@@ -84,4 +81,13 @@ export function getSofterRootTree(
     "Global state does not have softer root tree",
   );
   return globalState[REDUX_SOFTER_PREFIX];
+}
+
+function assertIsNotUndefined<T>(
+  value: T | undefined,
+  message?: string,
+): asserts value is T {
+  if (typeof value === "undefined") {
+    throw new Error(message || "Value is not defined");
+  }
 }

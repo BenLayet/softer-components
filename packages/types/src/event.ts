@@ -9,5 +9,8 @@ export type Event<
   readonly payload?: TPayload;
 };
 
-export type Dispatcher<TPayload extends Payload = Payload> =
-  TPayload extends undefined ? () => void : (payload: TPayload) => void;
+export type Dispatcher<TPayload extends Payload = Payload> = [
+  TPayload,
+] extends [undefined]
+  ? () => void
+  : (payload: TPayload) => void;

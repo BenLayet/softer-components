@@ -8,6 +8,8 @@ export const or = <T = any>(...predicates: Array<(value: T) => boolean>) => {
   return (value: T) => predicates.some(predicate => predicate(value));
 };
 
+export const isEmptyString = (value: any) => value === "";
+export const isNotEmptyString = not(isEmptyString);
 export const isNull = (value: any) => value === null;
 export const isNotNull = not(isNull);
 export const isUndefined = (value: any) => typeof value === "undefined";
@@ -47,6 +49,15 @@ export function assertIsNotUndefined<T>(
   }
 }
 
+// A variant that throws and also returns the narrowed value for convenience.
+export function ensureIsNotUndefined<T>(
+  value: T | undefined,
+  message?: string,
+): T {
+  assertIsNotUndefined(value, message);
+  return value;
+}
+
 export function assertIsString(
   value: unknown,
   message?: string,
@@ -68,7 +79,7 @@ export function assertIsNumber(
 export function assertIsArray(
   value: unknown,
   message?: string,
-): asserts value is number {
+): asserts value is any[] {
   if (!Array.isArray(value)) {
     throw new Error(message || `Expected array, got ${typeof value}`);
   }

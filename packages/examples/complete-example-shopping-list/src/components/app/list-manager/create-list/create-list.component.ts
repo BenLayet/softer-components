@@ -5,7 +5,6 @@ import {
   ExtractComponentValuesContract,
   Selectors,
 } from "@softer-components/types";
-import { not, or } from "@softer-components/utils";
 
 import { List } from "../../../../model";
 import { ListService } from "../../../../port/list.service";
@@ -22,6 +21,13 @@ const initialState = {
 type State = typeof initialState;
 
 //selectors
+export const not = <T = any>(predicate: (value: T) => boolean) => {
+  return (value: T) => !predicate(value);
+};
+export const or = <T = any>(...predicates: Array<(value: T) => boolean>) => {
+  return (value: T) => predicates.some(predicate => predicate(value));
+};
+
 const listName = (state: State) => state.listName.trim();
 const hasNameRequiredError = (state: State) => listName(state) === "";
 const hasSaveFailedError = (state: State) => state.hasSaveFailed;
@@ -65,11 +71,12 @@ type ListSelectEvents = ComponentEventsContract<
   }
 >;
 
-// Events type declaration
+// Effect declaration
 type EffectsContract = {
   createNewListRequested: ["createNewListSucceeded", "createNewListFailed"];
 };
 
+// Contract definition
 type Contract = {
   values: ExtractComponentValuesContract<typeof selectors>;
   events: ListSelectEvents;

@@ -5,6 +5,7 @@ import {
 } from "@reduxjs/toolkit";
 import { ComponentContract, ComponentDef } from "@softer-components/types";
 import {
+  ContextEventManager,
   EffectsManager,
   GlobalEvent,
   StateManager,
@@ -31,9 +32,15 @@ export type SofterStore = ReturnType<typeof configureStore> & {
 };
 type ReduxEffect = (action: any, listenerApi: any) => void;
 
-export function createSofterStoreConfiguration(rootComponentDef: ComponentDef) {
+export function createSofterStoreConfiguration<T extends ComponentContract>(
+  rootComponentDef: ComponentDef<T>,
+) {
   const softerViewModel = new SofterApplicationViewModel(rootComponentDef);
   const stateManager = softerViewModel.stateManager;
+  const contextEventManager = new ContextEventManager(
+    rootComponentDef,
+    stateManager,
+  );
   const initialGlobalState = initializeGlobalState(
     rootComponentDef,
     stateManager,
@@ -48,6 +55,7 @@ export function createSofterStoreConfiguration(rootComponentDef: ComponentDef) {
     rootComponentDef,
     stateManager,
     effectsManager,
+    contextEventManager,
   );
 
   const softerMiddleware = createSofterMiddleware(eventProcessor);
@@ -82,8 +90,8 @@ export function configureSofterStore<T extends ComponentContract>(
     softerViewModel: config.softerViewModel,
   };
 }
-function initializeGlobalState(
-  rootComponentDef: ComponentDef,
+function initializeGlobalState<T extends ComponentContract>(
+  rootComponentDef: ComponentDef<T>,
   stateManager: StateManager,
 ) {
   const globalState = addSofterRootTree({});
@@ -94,9 +102,9 @@ function initializeGlobalState(
   );
   return globalState;
 }
-function createSofterReducer(
+function createSofterReducer<T extends ComponentContract>(
   initialGlobalState: {},
-  rootComponentDef: ComponentDef,
+  rootComponentDef: ComponentDef<T>,
   stateManager: StateManager,
 ) {
   return createReducer(initialGlobalState, (builder: any) => {
@@ -118,10 +126,11 @@ function createSofterReducer(
 }
 
 const softerEventProcessor =
-  (
-    rootComponentDef: ComponentDef,
+  <T extends ComponentContract>(
+    rootComponentDef: ComponentDef<T>,
     stateReader: StateReader,
-    effectsManager: EffectsManager<any>,
+    effectsManager: EffectsManager<T>,
+    contextEventManager: ContextEventManager<T>,
   ) =>
   (action: any, listenerApi: any) => {
     if (!isSofterEvent(action)) {
@@ -136,9 +145,10 @@ const softerEventProcessor =
     // create the next events chain
     const nextEvents = generateEventsToForward(
       softerRootState,
-      rootComponentDef,
+      rootComponentDef as ComponentDef,
       event,
       stateReader,
+      contextEventManager,
     );
     nextEvents.forEach(dispatchEvent);
 

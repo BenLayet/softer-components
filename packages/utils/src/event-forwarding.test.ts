@@ -1,6 +1,7 @@
 import { ComponentDef } from "@softer-components/types";
 import { describe, expect, it, vi } from "vitest";
 
+import { ContextEventManager } from "./context-event-manager";
 import { generateEventsToForward } from "./event-forwarding";
 import {
   FORWARDED_FROM_CHILD_TO_PARENT,
@@ -28,6 +29,8 @@ describe("event forwarding tests", () => {
     };
     const stateManager = {} as StateManager;
     stateManager.getChildrenKeys = vi.fn().mockReturnValue({});
+    const contextEventManager = {} as ContextEventManager;
+    contextEventManager.generateEvents = vi.fn().mockReturnValue([]);
 
     // WHEN
     const result = generateEventsToForward(
@@ -35,6 +38,7 @@ describe("event forwarding tests", () => {
       componentDef,
       event,
       stateManager,
+      contextEventManager,
     );
 
     // THEN
@@ -74,6 +78,8 @@ describe("event forwarding tests", () => {
     stateManager.getChildrenKeys = vi
       .fn()
       .mockImplementation(path => (path.length === 0 ? { child: ["0"] } : {}));
+    const contextEventManager = {} as ContextEventManager;
+    contextEventManager.generateEvents = vi.fn().mockReturnValue([]);
 
     // WHEN
     const result = generateEventsToForward(
@@ -81,6 +87,7 @@ describe("event forwarding tests", () => {
       componentDef,
       event,
       stateManager,
+      contextEventManager,
     );
 
     // THEN
@@ -121,6 +128,8 @@ describe("event forwarding tests", () => {
     stateManager.getChildrenKeys = vi
       .fn()
       .mockImplementation(path => (path.length === 0 ? { child: ["0"] } : {}));
+    const contextEventManager = {} as ContextEventManager;
+    contextEventManager.generateEvents = vi.fn().mockReturnValue([]);
 
     // WHEN
     const result = generateEventsToForward(
@@ -128,6 +137,7 @@ describe("event forwarding tests", () => {
       componentDef,
       event,
       stateManager,
+      contextEventManager,
     );
 
     // THEN
@@ -192,13 +202,16 @@ describe("event forwarding tests", () => {
         const stateManager = {} as StateManager;
         stateManager.selectValue = vi.fn().mockReturnValue(isPassing);
         stateManager.getChildrenKeys = vi.fn().mockReturnValue({});
+        const contextEventManager = {} as ContextEventManager;
+        contextEventManager.generateEvents = vi.fn().mockReturnValue([]);
 
         // WHEN
         const result = generateEventsToForward(
           {},
-          componentDef,
+          componentDef as ComponentDef,
           event,
           stateManager,
+          contextEventManager,
         );
 
         // THEN
@@ -238,13 +251,16 @@ describe("event forwarding tests", () => {
     const stateManager = {} as StateManager;
     stateManager.selectValue = vi.fn().mockReturnValue(42);
     stateManager.getChildrenKeys = vi.fn().mockReturnValue({});
-    // WHEN
+    const contextEventManager = {} as ContextEventManager;
+    contextEventManager.generateEvents = vi.fn().mockReturnValue([]);
 
+    // WHEN
     const result = generateEventsToForward(
       {},
-      componentDef,
+      componentDef as ComponentDef,
       event,
       stateManager,
+      contextEventManager,
     );
 
     // THEN
@@ -284,14 +300,16 @@ describe("event forwarding tests", () => {
     };
     const stateManager = {} as StateManager;
     stateManager.getChildrenKeys = vi.fn().mockReturnValue({});
+    const contextEventManager = {} as ContextEventManager;
+    contextEventManager.generateEvents = vi.fn().mockReturnValue([]);
 
     // WHEN
-
     const result = generateEventsToForward(
       {},
       componentDef,
       event,
       stateManager,
+      contextEventManager,
     );
 
     // THEN

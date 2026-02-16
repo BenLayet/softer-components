@@ -95,6 +95,7 @@ const effects: (dependencies: Dependencies) => Effects<Contract> = ({
       saveSucceeded();
     } catch (e: any) {
       saveFailed(e.message);
+      console.error(e);
     }
   },
 });

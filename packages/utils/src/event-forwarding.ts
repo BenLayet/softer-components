@@ -1,14 +1,24 @@
-import { ComponentDef, FromEventToChildEvent } from "@softer-components/types";
+import {
+  ComponentContract,
+  ComponentDef,
+  FromEventToChildEvent,
+} from "@softer-components/types";
 
-import { findComponentDef } from "./component-def-tree";
-import { eventConsumerContextProvider } from "./event-consumer-context";
+import { findComponentDefFromStatePath } from "./component-def-tree";
+import { ContextEventManager } from "./context-event-manager";
+import { eventConsumerInputProvider } from "./event-consumer";
 import {
   FORWARDED_FROM_CHILD_TO_PARENT,
   FORWARDED_FROM_PARENT_TO_CHILD,
   FORWARDED_INTERNALLY,
+  FORWARDED_TO_CONTEXT,
   GlobalEvent,
 } from "./global-event";
-import { assertIsNotUndefined } from "./predicate.functions";
+import { computeRelativePath } from "./path";
+import {
+  assertIsNotUndefined,
+  ensureIsNotUndefined,
+} from "./predicate.functions";
 import { RelativePathStateReader } from "./relative-path-state-manager";
 import { SofterRootState } from "./state-initializer";
 import { StateReader } from "./state-manager";
@@ -21,6 +31,7 @@ export function generateEventsToForward(
   rootComponentDef: ComponentDef,
   triggeringEvent: GlobalEvent,
   absoluteStateReader: StateReader,
+  contextEventManager: ContextEventManager,
 ) {
   const result: GlobalEvent[] = [];
   const stateReader = new RelativePathStateReader(
@@ -29,18 +40,13 @@ export function generateEventsToForward(
     triggeringEvent.statePath || [],
   );
 
-  const componentDef = findComponentDef(
-    rootComponentDef,
-    triggeringEvent.statePath,
-  );
-
   result.push(
-    ...generateEventsToChildren(componentDef, triggeringEvent, stateReader),
+    ...generateEventsToChildren(rootComponentDef, triggeringEvent, stateReader),
   );
 
   result.push(
     ...generateEventsFromOwnComponent(
-      componentDef,
+      rootComponentDef,
       triggeringEvent,
       stateReader,
     ),
@@ -49,15 +55,24 @@ export function generateEventsToForward(
   result.push(
     ...generateEventsToParent(rootComponentDef, triggeringEvent, stateReader),
   );
-
+  result.push(
+    ...generateEventsToContext(rootComponentDef, triggeringEvent, stateReader),
+  );
+  result.push(
+    ...contextEventManager.generateEvents(softerRootState, triggeringEvent),
+  );
   return result;
 }
 
 function generateEventsFromOwnComponent(
-  componentDef: ComponentDef,
+  rootComponentDef: ComponentDef,
   triggeringEvent: GlobalEvent,
   stateReader: RelativePathStateReader,
 ): GlobalEvent[] {
+  const componentDef = findComponentDefFromStatePath(
+    rootComponentDef,
+    triggeringEvent.statePath,
+  );
   const forwarders = (componentDef.eventForwarders ?? []).filter(
     forwarder => forwarder.from === triggeringEvent.name,
   );
@@ -66,8 +81,8 @@ function generateEventsFromOwnComponent(
     return [];
   }
 
-  const eventContext = eventConsumerContextProvider(
-    componentDef,
+  const eventConsumerInput = eventConsumerInputProvider(
+    rootComponentDef,
     triggeringEvent,
     stateReader,
   );
@@ -75,20 +90,20 @@ function generateEventsFromOwnComponent(
   return forwarders
     .filter(
       forwarder =>
-        !forwarder.onCondition || forwarder.onCondition(eventContext()),
+        !forwarder.onCondition || forwarder.onCondition(eventConsumerInput()),
     )
     .map((forwarder: any) => ({
       name: forwarder.to,
       statePath: triggeringEvent.statePath,
       payload: forwarder.withPayload
-        ? forwarder.withPayload(eventContext())
+        ? forwarder.withPayload(eventConsumerInput())
         : triggeringEvent.payload,
       source: FORWARDED_INTERNALLY,
     }));
 }
 
-function generateEventsToParent(
-  rootComponentDef: ComponentDef,
+function generateEventsToParent<T extends ComponentContract>(
+  rootComponentDef: ComponentDef<T>,
   triggeringEvent: GlobalEvent,
   stateReader: RelativePathStateReader,
 ): GlobalEvent[] {
@@ -97,7 +112,7 @@ function generateEventsToParent(
   }
 
   const parentComponentPath = triggeringEvent.statePath.slice(0, -1);
-  const parentComponentDef = findComponentDef(
+  const parentComponentDef = findComponentDefFromStatePath(
     rootComponentDef,
     parentComponentPath,
   );
@@ -112,31 +127,36 @@ function generateEventsToParent(
   if (!childListeners || childListeners.length === 0) {
     return [];
   }
-  const eventContext = eventConsumerContextProvider(
-    parentComponentDef,
+  const eventConsumerInput = eventConsumerInputProvider(
+    rootComponentDef as ComponentDef,
     triggeringEvent,
     stateReader.parentStateReader(),
   );
 
   return childListeners
     .filter(
-      listener => !listener.onCondition || listener.onCondition(eventContext()),
+      listener =>
+        !listener.onCondition || listener.onCondition(eventConsumerInput()),
     )
     .map((listener: any) => ({
       name: listener.to,
       statePath: parentComponentPath,
       payload: listener.withPayload
-        ? listener.withPayload(eventContext())
+        ? listener.withPayload(eventConsumerInput())
         : triggeringEvent.payload,
       source: FORWARDED_FROM_CHILD_TO_PARENT,
     }));
 }
 
 function generateEventsToChildren(
-  componentDef: ComponentDef,
+  rootComponentDef: ComponentDef,
   triggeringEvent: GlobalEvent,
   stateReader: RelativePathStateReader,
 ): GlobalEvent[] {
+  const componentDef = findComponentDefFromStatePath(
+    rootComponentDef,
+    triggeringEvent.statePath,
+  );
   const childrenCommands = Object.entries(
     componentDef.childrenConfig ?? {},
   ).flatMap(([childName, childConfig]) =>
@@ -151,8 +171,8 @@ function generateEventsToChildren(
   if (childrenCommands.length === 0) {
     return [];
   }
-  const eventContext = eventConsumerContextProvider(
-    componentDef,
+  const eventConsumerInput = eventConsumerInputProvider(
+    rootComponentDef,
     triggeringEvent,
     stateReader,
   );
@@ -160,31 +180,67 @@ function generateEventsToChildren(
   return childrenCommands
     .filter(
       ({ command }) =>
-        !command.onCondition || command.onCondition(eventContext()),
+        !command.onCondition || command.onCondition(eventConsumerInput()),
     )
     .flatMap(({ childName, command }) =>
       (command.toKeys
-        ? command.toKeys(eventContext())
+        ? command.toKeys(eventConsumerInput())
         : // default to all children
-          stateReader.getChildrenKeys()[childName]
+          (stateReader.getChildrenKeys()[childName] as string[])
       ).map(childKey => ({ childName, command, childKey })),
     )
-    .map(
-      ({
-        childName,
-        command,
-        childKey,
-      }: {
-        childName: string;
-        childKey: string;
-        command: any;
-      }) => ({
-        name: command.to,
-        statePath: [...triggeringEvent.statePath, [childName, childKey]],
-        payload: command.withPayload
-          ? command.withPayload({ ...eventContext(), childKey })
-          : triggeringEvent.payload,
-        source: FORWARDED_FROM_PARENT_TO_CHILD,
-      }),
-    );
+    .map(({ childName, command, childKey }) => ({
+      name: command.to,
+      statePath: [...triggeringEvent.statePath, [childName, childKey]],
+      payload: command.withPayload
+        ? (command as any).withPayload({ ...eventConsumerInput(), childKey })
+        : triggeringEvent.payload,
+      source: FORWARDED_FROM_PARENT_TO_CHILD,
+    }));
+}
+
+function generateEventsToContext(
+  rootComponentDef: ComponentDef,
+  triggeringEvent: GlobalEvent,
+  stateReader: RelativePathStateReader,
+): GlobalEvent[] {
+  const componentDef = findComponentDefFromStatePath(
+    rootComponentDef,
+    triggeringEvent.statePath,
+  );
+  const contextCommands = Object.entries(
+    componentDef.contextsConfig ?? {},
+  ).flatMap(([contextName, contextConfig]) =>
+    (contextConfig?.commands ?? [])
+      .filter(command => command.from === triggeringEvent.name)
+      .map(command => ({
+        contextName,
+        command: command as FromEventToChildEvent<any, true, any, any>,
+      })),
+  );
+
+  if (contextCommands.length === 0) {
+    return [];
+  }
+  const eventConsumerInput = eventConsumerInputProvider(
+    rootComponentDef,
+    triggeringEvent,
+    stateReader,
+  );
+  return contextCommands
+    .filter(
+      ({ command }) =>
+        !command.onCondition || command.onCondition(eventConsumerInput()),
+    )
+    .map(({ contextName, command }) => ({
+      name: command.to,
+      statePath: computeRelativePath(
+        triggeringEvent.statePath,
+        ensureIsNotUndefined(componentDef.contextDefs?.[contextName]),
+      ),
+      payload: command.withPayload
+        ? (command as any).withPayload({ ...eventConsumerInput() })
+        : triggeringEvent.payload,
+      source: FORWARDED_TO_CONTEXT,
+    }));
 }

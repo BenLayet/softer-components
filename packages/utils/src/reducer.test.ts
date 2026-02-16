@@ -1,7 +1,6 @@
 import {
   ComponentDef,
   ComponentEventsContract,
-  ExtractComponentChildrenContract,
   ExtractComponentValuesContract,
   Selectors,
 } from "@softer-components/types";
@@ -408,11 +407,11 @@ type ListContract = {
   state: ListState;
   values: ExtractComponentValuesContract<typeof listSelectors>;
   events: ListEvents;
-  children: ExtractComponentChildrenContract<typeof childrenComponents> & {
-    items: { isCollection: true };
+  children: {
+    items: ItemContract & { isCollection: true };
   };
 };
-const listDef: ComponentDef<ListContract> = {
+const listDef: ComponentDef<ListContract, ListState> = {
   initialState,
   selectors: listSelectors,
   uiEvents: ["nextItemNameChanged", "addItemRequested"],

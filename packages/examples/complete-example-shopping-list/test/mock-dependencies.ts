@@ -1,5 +1,6 @@
 import { AppDependencies } from "../src/components/app/app.component";
 import { List } from "../src/model";
+import { AuthenticationService } from "../src/port/authentication.service";
 import { ListService } from "../src/port/list.service";
 
 class MockListService implements ListService {
@@ -38,6 +39,36 @@ class MockListService implements ListService {
   }
 }
 
-export const mockDependencies = (savedList: List[]): AppDependencies => ({
+class MockAuthenticationService implements AuthenticationService {
+  private authenticatedUserIndex = -1;
+  constructor(
+    private readonly users: { username: string; password: string }[],
+  ) {}
+  signIn(username: string, password: string): Promise<boolean> {
+    this.authenticatedUserIndex = this.users.findIndex(
+      user => user.username === username && user.password === password,
+    );
+    return this.isSignedIn();
+  }
+  signOut(): Promise<void> {
+    this.authenticatedUserIndex = -1;
+    return Promise.resolve();
+  }
+  isSignedIn(): Promise<boolean> {
+    return Promise.resolve(this.authenticatedUserIndex > -1);
+  }
+  async username(): Promise<string | undefined> {
+    const isSignedIn = await this.isSignedIn();
+    return isSignedIn
+      ? this.users[this.authenticatedUserIndex].username
+      : undefined;
+  }
+}
+
+export const mockDependencies = (
+  savedList: List[],
+  users = [{ username: "alice", password: "demo" }],
+): AppDependencies => ({
   listService: new MockListService(savedList),
+  authenticationService: new MockAuthenticationService(users),
 });
