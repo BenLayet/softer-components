@@ -17,8 +17,8 @@
       "import": "./lib/index.js"
     },
     "./test-utilities": {
-      "types": "./lib/test-utilities/index.d.ts",
-      "import": "./lib/test-utilities/index.js"
+      "types": "./lib/test-utilities.d.ts",
+      "import": "./lib/test-utilities.js"
     }
   },
   "scripts": {
