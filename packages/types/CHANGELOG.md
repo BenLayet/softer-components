@@ -1,5 +1,11 @@
 # @softer-components/types
 
+## 0.6.1
+
+### Patch Changes
+
+- 02df225: fixes test-utilities exports
+
 ## 0.6.0
 
 ### Minor Changes
