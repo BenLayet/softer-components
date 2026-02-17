@@ -1,5 +1,14 @@
 # @softer-components/redux-adapter
 
+## 0.6.1
+
+### Patch Changes
+
+- 02df225: fixes test-utilities exports
+- Updated dependencies [02df225]
+  - @softer-components/types@0.6.1
+  - @softer-components/utils@0.6.1
+
 ## 0.6.0
 
 ### Minor Changes
