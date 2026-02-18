@@ -405,7 +405,7 @@ type ListContract = {
   values: ExtractComponentValuesContract<typeof listSelectors>;
   events: ListEvents;
   children: {
-    items: ItemContract & { isCollection: true };
+    items: ItemContract & { type: "collection" };
   };
 };
 const listDef: ComponentDef<ListContract, ListState> = {

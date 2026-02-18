@@ -1,15 +1,11 @@
 import { useSofter } from "@softer-components/redux-adapter";
-import { useEffect } from "react";
 
 import { CreateList } from "./create-list/CreateList";
-import { ListManagerContract } from "./list-manager.component";
+import { Contract } from "./list-manager.component.contract";
 import { Lists } from "./lists/Lists";
 
 export const ListManager = ({ path = "" }) => {
-  const [v, d, c] = useSofter<ListManagerContract>(path);
-  useEffect(() => {
-    d.displayed();
-  }, [d]);
+  const [v, _, c] = useSofter<Contract>(path);
   return (
     <div>
       {v.hasAnyList && (

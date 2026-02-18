@@ -116,7 +116,7 @@ describe("useSofter with memoization", () => {
       values: { activeItemCount: number };
       events: { setFilter: { payload: string } };
       children: {
-        itemRows: ItemContract & { isCollection: true };
+        itemRows: ItemContract & { type: "collection" };
       };
     };
 

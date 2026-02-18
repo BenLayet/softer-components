@@ -14,9 +14,10 @@ export type EventsContract<
 };
 
 export type ChildInstanceContract =
-  | { isOptional?: false; isCollection?: false }
-  | { isCollection: true; isOptional?: false }
-  | { isOptional: true; isCollection?: false }; // allows for type narrowing
+  | {}
+  | {
+      type: "unique" | "optional" | "collection"; // default to "unique"
+    };
 
 export type ChildrenContract = Record<
   string,

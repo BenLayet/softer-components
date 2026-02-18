@@ -1,4 +1,3 @@
-import { ComponentDef } from "./component-def";
 import { Selectors } from "./selectors";
 
 /***************************************************************************************************************
@@ -8,19 +7,10 @@ export type ExtractComponentValuesContract<
   TSelectors extends Selectors<any, any, any>,
 > = {
   [SelectorName in keyof TSelectors]: TSelectors[SelectorName] extends (
-    state: any,
-    children: any,
+    _: any,
+    __: any,
+    ___: any,
   ) => infer TResult
     ? TResult
-    : never;
-};
-
-export type ExtractComponentChildrenContract<
-  TChildren extends Record<string, ComponentDef>,
-> = {
-  [ChildName in keyof TChildren]: TChildren[ChildName] extends ComponentDef<
-    infer TComponentContract
-  >
-    ? TComponentContract
     : never;
 };

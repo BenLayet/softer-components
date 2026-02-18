@@ -23,7 +23,7 @@ type ExtractSingleChildrenPaths<
   TChildrenContract extends Record<string, ComponentContract>,
 > = {
   [K in keyof TChildrenContract]: TChildrenContract[K] extends {
-    isOptional: true;
+    type: "optional";
   }
     ? string | undefined
     : string;

@@ -8,6 +8,27 @@ export const SignInForm = ({ path = "" }) => {
     <div>
       <div style={{ margin: "2em" }}>
         <a onClick={() => d.signInCancelled()}>👋 Try app without signing in</a>
+        <p>Demo users :</p>
+        <ul>
+          <li>
+            <a
+              onClick={() =>
+                d.demoUserClicked({ username: "alice", password: "demo" })
+              }
+            >
+              alice/demo
+            </a>
+          </li>
+          <li>
+            <a
+              onClick={() =>
+                d.demoUserClicked({ username: "bob", password: "demo" })
+              }
+            >
+              bob/demo
+            </a>
+          </li>
+        </ul>
       </div>
       <form
         onSubmit={e => {
@@ -23,16 +44,16 @@ export const SignInForm = ({ path = "" }) => {
           placeholder="Username"
           onChange={e => d.usernameChanged(e.target.value)}
           autoComplete="off"
+          value={v.username}
         />
-        <p className="hint">Use either 'alice' or 'bob'</p>
         <label>Password</label>
         <input
           type="text"
           placeholder="Password"
           onChange={e => d.passwordChanged(e.target.value)}
           autoComplete="off"
+          value={v.password}
         />
-        <p className="hint">Use 'demo'</p>
         <div>
           <button type="submit">🚀 Sign In</button>
         </div>

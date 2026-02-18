@@ -1,10 +1,12 @@
 import { GlobalEvent, stringToStatePath } from "@softer-components/utils";
 
-export const CREATE_LIST = "/listManager/createList";
-export const LIST = "/list";
-export const FIRST_ITEM = "/list/itemRows:0";
-export const USER_MENU = "/userMenu";
-export const SIGN_IN_FORM = "/signInForm";
+export const LIST_MANAGER = `/listManager`;
+export const CREATE_LIST = `${LIST_MANAGER}/createList`;
+export const LISTS = `${LIST_MANAGER}/lists`;
+export const LIST = `/list`;
+export const FIRST_ITEM = `${LIST}/itemRows:0`;
+export const USER_MENU = `/userMenu`;
+export const SIGN_IN_FORM = `/signInForm`;
 
 export const USER_SETS_LIST_NAME = (name: string): GlobalEvent[] => [
   {

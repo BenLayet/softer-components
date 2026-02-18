@@ -1,10 +1,10 @@
 import {
-  ChildConfig,
   ChildrenComponentDefs,
   ChildrenConfig,
   ChildrenInstancesDefs,
 } from "./children";
-import { ComponentContract } from "./component-contract";
+import { ComponentContract, ContextContract } from "./component-contract";
+import { ContextsConfig } from "./context";
 import { Effects } from "./effects";
 import { InternalEventForwarders } from "./event-forwarder";
 import { Selectors } from "./selectors";
@@ -52,17 +52,12 @@ export type ComponentDef<
   EffectsPart<TComponentContract>;
 
 type ContextPart<TComponentContract extends ComponentContract = any> =
-  TComponentContract["context"] extends Record<string, ComponentContract>
+  TComponentContract extends { context: ContextContract }
     ? {
         contextDefs: {
           [K in keyof TComponentContract["context"]]: string;
         };
-        contextsConfig?: {
-          [K in keyof TComponentContract["context"]]?: ChildConfig<
-            TComponentContract,
-            TComponentContract["context"][K]
-          >;
-        };
+        contextsConfig?: ContextsConfig<TComponentContract>;
       }
     : {
         contextDefs?: never;

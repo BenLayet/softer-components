@@ -29,7 +29,7 @@
       "@softer-components/utils": ["../../utils/src"],
       "@softer-components/utils/test-utilities": [
         "../../utils/src/test-utilities"
-      ]
+      ],
     }
   },
   "include": ["src", "test"]

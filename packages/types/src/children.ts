@@ -10,11 +10,11 @@ import {
  ***************************************************************************************************************/
 type ChildInstancesDef<TCollectionContract extends ChildInstanceContract> =
   TCollectionContract extends {
-    isCollection: true;
+    type: "collection";
   }
     ? string[]
     : TCollectionContract extends {
-          isOptional: true;
+          type: "optional";
         }
       ? boolean | undefined
       : never;
@@ -68,7 +68,7 @@ export type CommandsDef<
   TChildContract extends ComponentContract & ChildInstanceContract,
 > = FromEventContractToChildEventContract<
   TParentContract,
-  TChildContract["isCollection"] extends true ? true : false,
+  TChildContract extends { type: "collection" } ? true : false,
   TParentContract["events"], //from parent
   TChildContract["events"] //to child
 >[];

@@ -31,7 +31,7 @@ export type ChildrenValues<
     Record<string, ComponentContract>,
 > = {
   [ChildName in keyof TChildren]: TChildren[ChildName] extends {
-    isCollection: true;
+    type: "collection";
   }
     ? {
         [ChildKey: string]: Values<TChildren[ChildName]>;
@@ -39,7 +39,7 @@ export type ChildrenValues<
     :
         | Values<TChildren[ChildName]>
         | (TChildren[ChildName] extends {
-            isOptional: true;
+            type: "optional";
           }
             ? undefined
             : never);
