@@ -1,7 +1,7 @@
 /// <reference types="vitest" />
 import { describe, expect, it } from "vitest";
 
-import { normalizePath } from "./path";
+import { normalizePath, stringToStatePath } from "./path";
 
 describe("normalizeContextPath", () => {
   it("resolves .. and . in absolute paths", () => {
@@ -21,5 +21,12 @@ describe("normalizeContextPath", () => {
   it("root and empty", () => {
     expect(normalizePath("/")).toBe("/");
     expect(normalizePath("")).toBe("");
+  });
+});
+
+describe("stringToStatePath", () => {
+  it("should create empty path from empty string", () => {
+    const result = stringToStatePath("");
+    expect(result).toEqual([]);
   });
 });

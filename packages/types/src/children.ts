@@ -1,4 +1,5 @@
 import { ChildInstanceContract, ComponentContract } from "./component-contract";
+import { ComponentDef } from "./component-def";
 import {
   FromEventContractToChildEventContract,
   FromEventContractToEventContract,
@@ -84,3 +85,18 @@ export type ChildConfig<
   TChildContract extends ComponentContract & ChildInstanceContract,
 > = WithChildListeners<TParentContract, TChildContract> &
   WithChildCommands<TParentContract, TChildContract>;
+
+export type ChildrenConfig<TComponentContract extends ComponentContract = any> =
+  {
+    [K in keyof TComponentContract["children"]]?: ChildConfig<
+      TComponentContract,
+      TComponentContract["children"][K]
+    >;
+  };
+export type ChildrenComponentDefs<
+  TComponentContract extends ComponentContract = any,
+> = {
+  [K in keyof TComponentContract["children"]]: ComponentDef<
+    Omit<TComponentContract["children"][K], "isCollection" | "isOptional">
+  >;
+};
