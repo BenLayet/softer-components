@@ -1,6 +1,6 @@
 import {
   ComponentDef,
-  ComponentEventsContract,
+  EventsContract,
   ExtractComponentValuesContract,
   Selectors,
 } from "@softer-components/types";
@@ -41,7 +41,7 @@ type eventNames =
   | "listSelected"
   | "listNamesChanged";
 
-type ListSelectEvents = ComponentEventsContract<
+type ListSelectEvents = EventsContract<
   eventNames,
   {
     emptyListCreated: List;

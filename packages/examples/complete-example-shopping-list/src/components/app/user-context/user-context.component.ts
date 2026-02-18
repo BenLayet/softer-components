@@ -1,7 +1,7 @@
 import {
   ComponentDef,
-  ComponentEventsContract,
   Effects,
+  EventsContract,
   ExtractComponentValuesContract,
   Selectors,
 } from "@softer-components/types";
@@ -33,12 +33,8 @@ type eventNames =
   | "signInFailed"
   | "authenticated";
 
-type EffectsContract = {
-  signInRequested: ["signInSucceeded", "signInFailed"];
-  signOutRequested: ["signOutSucceeded"];
-};
 type Contract = {
-  events: ComponentEventsContract<
+  events: EventsContract<
     eventNames,
     {
       signInFailed: AppError;
@@ -49,15 +45,14 @@ type Contract = {
   >;
   children: {};
   values: ExtractComponentValuesContract<typeof selectors>;
-  effects: EffectsContract;
 };
 type Dependencies = {
   authenticationService: AuthenticationService;
 };
 // Component definition
-const effects: (dependencies: Dependencies) => Effects<Contract> = ({
+const effects = ({
   authenticationService,
-}) => ({
+}: Dependencies): Effects<Contract> => ({
   signInRequested: async (
     { signInSucceeded, signInFailed },
     { payload: { username, password } },

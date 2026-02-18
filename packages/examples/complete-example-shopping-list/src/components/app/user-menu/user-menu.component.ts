@@ -1,6 +1,6 @@
 import {
   ComponentDef,
-  ComponentEventsContract,
+  EventsContract,
   ExtractComponentValuesContract,
   Selectors,
 } from "@softer-components/types";
@@ -14,13 +14,13 @@ type eventNames =
   | "signOutRequested"
   | "signOutSucceeded"
   | "signInRequested";
-type AppEvents = ComponentEventsContract<
+type AppEvents = EventsContract<
   eventNames,
   { authenticated: { username: string } }
 >;
 
 // Selectors
-type RequiredContext = {
+type Context = {
   userContext: UserContextContract;
 };
 const selectors = {
@@ -29,13 +29,13 @@ const selectors = {
   isAnonymous: (_, __, { userContext }) =>
     !userContext.values.isAuthenticated(),
   username: (_, __, { userContext }) => userContext.values.username(),
-} satisfies Selectors<{}, {}, RequiredContext>;
+} satisfies Selectors<{}, {}, Context>;
 
 type Contract = {
   events: AppEvents;
   children: {};
   values: ExtractComponentValuesContract<typeof selectors>;
-  requiredContext: RequiredContext;
+  context: Context;
 };
 // Component definition
 const componentDef = ({

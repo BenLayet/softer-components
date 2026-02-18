@@ -1,7 +1,7 @@
 import {
   ComponentDef,
-  ComponentEventsContract,
   Effects,
+  EventsContract,
   ExtractComponentValuesContract,
   Selectors,
 } from "@softer-components/types";
@@ -59,7 +59,7 @@ type eventNames =
   | "createNewListFailed"
   | "setExistingListNames";
 
-type ListSelectEvents = ComponentEventsContract<
+type ListSelectEvents = EventsContract<
   eventNames,
   {
     setExistingListNames: string[];
@@ -71,24 +71,17 @@ type ListSelectEvents = ComponentEventsContract<
   }
 >;
 
-// Effect declaration
-type EffectsContract = {
-  createNewListRequested: ["createNewListSucceeded", "createNewListFailed"];
-};
-
 // Contract definition
 type Contract = {
   values: ExtractComponentValuesContract<typeof selectors>;
   events: ListSelectEvents;
   children: {};
-  effects: EffectsContract;
 };
+//Effects definition
 type Dependencies = {
   listService: ListService;
 };
-const effects: (dependencies: Dependencies) => Effects<Contract> = ({
-  listService,
-}) => ({
+const effects = ({ listService }: Dependencies): Effects<Contract> => ({
   createNewListRequested: async (
     { createNewListSucceeded, createNewListFailed },
     { payload: name },

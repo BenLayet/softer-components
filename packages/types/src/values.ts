@@ -14,7 +14,7 @@ export type Values<
   /** Child component values - access nested component values here */
   childrenValues: ChildrenValues<TComponentContract["children"]>;
   /** Context component values */
-  contextsValues: ContextsValues<TComponentContract["requiredContext"]>;
+  contextsValues: ContextsValues<TComponentContract["context"]>;
 };
 
 export type ContextsValues<

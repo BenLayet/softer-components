@@ -1,7 +1,4 @@
-import {
-  ComponentDef,
-  ComponentEventsContract,
-} from "@softer-components/types";
+import { ComponentDef, EventsContract } from "@softer-components/types";
 import { emptyContext } from "@softer-components/utils";
 
 import { List } from "../../model";
@@ -29,7 +26,7 @@ type eventNames =
   | "authenticated"
   | "anonymousChoiceMade"
   | "signInRequested";
-type AppEvents = ComponentEventsContract<
+type AppEvents = EventsContract<
   eventNames,
   { listSelected: List; authenticated: { username: string } }
 >;

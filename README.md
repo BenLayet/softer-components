@@ -550,7 +550,7 @@ softer-components/
 type ComponentContract = {
   state: OptionalValue;
   values: ComponentValuesContract;
-  events: ComponentEventsContract;
+  events: EventsContract;
   children: ComponentChildrenContract;
 };
 ```

@@ -1,6 +1,6 @@
 import {
   ComponentDef,
-  ComponentEventsContract,
+  EventsContract,
   ExtractComponentValuesContract,
   Selectors,
 } from "@softer-components/types";
@@ -322,10 +322,7 @@ type ItemEventName =
   | "removeRequested"
   | "initialize";
 
-type ItemEvents = ComponentEventsContract<
-  ItemEventName,
-  { initialize: string }
->;
+type ItemEvents = EventsContract<ItemEventName, { initialize: string }>;
 
 const selectors = {
   name: state => state.name,
@@ -382,7 +379,7 @@ type ListEventName =
   | "resetItemNameRequested"
   | "removeItemRequested"
   | "newItemSubmitted";
-type ListEvents = ComponentEventsContract<
+type ListEvents = EventsContract<
   ListEventName,
   {
     nextItemNameChanged: string;

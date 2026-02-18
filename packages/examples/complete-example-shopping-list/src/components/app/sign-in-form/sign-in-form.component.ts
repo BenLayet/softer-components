@@ -1,6 +1,6 @@
 import {
   ComponentDef,
-  ComponentEventsContract,
+  EventsContract,
   ExtractComponentValuesContract,
   Selectors,
 } from "@softer-components/types";
@@ -38,7 +38,7 @@ type eventNames =
   | "signInFailed";
 
 type Contract = {
-  events: ComponentEventsContract<
+  events: EventsContract<
     eventNames,
     {
       usernameChanged: string;
@@ -48,7 +48,7 @@ type Contract = {
     }
   >;
   children: {};
-  requiredContext: {
+  context: {
     userContext: UserContextContract;
   };
   values: ExtractComponentValuesContract<typeof selectors>;

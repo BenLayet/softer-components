@@ -38,7 +38,7 @@ export type ComponentDef<
   readonly selectors?: Selectors<
     TState,
     TComponentContract["children"],
-    TComponentContract["requiredContext"]
+    TComponentContract["context"]
   >;
   readonly uiEvents?: UiEvents<TComponentContract>;
   readonly updaters?: Updaters<TComponentContract, TState>;
@@ -48,26 +48,19 @@ export type ComponentDef<
     TComponentContract["children"]
   >;
   readonly childrenConfig?: ChildrenConfig<TComponentContract>;
-  readonly effects?: Effects<TComponentContract>;
-} & ContextPart<TComponentContract>;
-
-export type EffectsDef<TEventNames extends string> = {
-  [TEventName in TEventNames]?: TEventNames[];
-};
+} & ContextPart<TComponentContract> &
+  EffectsPart<TComponentContract>;
 
 type ContextPart<TComponentContract extends ComponentContract = any> =
-  TComponentContract["requiredContext"] extends Record<
-    string,
-    ComponentContract
-  >
+  TComponentContract["context"] extends Record<string, ComponentContract>
     ? {
         contextDefs: {
-          [K in keyof TComponentContract["requiredContext"]]: string;
+          [K in keyof TComponentContract["context"]]: string;
         };
         contextsConfig?: {
-          [K in keyof TComponentContract["requiredContext"]]?: ChildConfig<
+          [K in keyof TComponentContract["context"]]?: ChildConfig<
             TComponentContract,
-            TComponentContract["requiredContext"][K]
+            TComponentContract["context"][K]
           >;
         };
       }
@@ -75,3 +68,7 @@ type ContextPart<TComponentContract extends ComponentContract = any> =
         contextDefs?: never;
         contextsConfig?: never;
       };
+
+type EffectsPart<TComponentContract extends ComponentContract> = {
+  effects?: Effects<TComponentContract>;
+};

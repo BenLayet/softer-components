@@ -1,14 +1,10 @@
-import { EffectsDef } from "./component-def";
 import { Payload } from "./event";
 
-export type ComponentValuesContract = { [SelectorName in string]: any };
+export type ValuesContract = { [SelectorName in string]: any };
 
-export type ComponentEventsContract<
+export type EventsContract<
   TEventNames extends string = string, // expect union
-  TPayloads extends { [EventName in TEventNames]?: Payload } = Record<
-    TEventNames,
-    undefined
-  >,
+  TPayloads extends { [EventName in TEventNames]?: Payload } = any,
 > = {
   [TEventName in TEventNames]: {
     payload: TPayloads[TEventName] extends infer TPayload extends Payload
@@ -22,17 +18,19 @@ export type ChildInstanceContract =
   | { isCollection: true; isOptional?: false }
   | { isOptional: true; isCollection?: false }; // allows for type narrowing
 
+export type ChildrenContract = Record<
+  string,
+  ComponentContract & ChildInstanceContract
+>;
+export type ContextContract = Record<string, ComponentContract>;
+
 /**
  * Contract of a component: defines how the component can be used by the UI and by other components
  *
  */
-export type ComponentContract<TEventNames extends string = string> = {
-  values: ComponentValuesContract;
-  events: ComponentEventsContract<
-    TEventNames,
-    { [EventName in TEventNames]?: Payload }
-  >;
-  children: Record<string, ComponentContract & ChildInstanceContract>;
-  requiredContext?: Record<string, ComponentContract>;
-  effects?: EffectsDef<TEventNames>;
+export type ComponentContract = {
+  values: ValuesContract;
+  events: EventsContract;
+  children: ChildrenContract;
+  context?: ContextContract;
 };

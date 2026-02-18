@@ -1,7 +1,7 @@
 import {
   ComponentDef,
-  ComponentEventsContract,
   Effects,
+  EventsContract,
   ExtractComponentValuesContract,
   Selectors,
 } from "@softer-components/types";
@@ -22,7 +22,7 @@ type State = {
 };
 
 // Events
-type eventNames =
+type EventNames =
   | "initialize"
   | "goBackClicked"
   | "nextItemNameChanged"
@@ -36,8 +36,8 @@ type eventNames =
   | "saveSucceeded"
   | "saveFailed";
 
-type Events = ComponentEventsContract<
-  eventNames,
+type Events = EventsContract<
+  EventNames,
   {
     initialize: List;
     nextItemNameChanged: string;
@@ -50,10 +50,6 @@ type Events = ComponentEventsContract<
 >;
 
 // Effects
-type EffectsContract = {
-  saveRequested: ["saveSucceeded", "saveFailed"];
-};
-
 type Children = { itemRows: ItemRowContract & { isCollection: true } };
 const listSelectors = {
   id: state => state.id,
@@ -79,16 +75,13 @@ type Contract = {
   values: ExtractComponentValuesContract<typeof listSelectors>;
   events: Events;
   children: Children;
-  effects: EffectsContract;
 };
 
 //Effects definition
 type Dependencies = {
   listService: ListService;
 };
-const effects: (dependencies: Dependencies) => Effects<Contract> = ({
-  listService,
-}) => ({
+const effects = ({ listService }: Dependencies): Effects<Contract> => ({
   saveRequested: async ({ saveSucceeded, saveFailed }, { values }) => {
     try {
       await listService.save(values.list());

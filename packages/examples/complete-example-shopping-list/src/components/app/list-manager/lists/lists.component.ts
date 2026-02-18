@@ -1,7 +1,7 @@
 import {
   ComponentDef,
-  ComponentEventsContract,
   Effects,
+  EventsContract,
   ExtractComponentValuesContract,
   Selectors,
 } from "@softer-components/types";
@@ -44,7 +44,7 @@ type eventNames =
   | "deleteRequested"
   | "deleteSucceeded"
   | "deleteFailed";
-type Events = ComponentEventsContract<
+type Events = EventsContract<
   eventNames,
   {
     fetchSucceeded: List[];
@@ -58,30 +58,21 @@ type Events = ComponentEventsContract<
   }
 >;
 
-// Effects definition
-type EffectsContract = {
-  fetchRequested: ["fetchSucceeded", "fetchFailed"];
-  deleteRequested: ["deleteSucceeded", "deleteFailed"];
-};
-
 // Contract definition
 type Contract = {
   state: typeof initialState;
   values: ExtractComponentValuesContract<typeof selectors>;
   events: Events;
   children: {};
-  effects: EffectsContract;
-  requiredContext: {
+  context: {
     userContext: UserContextContract;
   };
 };
-//effects
+// Effects definition
 type Dependencies = {
   listService: ListService;
 };
-const effects: (dependencies: Dependencies) => Effects<ListsContract> = ({
-  listService,
-}) => ({
+const effects = ({ listService }: Dependencies): Effects<ListsContract> => ({
   fetchRequested: async ({ fetchSucceeded, fetchFailed }) => {
     try {
       const allLists = await listService.getAll();

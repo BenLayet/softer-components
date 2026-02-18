@@ -1,7 +1,4 @@
-import {
-  ComponentContract,
-  ComponentEventsContract,
-} from "./component-contract";
+import { ComponentContract, EventsContract } from "./component-contract";
 import { Event, Payload } from "./event";
 import { Values } from "./values";
 
@@ -94,8 +91,8 @@ export type FromEventToChildEvent<
 export type FromEventContractToChildEventContract<
   TComponentContract extends ComponentContract,
   TIsDestinationACollection extends boolean | undefined,
-  TFromEvents extends ComponentEventsContract,
-  TToEvents extends ComponentEventsContract,
+  TFromEvents extends EventsContract,
+  TToEvents extends EventsContract,
 > = {
   [TFromEventName in keyof TFromEvents]: {
     [TToEventName in keyof TToEvents]: FromEventToChildEvent<
@@ -115,8 +112,8 @@ export type FromEventContractToChildEventContract<
 
 export type FromEventContractToEventContract<
   TComponentContract extends ComponentContract,
-  TFromEvents extends ComponentEventsContract,
-  TToEvents extends ComponentEventsContract,
+  TFromEvents extends EventsContract,
+  TToEvents extends EventsContract,
 > = {
   [TFromEventName in keyof TFromEvents]: {
     [TToEventName in keyof TToEvents]: FromEventToEvent<

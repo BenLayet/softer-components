@@ -1,15 +1,13 @@
 import {
   ComponentContract,
-  ComponentEventsContract,
-  ComponentValuesContract,
+  EventsContract,
+  ValuesContract,
 } from "@softer-components/types";
 import { useDispatch, useSelector, useStore } from "react-redux";
 
 import { SofterStore } from "./softer-store";
 
-type EventsContractToUiDispatchers<
-  TEventsContract extends ComponentEventsContract,
-> = {
+type EventsContractToUiDispatchers<TEventsContract extends EventsContract> = {
   [K in keyof TEventsContract &
     string]: TEventsContract[K]["payload"] extends undefined
     ? () => void
@@ -31,9 +29,7 @@ type ExtractSingleChildrenPaths<
     : string;
 };
 
-export const useSofterSelectors = <
-  TValueContract extends ComponentValuesContract,
->(
+export const useSofterSelectors = <TValueContract extends ValuesContract>(
   pathStr: string,
 ): TValueContract => {
   const store = useStore() as SofterStore;
@@ -43,9 +39,7 @@ export const useSofterSelectors = <
   ) as TValueContract;
 };
 
-export const useSofterEvents = <
-  TEventsContract extends ComponentEventsContract,
->(
+export const useSofterEvents = <TEventsContract extends EventsContract>(
   pathStr: string,
 ): EventsContractToUiDispatchers<TEventsContract> => {
   const store = useStore() as SofterStore;
