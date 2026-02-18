@@ -1,4 +1,9 @@
-import { ChildConfig, ChildrenInstancesDefs } from "./children";
+import {
+  ChildConfig,
+  ChildrenComponentDefs,
+  ChildrenConfig,
+  ChildrenInstancesDefs,
+} from "./children";
 import { ComponentContract } from "./component-contract";
 import { Effects } from "./effects";
 import { InternalEventForwarders } from "./event-forwarder";
@@ -6,20 +11,7 @@ import { Selectors } from "./selectors";
 import { State } from "./state";
 import { Values } from "./values";
 
-export type ChildrenComponentDefs<
-  TComponentContract extends ComponentContract = any,
-> = {
-  [K in keyof TComponentContract["children"]]: ComponentDef<
-    Omit<TComponentContract["children"][K], "isCollection" | "isOptional">
-  >;
-};
-type ChildrenConfig<TComponentContract extends ComponentContract = any> = {
-  [K in keyof TComponentContract["children"]]?: ChildConfig<
-    TComponentContract,
-    TComponentContract["children"][K]
-  >;
-};
-type Updaters<
+export type Updaters<
   TComponentContract extends ComponentContract = any,
   TState extends State = any,
 > = {
@@ -31,7 +23,7 @@ type Updaters<
     },
   ) => void | TState;
 };
-type UiEvents<TComponentContract extends ComponentContract = any> =
+export type UiEvents<TComponentContract extends ComponentContract = any> =
   (keyof TComponentContract["events"] & string)[];
 
 /**
@@ -42,19 +34,21 @@ export type ComponentDef<
   TComponentContract extends ComponentContract = any,
   TState extends State = any,
 > = {
-  initialState?: TState;
-  selectors?: Selectors<
+  readonly initialState?: TState;
+  readonly selectors?: Selectors<
     TState,
     TComponentContract["children"],
     TComponentContract["requiredContext"]
   >;
-  uiEvents?: UiEvents<TComponentContract>;
-  updaters?: Updaters<TComponentContract, TState>;
-  eventForwarders?: InternalEventForwarders<TComponentContract>;
-  childrenComponentDefs?: ChildrenComponentDefs<TComponentContract>;
-  initialChildren?: ChildrenInstancesDefs<TComponentContract["children"]>;
-  childrenConfig?: ChildrenConfig<TComponentContract>;
-  effects?: Effects<TComponentContract>;
+  readonly uiEvents?: UiEvents<TComponentContract>;
+  readonly updaters?: Updaters<TComponentContract, TState>;
+  readonly eventForwarders?: InternalEventForwarders<TComponentContract>;
+  readonly childrenComponentDefs?: ChildrenComponentDefs<TComponentContract>;
+  readonly initialChildren?: ChildrenInstancesDefs<
+    TComponentContract["children"]
+  >;
+  readonly childrenConfig?: ChildrenConfig<TComponentContract>;
+  readonly effects?: Effects<TComponentContract>;
 } & ContextPart<TComponentContract>;
 
 export type EffectsDef<TEventNames extends string> = {

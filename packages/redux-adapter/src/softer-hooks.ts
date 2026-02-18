@@ -24,7 +24,11 @@ type ExtractChildrenPaths<
 type ExtractSingleChildrenPaths<
   TChildrenContract extends Record<string, ComponentContract>,
 > = {
-  [K in keyof TChildrenContract]: string | undefined;
+  [K in keyof TChildrenContract]: TChildrenContract[K] extends {
+    isOptional: true;
+  }
+    ? string | undefined
+    : string;
 };
 
 export const useSofterSelectors = <
