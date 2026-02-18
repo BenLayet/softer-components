@@ -1,13 +1,7 @@
-import {
-  ExtractComponentValuesContract,
-  Selectors,
-} from "@softer-components/types";
+import { ExtractComponentValuesContract } from "@softer-components/types";
+import { createBaseSelectors } from "@softer-components/utils";
 
-import { State } from "./user-context.component.state";
+import { initialState } from "./user-context.component.state";
 
-export const selectors = {
-  username: (state: State) => state.username,
-  isAuthenticated: (state: State) => state.isAuthenticated,
-  isProcessing: (state: State) => state.isProcessing,
-} satisfies Selectors<State>;
+export const selectors = createBaseSelectors(initialState);
 export type Values = ExtractComponentValuesContract<typeof selectors>;

@@ -1,10 +1,10 @@
 import { Selectors } from "@softer-components/types";
+import { createBaseSelectors } from "@softer-components/utils";
 
-import { State } from "./sign-in-form.component.state";
+import { State, initialState } from "./sign-in-form.component.state";
 
 export const selectors = {
-  username: (state: State) => state.username,
-  password: (state: State) => state.password,
+  ...createBaseSelectors(initialState),
   hasInvalidCredentialError: (state: State) =>
     state.errors.map(e => e.type).includes("invalid credentials"),
   hasNetworkError: (state: State) =>

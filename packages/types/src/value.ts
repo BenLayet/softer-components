@@ -3,7 +3,7 @@ type Value =
   | number
   | boolean
   | null
-  | { readonly [key: string]: Value }
+  | { readonly [key: string]: OptionalValue }
   | readonly Value[];
 
 export type OptionalValue = Value | undefined;

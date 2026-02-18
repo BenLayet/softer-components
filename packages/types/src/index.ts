@@ -1,4 +1,5 @@
 export * from "./values";
+export * from "./value";
 export * from "./state";
 export * from "./selectors";
 export * from "./event";
