@@ -5,11 +5,9 @@ import {
   ExtractComponentValuesContract,
   Selectors,
 } from "@softer-components/types";
-import { SofterContext } from "@softer-components/utils";
 
 import { List, ListId } from "../../../../model";
 import { ListService } from "../../../../port/list.service";
-import { UserContextContract } from "../../user-context/user-context.component";
 
 // Initial state definition
 type Error = "FETCH_ERROR" | "DELETE_ERROR";
@@ -64,9 +62,6 @@ type Contract = {
   values: ExtractComponentValuesContract<typeof selectors>;
   events: Events;
   children: {};
-  context: {
-    userContext: UserContextContract;
-  };
 };
 // Effects definition
 type Dependencies = {
@@ -97,9 +92,7 @@ const effects = ({ listService }: Dependencies): Effects<ListsContract> => ({
 // Component definition
 const componentDef = ({
   dependencies,
-  context,
 }: {
-  context: SofterContext<{ userContext: UserContextContract }>;
   dependencies: Dependencies;
 }): ComponentDef<Contract, State> => ({
   initialState,
@@ -161,19 +154,6 @@ const componentDef = ({
     },
   ],
   effects: effects(dependencies),
-  contextDefs: {
-    userContext: context.getContextPath<UserContextContract>("userContext"),
-  },
-  contextsConfig: {
-    userContext: {
-      listeners: [
-        {
-          from: "signOutSucceeded",
-          to: "fetchRequested",
-        },
-      ],
-    },
-  },
 });
 
 // Exports

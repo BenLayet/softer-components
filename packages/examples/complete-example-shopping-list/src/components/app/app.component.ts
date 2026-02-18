@@ -69,6 +69,7 @@ const componentDef = (dependencies: Dependencies): ComponentDef<Contract> => {
         children.signInForm = false;
         children.listManager = true;
         children.userMenu = true;
+        children.list = false;
       },
       signInRequested: ({ children }) => {
         children.signInForm = true;
@@ -108,7 +109,10 @@ const componentDef = (dependencies: Dependencies): ComponentDef<Contract> => {
         ],
       },
       userContext: {
-        listeners: [{ from: "signInSucceeded", to: "authenticated" }],
+        listeners: [
+          { from: "signInSucceeded", to: "authenticated" },
+          { from: "signOutSucceeded", to: "anonymousChoiceMade" },
+        ],
       },
     },
     childrenComponentDefs: {
