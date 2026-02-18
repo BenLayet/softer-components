@@ -8,7 +8,7 @@ import { uiEvents } from "./app.component.events";
 import { childrenConfig } from "./app.component.forwarders";
 import { selectors } from "./app.component.selectors";
 import { State, initialState } from "./app.component.state";
-import { updaters } from "./app.component.updaters";
+import { stateUpdaters } from "./app.component.updaters";
 import { listDef } from "./list";
 import { listManagerDef } from "./list-manager";
 import { signInFormComponentDef } from "./sign-in-form";
@@ -30,7 +30,7 @@ export const componentDef = (
     initialState,
     selectors,
     uiEvents,
-    updaters,
+    stateUpdaters,
     childrenConfig,
     childrenComponentDefs: {
       userContext: userContextDef(dependencies),

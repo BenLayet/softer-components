@@ -1,9 +1,9 @@
-import { Updaters } from "@softer-components/types";
+import { StateUpdaters } from "@softer-components/types";
 
 import { Contract } from "./create-list.component.contract";
 import { State } from "./create-list.component.state";
 
-export const updaters: Updaters<Contract, State> = {
+export const stateUpdaters: StateUpdaters<Contract, State> = {
   setExistingListNames: ({ payload: existingListNames, state }) => {
     state.existingListNames = existingListNames;
   },

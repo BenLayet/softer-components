@@ -50,19 +50,28 @@ function updateStateOfComponentOfEvent<T extends ComponentContract = any>(
     rootComponentDef,
     event.statePath,
   );
-  const updater = componentDef.updaters?.[event.name];
-  if (!updater) return;
+  updateState(rootComponentDef, componentDef, stateManager, event);
+  updateChildrenInstances(rootComponentDef, componentDef, stateManager, event);
+}
 
-  const { values, children, childrenValues, state, payload, contextsValues } =
+function updateState<T>(
+  rootComponentDef: ComponentDef,
+  componentDef: ComponentDef,
+  stateManager: RelativePathStateManager,
+  event: GlobalEvent,
+) {
+  const stateUpdater = componentDef.stateUpdaters?.[event.name];
+  if (!stateUpdater) return;
+
+  const { values, childrenValues, state, payload, contextsValues } =
     prepareUpdaterParams(rootComponentDef as ComponentDef, event, stateManager);
 
-  const next = produce({ state, children }, (draft: any) => {
-    const returnedValue = updater({
+  const next = produce({ state }, (draft: any) => {
+    const returnedValue = stateUpdater({
       values,
       childrenValues,
       contextsValues,
       payload,
-      children: draft.children,
       state: draft.state,
     });
 
@@ -73,11 +82,37 @@ function updateStateOfComponentOfEvent<T extends ComponentContract = any>(
 
   // update own state
   stateManager.updateState(next.state);
+}
+
+function updateChildrenInstances<T>(
+  rootComponentDef: ComponentDef,
+  componentDef: ComponentDef,
+  stateManager: RelativePathStateManager,
+  event: GlobalEvent,
+) {
+  const childrenUpdater = componentDef.childrenUpdaters?.[event.name];
+  if (!childrenUpdater) return;
+
+  const { values, children, childrenValues, payload, contextsValues } =
+    prepareUpdaterParams(rootComponentDef as ComponentDef, event, stateManager);
+
+  const next = produce({ children }, (draft: any) => {
+    const returnedValue = childrenUpdater({
+      values,
+      childrenValues,
+      contextsValues,
+      payload,
+      children: draft.children,
+    });
+
+    if (isNotUndefined(returnedValue)) {
+      draft.children = returnedValue;
+    }
+  });
 
   // update children state
   updateChildrenState(componentDef, children, next.children, stateManager);
 }
-
 /**
  * Prepare updater parameters from the component definition and state, recursively
  */

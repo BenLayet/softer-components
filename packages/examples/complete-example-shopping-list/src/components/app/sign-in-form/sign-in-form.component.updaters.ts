@@ -1,9 +1,9 @@
-import { Updaters } from "@softer-components/types";
+import { StateUpdaters } from "@softer-components/types";
 
 import { Contract } from "./sign-in-form.component.contract";
 import { State } from "./sign-in-form.component.state";
 
-export const updaters: Updaters<Contract, State> = {
+export const stateUpdaters: StateUpdaters<Contract, State> = {
   usernameChanged: ({ state, payload: username }) => {
     state.username = username;
   },

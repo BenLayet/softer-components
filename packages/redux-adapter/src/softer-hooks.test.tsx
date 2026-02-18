@@ -24,7 +24,7 @@ describe("useSofter with memoization", () => {
         tripled: state => state.count * 3,
       },
       uiEvents: ["incrementRequested"],
-      updaters: {
+      stateUpdaters: {
         incrementRequested: ({ state }) => {
           state.count += 1;
         },
@@ -69,7 +69,7 @@ describe("useSofter with memoization", () => {
         doubled: state => state.count * 2,
       },
       uiEvents: ["increment"],
-      updaters: {
+      stateUpdaters: {
         increment: ({ state }) => {
           state.count += 1;
         },
@@ -133,7 +133,7 @@ describe("useSofter with memoization", () => {
         activeItemCount: () => 0, // Would count from children
       },
       uiEvents: ["setFilter"],
-      updaters: {
+      stateUpdaters: {
         setFilter: ({ state, payload }) => {
           state.filter = payload;
         },

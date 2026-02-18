@@ -1,11 +1,10 @@
-import { Updaters } from "@softer-components/types";
+import { ChildrenUpdaters, StateUpdaters } from "@softer-components/types";
 
 import { Contract } from "./list.component.contract";
 import { State } from "./list.component.state";
 
-export const updaters: Updaters<Contract, State> = {
-  initialize: ({ payload: list, children }) => {
-    children.itemRows = list.listItems.map(listItem => `${listItem.item.id}`);
+export const stateUpdaters: StateUpdaters<Contract, State> = {
+  initialize: ({ payload: list }) => {
     return {
       id: list.id,
       name: list.name,
@@ -20,12 +19,6 @@ export const updaters: Updaters<Contract, State> = {
   resetNextItemNameRequested: ({ state }) => {
     state.nextItemName = "";
   },
-  createItemRequested: ({ children: { itemRows }, payload: listItem }) => {
-    itemRows.push(`${listItem.item.id}`);
-  },
-  removeItemRequested: ({ children: { itemRows }, payload: idToRemove }) => {
-    itemRows.splice(itemRows.indexOf(`${idToRemove}`), 1);
-  },
   saveRequested: ({ state }) => {
     state.isSaving = true;
     state.errors = {};
@@ -37,5 +30,17 @@ export const updaters: Updaters<Contract, State> = {
   saveSucceeded: ({ state }) => {
     state.isSaving = false;
     state.errors = {};
+  },
+};
+
+export const childrenUpdaters: ChildrenUpdaters<Contract> = {
+  initialize: ({ payload: list, children }) => {
+    children.itemRows = list.listItems.map(listItem => `${listItem.item.id}`);
+  },
+  createItemRequested: ({ children: { itemRows }, payload: listItem }) => {
+    itemRows.push(`${listItem.item.id}`);
+  },
+  removeItemRequested: ({ children: { itemRows }, payload: idToRemove }) => {
+    itemRows.splice(itemRows.indexOf(`${idToRemove}`), 1);
   },
 };

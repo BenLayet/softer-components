@@ -7,7 +7,7 @@ import { uiEvents } from "./list.component.events";
 import { eventForwarders } from "./list.component.forwarders";
 import { selectors } from "./list.component.selectors";
 import { State } from "./list.component.state";
-import { updaters } from "./list.component.updaters";
+import { childrenUpdaters, stateUpdaters } from "./list.component.updaters";
 
 export type Dependencies = EffectsDependencies;
 
@@ -17,7 +17,8 @@ const componentDef = (
   return {
     selectors,
     uiEvents,
-    updaters,
+    stateUpdaters,
+    childrenUpdaters,
     eventForwarders,
     childrenComponentDefs: {
       itemRows: itemRowDef(),

@@ -7,7 +7,7 @@ import { EffectsDependencies, effects } from "./lists.component.effects";
 import { contextsConfig, eventForwarders } from "./lists.component.forwarders";
 import { selectors } from "./lists.component.selectors";
 import { State, initialState } from "./lists.component.state";
-import { updaters } from "./lists.component.updaters";
+import { stateUpdaters } from "./lists.component.updaters";
 
 export const componentDef = ({
   dependencies,
@@ -19,7 +19,7 @@ export const componentDef = ({
   initialState,
   selectors,
   uiEvents: ["listClicked", "deleteClicked"],
-  updaters,
+  stateUpdaters,
   eventForwarders,
   effects: effects(dependencies),
   contextDefs: {

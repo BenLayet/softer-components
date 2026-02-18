@@ -1,9 +1,9 @@
-import { Updaters } from "@softer-components/types";
+import { StateUpdaters } from "@softer-components/types";
 
 import { Contract } from "./user-context.component.contract";
 import { State } from "./user-context.component.state";
 
-export const updaters: Updaters<Contract, State> = {
+export const stateUpdaters: StateUpdaters<Contract, State> = {
   signInRequested: ({ state }) => {
     state.isProcessing = true;
   },

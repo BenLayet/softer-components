@@ -21,7 +21,7 @@ export const counterDef: ComponentDef<CounterContract, State> = {
   initialState,
   selectors: createBaseSelectors(initialState),
   uiEvents: ["decrementRequested", "incrementRequested"],
-  updaters: {
+  stateUpdaters: {
     incrementRequested: ({ state }) => {
       state.count++;
     },

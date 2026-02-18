@@ -7,7 +7,6 @@ import {
   findSubTree,
 } from "./state-tree";
 
-
 describe("findSubTree", () => {
   it("returns root ", () => {
     const global = { [OWN_VALUE_KEY]: {} };

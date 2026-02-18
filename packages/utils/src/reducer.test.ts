@@ -23,7 +23,7 @@ describe("reducer tests", () => {
       children: {};
     }> = {
       initialState,
-      updaters: {
+      stateUpdaters: {
         incrementRequested: ({ state }) => {
           state.count++;
         },
@@ -63,7 +63,7 @@ describe("reducer tests", () => {
       children: {};
     }> = {
       initialState,
-      updaters: {
+      stateUpdaters: {
         incrementRequested: ({ state }) => {
           state.count++;
         },
@@ -340,7 +340,7 @@ export type ItemContract = {
 const itemDef: ComponentDef<ItemContract> = {
   selectors,
   uiEvents: ["incrementQuantityRequested", "decrementQuantityRequested"],
-  updaters: {
+  stateUpdaters: {
     initialize: ({ payload: name }) => ({
       name: name,
       quantity: 1,
@@ -412,20 +412,20 @@ const listDef: ComponentDef<ListContract, ListState> = {
   initialState,
   selectors: listSelectors,
   uiEvents: ["nextItemNameChanged", "addItemRequested"],
-  updaters: {
+  stateUpdaters: {
     nextItemNameChanged: ({ state, payload: nextItemName }) => {
       state.nextItemName = nextItemName;
     },
     addItemRequested: ({ state }) => {
       state.nextItemName = "";
     },
-    createItemRequested: ({
-      children: { items },
-      payload: { itemId },
-      state,
-    }) => {
-      items.push(`${itemId}`);
+    createItemRequested: ({ payload: { itemId }, state }) => {
       state.lastItemId = itemId;
+    },
+  },
+  childrenUpdaters: {
+    createItemRequested: ({ children: { items }, payload: { itemId } }) => {
+      items.push(`${itemId}`);
     },
     removeItemRequested: ({ children: { items }, payload: idToRemove }) => {
       items.splice(items.indexOf(`${idToRemove}`), 1);
