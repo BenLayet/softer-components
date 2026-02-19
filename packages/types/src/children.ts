@@ -1,4 +1,8 @@
-import { ChildInstanceContract, ComponentContract } from "./component-contract";
+import {
+  ChildInstanceContract,
+  ChildrenContract,
+  ComponentContract,
+} from "./component-contract";
 import { ComponentDef } from "./component-def";
 import {
   FromEventContractToChildEventContract,
@@ -18,14 +22,13 @@ type ChildInstancesDef<TCollectionContract extends ChildInstanceContract> =
         }
       ? boolean | undefined
       : never;
-
 export type ChildrenInstancesDefs<
-  TChildrenContract extends Record<string, ChildInstanceContract>,
-> = MakeUndefinedOrNeverOptional<{
-  [ChildName in keyof TChildrenContract]: ChildInstancesDef<
-    TChildrenContract[ChildName]
-  >;
-}>;
+  TChildren extends ChildrenContract | undefined = undefined,
+> = TChildren extends ChildrenContract
+  ? MakeUndefinedOrNeverOptional<{
+      [ChildName in keyof TChildren]: ChildInstancesDef<TChildren[ChildName]>;
+    }>
+  : never;
 type MakeUndefinedOrNeverOptional<T> = {
   // Keys where the property type is `never` are omitted (mapped to `never`),
   // keys that include `undefined` become optional with `undefined` excluded.
@@ -87,12 +90,14 @@ export type ChildConfig<
   WithChildCommands<TParentContract, TChildContract>;
 
 export type ChildrenConfig<TComponentContract extends ComponentContract = any> =
-  {
-    [K in keyof TComponentContract["children"]]?: ChildConfig<
-      TComponentContract,
-      TComponentContract["children"][K]
-    >;
-  };
+  TComponentContract["children"] extends ChildrenContract
+    ? {
+        [K in keyof TComponentContract["children"]]?: ChildConfig<
+          TComponentContract,
+          TComponentContract["children"][K]
+        >;
+      }
+    : never;
 export type ChildrenComponentDefs<
   TComponentContract extends ComponentContract = any,
 > = {

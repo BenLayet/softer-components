@@ -14,7 +14,6 @@ type CounterEvents = {
 export type CounterContract = {
   events: CounterEvents;
   values: { count: number };
-  children: {};
 };
 // Component definition
 export const counterDef: ComponentDef<CounterContract, State> = {

@@ -20,20 +20,24 @@ import { RelativePathStateReader } from "./relative-path-state-manager";
  * Create Values provider for a component given its definition and state
  */
 export function createValueProviders<
-  TComponentContract extends ComponentContract = ComponentContract,
+  TComponentContract extends ComponentContract,
 >(
-  rootComponentDef: ComponentDef,
+  rootComponentDef: ComponentDef<TComponentContract>,
   stateReader: RelativePathStateReader,
 ): Values<TComponentContract> {
+  const genericRootComponentDef = rootComponentDef as ComponentDef;
   // Create children's values
-  const childrenValues = createChildrenValues(rootComponentDef, stateReader);
+  const childrenValues = createChildrenValues(
+    genericRootComponentDef,
+    stateReader,
+  );
   assertIsNotUndefined(
     childrenValues,
     "childrenValues should not be undefined",
   );
   // Create contexts' values
   const contextsValues = createContextsValues(
-    rootComponentDef,
+    genericRootComponentDef,
     stateReader,
   ) as ContextsValues;
   assertIsNotUndefined(
@@ -43,7 +47,7 @@ export function createValueProviders<
 
   // Create own values
   const values = createOwnValues(
-    rootComponentDef,
+    genericRootComponentDef,
     stateReader,
     childrenValues,
     contextsValues,

@@ -39,7 +39,7 @@ describe("useSofter with memoization", () => {
     );
 
     const { result, rerender } = renderHook(
-      () => useSofterSelectors<CounterContract["values"]>(""),
+      () => useSofterSelectors<CounterContract>(""),
       { wrapper },
     );
 
@@ -70,6 +70,7 @@ describe("useSofter with memoization", () => {
       },
       uiEvents: ["increment"],
       stateUpdaters: {
+        //ts-ignore
         increment: ({ state }) => {
           state.count += 1;
         },
@@ -104,44 +105,39 @@ describe("useSofter with memoization", () => {
 
   it("should handle filtered lists with memoization", () => {
     // GIVEN a list component with items
+    type ItemState = { name: string };
     type ItemContract = {
-      state: { name: string; active: boolean };
-      values: { displayName: string };
-      events: {};
-      children: {};
+      values: { name: string };
     };
 
+    const itemDef: ComponentDef<ItemContract, ItemState> = {
+      initialState: { name: "test" },
+      selectors: {
+        name: state => state.name,
+      },
+    };
+
+    type ListState = { filter: string };
     type ListContract = {
-      state: { filter: string };
-      values: { activeItemCount: number };
-      events: { setFilter: { payload: string } };
+      state: ListState;
+      values: { filteredItemNames: string[] };
       children: {
         itemRows: ItemContract & { type: "collection" };
       };
     };
 
-    const itemDef: ComponentDef<ItemContract> = {
-      initialState: { name: "", active: true },
+    const listDef: ComponentDef<ListContract, ListState> = {
+      initialState: { filter: "test" },
       selectors: {
-        displayName: state => state.name,
-      },
-    };
-
-    const listDef: ComponentDef<ListContract> = {
-      initialState: { filter: "" },
-      selectors: {
-        activeItemCount: () => 0, // Would count from children
-      },
-      uiEvents: ["setFilter"],
-      stateUpdaters: {
-        setFilter: ({ state, payload }) => {
-          state.filter = payload;
-        },
+        filteredItemNames: (state, childrenValues) =>
+          Object.values(childrenValues.itemRows)
+            .map(item => item.values.name())
+            .filter(name => name.includes(state.filter)),
       },
       childrenComponentDefs: {
         itemRows: itemDef,
       },
-      initialChildren: { itemRows: [] },
+      initialChildren: { itemRows: ["1", "2", "3"] },
     };
 
     const store = configureSofterStore(listDef);
@@ -154,12 +150,20 @@ describe("useSofter with memoization", () => {
       wrapper,
     });
 
-    const [, , initialChildren] = result.current;
+    // THEN
+    //before rerender
+    const initialValues = result.current[0];
+    const initialChildren = result.current[3];
+    expect(initialChildren).toEqual({
+      itemRows: ["/itemRows:1", "/itemRows:2", "/itemRows:3"],
+    });
+    expect(initialValues.filteredItemNames).toEqual(["test", "test", "test"]);
 
-    // Force re-render
+    // WHEN re-rendering without state change
     rerender();
 
     // THEN
-    expect(result.current[2]).toBe(initialChildren); // ✅ Same reference
+    expect(result.current[0]).toBe(initialValues); // ✅ Same reference
+    expect(result.current[3]).toBe(initialChildren); // ✅ Same reference
   });
 });

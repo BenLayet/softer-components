@@ -9,30 +9,8 @@ import { Effects } from "./effects";
 import { InternalEventForwarders } from "./event-forwarder";
 import { Selectors } from "./selectors";
 import { State } from "./state";
-import { Values } from "./values";
+import { ChildrenUpdaters, StateUpdaters } from "./updaters";
 
-export type StateUpdaters<
-  TComponentContract extends ComponentContract = any,
-  TState extends State = any,
-> = {
-  [EventName in keyof TComponentContract["events"]]?: (
-    params: Values<TComponentContract> & {
-      state: TState; //mutable
-      payload: TComponentContract["events"][EventName]["payload"];
-    },
-  ) => void | TState;
-};
-
-export type ChildrenUpdaters<
-  TComponentContract extends ComponentContract = any,
-> = {
-  [EventName in keyof TComponentContract["events"]]?: (
-    params: Values<TComponentContract> & {
-      children: ChildrenInstancesDefs<TComponentContract["children"]>; //mutable
-      payload: TComponentContract["events"][EventName]["payload"];
-    },
-  ) => void | ChildrenInstancesDefs<TComponentContract["children"]>;
-};
 export type UiEvents<TComponentContract extends ComponentContract = any> =
   (keyof TComponentContract["events"] & string)[];
 

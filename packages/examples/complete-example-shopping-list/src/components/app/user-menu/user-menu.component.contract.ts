@@ -3,7 +3,6 @@ import { Context, Values } from "./user-menu.component.selectors";
 
 export type Contract = {
   events: AppEvents;
-  children: {};
   values: Values;
   context: Context;
 };

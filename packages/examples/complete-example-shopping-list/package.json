@@ -14,7 +14,8 @@
     "test": "vitest",
     "test:ci": "vitest run",
     "test-for-debug": "SOFTER_DEBUG=true vitest --testTimeout=100000",
-    "type-check": "tsc -b --noEmit"
+    "type-check": "tsc -b --noEmit",
+    "build": "pnpm type-check && vite build"
   },
   "dependencies": {
     "@reduxjs/toolkit": "^2.6.1",

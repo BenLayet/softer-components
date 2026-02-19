@@ -16,12 +16,12 @@ describe("reducer tests", () => {
     const initialState = { count: 0, name: "test" };
     type MyState = typeof initialState;
 
-    const componentDef: ComponentDef<{
-      state: MyState;
-      events: { incrementRequested: { payload: undefined } };
-      values: {};
-      children: {};
-    }> = {
+    const componentDef: ComponentDef<
+      {
+        events: { incrementRequested: { payload: undefined } };
+      },
+      MyState
+    > = {
       initialState,
       stateUpdaters: {
         incrementRequested: ({ state }) => {
@@ -42,7 +42,12 @@ describe("reducer tests", () => {
     stateManager.updateState = vi.fn();
 
     // WHEN
-    updateSofterRootState({}, componentDef, event, stateManager);
+    updateSofterRootState(
+      {},
+      componentDef as ComponentDef,
+      event,
+      stateManager,
+    );
 
     // THEN
     expect(stateManager.updateState).toHaveBeenCalledWith({}, [], {
@@ -56,12 +61,12 @@ describe("reducer tests", () => {
     const initialState = { count: 0, name: "test" };
     type MyState = typeof initialState;
 
-    const componentDef: ComponentDef<{
-      state: MyState;
-      events: { incrementRequested: { payload: undefined } };
-      values: {};
-      children: {};
-    }> = {
+    const componentDef: ComponentDef<
+      {
+        events: { incrementRequested: { payload: undefined } };
+      },
+      MyState
+    > = {
       initialState,
       stateUpdaters: {
         incrementRequested: ({ state }) => {
@@ -80,7 +85,12 @@ describe("reducer tests", () => {
     stateManager.createState = vi.fn();
 
     // WHEN
-    updateSofterRootState({}, componentDef, event, stateManager);
+    updateSofterRootState(
+      {},
+      componentDef as ComponentDef,
+      event,
+      stateManager,
+    );
 
     // THEN
     expect(stateManager.updateState).toBeCalledTimes(0);
@@ -290,7 +300,12 @@ describe("reducer tests", () => {
         stateManager.reorderChildStates = vi.fn();
 
         // WHEN
-        updateSofterRootState({}, listDef, event as GlobalEvent, stateManager);
+        updateSofterRootState(
+          {},
+          listDef as ComponentDef,
+          event as GlobalEvent,
+          stateManager,
+        );
 
         // THEN
         Object.entries(expectedCalls).forEach(([method, callsArgs]) =>

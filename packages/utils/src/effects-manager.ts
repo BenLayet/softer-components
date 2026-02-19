@@ -1,4 +1,4 @@
-import { ComponentContract, ComponentDef } from "@softer-components/types";
+import { ComponentDef } from "@softer-components/types";
 
 import { findComponentDefFromStatePath } from "./component-def-tree";
 import { eventConsumerInputProvider } from "./event-consumer";
@@ -9,9 +9,9 @@ import { RelativePathStateReader } from "./relative-path-state-manager";
 import { SofterRootState } from "./state-initializer";
 import { StateReader } from "./state-manager";
 
-export class EffectsManager<TRootComponentContract extends ComponentContract> {
+export class EffectsManager {
   constructor(
-    private readonly rootComponentDef: ComponentDef<TRootComponentContract>,
+    private readonly rootComponentDef: ComponentDef,
     private readonly stateReader: StateReader,
   ) {}
   eventOccurred(

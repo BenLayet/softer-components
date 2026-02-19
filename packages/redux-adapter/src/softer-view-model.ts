@@ -1,5 +1,5 @@
 import { createSelector } from "@reduxjs/toolkit";
-import { ComponentContract, ComponentDef } from "@softer-components/types";
+import { ComponentDef } from "@softer-components/types";
 import {
   ChildrenKeys,
   INPUTTED_BY_USER,
@@ -52,13 +52,11 @@ export interface SofterViewModel {
 /**
  * Maintains a map of memoized component view models at each path in the global state tree.
  */
-export class SofterApplicationViewModel<
-  T extends ComponentContract,
-> implements SofterViewModel {
+export class SofterApplicationViewModel implements SofterViewModel {
   private readonly componentViewModels: Record<string, ComponentViewModel> = {};
   public readonly stateManager = new TreeStateManager();
 
-  constructor(private readonly rootComponentDef: ComponentDef<T>) {
+  constructor(private readonly rootComponentDef: ComponentDef) {
     this.stateManager.addStateTreeListener({
       onStateRemoved: statePath =>
         delete this.componentViewModels[statePathToString(statePath)],
@@ -163,17 +161,17 @@ export class SofterApplicationViewModel<
         this.rootComponentDef as ComponentDef,
         new RelativePathStateReader(rootState, this.stateManager, statePath),
       );
-      Object.entries(valueProviders.values ?? {}).forEach(
-        ([valueName, valueProvider]) => {
-          Object.defineProperty(values, valueName, {
-            get() {
-              return valueProvider();
-            },
-            enumerable: false,
-            configurable: false,
-          });
-        },
-      );
+      Object.entries(
+        (valueProviders.values ?? {}) as Record<string, () => any>,
+      ).forEach(([valueName, valueProvider]) => {
+        Object.defineProperty(values, valueName, {
+          get() {
+            return valueProvider();
+          },
+          enumerable: false,
+          configurable: false,
+        });
+      });
       return values;
     });
   }

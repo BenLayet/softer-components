@@ -6,7 +6,6 @@ import { selectors } from "./sign-in-form.component.selectors";
 
 export type Contract = {
   events: Events;
-  children: {};
   context: { userContext: UserContextContract };
   values: ExtractComponentValuesContract<typeof selectors>;
 };

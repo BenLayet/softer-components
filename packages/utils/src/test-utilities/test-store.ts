@@ -28,7 +28,9 @@ export class TestStore<TContract extends ComponentContract> {
   private readonly rootState = baseTree(undefined); //mutable in tests
   private readonly testListener: EventProcessorListener | undefined;
   private readonly contextEventManager: ContextEventManager;
-  constructor(private readonly rootComponentDef: ComponentDef<TContract>) {
+  private readonly rootComponentDef: ComponentDef;
+  constructor(rootComponentDef: ComponentDef<TContract>) {
+    this.rootComponentDef = rootComponentDef as ComponentDef;
     this.contextEventManager = new ContextEventManager(
       rootComponentDef as ComponentDef,
       this.stateManager,

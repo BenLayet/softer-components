@@ -5,7 +5,6 @@ import { Values } from "./lists.component.selectors";
 export type Contract = {
   values: Values;
   events: Events;
-  children: {};
   context: {
     userContext: UserContextContract;
   };

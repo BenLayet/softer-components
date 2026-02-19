@@ -35,10 +35,13 @@ type ReduxEffect = (action: any, listenerApi: any) => void;
 export function createSofterStoreConfiguration<T extends ComponentContract>(
   rootComponentDef: ComponentDef<T>,
 ) {
-  const softerViewModel = new SofterApplicationViewModel(rootComponentDef);
+  const genericRootComponentDef = rootComponentDef as ComponentDef;
+  const softerViewModel = new SofterApplicationViewModel(
+    genericRootComponentDef,
+  );
   const stateManager = softerViewModel.stateManager;
   const contextEventManager = new ContextEventManager(
-    rootComponentDef,
+    genericRootComponentDef,
     stateManager,
   );
   const initialGlobalState = initializeGlobalState(
@@ -47,12 +50,15 @@ export function createSofterStoreConfiguration<T extends ComponentContract>(
   );
   const softerReducer = createSofterReducer(
     initialGlobalState,
-    rootComponentDef,
+    genericRootComponentDef,
     stateManager,
   );
-  const effectsManager = new EffectsManager(rootComponentDef, stateManager);
+  const effectsManager = new EffectsManager(
+    genericRootComponentDef,
+    stateManager,
+  );
   const eventProcessor = softerEventProcessor(
-    rootComponentDef,
+    genericRootComponentDef,
     stateManager,
     effectsManager,
     contextEventManager,
@@ -102,9 +108,9 @@ function initializeGlobalState<T extends ComponentContract>(
   );
   return globalState;
 }
-function createSofterReducer<T extends ComponentContract>(
+function createSofterReducer(
   initialGlobalState: {},
-  rootComponentDef: ComponentDef<T>,
+  rootComponentDef: ComponentDef,
   stateManager: StateManager,
 ) {
   return createReducer(initialGlobalState, (builder: any) => {
@@ -126,11 +132,11 @@ function createSofterReducer<T extends ComponentContract>(
 }
 
 const softerEventProcessor =
-  <T extends ComponentContract>(
-    rootComponentDef: ComponentDef<T>,
+  (
+    rootComponentDef: ComponentDef,
     stateReader: StateReader,
-    effectsManager: EffectsManager<T>,
-    contextEventManager: ContextEventManager<T>,
+    effectsManager: EffectsManager,
+    contextEventManager: ContextEventManager,
   ) =>
   (action: any, listenerApi: any) => {
     if (!isSofterEvent(action)) {
@@ -145,7 +151,7 @@ const softerEventProcessor =
     // create the next events chain
     const nextEvents = generateEventsToForward(
       softerRootState,
-      rootComponentDef as ComponentDef,
+      rootComponentDef,
       event,
       stateReader,
       contextEventManager,

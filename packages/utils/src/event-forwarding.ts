@@ -1,8 +1,4 @@
-import {
-  ComponentContract,
-  ComponentDef,
-  FromEventToChildEvent,
-} from "@softer-components/types";
+import { ComponentDef, FromEventToChildEvent } from "@softer-components/types";
 
 import { findComponentDefFromStatePath } from "./component-def-tree";
 import { ContextEventManager } from "./context-event-manager";
@@ -102,8 +98,8 @@ function generateEventsFromOwnComponent(
     }));
 }
 
-function generateEventsToParent<T extends ComponentContract>(
-  rootComponentDef: ComponentDef<T>,
+function generateEventsToParent(
+  rootComponentDef: ComponentDef,
   triggeringEvent: GlobalEvent,
   stateReader: RelativePathStateReader,
 ): GlobalEvent[] {
