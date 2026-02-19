@@ -45,7 +45,7 @@ export function createSofterStoreConfiguration<T extends ComponentContract>(
     stateManager,
   );
   const initialGlobalState = initializeGlobalState(
-    rootComponentDef,
+    genericRootComponentDef,
     stateManager,
   );
   const softerReducer = createSofterReducer(
@@ -96,8 +96,8 @@ export function configureSofterStore<T extends ComponentContract>(
     softerViewModel: config.softerViewModel,
   };
 }
-function initializeGlobalState<T extends ComponentContract>(
-  rootComponentDef: ComponentDef<T>,
+function initializeGlobalState(
+  rootComponentDef: ComponentDef,
   stateManager: StateManager,
 ) {
   const globalState = addSofterRootTree({});

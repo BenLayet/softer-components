@@ -19,8 +19,8 @@ export type UiEvents<TComponentContract extends ComponentContract = any> =
  * @param TComponentContract - Contract of the component.
  */
 export type ComponentDef<
-  TComponentContract extends ComponentContract = any,
-  TState extends State = any,
+  TComponentContract extends ComponentContract = {},
+  TState extends State = undefined,
 > = {
   readonly initialState?: TState;
   readonly selectors?: Selectors<
