@@ -125,7 +125,10 @@ export class SofterApplicationViewModel implements SofterViewModel {
       componentDef,
       "no component definition found at path: " + statePathToString(statePath),
     );
-    const initialChildren = componentDef.initialChildren ?? {};
+    const initialChildren =
+      typeof componentDef.initialChildren === "object"
+        ? componentDef.initialChildren
+        : {};
 
     return createSelector(
       [childrenKeysSelector],
@@ -182,10 +185,14 @@ export class SofterApplicationViewModel implements SofterViewModel {
       statePath,
     );
     let cachedDispatchers: any;
+
+    const uiEvents =
+      typeof componentDef.uiEvents === "object" ? componentDef.uiEvents : [];
+
     return (dispatch: ReduxDispatch) => {
       if (!cachedDispatchers) {
         cachedDispatchers = Object.fromEntries(
-          (componentDef.uiEvents ?? []).map(eventName => {
+          uiEvents.map(eventName => {
             return [
               eventName,
               (payload: any) =>

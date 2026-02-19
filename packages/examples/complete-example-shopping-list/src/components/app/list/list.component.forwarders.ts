@@ -1,4 +1,7 @@
-import { InternalEventForwarders } from "@softer-components/types";
+import {
+  ChildrenConfig,
+  InternalEventForwarders,
+} from "@softer-components/types";
 
 import { Contract } from "./list.component.contract";
 
@@ -53,3 +56,42 @@ export const eventForwarders: InternalEventForwarders<Contract> = [
     to: "saveRequested",
   },
 ];
+export const childrenConfig: ChildrenConfig<Contract> = {
+  itemRows: {
+    commands: [
+      {
+        from: "incrementItemQuantityRequested",
+        to: "incrementRequested",
+        toKeys: ({ payload: id }) => [`${id}`],
+      },
+      {
+        from: "createItemRequested",
+        to: "initialize",
+        toKeys: ({
+          payload: {
+            item: { id },
+          },
+        }) => [`${id}`],
+      },
+      {
+        from: "initialize",
+        to: "initialize",
+        withPayload: ({ childKey, payload: { listItems } }) =>
+          listItems.find(
+            i => i.item.id === parseInt(childKey),
+          ) as import("../../../model").ListItem,
+      },
+    ],
+    listeners: [
+      {
+        from: "removeItemRequested",
+        to: "removeItemRequested",
+        withPayload: ({ childKey }) => parseInt(childKey),
+      },
+      {
+        from: "itemChanged",
+        to: "saveRequested",
+      },
+    ],
+  },
+};

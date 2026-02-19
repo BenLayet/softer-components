@@ -2,6 +2,7 @@ import {
   ChildrenValues,
   ComponentContract,
   ComponentDef,
+  ContextsDef,
   ContextsValues,
   Values,
 } from "@softer-components/types";
@@ -10,10 +11,7 @@ import {
   findComponentDefFromStatePath,
   isCollectionChild,
 } from "./component-def-tree";
-import {
-  assertIsNotUndefined,
-  assertValueIsNotUndefined,
-} from "./predicate.functions";
+import { assertIsNotUndefined } from "./predicate.functions";
 import { RelativePathStateReader } from "./relative-path-state-manager";
 
 /**
@@ -22,7 +20,7 @@ import { RelativePathStateReader } from "./relative-path-state-manager";
 export function createValueProviders<
   TComponentContract extends ComponentContract,
 >(
-  rootComponentDef: ComponentDef<TComponentContract>,
+  rootComponentDef: ComponentDef<TComponentContract, any>,
   stateReader: RelativePathStateReader,
 ): Values<TComponentContract> {
   const genericRootComponentDef = rootComponentDef as ComponentDef;
@@ -102,10 +100,14 @@ function createChildrenValues(
     stateReader.currentPath,
   );
   const childrenKeys = stateReader.getChildrenKeys();
-  assertValueIsNotUndefined({ childrenKeys });
+  assertIsNotUndefined(childrenKeys, "childrenKeys should not be undefined");
+  const childrenComponentDefs = componentDef.childrenComponentDefs;
+  if (typeof childrenComponentDefs !== "object") {
+    return {} as ChildrenValues;
+  }
   return Object.fromEntries(
     Object.entries(childrenKeys).map(([childName, childKeys]) => {
-      const childDef = componentDef.childrenComponentDefs?.[childName];
+      const childDef = childrenComponentDefs[childName];
       assertIsNotUndefined(
         childDef,
         `Child component '${childName}' not found in childrenComponents`,
@@ -154,7 +156,7 @@ export function createContextsValues(
     stateReader.currentPath,
   );
   return Object.fromEntries(
-    Object.entries(componentDef.contextDefs ?? {}).map(
+    Object.entries((componentDef.contextDefs ?? {}) as ContextsDef).map(
       ([contextName, contextRelativePath]) => {
         const stateReaderForContext =
           stateReader.forRelativePath(contextRelativePath);

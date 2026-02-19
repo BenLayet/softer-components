@@ -9,3 +9,9 @@ export type ContextsConfig<
     TComponentContract["context"][K]
   >;
 };
+export type ContextsDef<TComponentContract extends ComponentContract = any> =
+  TComponentContract["context"] extends ContextContract
+    ? {
+        [K in keyof TComponentContract["context"]]: string;
+      }
+    : never;

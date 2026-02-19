@@ -69,7 +69,8 @@ function generateEventsFromOwnComponent(
     rootComponentDef,
     triggeringEvent.statePath,
   );
-  const forwarders = (componentDef.eventForwarders ?? []).filter(
+  if (typeof componentDef.eventForwarders !== "object") return [];
+  const forwarders = componentDef.eventForwarders.filter(
     forwarder => forwarder.from === triggeringEvent.name,
   );
 
@@ -116,7 +117,8 @@ function generateEventsToParent(
     triggeringEvent.statePath[triggeringEvent.statePath.length - 1]?.[0];
   assertIsNotUndefined(childName);
 
-  const childListeners = parentComponentDef.childrenConfig?.[
+  if (typeof parentComponentDef.childrenConfig !== "object") return [];
+  const childListeners = parentComponentDef.childrenConfig[
     childName
   ]?.listeners?.filter(listener => listener.from === triggeringEvent.name);
 
@@ -153,6 +155,8 @@ function generateEventsToChildren(
     rootComponentDef,
     triggeringEvent.statePath,
   );
+
+  if (typeof componentDef.childrenConfig !== "object") return [];
   const childrenCommands = Object.entries(
     componentDef.childrenConfig ?? {},
   ).flatMap(([childName, childConfig]) =>
@@ -204,6 +208,7 @@ function generateEventsToContext(
     rootComponentDef,
     triggeringEvent.statePath,
   );
+  if (typeof componentDef.contextsConfig !== "object") return [];
   const contextCommands = Object.entries(
     componentDef.contextsConfig ?? {},
   ).flatMap(([contextName, contextConfig]) =>

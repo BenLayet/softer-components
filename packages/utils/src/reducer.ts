@@ -60,7 +60,8 @@ function updateState(
   stateManager: RelativePathStateManager,
   event: GlobalEvent,
 ) {
-  const stateUpdater = componentDef.stateUpdaters?.[event.name];
+  if (typeof componentDef.stateUpdaters !== "object") return;
+  const stateUpdater = componentDef.stateUpdaters[event.name];
   if (!stateUpdater) return;
 
   const { values, childrenValues, state, payload, contextsValues } =
@@ -153,9 +154,16 @@ function updateChildrenState(
   desiredChildrenKeys: Record<string, boolean | string[]>,
   stateManager: RelativePathStateManager,
 ) {
+  const childrenComponentDefs = componentDef.childrenComponentDefs;
+  if (typeof childrenComponentDefs !== "object") {
+    return;
+  }
   Object.entries(desiredChildrenKeys).forEach(([childName, desiredKeys]) => {
-    const childDef = componentDef.childrenComponentDefs?.[childName];
-    assertIsNotUndefined(childDef);
+    const childDef = childrenComponentDefs[childName];
+    assertIsNotUndefined(
+      childDef,
+      `Child component '${childName}' not found in childrenComponentDefs`,
+    );
     const previousKeys = previousChildrenKeys[childName];
 
     // Remove the state of deleted keys

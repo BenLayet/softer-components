@@ -1,4 +1,8 @@
-import { ComponentContract, ComponentDef } from "@softer-components/types";
+import {
+  ChildInstancesDef,
+  ChildrenContract,
+  ComponentDef,
+} from "@softer-components/types";
 
 import { SINGLE_CHILD_KEY } from "./path";
 import { RelativePathStateManager } from "./relative-path-state-manager";
@@ -11,9 +15,9 @@ export type SofterRootState = {};
 /**
  * Initialize the complete state from the root component definition
  */
-export function initializeRootState<T extends ComponentContract>(
+export function initializeRootState(
   softerRootState: SofterRootState,
-  rootComponentDef: ComponentDef<T>,
+  rootComponentDef: ComponentDef,
   stateManager: StateManager,
 ) {
   // Initialize the root state, even if undefined
@@ -21,7 +25,7 @@ export function initializeRootState<T extends ComponentContract>(
 
   // Initialize children state
   initializeChildrenState(
-    rootComponentDef as ComponentDef,
+    rootComponentDef,
     new RelativePathStateManager(softerRootState, stateManager, []),
   );
 }
@@ -43,13 +47,20 @@ function initializeChildrenState(
   componentDef: ComponentDef,
   stateManager: RelativePathStateManager,
 ) {
-  Object.entries(componentDef.childrenComponentDefs ?? {}).forEach(
+  if (!componentDef.childrenComponentDefs) return;
+  const componentDefWithChildren = componentDef as ComponentDef<{
+    children: ChildrenContract;
+  }>;
+  const initialChildren = (componentDefWithChildren.initialChildren ??
+    {}) as Record<string, ChildInstancesDef>;
+
+  Object.entries(componentDefWithChildren.childrenComponentDefs).forEach(
     ([childName]) => {
       initializeChildState(
         stateManager,
         componentDef,
         childName,
-        componentDef.initialChildren?.[childName],
+        initialChildren[childName],
       );
     },
   );
@@ -58,14 +69,15 @@ export function initializeChildState(
   stateManager: RelativePathStateManager,
   componentDef: ComponentDef,
   childName: string,
-  keys?: string[] | boolean,
+  keys: string[] | boolean | undefined,
 ) {
   stateManager.initializeChildBranches(childName);
   booleanOrArrayToKeys(keys)
     .map(key => stateManager.childStateManager(childName, key))
     .forEach(childStateManager => {
       initializeStateRecursively(
-        componentDef.childrenComponentDefs?.[childName] ?? {},
+        (componentDef as ComponentDef<{ children: ChildrenContract }>)
+          .childrenComponentDefs?.[childName] ?? {},
         childStateManager,
       );
     });

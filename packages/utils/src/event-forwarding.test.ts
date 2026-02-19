@@ -171,17 +171,16 @@ describe("event forwarding tests", () => {
         isPassing,
       () => {
         // GIVEN
-        const componentDef: ComponentDef<
-          {
-            events: {
-              btnClicked: { payload: undefined };
-              incrementRequested: { payload: undefined };
-            };
-            children: {};
-            values: { isPassing: boolean };
-          },
-          { isPassing: boolean }
-        > = {
+        type Contract = {
+          events: {
+            btnClicked: { payload: undefined };
+            incrementRequested: { payload: undefined };
+          };
+          values: { isPassing: boolean };
+        };
+        type State = { isPassing: boolean };
+        const componentDef: ComponentDef<Contract, State> = {
+          initialState: { isPassing },
           selectors: {
             isPassing: state => state.isPassing,
           },
@@ -222,17 +221,16 @@ describe("event forwarding tests", () => {
 
   it("generates an event with a different payload", () => {
     // GIVEN
-    const componentDef: ComponentDef<
-      {
-        events: {
-          btnClicked: { payload: undefined };
-          incrementRequested: { payload: number };
-        };
-        children: {};
-        values: { nextPayload: number };
-      },
-      { nextPayload: number }
-    > = {
+    type Contract = {
+      events: {
+        btnClicked: { payload: undefined };
+        incrementRequested: { payload: number };
+      };
+      values: { nextPayload: number };
+    };
+    type State = { nextPayload: number };
+    const componentDef: ComponentDef<Contract, State> = {
+      initialState: { nextPayload: 42 },
       selectors: { nextPayload: state => state.nextPayload },
       eventForwarders: [
         {

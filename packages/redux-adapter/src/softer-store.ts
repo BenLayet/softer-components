@@ -33,7 +33,7 @@ export type SofterStore = ReturnType<typeof configureStore> & {
 type ReduxEffect = (action: any, listenerApi: any) => void;
 
 export function createSofterStoreConfiguration<T extends ComponentContract>(
-  rootComponentDef: ComponentDef<T>,
+  rootComponentDef: ComponentDef<T, any>,
 ) {
   const genericRootComponentDef = rootComponentDef as ComponentDef;
   const softerViewModel = new SofterApplicationViewModel(
@@ -83,7 +83,7 @@ export function createSofterMiddleware(eventProcessor: ReduxEffect) {
   return listenerMiddleware.middleware;
 }
 export function configureSofterStore<T extends ComponentContract>(
-  rootComponentDef: ComponentDef<T>,
+  rootComponentDef: ComponentDef<T, any>,
 ): SofterStore {
   const config = createSofterStoreConfiguration(rootComponentDef);
   return {

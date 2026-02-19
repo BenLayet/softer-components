@@ -115,12 +115,19 @@ const stateTreeListener = (
       rootComponentDef,
       statePath,
     );
-    Object.entries(componentDef.contextsConfig ?? {}).forEach(
+
+    if (
+      typeof componentDef.contextDefs !== "object" ||
+      typeof componentDef.contextsConfig !== "object"
+    ) {
+      return;
+    }
+    Object.entries(componentDef.contextsConfig).forEach(
       ([contextName, contextConfig]) => {
         assertIsNotUndefined(contextConfig);
         const contextComponentStatePath = computeRelativePath(
           statePath,
-          ensureIsNotUndefined(componentDef.contextDefs?.[contextName]),
+          ensureIsNotUndefined(componentDef.contextDefs[contextName]),
         );
         const contextComponentPath = statePathToComponentPath(
           contextComponentStatePath,

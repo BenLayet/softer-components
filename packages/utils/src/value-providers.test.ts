@@ -7,8 +7,10 @@ import { createValueProviders } from "./value-providers";
 describe("createValuesProvider", () => {
   it("returns root values provider", () => {
     //GIVEN
+    const initialState = { answer: 42 };
     type TestContract = { values: { answer: number } };
-    const rootDef: ComponentDef<TestContract> = {
+    const rootDef: ComponentDef<TestContract, typeof initialState> = {
+      initialState,
       selectors: {
         answer: (state: { answer: number }) => state.answer,
       },
@@ -31,8 +33,10 @@ describe("createValuesProvider", () => {
   });
   it("returns a single child values provider", () => {
     //GIVEN
+    const initialState = { answer: 42 };
     type ChildContract = { values: { answer: number } };
-    const childDef: ComponentDef<ChildContract> = {
+    const childDef: ComponentDef<ChildContract, typeof initialState> = {
+      initialState,
       selectors: {
         answer: (state: { answer: number }) => state.answer,
       },
@@ -61,8 +65,10 @@ describe("createValuesProvider", () => {
   });
   it("returns a contexts values provider", () => {
     //GIVEN
+    type Context1State = { answer: number };
     type Context1Contract = { values: { answer: number } };
-    const context1Def: ComponentDef<Context1Contract> = {
+    const context1Def: ComponentDef<Context1Contract, Context1State> = {
+      initialState: { answer: 42 },
       selectors: {
         answer: (state: { answer: number }) => state.answer,
       },

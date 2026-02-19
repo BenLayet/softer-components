@@ -1,5 +1,4 @@
 import {
-  ChildrenComponentDefs,
   ChildrenInstancesDefs,
   ComponentContract,
   ComponentDef,
@@ -29,13 +28,19 @@ const findComponentDefFromComponentPathParts = (
   if (componentPath.length === 0) {
     return componentDef as ComponentDef;
   }
-  const children =
-    componentDef.childrenComponentDefs ?? ({} as ChildrenComponentDefs);
   const childName = componentPath[0];
-  const child = children[childName];
-  if (!child) {
+  if (typeof componentDef.childrenComponentDefs !== "object") {
     throw new Error(
-      `invalid path: childName = '${childName}' not found. Valid children names = ${JSON.stringify(Object.keys(children))}`,
+      `invalid path: childName = '${childName}' not found. no childrenComponentDefs defined.`,
+    );
+  }
+  const child = componentDef.childrenComponentDefs[childName];
+  if (!child) {
+    const childrenNames = JSON.stringify(
+      Object.keys(componentDef.childrenComponentDefs),
+    );
+    throw new Error(
+      `invalid path: childName = '${childName}' not found. Valid children names = ${childrenNames}`,
     );
   }
   return findComponentDefFromComponentPathParts(child, componentPath.slice(1));
@@ -45,9 +50,11 @@ export function isCollectionChild<T extends ComponentContract>(
   componentDef: ComponentDef<T>,
   childName: string,
 ): boolean {
-  const initialChildInstancesDef =
-    componentDef.initialChildren?.[
-      childName as keyof ChildrenInstancesDefs<T["children"]>
-    ];
+  if (typeof componentDef.initialChildren !== "object") {
+    return false;
+  }
+  const initialChildInstancesDef = (
+    componentDef.initialChildren as ChildrenInstancesDefs
+  )[childName];
   return Array.isArray(initialChildInstancesDef);
 }

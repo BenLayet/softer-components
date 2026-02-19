@@ -14,15 +14,18 @@ export class EffectsManager {
     private readonly rootComponentDef: ComponentDef,
     private readonly stateReader: StateReader,
   ) {}
-  eventOccurred(
+  async eventOccurred(
     event: GlobalEvent,
     softerRootState: SofterRootState,
     dispatchEvent: (event: GlobalEvent) => void,
-  ): Promise<void> {
+  ) {
     const componentDefOfEvent = findComponentDefFromStatePath(
       this.rootComponentDef,
       event.statePath,
     );
+    if (typeof componentDefOfEvent.effects !== "object") {
+      return;
+    }
     const effect = componentDefOfEvent.effects?.[event.name];
     if (isUndefined(effect)) {
       return Promise.resolve();
@@ -44,7 +47,7 @@ export class EffectsManager {
       event.statePath,
       dispatchEvent,
     );
-    return effect(dispatchers, eventConsumerInput()) ?? Promise.resolve();
+    return effect(dispatchers, eventConsumerInput());
   }
 }
 

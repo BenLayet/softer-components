@@ -14,10 +14,9 @@ describe("useSofter with memoization", () => {
       state: { count: number };
       values: { doubled: number; tripled: number };
       events: { incrementRequested: { payload: undefined } };
-      children: {};
     };
 
-    const counterDef: ComponentDef<CounterContract> = {
+    const counterDef: ComponentDef<CounterContract, { count: number }> = {
       initialState: { count: 0 },
       selectors: {
         doubled: state => state.count * 2,
@@ -60,17 +59,16 @@ describe("useSofter with memoization", () => {
       state: { count: number };
       values: { doubled: number };
       events: { increment: { payload: undefined } };
-      children: {};
     };
 
-    const counterDef: ComponentDef<CounterContract> = {
+    const counterDef: ComponentDef<CounterContract, { count: number }> = {
       initialState: { count: 0 },
       selectors: {
         doubled: state => state.count * 2,
       },
       uiEvents: ["increment"],
       stateUpdaters: {
-        //ts-ignore
+        // @ts-ignore
         increment: ({ state }) => {
           state.count += 1;
         },

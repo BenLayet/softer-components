@@ -19,7 +19,7 @@ import { EventProcessorListener, whenEventOccurs } from "./event-processor";
 import { TestLogger } from "./test-logger";
 
 export const initTestStore = <TContract extends ComponentContract>(
-  rootComponentDef: ComponentDef<TContract>,
+  rootComponentDef: ComponentDef<TContract, any>,
 ) => new TestStore(rootComponentDef);
 
 export class TestStore<TContract extends ComponentContract> {
@@ -29,14 +29,18 @@ export class TestStore<TContract extends ComponentContract> {
   private readonly testListener: EventProcessorListener | undefined;
   private readonly contextEventManager: ContextEventManager;
   private readonly rootComponentDef: ComponentDef;
-  constructor(rootComponentDef: ComponentDef<TContract>) {
+  constructor(rootComponentDef: ComponentDef<TContract, any>) {
     this.rootComponentDef = rootComponentDef as ComponentDef;
     this.contextEventManager = new ContextEventManager(
       rootComponentDef as ComponentDef,
       this.stateManager,
     );
 
-    initializeRootState(this.rootState, rootComponentDef, this.stateManager);
+    initializeRootState(
+      this.rootState,
+      this.rootComponentDef,
+      this.stateManager,
+    );
 
     if (process.env.SOFTER_DEBUG) {
       this.testListener = new TestLogger();

@@ -7,6 +7,7 @@ import {
 import { describe, expect, it, vi } from "vitest";
 
 import { GlobalEvent } from "./global-event";
+import { assertIsNotUndefined } from "./predicate.functions";
 import { updateSofterRootState } from "./reducer";
 import { StateManager } from "./state-manager";
 
@@ -326,10 +327,12 @@ describe("reducer tests", () => {
 // ITEM
 ////////////////////
 
-type ItemState = {
-  name: string;
-  quantity: number;
-};
+type ItemState =
+  | undefined
+  | {
+      name: string;
+      quantity: number;
+    };
 
 type ItemEventName =
   | "incrementQuantityRequested"
@@ -340,19 +343,19 @@ type ItemEventName =
 type ItemEvents = EventsContract<ItemEventName, { initialize: string }>;
 
 const selectors = {
-  name: state => state.name,
-  quantity: state => state.quantity,
-  isEmpty: state => state.quantity < 1,
+  name: state => state?.name,
+  quantity: state => state?.quantity,
+  isEmpty: state => (state ? state.quantity < 1 : true),
 } satisfies Selectors<ItemState>;
 
 export type ItemContract = {
   values: ExtractComponentValuesContract<typeof selectors>;
   events: ItemEvents;
-  children: {};
   state: ItemState;
 };
 
-const itemDef: ComponentDef<ItemContract> = {
+const itemDef: ComponentDef<ItemContract, ItemState> = {
+  initialState: undefined,
   selectors,
   uiEvents: ["incrementQuantityRequested", "decrementQuantityRequested"],
   stateUpdaters: {
@@ -361,9 +364,11 @@ const itemDef: ComponentDef<ItemContract> = {
       quantity: 1,
     }),
     incrementQuantityRequested: ({ state }) => {
+      assertIsNotUndefined(state);
       state.quantity++;
     },
     decrementQuantityRequested: ({ state }) => {
+      assertIsNotUndefined(state);
       state.quantity--;
     },
   },

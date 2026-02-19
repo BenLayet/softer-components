@@ -21,12 +21,15 @@
     "@reduxjs/toolkit": "^2.6.1",
     "@softer-components/redux-adapter": "workspace:^",
     "@softer-components/types": "workspace:^",
+    "lodash": "^4.17.23",
     "lodash-es": "^4.17.23",
     "react": "^19.1.0",
     "react-dom": "^19.1.0",
     "react-redux": "^9.2.0"
   },
   "devDependencies": {
+    "@types/lodash": "^4.17.21",
+    "@types/lodash-es": "^4.17.12",
     "@eslint/js": "^9.23.0",
     "@softer-components/utils": "workspace:^",
     "@testing-library/dom": "^10.4.0",
