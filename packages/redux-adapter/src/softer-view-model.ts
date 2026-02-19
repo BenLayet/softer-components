@@ -7,6 +7,7 @@ import {
   StatePath,
   StateTree,
   TreeStateManager,
+  assertIsNotUndefined,
   createValueProviders,
   findComponentDefFromStatePath,
   statePathToString,
@@ -20,13 +21,12 @@ import {
   getSofterRootTree,
 } from "./softer-mappers";
 
-export type PathOfFirstInstanceOfEachChild = Record<string, string>;
-export type ChildrenPaths = Record<string, string[]>;
+export type ChildrenPaths = Record<
+  string,
+  string[] | string | (string | undefined)
+>;
 export type ComponentViewModel = {
   valuesSelector: (globalState: GlobalState) => Record<string, any>;
-  pathOfFirstInstanceOfEachChildSelector: (
-    globalState: GlobalState,
-  ) => PathOfFirstInstanceOfEachChild;
   childrenPathsSelector: (globalState: GlobalState) => ChildrenPaths;
   dispatchers: (
     dispatch: ReduxDispatch,
@@ -37,9 +37,6 @@ export interface SofterViewModel {
   valuesSelector(
     statePathStr: string,
   ): (globalState: GlobalState) => Record<string, any>;
-  pathOfFirstInstanceOfEachChildSelector(
-    statePathStr: string,
-  ): (globalState: GlobalState) => PathOfFirstInstanceOfEachChild;
   childrenPathsSelector(
     statePathStr: string,
   ): (globalState: GlobalState) => ChildrenPaths;
@@ -69,10 +66,6 @@ export class SofterApplicationViewModel implements SofterViewModel {
   childrenPathsSelector(statePathStr: string) {
     return this.componentViewModelAtPath(statePathStr).childrenPathsSelector;
   }
-  pathOfFirstInstanceOfEachChildSelector(statePathStr: string) {
-    return this.componentViewModelAtPath(statePathStr)
-      .pathOfFirstInstanceOfEachChildSelector;
-  }
   dispatchers(statePathStr: string, dispatch: ReduxDispatch) {
     return this.componentViewModelAtPath(statePathStr).dispatchers(dispatch);
   }
@@ -91,7 +84,7 @@ export class SofterApplicationViewModel implements SofterViewModel {
   private readonly createComponentViewModel = (
     statePath: StatePath,
   ): ComponentViewModel => {
-    const childrenSelector = this.createChildrenSelector(
+    const childrenSelector = this.createChildrenKeysSelector(
       getSofterRootTree,
       statePath,
     );
@@ -99,8 +92,6 @@ export class SofterApplicationViewModel implements SofterViewModel {
       childrenSelector,
       statePath,
     );
-    const pathOfFirstInstanceOfEachChildSelector =
-      this.createPathOfFirstInstanceOfEachChildSelector(childrenPathsSelector);
     const valuesSelector = this.createValuesSelector(
       getSofterRootTree,
       statePath,
@@ -110,11 +101,10 @@ export class SofterApplicationViewModel implements SofterViewModel {
     return {
       dispatchers,
       childrenPathsSelector,
-      pathOfFirstInstanceOfEachChildSelector,
       valuesSelector,
     };
   };
-  private createChildrenSelector(
+  private createChildrenKeysSelector(
     rootStateSelector: (globalState: GlobalState) => StateTree,
     statePath: StatePath,
   ) {
@@ -124,30 +114,40 @@ export class SofterApplicationViewModel implements SofterViewModel {
   }
 
   private createChildrenPathsSelector(
-    childrenSelector: (state: GlobalState) => ChildrenKeys | undefined,
+    childrenKeysSelector: (state: GlobalState) => ChildrenKeys | undefined,
     statePath: StatePath,
   ): (state: GlobalState) => ChildrenPaths {
-    return createSelector(
-      [childrenSelector],
-      (children: Record<string, string[]> | undefined): ChildrenPaths =>
-        Object.fromEntries(
-          Object.entries(children ?? {}).map(([childName, childKeys]) => [
-            childName,
-            childKeys.map(key =>
-              statePathToString([...statePath, [childName, key]]),
-            ),
-          ]),
-        ),
+    const componentDef = findComponentDefFromStatePath(
+      this.rootComponentDef,
+      statePath,
     );
-  }
+    assertIsNotUndefined(
+      componentDef,
+      "no component definition found at path: " + statePathToString(statePath),
+    );
+    const initialChildren = componentDef.initialChildren ?? {};
 
-  private createPathOfFirstInstanceOfEachChildSelector(
-    childrenPathsSelector: (state: GlobalState) => ChildrenPaths,
-  ) {
-    return createSelector([childrenPathsSelector], paths =>
-      Object.fromEntries(
-        Object.entries(paths).map(([childName, keys]) => [childName, keys[0]]),
-      ),
+    return createSelector(
+      [childrenKeysSelector],
+      (childrenKeys: Record<string, string[]> | undefined): ChildrenPaths =>
+        Object.fromEntries(
+          Object.entries(childrenKeys ?? {})
+            .map(
+              ([childName, childKeys]) =>
+                [
+                  childName,
+                  childKeys.map(key =>
+                    statePathToString([...statePath, [childName, key]]),
+                  ),
+                ] as [string, string[]],
+            )
+            .map(([childName, childPaths]) => [
+              childName,
+              Array.isArray(initialChildren[childName]) //use initial children definition to determine if child is collection
+                ? childPaths
+                : childPaths[0],
+            ]),
+        ),
     );
   }
 

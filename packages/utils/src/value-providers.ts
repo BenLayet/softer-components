@@ -75,7 +75,14 @@ function createOwnValues(
     Object.entries(selectorsDef).map(([selectorName, selector]) => [
       selectorName,
       () => {
-        assertValueIsNotUndefined({ childrenValues });
+        assertIsNotUndefined(
+          childrenValues,
+          "childrenValues should not be undefined",
+        );
+        assertIsNotUndefined(
+          contextsValues,
+          "contextsValues should not be undefined",
+        );
         return stateReader.selectValue(
           selector as any,
           childrenValues,

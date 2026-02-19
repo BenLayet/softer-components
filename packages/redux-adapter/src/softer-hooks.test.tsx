@@ -153,7 +153,7 @@ describe("useSofter with memoization", () => {
     // THEN
     //before rerender
     const initialValues = result.current[0];
-    const initialChildren = result.current[3];
+    const initialChildren = result.current[2];
     expect(initialChildren).toEqual({
       itemRows: ["/itemRows:1", "/itemRows:2", "/itemRows:3"],
     });
@@ -164,6 +164,6 @@ describe("useSofter with memoization", () => {
 
     // THEN
     expect(result.current[0]).toBe(initialValues); // ✅ Same reference
-    expect(result.current[3]).toBe(initialChildren); // ✅ Same reference
+    expect(result.current[2]).toBe(initialChildren); // ✅ Same reference
   });
 });

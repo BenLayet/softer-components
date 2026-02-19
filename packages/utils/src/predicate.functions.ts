@@ -17,18 +17,6 @@ export function isNotUndefined<T>(value: T | undefined | void): value is T {
   return !isUndefined(value);
 }
 
-export function assertValueIsUndefined<T>(
-  container: { [key: string]: T | undefined },
-  message?: string,
-): asserts container is { [key: string]: undefined } {
-  if (isNotUndefined(Object.values(container)[0])) {
-    throw new Error(
-      message ||
-        `Value of ${Object.keys(container)[0]} is not undefined when it should be`,
-    );
-  }
-}
-
 export function assertValueIsNotUndefined<T>(
   container: { [key: string]: T | undefined },
   message?: string,
