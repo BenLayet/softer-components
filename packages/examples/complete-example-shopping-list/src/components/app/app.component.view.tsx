@@ -2,12 +2,12 @@ import { useSofter } from "@softer-components/redux-adapter";
 import { useEffect } from "react";
 
 import { AppContract } from "./app.component";
+import { List } from "./list";
 import { ListManager } from "./list-manager/";
-import { List } from "./list/List";
-import { SignInForm } from "./sign-in-form/SignInForm";
-import { UserMenu } from "./user-menu/UserMenu";
+import { SignInForm } from "./sign-in-form";
+import { UserMenu } from "./user-menu/";
 
-export const App = ({ path = "" }) => {
+export const View = ({ path = "" }) => {
   const [v, d, c] = useSofter<AppContract>(path);
   useEffect(() => {
     d.displayed();

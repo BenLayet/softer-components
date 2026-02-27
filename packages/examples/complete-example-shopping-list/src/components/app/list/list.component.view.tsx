@@ -1,9 +1,9 @@
 import { useSofter } from "@softer-components/redux-adapter";
 
-import { ItemRow } from "./item-row/ItemRow";
+import { ItemRow } from "./item-row";
 import { ListContract } from "./list.component";
 
-export const List = ({ path = "" }) => {
+export const View = ({ path = "" }) => {
   const [v, d, c] = useSofter<ListContract>(path);
   return (
     <div>

@@ -2,7 +2,7 @@ import { useSofter } from "@softer-components/redux-adapter";
 
 import { SignInContract } from "./sign-in-form.component";
 
-export const SignInForm = ({ path = "" }) => {
+export const View = ({ path = "" }) => {
   const [v, d] = useSofter<SignInContract>(path);
   return (
     <div>

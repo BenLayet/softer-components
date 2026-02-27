@@ -2,7 +2,7 @@ import { useSofter } from "@softer-components/redux-adapter";
 
 import { ListsContract } from "./";
 
-export const Lists = ({ path = "" }) => {
+export const View = ({ path = "" }) => {
   const [v, d] = useSofter<ListsContract>(path);
   return (
     <div style={{ maxWidth: "300px" }}>
