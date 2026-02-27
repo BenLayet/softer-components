@@ -1,5 +1,11 @@
 # @softer-components/types
 
+## 0.7.0
+
+### Minor Changes
+
+- 1ece9bb: minor improvements https://github.com/BenLayet/softer-components/issues/31
+
 ## 0.6.1
 
 ### Patch Changes

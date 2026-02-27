@@ -1,5 +1,16 @@
 # @softer-components/utils
 
+## 0.7.0
+
+### Minor Changes
+
+- 1ece9bb: minor improvements https://github.com/BenLayet/softer-components/issues/31
+
+### Patch Changes
+
+- Updated dependencies [1ece9bb]
+  - @softer-components/types@0.7.0
+
 ## 0.6.1
 
 ### Patch Changes
