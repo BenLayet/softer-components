@@ -16,8 +16,8 @@ export const whenEventOccurs = (
   rootState: StateTree, //mutable
   rootComponentDef: ComponentDef,
   stateManager: StateManager,
-  effectsManager: EffectsManager<any>,
-  contextEventManager: ContextEventManager<any>,
+  effectsManager: EffectsManager,
+  contextEventManager: ContextEventManager,
   listener?: EventProcessorListener,
 ) => {
   const processEvent = async (globalEvent: GlobalEvent): Promise<void> => {

@@ -1,4 +1,4 @@
-import { ComponentContract, ComponentDef } from "@softer-components/types";
+import { ComponentDef } from "@softer-components/types";
 
 import { findComponentDefFromStatePath } from "./component-def-tree";
 import { eventConsumerInputProvider } from "./event-consumer";
@@ -9,21 +9,24 @@ import { RelativePathStateReader } from "./relative-path-state-manager";
 import { SofterRootState } from "./state-initializer";
 import { StateReader } from "./state-manager";
 
-export class EffectsManager<TRootComponentContract extends ComponentContract> {
+export class EffectsManager {
   constructor(
-    private readonly rootComponentDef: ComponentDef<TRootComponentContract>,
+    private readonly rootComponentDef: ComponentDef,
     private readonly stateReader: StateReader,
   ) {}
-  eventOccurred(
+  async eventOccurred(
     event: GlobalEvent,
     softerRootState: SofterRootState,
     dispatchEvent: (event: GlobalEvent) => void,
-  ): Promise<void> {
+  ) {
     const componentDefOfEvent = findComponentDefFromStatePath(
       this.rootComponentDef,
       event.statePath,
     );
-    const effect = componentDefOfEvent.effects?.[event.name];
+    if (typeof componentDefOfEvent.effects !== "object") {
+      return;
+    }
+    const effect = componentDefOfEvent.effects[event.name];
     if (isUndefined(effect)) {
       return Promise.resolve();
     }
@@ -44,7 +47,7 @@ export class EffectsManager<TRootComponentContract extends ComponentContract> {
       event.statePath,
       dispatchEvent,
     );
-    return effect(dispatchers, eventConsumerInput()) ?? Promise.resolve();
+    return effect(dispatchers, eventConsumerInput());
   }
 }
 

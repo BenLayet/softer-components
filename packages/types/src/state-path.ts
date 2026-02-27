@@ -12,7 +12,7 @@ export type StatePaths<T> =
           }[keyof Children & string]
         : never
       : never);
-type StateKey<C> = C extends { isCollection: true } ? `:${string}` : "";
+type StateKey<C> = C extends { type: "collection" } ? `:${string}` : "";
 
 export type StatePathToComponentPath<Path extends string> = Path extends ""
   ? ""

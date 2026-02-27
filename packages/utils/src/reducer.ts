@@ -1,4 +1,4 @@
-import { ComponentContract, ComponentDef } from "@softer-components/types";
+import { ComponentDef } from "@softer-components/types";
 import { produce } from "immer";
 
 import {
@@ -24,9 +24,9 @@ import { createValueProviders } from "./value-providers";
  * @param event - Event to process
  * @param stateManager - State manager to read/write state
  */
-export function updateSofterRootState<T extends ComponentContract = any>(
+export function updateSofterRootState(
   softerRootState: SofterRootState,
-  rootComponentDef: ComponentDef<T>,
+  rootComponentDef: ComponentDef,
   event: GlobalEvent,
   stateManager: StateManager,
 ) {
@@ -41,8 +41,8 @@ export function updateSofterRootState<T extends ComponentContract = any>(
   );
 }
 
-function updateStateOfComponentOfEvent<T extends ComponentContract = any>(
-  rootComponentDef: ComponentDef<T>,
+function updateStateOfComponentOfEvent(
+  rootComponentDef: ComponentDef,
   event: GlobalEvent,
   stateManager: RelativePathStateManager,
 ) {
@@ -50,19 +50,29 @@ function updateStateOfComponentOfEvent<T extends ComponentContract = any>(
     rootComponentDef,
     event.statePath,
   );
-  const updater = componentDef.updaters?.[event.name];
-  if (!updater) return;
+  updateState(rootComponentDef, componentDef, stateManager, event);
+  updateChildrenInstances(rootComponentDef, componentDef, stateManager, event);
+}
 
-  const { values, children, childrenValues, state, payload, contextsValues } =
+function updateState(
+  rootComponentDef: ComponentDef,
+  componentDef: ComponentDef,
+  stateManager: RelativePathStateManager,
+  event: GlobalEvent,
+) {
+  if (typeof componentDef.stateUpdaters !== "object") return;
+  const stateUpdater = componentDef.stateUpdaters[event.name];
+  if (!stateUpdater) return;
+
+  const { values, childrenValues, state, payload, contextsValues } =
     prepareUpdaterParams(rootComponentDef as ComponentDef, event, stateManager);
 
-  const next = produce({ state, children }, (draft: any) => {
-    const returnedValue = updater({
+  const next = produce({ state }, (draft: any) => {
+    const returnedValue = stateUpdater({
       values,
       childrenValues,
       contextsValues,
       payload,
-      children: draft.children,
       state: draft.state,
     });
 
@@ -73,11 +83,37 @@ function updateStateOfComponentOfEvent<T extends ComponentContract = any>(
 
   // update own state
   stateManager.updateState(next.state);
+}
+
+function updateChildrenInstances(
+  rootComponentDef: ComponentDef,
+  componentDef: ComponentDef,
+  stateManager: RelativePathStateManager,
+  event: GlobalEvent,
+) {
+  const childrenUpdater = componentDef.childrenUpdaters?.[event.name];
+  if (!childrenUpdater) return;
+
+  const { values, children, childrenValues, payload, contextsValues } =
+    prepareUpdaterParams(rootComponentDef as ComponentDef, event, stateManager);
+
+  const next = produce({ children }, (draft: any) => {
+    const returnedValue = childrenUpdater({
+      values,
+      childrenValues,
+      contextsValues,
+      payload,
+      children: draft.children,
+    });
+
+    if (isNotUndefined(returnedValue)) {
+      draft.children = returnedValue;
+    }
+  });
 
   // update children state
   updateChildrenState(componentDef, children, next.children, stateManager);
 }
-
 /**
  * Prepare updater parameters from the component definition and state, recursively
  */
@@ -118,9 +154,16 @@ function updateChildrenState(
   desiredChildrenKeys: Record<string, boolean | string[]>,
   stateManager: RelativePathStateManager,
 ) {
+  const childrenComponentDefs = componentDef.childrenComponentDefs;
+  if (typeof childrenComponentDefs !== "object") {
+    return;
+  }
   Object.entries(desiredChildrenKeys).forEach(([childName, desiredKeys]) => {
-    const childDef = componentDef.childrenComponentDefs?.[childName];
-    assertIsNotUndefined(childDef);
+    const childDef = childrenComponentDefs[childName];
+    assertIsNotUndefined(
+      childDef,
+      `Child component '${childName}' not found in childrenComponentDefs`,
+    );
     const previousKeys = previousChildrenKeys[childName];
 
     // Remove the state of deleted keys

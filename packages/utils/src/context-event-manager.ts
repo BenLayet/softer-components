@@ -1,8 +1,4 @@
-import {
-  ComponentContract,
-  ComponentDef,
-  EventConsumerInput,
-} from "@softer-components/types";
+import { ComponentDef, EventConsumerInput } from "@softer-components/types";
 
 import { findComponentDefFromStatePath } from "./component-def-tree";
 import { eventConsumerInputProvider } from "./event-consumer";
@@ -42,12 +38,12 @@ export type EventListener = {
   onCondition?: (input: EventConsumerInput) => boolean; //function that returns a boolean indicating whether the event should be triggered
 };
 
-export class ContextEventManager<T extends ComponentContract = any> {
+export class ContextEventManager {
   private listeners: EventListener[] = [];
   private readonly stateReader: StateReader;
 
   constructor(
-    private readonly rootComponentDef: ComponentDef<T>,
+    private readonly rootComponentDef: ComponentDef,
     stateManager: StateManager,
   ) {
     this.stateReader = stateManager;
@@ -110,21 +106,28 @@ export class ContextEventManager<T extends ComponentContract = any> {
     };
 }
 
-const stateTreeListener = <T extends ComponentContract>(
-  rootComponentDef: ComponentDef<T>,
-  contextEventManager: ContextEventManager<T>,
+const stateTreeListener = (
+  rootComponentDef: ComponentDef,
+  contextEventManager: ContextEventManager,
 ): StateTreeListener => ({
   onStateAdded: statePath => {
     const componentDef = findComponentDefFromStatePath(
       rootComponentDef,
       statePath,
     );
-    Object.entries(componentDef.contextsConfig ?? {}).forEach(
+
+    if (
+      typeof componentDef.contextDefs !== "object" ||
+      typeof componentDef.contextsConfig !== "object"
+    ) {
+      return;
+    }
+    Object.entries(componentDef.contextsConfig).forEach(
       ([contextName, contextConfig]) => {
         assertIsNotUndefined(contextConfig);
         const contextComponentStatePath = computeRelativePath(
           statePath,
-          ensureIsNotUndefined(componentDef.contextDefs?.[contextName]),
+          ensureIsNotUndefined(componentDef.contextDefs[contextName]),
         );
         const contextComponentPath = statePathToComponentPath(
           contextComponentStatePath,

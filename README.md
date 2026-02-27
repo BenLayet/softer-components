@@ -253,8 +253,8 @@ Parent component use the component definition in `childrenComponentDefs`, but ot
 * cf [Event Forwarding (Internal)](#event-forwarding-internal)
 #### initialChildren
 - by default, a child is unique and non-optional, so they would not and cannot be declared in the `initialChildren` property of the component definition.
-- to declare a child as optional, add `isOptional: true` in the component contract.
-- to declare a child as a collection, add `isCollection: true` in the component contract.
+- to declare a child as optional, add `type: "optional"` in the component contract.
+- to declare a child as a collection, add `type: "collection"` in the component contract.
 
 
 #### childrenComponentDefs
@@ -335,8 +335,8 @@ export type AppComponentContract = {
     state: undefined;
     events: AppEvents;
     children: {
-        list: ListContract & { isOptional: true };
-        listSelect: ListSelectContract & { isOptional: true  };
+        list: ListContract & { type: "optional" };
+        listSelect: ListSelectContract & { type: "optional"  };
     };
     values: {};
 }
@@ -550,7 +550,7 @@ softer-components/
 type ComponentContract = {
   state: OptionalValue;
   values: ComponentValuesContract;
-  events: ComponentEventsContract;
+  events: EventsContract;
   children: ComponentChildrenContract;
 };
 ```

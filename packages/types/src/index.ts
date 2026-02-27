@@ -1,4 +1,5 @@
 export * from "./values";
+export * from "./value";
 export * from "./state";
 export * from "./selectors";
 export * from "./event";
@@ -11,3 +12,5 @@ export * from "./helpers";
 export * from "./event-forwarder";
 export * from "./component-path";
 export * from "./state-path";
+export * from "./context";
+export * from "./updaters";

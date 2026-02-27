@@ -2,7 +2,7 @@ import { useSofter } from "@softer-components/redux-adapter";
 
 import { UserMenuContract } from "./user-menu.component";
 
-export const UserMenu = ({ path = "" }) => {
+export const View = ({ path = "" }) => {
   const [v, d] = useSofter<UserMenuContract>(path);
   return (
     <div className="menu-item">

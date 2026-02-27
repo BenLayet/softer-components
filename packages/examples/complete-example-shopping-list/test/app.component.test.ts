@@ -4,11 +4,12 @@ import {
 } from "@softer-components/utils/test-utilities";
 import { describe, expect, it } from "vitest";
 
-import { AppContract, appDef } from "../src/components/app/app.component";
+import { AppContract, appDef } from "../src/components/app";
 import {
   CREATE_LIST,
   FIRST_ITEM,
   LIST,
+  LIST_MANAGER,
   USER_CREATES_NEW_ITEM,
   USER_CREATES_NEW_LIST,
   USER_DECREMENTS_QUANTITY_OF_FIRST_ITEM,
@@ -18,12 +19,14 @@ import {
   USER_SIGNS_IN,
   USER_SIGNS_OUT,
 } from "./app.component.steps";
-import { mockDependencies } from "./mock-dependencies";
+import { MockDependencies } from "./mock-dependencies";
 
 describe("app.component", () => {
   let testStore: TestStore<AppContract>;
+  let mockDependencies: MockDependencies;
   beforeEach(() => {
-    testStore = initTestStore(appDef(mockDependencies([])));
+    mockDependencies = new MockDependencies();
+    testStore = initTestStore(appDef(mockDependencies));
   });
   it("initial list name is empty", () => {
     expect(testStore.getValues(CREATE_LIST).listName()).toBe("");
@@ -60,5 +63,18 @@ describe("app.component", () => {
     await testStore.when(USER_SIGNS_IN("alice", "demo"));
     await testStore.and(USER_SIGNS_OUT());
     expect(testStore.getValues(USER_MENU).username()).toBe("");
+  });
+  it("when user signs in successfully, her lists should be displayed", async () => {
+    //GIVEN
+    mockDependencies.listService.savedLists["alice"] = [
+      {
+        id: "1",
+        name: "Alice's list",
+        listItems: [],
+      },
+    ];
+
+    await testStore.when(USER_SIGNS_IN("alice", "demo"));
+    expect(testStore.getValues(LIST_MANAGER).listCount()).toBe(1);
   });
 });

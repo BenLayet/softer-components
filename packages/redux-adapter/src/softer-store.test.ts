@@ -1,3 +1,4 @@
+import { ComponentDef } from "@softer-components/types";
 import { CHILDREN_BRANCHES_KEY, OWN_VALUE_KEY } from "@softer-components/utils";
 import { describe, expect, it } from "vitest";
 
@@ -7,7 +8,12 @@ describe("configureSofterStore", () => {
   it("should create a store with initial state", () => {
     //GIVEN a root component definition with initial state and state updaters
     const initialState = { count: 0 };
-    const rootComponentDef = { initialState };
+    const rootComponentDef: ComponentDef<
+      { values: typeof initialState },
+      typeof initialState
+    > = {
+      initialState,
+    };
     //WHEN the store is configured
     const store = configureSofterStore(rootComponentDef);
 

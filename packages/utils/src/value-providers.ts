@@ -2,6 +2,7 @@ import {
   ChildrenValues,
   ComponentContract,
   ComponentDef,
+  ContextsDef,
   ContextsValues,
   Values,
 } from "@softer-components/types";
@@ -10,30 +11,31 @@ import {
   findComponentDefFromStatePath,
   isCollectionChild,
 } from "./component-def-tree";
-import {
-  assertIsNotUndefined,
-  assertValueIsNotUndefined,
-} from "./predicate.functions";
+import { assertIsNotUndefined } from "./predicate.functions";
 import { RelativePathStateReader } from "./relative-path-state-manager";
 
 /**
  * Create Values provider for a component given its definition and state
  */
 export function createValueProviders<
-  TComponentContract extends ComponentContract = ComponentContract,
+  TComponentContract extends ComponentContract,
 >(
-  rootComponentDef: ComponentDef,
+  rootComponentDef: ComponentDef<TComponentContract, any>,
   stateReader: RelativePathStateReader,
 ): Values<TComponentContract> {
+  const genericRootComponentDef = rootComponentDef as ComponentDef;
   // Create children's values
-  const childrenValues = createChildrenValues(rootComponentDef, stateReader);
+  const childrenValues = createChildrenValues(
+    genericRootComponentDef,
+    stateReader,
+  );
   assertIsNotUndefined(
     childrenValues,
     "childrenValues should not be undefined",
   );
   // Create contexts' values
   const contextsValues = createContextsValues(
-    rootComponentDef,
+    genericRootComponentDef,
     stateReader,
   ) as ContextsValues;
   assertIsNotUndefined(
@@ -43,7 +45,7 @@ export function createValueProviders<
 
   // Create own values
   const values = createOwnValues(
-    rootComponentDef,
+    genericRootComponentDef,
     stateReader,
     childrenValues,
     contextsValues,
@@ -71,7 +73,14 @@ function createOwnValues(
     Object.entries(selectorsDef).map(([selectorName, selector]) => [
       selectorName,
       () => {
-        assertValueIsNotUndefined({ childrenValues });
+        assertIsNotUndefined(
+          childrenValues,
+          "childrenValues should not be undefined",
+        );
+        assertIsNotUndefined(
+          contextsValues,
+          "contextsValues should not be undefined",
+        );
         return stateReader.selectValue(
           selector as any,
           childrenValues,
@@ -91,10 +100,14 @@ function createChildrenValues(
     stateReader.currentPath,
   );
   const childrenKeys = stateReader.getChildrenKeys();
-  assertValueIsNotUndefined({ childrenKeys });
+  assertIsNotUndefined(childrenKeys, "childrenKeys should not be undefined");
+  const childrenComponentDefs = componentDef.childrenComponentDefs;
+  if (typeof childrenComponentDefs !== "object") {
+    return {} as ChildrenValues;
+  }
   return Object.fromEntries(
     Object.entries(childrenKeys).map(([childName, childKeys]) => {
-      const childDef = componentDef.childrenComponentDefs?.[childName];
+      const childDef = childrenComponentDefs[childName];
       assertIsNotUndefined(
         childDef,
         `Child component '${childName}' not found in childrenComponents`,
@@ -143,7 +156,7 @@ export function createContextsValues(
     stateReader.currentPath,
   );
   return Object.fromEntries(
-    Object.entries(componentDef.contextDefs ?? {}).map(
+    Object.entries((componentDef.contextDefs ?? {}) as ContextsDef).map(
       ([contextName, contextRelativePath]) => {
         const stateReaderForContext =
           stateReader.forRelativePath(contextRelativePath);

@@ -13,3 +13,5 @@ export * from "./effects-manager";
 export * from "./context-provider";
 export * from "./path";
 export * from "./context-event-manager";
+export * from "./base-selectors";
+export * from "./predicate.functions";

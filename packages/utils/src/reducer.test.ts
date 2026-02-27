@@ -1,12 +1,13 @@
 import {
   ComponentDef,
-  ComponentEventsContract,
+  EventsContract,
   ExtractComponentValuesContract,
   Selectors,
 } from "@softer-components/types";
 import { describe, expect, it, vi } from "vitest";
 
 import { GlobalEvent } from "./global-event";
+import { assertIsNotUndefined } from "./predicate.functions";
 import { updateSofterRootState } from "./reducer";
 import { StateManager } from "./state-manager";
 
@@ -16,14 +17,15 @@ describe("reducer tests", () => {
     const initialState = { count: 0, name: "test" };
     type MyState = typeof initialState;
 
-    const componentDef: ComponentDef<{
-      state: MyState;
-      events: { incrementRequested: { payload: undefined } };
-      values: {};
-      children: {};
-    }> = {
+    const componentDef: ComponentDef<
+      {
+        events: EventsContract<"incrementRequested">;
+      },
+      MyState
+    > = {
       initialState,
-      updaters: {
+      uiEvents: ["incrementRequested"],
+      stateUpdaters: {
         incrementRequested: ({ state }) => {
           state.count++;
         },
@@ -42,7 +44,12 @@ describe("reducer tests", () => {
     stateManager.updateState = vi.fn();
 
     // WHEN
-    updateSofterRootState({}, componentDef, event, stateManager);
+    updateSofterRootState(
+      {},
+      componentDef as ComponentDef,
+      event,
+      stateManager,
+    );
 
     // THEN
     expect(stateManager.updateState).toHaveBeenCalledWith({}, [], {
@@ -56,14 +63,15 @@ describe("reducer tests", () => {
     const initialState = { count: 0, name: "test" };
     type MyState = typeof initialState;
 
-    const componentDef: ComponentDef<{
-      state: MyState;
-      events: { incrementRequested: { payload: undefined } };
-      values: {};
-      children: {};
-    }> = {
+    const componentDef: ComponentDef<
+      {
+        events: EventsContract<"incrementRequested">;
+      },
+      MyState
+    > = {
       initialState,
-      updaters: {
+      uiEvents: ["incrementRequested"],
+      stateUpdaters: {
         incrementRequested: ({ state }) => {
           state.count++;
         },
@@ -80,7 +88,12 @@ describe("reducer tests", () => {
     stateManager.createState = vi.fn();
 
     // WHEN
-    updateSofterRootState({}, componentDef, event, stateManager);
+    updateSofterRootState(
+      {},
+      componentDef as ComponentDef,
+      event,
+      stateManager,
+    );
 
     // THEN
     expect(stateManager.updateState).toBeCalledTimes(0);
@@ -290,7 +303,12 @@ describe("reducer tests", () => {
         stateManager.reorderChildStates = vi.fn();
 
         // WHEN
-        updateSofterRootState({}, listDef, event as GlobalEvent, stateManager);
+        updateSofterRootState(
+          {},
+          listDef as ComponentDef,
+          event as GlobalEvent,
+          stateManager,
+        );
 
         // THEN
         Object.entries(expectedCalls).forEach(([method, callsArgs]) =>
@@ -311,10 +329,12 @@ describe("reducer tests", () => {
 // ITEM
 ////////////////////
 
-type ItemState = {
-  name: string;
-  quantity: number;
-};
+type ItemState =
+  | undefined
+  | {
+      name: string;
+      quantity: number;
+    };
 
 type ItemEventName =
   | "incrementQuantityRequested"
@@ -322,36 +342,35 @@ type ItemEventName =
   | "removeRequested"
   | "initialize";
 
-type ItemEvents = ComponentEventsContract<
-  ItemEventName,
-  { initialize: string }
->;
+type ItemEvents = EventsContract<ItemEventName, { initialize: string }>;
 
 const selectors = {
-  name: state => state.name,
-  quantity: state => state.quantity,
-  isEmpty: state => state.quantity < 1,
+  name: state => state?.name,
+  quantity: state => state?.quantity,
+  isEmpty: state => (state ? state.quantity < 1 : true),
 } satisfies Selectors<ItemState>;
 
 export type ItemContract = {
   values: ExtractComponentValuesContract<typeof selectors>;
   events: ItemEvents;
-  children: {};
   state: ItemState;
 };
 
-const itemDef: ComponentDef<ItemContract> = {
+const itemDef: ComponentDef<ItemContract, ItemState> = {
+  initialState: undefined,
   selectors,
   uiEvents: ["incrementQuantityRequested", "decrementQuantityRequested"],
-  updaters: {
+  stateUpdaters: {
     initialize: ({ payload: name }) => ({
       name: name,
       quantity: 1,
     }),
     incrementQuantityRequested: ({ state }) => {
+      assertIsNotUndefined(state);
       state.quantity++;
     },
     decrementQuantityRequested: ({ state }) => {
+      assertIsNotUndefined(state);
       state.quantity--;
     },
   },
@@ -382,7 +401,7 @@ type ListEventName =
   | "resetItemNameRequested"
   | "removeItemRequested"
   | "newItemSubmitted";
-type ListEvents = ComponentEventsContract<
+type ListEvents = EventsContract<
   ListEventName,
   {
     nextItemNameChanged: string;
@@ -408,27 +427,27 @@ type ListContract = {
   values: ExtractComponentValuesContract<typeof listSelectors>;
   events: ListEvents;
   children: {
-    items: ItemContract & { isCollection: true };
+    items: ItemContract & { type: "collection" };
   };
 };
 const listDef: ComponentDef<ListContract, ListState> = {
   initialState,
   selectors: listSelectors,
   uiEvents: ["nextItemNameChanged", "addItemRequested"],
-  updaters: {
+  stateUpdaters: {
     nextItemNameChanged: ({ state, payload: nextItemName }) => {
       state.nextItemName = nextItemName;
     },
     addItemRequested: ({ state }) => {
       state.nextItemName = "";
     },
-    createItemRequested: ({
-      children: { items },
-      payload: { itemId },
-      state,
-    }) => {
-      items.push(`${itemId}`);
+    createItemRequested: ({ payload: { itemId }, state }) => {
       state.lastItemId = itemId;
+    },
+  },
+  childrenUpdaters: {
+    createItemRequested: ({ children: { items }, payload: { itemId } }) => {
+      items.push(`${itemId}`);
     },
     removeItemRequested: ({ children: { items }, payload: idToRemove }) => {
       items.splice(items.indexOf(`${idToRemove}`), 1);

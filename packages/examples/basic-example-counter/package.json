@@ -14,19 +14,20 @@
     "test": "vitest",
     "test:ci": "vitest run",
     "type-check": "tsc -b --noEmit",
-    "type-check:watch": "tsc -b --noEmit --watch"
+    "type-check:watch": "tsc -b --noEmit --watch",
+    "build": "pnpm type-check && vite build"
   },
   "dependencies": {
     "@reduxjs/toolkit": "^2.6.1",
     "@softer-components/redux-adapter": "workspace:^",
     "@softer-components/types": "workspace:^",
+    "@softer-components/utils": "workspace:^",
     "react": "^19.1.0",
     "react-dom": "^19.1.0",
     "react-redux": "^9.2.0"
   },
   "devDependencies": {
     "@eslint/js": "^9.23.0",
-    "@softer-components/utils": "workspace:^",
     "@testing-library/dom": "^10.4.0",
     "@testing-library/jest-dom": "^6.6.3",
     "@testing-library/react": "^16.3.0",

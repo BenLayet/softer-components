@@ -5,7 +5,7 @@ export const demoLists: Record<string, List[]> = {
   alice: [
     {
       id: "1",
-      name: "Groceries",
+      name: "Alice's Groceries",
       listItems: [
         { item: { id: 1, name: "Milk" }, quantity: 1 },
         { item: { id: 2, name: "Bread" }, quantity: 2 },
@@ -14,7 +14,7 @@ export const demoLists: Record<string, List[]> = {
     },
     {
       id: "2",
-      name: "Hardware Store",
+      name: "Alice's Hardware",
       listItems: [
         { item: { id: 4, name: "Nails" }, quantity: 100 },
         { item: { id: 5, name: "Hammer" }, quantity: 1 },
@@ -25,7 +25,7 @@ export const demoLists: Record<string, List[]> = {
   bob: [
     {
       id: "3",
-      name: "Books to Read",
+      name: "Bob's Books",
       listItems: [
         {
           item: { id: 7, name: "Hitchhiker's Guide to the Galaxy" },

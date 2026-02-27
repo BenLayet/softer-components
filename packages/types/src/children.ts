@@ -1,4 +1,8 @@
-import { ChildInstanceContract, ComponentContract } from "./component-contract";
+import {
+  ChildInstanceContract,
+  ChildrenContract,
+  ComponentContract,
+} from "./component-contract";
 import { ComponentDef } from "./component-def";
 import {
   FromEventContractToChildEventContract,
@@ -8,24 +12,23 @@ import {
 /***************************************************************************************************************
  *                         CHILDREN INSTANCES DEFINITIONS
  ***************************************************************************************************************/
-type ChildInstancesDef<TCollectionContract extends ChildInstanceContract> =
+export type ChildInstancesDef<TCollectionContract = ChildInstanceContract> =
   TCollectionContract extends {
-    isCollection: true;
+    type: "collection";
   }
     ? string[]
     : TCollectionContract extends {
-          isOptional: true;
+          type: "optional";
         }
       ? boolean | undefined
       : never;
-
 export type ChildrenInstancesDefs<
-  TChildrenContract extends Record<string, ChildInstanceContract>,
-> = MakeUndefinedOrNeverOptional<{
-  [ChildName in keyof TChildrenContract]: ChildInstancesDef<
-    TChildrenContract[ChildName]
-  >;
-}>;
+  TChildren extends ChildrenContract | undefined = undefined,
+> = TChildren extends undefined
+  ? never
+  : MakeUndefinedOrNeverOptional<{
+      [ChildName in keyof TChildren]: ChildInstancesDef<TChildren[ChildName]>;
+    }>;
 type MakeUndefinedOrNeverOptional<T> = {
   // Keys where the property type is `never` are omitted (mapped to `never`),
   // keys that include `undefined` become optional with `undefined` excluded.
@@ -68,7 +71,7 @@ export type CommandsDef<
   TChildContract extends ComponentContract & ChildInstanceContract,
 > = FromEventContractToChildEventContract<
   TParentContract,
-  TChildContract["isCollection"] extends true ? true : false,
+  TChildContract extends { type: "collection" } ? true : false,
   TParentContract["events"], //from parent
   TChildContract["events"] //to child
 >[];
@@ -87,16 +90,21 @@ export type ChildConfig<
   WithChildCommands<TParentContract, TChildContract>;
 
 export type ChildrenConfig<TComponentContract extends ComponentContract = any> =
-  {
-    [K in keyof TComponentContract["children"]]?: ChildConfig<
-      TComponentContract,
-      TComponentContract["children"][K]
-    >;
-  };
+  TComponentContract["children"] extends ChildrenContract
+    ? {
+        [K in keyof TComponentContract["children"]]?: ChildConfig<
+          TComponentContract,
+          TComponentContract["children"][K]
+        >;
+      }
+    : never;
 export type ChildrenComponentDefs<
-  TComponentContract extends ComponentContract = any,
-> = {
-  [K in keyof TComponentContract["children"]]: ComponentDef<
-    Omit<TComponentContract["children"][K], "isCollection" | "isOptional">
-  >;
-};
+  TComponentContract extends ComponentContract = ComponentContract,
+> = TComponentContract["children"] extends ChildrenContract
+  ? {
+      [K in keyof TComponentContract["children"]]: ComponentDef<
+        TComponentContract["children"][K],
+        any
+      >;
+    }
+  : never;

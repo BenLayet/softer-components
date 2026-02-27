@@ -9,8 +9,15 @@ export type Event<
   readonly payload?: TPayload;
 };
 
-export type Dispatcher<TPayload extends Payload = Payload> = [
-  TPayload,
-] extends [undefined]
-  ? () => void
-  : (payload: TPayload) => void;
+type IsPropertyDefined<T, K extends string> = K extends keyof T
+  ? T[K] extends undefined
+    ? false
+    : true
+  : false;
+export type Dispatcher<
+  TPayloads extends Record<string, Payload>,
+  EventName extends string,
+> =
+  IsPropertyDefined<TPayloads, EventName> extends false
+    ? () => void
+    : (payload: TPayloads[EventName]) => void;
