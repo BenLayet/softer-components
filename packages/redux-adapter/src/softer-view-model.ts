@@ -186,7 +186,7 @@ export class SofterApplicationViewModel implements SofterViewModel {
     );
     let cachedDispatchers: any;
 
-    const uiEvents =
+    const uiEvents: string[] =
       typeof componentDef.uiEvents === "object" ? componentDef.uiEvents : [];
 
     return (dispatch: ReduxDispatch) => {

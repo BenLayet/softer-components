@@ -1,29 +1,34 @@
-import { ComponentContract, EventsContract } from "./component-contract";
+import {
+  ComponentContract,
+  EventsContract,
+  ExtractEventNameUnion,
+} from "./component-contract";
 import { Dispatcher } from "./event";
 import { EventConsumerInput } from "./event-consumer";
 
 export type Effect<
   TComponentContract extends ComponentContract,
-  TEventName extends keyof TComponentContract["events"], //triggering event names
-  TDispatchableEventNames extends keyof TComponentContract["events"], //union of dispatchable event names
+  TEventNameUnion extends ExtractEventNameUnion<TComponentContract>, //triggering event names
+  TDispatchableEventNameUnion extends ExtractEventNameUnion<TComponentContract>, //union of dispatchable event names
 > = TComponentContract["events"] extends EventsContract
   ? (
       dispatchers: {
-        [TDispatchableEventName in TDispatchableEventNames]: Dispatcher<
-          TComponentContract["events"][TDispatchableEventName]["payload"]
+        [TDispatchableEventName in TDispatchableEventNameUnion]: Dispatcher<
+          TComponentContract["events"]["payloads"],
+          TDispatchableEventName
         >;
       },
       input: EventConsumerInput<
-        TComponentContract["events"][TEventName]["payload"],
+        TComponentContract["events"]["payloads"][TEventNameUnion],
         TComponentContract
       >,
     ) => void | Promise<void>
   : never;
 
 export type Effects<TComponentContract extends ComponentContract> = {
-  [TEventName in keyof TComponentContract["events"]]?: Effect<
+  [TEventName in ExtractEventNameUnion<TComponentContract>]?: Effect<
     TComponentContract,
     TEventName,
-    keyof TComponentContract["events"]
+    ExtractEventNameUnion<TComponentContract>
   >;
 };

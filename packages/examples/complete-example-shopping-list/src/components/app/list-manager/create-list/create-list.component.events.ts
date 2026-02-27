@@ -2,7 +2,7 @@ import { EventsContract } from "@softer-components/types";
 
 import { List } from "../../../../model";
 
-export type eventNames =
+export type EventName =
   | "listNameChanged"
   | "createNewListSubmitted"
   | "createNewListRequested"
@@ -11,7 +11,7 @@ export type eventNames =
   | "setExistingListNames";
 
 export type Events = EventsContract<
-  eventNames,
+  EventName,
   {
     setExistingListNames: string[];
     listNameChanged: string;

@@ -8,6 +8,7 @@ import {
   ComponentContract,
   ContextContract,
   EventsContract,
+  ExtractUiEvents,
   ValuesContract,
 } from "./component-contract";
 import { ContextsConfig, ContextsDef } from "./context";
@@ -16,9 +17,6 @@ import { InternalEventForwarders } from "./event-forwarder";
 import { Selectors } from "./selectors";
 import { State } from "./state";
 import { ChildrenUpdaters, StateUpdaters } from "./updaters";
-
-export type UiEvents<TComponentContract extends ComponentContract = any> =
-  (keyof TComponentContract["events"] & string)[];
 
 /**
  * Definition of a component
@@ -53,10 +51,14 @@ type ChildrenPart<TComponentContract extends ComponentContract> =
         type: "collection";
       }
         ? {
-            readonly initialChildren: ChildrenInstancesDefs<TComponentContract>; //initialChildren is required if at least one of the children is a collection
+            readonly initialChildren: ChildrenInstancesDefs<
+              TComponentContract["children"]
+            >; //initialChildren is required if at least one of the children is a collection
           }
         : {
-            readonly initialChildren?: ChildrenInstancesDefs<TComponentContract>;
+            readonly initialChildren?: ChildrenInstancesDefs<
+              TComponentContract["children"]
+            >;
           })
     : {
         readonly childrenComponentDefs?: NO_CHILDREN_DEFINED;
@@ -86,12 +88,17 @@ type EventPart<
   TState extends State,
 > = TComponentContract extends { events: EventsContract }
   ? {
-      readonly uiEvents?: UiEvents<TComponentContract>;
       readonly stateUpdaters?: StateUpdaters<TComponentContract, TState>;
       readonly childrenUpdaters?: ChildrenUpdaters<TComponentContract>;
       readonly eventForwarders?: InternalEventForwarders<TComponentContract>;
       readonly effects?: Effects<TComponentContract>;
-    }
+    } & (ExtractUiEvents<TComponentContract> extends never | []
+      ? {
+          readonly uiEvents?: [];
+        }
+      : {
+          readonly uiEvents: ExtractUiEvents<TComponentContract>;
+        })
   : {
       readonly uiEvents?: NO_EVENTS_DEFINED;
       readonly stateUpdaters?: NO_EVENTS_DEFINED;

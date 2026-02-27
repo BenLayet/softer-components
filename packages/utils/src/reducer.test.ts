@@ -19,11 +19,12 @@ describe("reducer tests", () => {
 
     const componentDef: ComponentDef<
       {
-        events: { incrementRequested: { payload: undefined } };
+        events: EventsContract<"incrementRequested">;
       },
       MyState
     > = {
       initialState,
+      uiEvents: ["incrementRequested"],
       stateUpdaters: {
         incrementRequested: ({ state }) => {
           state.count++;
@@ -64,11 +65,12 @@ describe("reducer tests", () => {
 
     const componentDef: ComponentDef<
       {
-        events: { incrementRequested: { payload: undefined } };
+        events: EventsContract<"incrementRequested">;
       },
       MyState
     > = {
       initialState,
+      uiEvents: ["incrementRequested"],
       stateUpdaters: {
         incrementRequested: ({ state }) => {
           state.count++;

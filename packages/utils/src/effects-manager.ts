@@ -26,7 +26,7 @@ export class EffectsManager {
     if (typeof componentDefOfEvent.effects !== "object") {
       return;
     }
-    const effect = componentDefOfEvent.effects?.[event.name];
+    const effect = componentDefOfEvent.effects[event.name];
     if (isUndefined(effect)) {
       return Promise.resolve();
     }

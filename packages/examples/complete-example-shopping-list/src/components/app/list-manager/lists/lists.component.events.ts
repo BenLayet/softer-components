@@ -2,7 +2,7 @@ import { EventsContract } from "@softer-components/types";
 
 import { List, ListId } from "../../../../model";
 
-export type eventNames =
+export type EventName =
   | "initializeRequested"
   | "fetchRequested"
   | "fetchSucceeded"
@@ -16,7 +16,7 @@ export type eventNames =
   | "deleteFailed";
 
 export type Events = EventsContract<
-  eventNames,
+  EventName,
   {
     fetchSucceeded: List[];
     fetchFailed: string;

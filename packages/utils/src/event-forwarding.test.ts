@@ -1,4 +1,4 @@
-import { ComponentDef } from "@softer-components/types";
+import { ComponentDef, EventsContract } from "@softer-components/types";
 import { describe, expect, it, vi } from "vitest";
 
 import { ContextEventManager } from "./context-event-manager";
@@ -172,15 +172,17 @@ describe("event forwarding tests", () => {
       () => {
         // GIVEN
         type Contract = {
-          events: {
-            btnClicked: { payload: undefined };
-            incrementRequested: { payload: undefined };
-          };
+          events: EventsContract<
+            "btnClicked" | "incrementRequested",
+            {},
+            ["btnClicked"]
+          >;
           values: { isPassing: boolean };
         };
         type State = { isPassing: boolean };
         const componentDef: ComponentDef<Contract, State> = {
           initialState: { isPassing },
+          uiEvents: ["btnClicked"],
           selectors: {
             isPassing: state => state.isPassing,
           },
@@ -222,15 +224,17 @@ describe("event forwarding tests", () => {
   it("generates an event with a different payload", () => {
     // GIVEN
     type Contract = {
-      events: {
-        btnClicked: { payload: undefined };
-        incrementRequested: { payload: number };
-      };
+      events: EventsContract<
+        "btnClicked" | "incrementRequested",
+        { incrementRequested: number },
+        ["btnClicked"]
+      >;
       values: { nextPayload: number };
     };
     type State = { nextPayload: number };
     const componentDef: ComponentDef<Contract, State> = {
       initialState: { nextPayload: 42 },
+      uiEvents: ["btnClicked"],
       selectors: { nextPayload: state => state.nextPayload },
       eventForwarders: [
         {

@@ -2,7 +2,7 @@ import { EventsContract } from "@softer-components/types";
 
 import { AppError } from "../../../model/errors";
 
-export type EventNames =
+export type EventName =
   | "signInCancelled"
   | "usernameChanged"
   | "passwordChanged"
@@ -10,20 +10,22 @@ export type EventNames =
   | "signInFormSubmitted"
   | "signInFailed";
 
+export const uiEvents = [
+  "usernameChanged",
+  "passwordChanged",
+  "signInFormSubmitted",
+  "signInCancelled",
+  "demoUserClicked",
+] as const satisfies EventName[];
+
 export type Events = EventsContract<
-  EventNames,
+  EventName,
   {
     usernameChanged: string;
     passwordChanged: string;
     signInFailed: AppError;
     signInSucceeded: { username: string };
     demoUserClicked: { username: string; password: string };
-  }
+  },
+  typeof uiEvents
 >;
-export const uiEvents: EventNames[] = [
-  "usernameChanged",
-  "passwordChanged",
-  "signInFormSubmitted",
-  "signInCancelled",
-  "demoUserClicked",
-];

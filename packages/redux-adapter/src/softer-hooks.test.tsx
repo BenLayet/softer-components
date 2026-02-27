@@ -1,4 +1,4 @@
-import { ComponentDef } from "@softer-components/types";
+import { ComponentDef, EventsContract } from "@softer-components/types";
 import { act, renderHook } from "@testing-library/react";
 import React from "react";
 import { Provider } from "react-redux";
@@ -13,7 +13,7 @@ describe("useSofter with memoization", () => {
     type CounterContract = {
       state: { count: number };
       values: { doubled: number; tripled: number };
-      events: { incrementRequested: { payload: undefined } };
+      events: EventsContract<"incrementRequested", {}, ["incrementRequested"]>;
     };
 
     const counterDef: ComponentDef<CounterContract, { count: number }> = {
@@ -58,15 +58,19 @@ describe("useSofter with memoization", () => {
     type CounterContract = {
       state: { count: number };
       values: { doubled: number };
-      events: { increment: { payload: undefined } };
+      events: {
+        eventName: "increment";
+        payloads: {};
+        uiEvents: ["increment"];
+      };
     };
 
     const counterDef: ComponentDef<CounterContract, { count: number }> = {
       initialState: { count: 0 },
+      uiEvents: ["increment"],
       selectors: {
         doubled: state => state.count * 2,
       },
-      uiEvents: ["increment"],
       stateUpdaters: {
         // @ts-ignore
         increment: ({ state }) => {
