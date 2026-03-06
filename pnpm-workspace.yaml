@@ -2,8 +2,8 @@ packages:
   - packages/types
   - packages/utils
   - packages/redux-adapter
-  - packages/examples/basic-example-counter
-  - packages/examples/complete-example-shopping-list
+  - packages/examples/redux/basic-example-counter
+  - packages/examples/redux/complete-example-shopping-list
 
 overrides:
   '@isaacs/brace-expansion@<=5.0.0': '>=5.0.1'

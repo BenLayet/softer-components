@@ -24,11 +24,11 @@
     "noUncheckedSideEffectImports": true,
     "types": ["vitest/globals"],
     "paths": {
-      "@softer-components/redux-adapter": ["../../redux-adapter/src"],
-      "@softer-components/types": ["../../types/src"],
-      "@softer-components/utils": ["../../utils/src"],
+      "@softer-components/redux-adapter": ["../../../redux-adapter/src"],
+      "@softer-components/types": ["../../../types/src"],
+      "@softer-components/utils": ["../../../utils/src"],
       "@softer-components/utils/test-utilities": [
-        "../../utils/src/test-utilities"
+        "../../../utils/src/test-utilities"
       ]
     }
   },
