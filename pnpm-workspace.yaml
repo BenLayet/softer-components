@@ -2,6 +2,7 @@ packages:
   - packages/types
   - packages/utils
   - packages/redux-adapter
+  - packages/examples/ngrx/basic-example-counter
   - packages/examples/redux/basic-example-counter
   - packages/examples/redux/complete-example-shopping-list
 
