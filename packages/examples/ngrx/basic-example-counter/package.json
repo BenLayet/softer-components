@@ -11,6 +11,8 @@
   "private": true,
   "packageManager": "pnpm@10.19.0",
   "dependencies": {
+    "@softer-components/types": "workspace:^",
+    "@softer-components/utils": "workspace:^",
     "@angular/common": "^21.2.0",
     "@angular/compiler": "^21.2.0",
     "@angular/core": "^21.2.0",
