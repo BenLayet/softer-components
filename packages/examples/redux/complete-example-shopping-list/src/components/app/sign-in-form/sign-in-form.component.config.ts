@@ -19,7 +19,7 @@ const componentDef = ({
   uiEvents,
   stateUpdaters,
   contextsConfig,
-  contextDefs: {
+  contextsDef: {
     userContext: context.getRelativePath<UserContextContract>("userContext"),
   },
 });

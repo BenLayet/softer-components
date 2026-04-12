@@ -145,7 +145,7 @@ export const counterDef: ComponentDef<CounterContract> = {
   },
 
   // UI events that can be dispatched from the component
-  uiEvents: ["increment", "decrement", "set"],
+  events: ["increment", "decrement", "set"],
 
   // Updaters - handle events and update state
   updaters: {
@@ -371,7 +371,7 @@ export const counterDef: ComponentDef<CounterContract> = {
     count: state => state.count,
   },
 
-  uiEvents: ["btnClicked"],
+  events: ["btnClicked"],
 
   updaters: {
     incrementRequested: ({ state }) => {
@@ -566,7 +566,7 @@ type ComponentDef<TComponentContract extends ComponentContract> = {
       state: TComponentContract["state"],
     ) => TComponentContract["values"][K];
   };
-  uiEvents?: (keyof TComponentContract["events"])[];
+  events?: (keyof TComponentContract["events"])[];
   updaters?: {
     [K in keyof TComponentContract["events"]]?: (
       params: UpdaterParams,

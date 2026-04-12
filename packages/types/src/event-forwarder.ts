@@ -110,8 +110,8 @@ type FromNonUndefinedEventContractToNonUndefinedChildEventContract<
   TFromEvents extends EventsContract,
   TToEvents extends EventsContract,
 > = {
-  [TFromEventName in TFromEvents["eventName"]]: {
-    [TToEventName in TToEvents["eventName"]]: FromEventToChildEvent<
+  [TFromEventName in TFromEvents["allEvents"][number]]: {
+    [TToEventName in TToEvents["allEvents"][number]]: FromEventToChildEvent<
       TComponentContract,
       TIsDestinationACollection,
       {
@@ -123,8 +123,8 @@ type FromNonUndefinedEventContractToNonUndefinedChildEventContract<
         payload: TToEvents["payloads"][TToEventName & string];
       }
     >;
-  }[TToEvents["eventName"]];
-}[TFromEvents["eventName"]];
+  }[TToEvents["allEvents"][number]];
+}[TFromEvents["allEvents"][number]];
 
 export type FromEventContractToEventContract<
   TComponentContract extends ComponentContract,
@@ -145,8 +145,8 @@ type FromNonUndefinedEventContractToNonUndefinedEventContract<
   TFromEvents extends EventsContract,
   TToEvents extends EventsContract,
 > = {
-  [TFromEventName in TFromEvents["eventName"]]: {
-    [TToEventName in TToEvents["eventName"]]: FromEventToEvent<
+  [TFromEventName in TFromEvents["allEvents"][number]]: {
+    [TToEventName in TToEvents["allEvents"][number]]: FromEventToEvent<
       TComponentContract,
       {
         name: TFromEventName & string;
@@ -157,15 +157,15 @@ type FromNonUndefinedEventContractToNonUndefinedEventContract<
         payload: TToEvents["payloads"][TToEventName & string];
       }
     >;
-  }[TToEvents["eventName"]];
-}[TFromEvents["eventName"]];
+  }[TToEvents["allEvents"][number]];
+}[TFromEvents["allEvents"][number]];
 
 export type InternalEventForwarder<
   TComponentContract extends ComponentContract,
 > = TComponentContract["events"] extends EventsContract
   ? {
-      [TFromEventName in TComponentContract["events"]["eventName"]]: {
-        [TToEventName in TComponentContract["events"]["eventName"]]: FromEventToEvent<
+      [TFromEventName in TComponentContract["events"]["allEvents"][number]]: {
+        [TToEventName in TComponentContract["events"]["allEvents"][number]]: FromEventToEvent<
           TComponentContract,
           {
             name: TFromEventName & string;
@@ -178,8 +178,11 @@ export type InternalEventForwarder<
               string];
           }
         >;
-      }[Exclude<TComponentContract["events"]["eventName"], TFromEventName>]; //Exclude<..., TFromEventName> to prevent forwarding to itself
-    }[TComponentContract["events"]["eventName"]]
+      }[Exclude<
+        TComponentContract["events"]["allEvents"][number],
+        TFromEventName
+      >]; //Exclude<..., TFromEventName> to prevent forwarding to itself
+    }[TComponentContract["events"]["allEvents"][number]]
   : never;
 export type InternalEventForwarders<
   TComponentContract extends ComponentContract,

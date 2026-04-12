@@ -3,12 +3,12 @@ import { Payload } from "./event";
 export type ValuesContract = { [SelectorName in string]: any };
 
 export type EventsContract<
-  TEventNameUnion extends string = string, // expect union
-  TPayloads extends { [T in TEventNameUnion]?: Payload } = {
-    [T in TEventNameUnion]?: Payload;
+  TAllEvents extends readonly string[] = readonly string[],
+  TPayloads extends { [T in TAllEvents[number]]?: Payload } = {
+    [T in TAllEvents[number]]?: Payload;
   },
-  TUiEvents extends readonly TEventNameUnion[] = readonly TEventNameUnion[],
-> = { eventName: TEventNameUnion; payloads: TPayloads; uiEvents: TUiEvents };
+  TUiEvents extends readonly TAllEvents[number][] = TAllEvents,
+> = { allEvents: TAllEvents; payloads: TPayloads; uiEvents: TUiEvents };
 
 export type ChildInstanceContract =
   | {}
@@ -32,17 +32,61 @@ export type ComponentContract = {
   context?: ContextContract;
 };
 
-export type ExtractEventNameUnion<
-  TComponentContract extends ComponentContract,
-> = TComponentContract extends never
-  ? string
-  : TComponentContract["events"] extends { eventName: infer TEventNameUnion }
-    ? TEventNameUnion extends string
-      ? TEventNameUnion
-      : never
-    : never;
-
 export type ExtractUiEvents<TComponentContract extends ComponentContract> =
   TComponentContract["events"] extends EventsContract
     ? TComponentContract["events"]["uiEvents"]
     : never;
+
+export type ExtractEventNames<TComponentContract extends ComponentContract> =
+  TComponentContract["events"] extends EventsContract<
+    infer TEventNames,
+    any,
+    any
+  >
+    ? TEventNames
+    : never;
+export type ExtractEventNameUnion<
+  TComponentContract extends ComponentContract,
+> = ExtractEventNames<TComponentContract>[number];
+
+export type ExtractPayloads<TComponentContract extends ComponentContract> =
+  TComponentContract extends never
+    ? Record<string, Payload>
+    : {
+        [TEventName in ExtractEventNames<TComponentContract>[number]]: ExtractPayload<
+          TComponentContract,
+          TEventName
+        >;
+      };
+
+export type ExtractPayload<
+  TComponentContract extends ComponentContract,
+  TEventName extends string,
+> = TComponentContract extends never
+  ? Payload
+  : TComponentContract["events"] extends { payloads: infer TPayloads }
+    ? TPayloads extends Record<string, Payload>
+      ? TPayloads[TEventName] extends Payload
+        ? TPayloads[TEventName]
+        : undefined
+      : undefined
+    : undefined;
+
+export type ExtractChildrenPaths<TComponentContract extends ComponentContract> =
+  TComponentContract["children"] extends ChildrenContract
+    ? {
+        [K in keyof TComponentContract["children"]]: ExtractChildPaths<
+          TComponentContract["children"][K]
+        >;
+      }
+    : {};
+
+type ExtractChildPaths<T extends ChildInstanceContract> = T extends {
+  type: "collection";
+}
+  ? string[]
+  : T extends {
+        type: "optional";
+      }
+    ? string | undefined
+    : string;

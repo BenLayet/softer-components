@@ -117,7 +117,7 @@ const stateTreeListener = (
     );
 
     if (
-      typeof componentDef.contextDefs !== "object" ||
+      typeof componentDef.contextsDef !== "object" ||
       typeof componentDef.contextsConfig !== "object"
     ) {
       return;
@@ -127,7 +127,7 @@ const stateTreeListener = (
         assertIsNotUndefined(contextConfig);
         const contextComponentStatePath = computeRelativePath(
           statePath,
-          ensureIsNotUndefined(componentDef.contextDefs[contextName]),
+          ensureIsNotUndefined(componentDef.contextsDef?.[contextName]),
         );
         const contextComponentPath = statePathToComponentPath(
           contextComponentStatePath,

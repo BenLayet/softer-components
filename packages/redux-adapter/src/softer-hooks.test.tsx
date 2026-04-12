@@ -13,7 +13,7 @@ describe("useSofter with memoization", () => {
     type CounterContract = {
       state: { count: number };
       values: { doubled: number; tripled: number };
-      events: EventsContract<"incrementRequested", {}, ["incrementRequested"]>;
+      events: EventsContract<["incrementRequested"]>;
     };
 
     const counterDef: ComponentDef<CounterContract, { count: number }> = {
@@ -59,7 +59,7 @@ describe("useSofter with memoization", () => {
       state: { count: number };
       values: { doubled: number };
       events: {
-        eventName: "increment";
+        allEvents: ["increment"];
         payloads: {};
         uiEvents: ["increment"];
       };
@@ -142,7 +142,7 @@ describe("useSofter with memoization", () => {
       initialChildren: { itemRows: ["1", "2", "3"] },
     };
 
-    const store = configureSofterStore(listDef);
+    const store = configureSofterStore<ListContract>(listDef);
 
     const wrapper = ({ children }: { children: React.ReactNode }) => (
       <Provider store={store}>{children}</Provider>

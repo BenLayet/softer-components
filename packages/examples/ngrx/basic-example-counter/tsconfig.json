@@ -13,7 +13,14 @@
     "experimentalDecorators": true,
     "importHelpers": true,
     "target": "ES2022",
-    "module": "preserve"
+    "module": "preserve",
+    "paths": {
+      "@softer-components/redux-adapter": ["../../../redux-adapter/src"],
+      "@softer-components/types": ["../../../types/src"],
+      "@softer-components/utils": ["../../../utils/src"],
+      "@softer-components/utils/test-utilities": ["../../../utils/src/test-utilities"],
+      "@softer-components/ngrx-adapter": ["../../../ngrx-adapter/src"]
+    }
   },
   "angularCompilerOptions": {
     "enableI18nLegacyMessageIdFormat": false,

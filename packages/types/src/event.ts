@@ -1,3 +1,8 @@
+import {
+  ChildInstanceContract,
+  ChildrenContract,
+  ComponentContract,
+} from "./component-contract";
 import { OptionalValue } from "./value";
 
 export type Payload = OptionalValue;

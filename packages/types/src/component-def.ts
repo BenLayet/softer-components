@@ -8,6 +8,7 @@ import {
   ComponentContract,
   ContextContract,
   EventsContract,
+  ExtractEventNames,
   ExtractUiEvents,
   ValuesContract,
 } from "./component-contract";
@@ -17,6 +18,7 @@ import { InternalEventForwarders } from "./event-forwarder";
 import { Selectors } from "./selectors";
 import { State } from "./state";
 import { ChildrenUpdaters, StateUpdaters } from "./updaters";
+import { IfAny, IfNonEmptyRecord } from "./util";
 
 /**
  * Definition of a component
@@ -24,23 +26,47 @@ import { ChildrenUpdaters, StateUpdaters } from "./updaters";
  */
 export type ComponentDef<
   TComponentContract extends ComponentContract = any,
-  TState extends State = TComponentContract extends never ? any : undefined,
-> = StatePart<TState> &
-  SelectorsPart<TComponentContract, TState> &
-  EventPart<TComponentContract, TState> &
-  ChildrenPart<TComponentContract> &
-  ContextPart<TComponentContract>;
+  TState extends State = any, // cannot use IfAny<TComponentContract, any, undefined>, because ComponentContract cannot be inferred in ContractOfComponentDef<T extends ComponentDef> which is necessary in ValuesProviders
+> = IfAny<
+  TComponentContract,
+  {
+    readonly initialState?: State;
+    readonly selectors?: Selectors<any, any, any>; //<any, any, any> is necessary, so that ComponentDef<RealContract, RealState> is not assignable to ComponentDef<any, any>
+    readonly allEvents?: readonly string[];
+    readonly uiEvents?: readonly string[];
+    readonly stateUpdaters?: StateUpdaters<any, any>;
+    readonly eventForwarders?: InternalEventForwarders<any>;
+    readonly initialChildren?: ChildrenInstancesDefs<any>;
+    readonly childrenUpdaters?: ChildrenUpdaters<any>;
+    readonly childrenConfig?: ChildrenConfig<any>;
+    readonly childrenComponentDefs?: ChildrenComponentDefs<any>;
+    readonly contextsConfig?: ContextsConfig<any>;
+    readonly contextsDef?: ContextsDef<any>;
+    readonly effects?: Effects<any>;
+  },
+  StatePart<TState> &
+    SelectorsPart<TComponentContract, TState> &
+    EventsPart<TComponentContract, TState> &
+    ChildrenPart<TComponentContract> &
+    ContextsPart<TComponentContract>
+>;
 
 type NO_STATE_DEFINED = "State is undefined, cannot define initialState";
 type StatePart<TState extends State> = TState extends undefined
   ? {
       initialState?: NO_STATE_DEFINED;
     }
-  : {
-      initialState: TState;
-    };
+  : IfAny<
+      TState,
+      {
+        initialState?: State;
+      },
+      {
+        initialState: TState;
+      }
+    >;
 
-type NO_CHILDREN_DEFINED = "No children defined in the contract";
+type NO_CHILDREN_DEFINED = never;
 type ChildrenPart<TComponentContract extends ComponentContract> =
   TComponentContract extends { children: ChildrenContract }
     ? {
@@ -67,54 +93,60 @@ type ChildrenPart<TComponentContract extends ComponentContract> =
         readonly childrenUpdaters?: NO_CHILDREN_DEFINED;
       };
 
-type NO_VALUES_DEFINED = "No values defined in the contract";
+type NO_VALUES_DEFINED = never;
 type SelectorsPart<
   TComponentContract extends ComponentContract,
   TState extends State,
-> = TComponentContract extends { values: ValuesContract }
-  ? {
-      readonly selectors?: Selectors<
-        TState,
-        TComponentContract["children"],
-        TComponentContract["context"]
-      >;
-    }
-  : {
-      readonly selectors?: NO_VALUES_DEFINED;
-    };
-type NO_EVENTS_DEFINED = "No events defined in the contract";
-type EventPart<
+> = IfNonEmptyRecord<
+  TComponentContract["values"],
+  {
+    readonly selectors: Selectors<
+      TState,
+      TComponentContract["children"],
+      TComponentContract["context"]
+    >;
+  },
+  {
+    readonly selectors?: NO_VALUES_DEFINED;
+  }
+>;
+type NO_EVENTS_DEFINED = never;
+type EventsPart<
   TComponentContract extends ComponentContract,
   TState extends State,
-> = TComponentContract extends { events: EventsContract }
-  ? {
-      readonly stateUpdaters?: StateUpdaters<TComponentContract, TState>;
-      readonly childrenUpdaters?: ChildrenUpdaters<TComponentContract>;
-      readonly eventForwarders?: InternalEventForwarders<TComponentContract>;
-      readonly effects?: Effects<TComponentContract>;
-    } & (ExtractUiEvents<TComponentContract> extends never | []
-      ? {
-          readonly uiEvents?: [];
-        }
-      : {
-          readonly uiEvents: ExtractUiEvents<TComponentContract>;
-        })
-  : {
-      readonly uiEvents?: NO_EVENTS_DEFINED;
-      readonly stateUpdaters?: NO_EVENTS_DEFINED;
-      readonly childrenUpdaters?: NO_EVENTS_DEFINED;
-      readonly eventForwarders?: NO_EVENTS_DEFINED;
-      readonly effects?: NO_EVENTS_DEFINED;
-    };
+> = IfNonEmptyRecord<
+  TComponentContract["events"],
+  {
+    readonly allEvents: ExtractEventNames<TComponentContract>;
+    readonly stateUpdaters?: StateUpdaters<TComponentContract, TState>;
+    readonly childrenUpdaters?: ChildrenUpdaters<TComponentContract>;
+    readonly eventForwarders?: InternalEventForwarders<TComponentContract>;
+    readonly effects?: Effects<TComponentContract>;
+  } & (ExtractUiEvents<TComponentContract> extends never | []
+    ? {
+        readonly uiEvents?: [];
+      }
+    : {
+        readonly uiEvents: ExtractUiEvents<TComponentContract>;
+      }),
+  {
+    readonly allEvents?: NO_EVENTS_DEFINED;
+    readonly uiEvents?: NO_EVENTS_DEFINED;
+    readonly stateUpdaters?: NO_EVENTS_DEFINED;
+    readonly childrenUpdaters?: NO_EVENTS_DEFINED;
+    readonly eventForwarders?: NO_EVENTS_DEFINED;
+    readonly effects?: NO_EVENTS_DEFINED;
+  }
+>;
 
-type NO_CONTEXT_DEFINED = "No context defined in the contract";
-type ContextPart<TComponentContract extends ComponentContract> =
+type NO_CONTEXT_DEFINED = never;
+type ContextsPart<TComponentContract extends ComponentContract> =
   TComponentContract extends { context: ContextContract }
     ? {
-        contextDefs: ContextsDef<TComponentContract>;
+        contextsDef: ContextsDef<TComponentContract>;
         contextsConfig?: ContextsConfig<TComponentContract>;
       }
     : {
-        contextDefs?: NO_CONTEXT_DEFINED;
+        contextsDef?: NO_CONTEXT_DEFINED;
         contextsConfig?: NO_CONTEXT_DEFINED;
       };

@@ -173,7 +173,7 @@ describe("event forwarding tests", () => {
         // GIVEN
         type Contract = {
           events: EventsContract<
-            "btnClicked" | "incrementRequested",
+            ["btnClicked", "incrementRequested"],
             {},
             ["btnClicked"]
           >;
@@ -225,7 +225,7 @@ describe("event forwarding tests", () => {
     // GIVEN
     type Contract = {
       events: EventsContract<
-        "btnClicked" | "incrementRequested",
+        ["btnClicked", "incrementRequested"],
         { incrementRequested: number },
         ["btnClicked"]
       >;

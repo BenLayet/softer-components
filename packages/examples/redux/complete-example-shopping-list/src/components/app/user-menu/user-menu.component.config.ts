@@ -15,7 +15,7 @@ export const componentDef = ({
   selectors,
   uiEvents,
   contextsConfig,
-  contextDefs: {
+  contextsDef: {
     userContext: context.getRelativePath<UserContextContract>("userContext"),
   },
 });

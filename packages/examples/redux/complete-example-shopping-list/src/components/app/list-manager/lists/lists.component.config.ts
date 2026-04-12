@@ -22,7 +22,7 @@ export const componentDef = ({
   stateUpdaters,
   eventForwarders,
   effects: effects(dependencies),
-  contextDefs: {
+  contextsDef: {
     userContext: context.getRelativePath<UserContextContract>("userContext"),
   },
   contextsConfig,

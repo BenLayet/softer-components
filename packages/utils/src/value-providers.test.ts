@@ -1,4 +1,8 @@
-import { ComponentDef, Values } from "@softer-components/types";
+import {
+  ComponentDef,
+  ContractOfComponentDef,
+  Values,
+} from "@softer-components/types";
 import { describe, expect, it, vi } from "vitest";
 
 import { RelativePathStateReader } from "./relative-path-state-manager";
@@ -21,11 +25,9 @@ describe("createValuesProvider", () => {
     mockStateReader.getChildrenKeys = vi.fn().mockReturnValue({});
     mockStateReader.selectValue = vi.fn().mockReturnValue(42);
 
+    const t: ContractOfComponentDef<typeof rootDef> = {};
     //WHEN
-    const result = createValueProviders(
-      rootDef,
-      mockStateReader,
-    ) as Values<TestContract>;
+    const result = createValueProviders(rootDef, mockStateReader);
 
     //THEN
     expect(result.values.answer()).toEqual(42);
@@ -41,7 +43,8 @@ describe("createValuesProvider", () => {
         answer: (state: { answer: number }) => state.answer,
       },
     };
-    const rootDef: ComponentDef<{ children: { child: ChildContract } }> = {
+    type RootContract = { children: { child: ChildContract } };
+    const rootDef: ComponentDef<RootContract> = {
       childrenComponentDefs: { child: childDef },
     };
     const mockStateReader = {
@@ -58,7 +61,7 @@ describe("createValuesProvider", () => {
     mockChildStateReader.selectValue = vi.fn().mockReturnValue(42);
 
     //WHEN
-    const result = createValueProviders(rootDef, mockStateReader);
+    const result = createValueProviders<RootContract>(rootDef, mockStateReader);
 
     //THEN
     expect(result.childrenValues.child.values.answer()).toEqual(42);
@@ -75,11 +78,12 @@ describe("createValuesProvider", () => {
     };
     type Child1Contract = { context: { context1: Context1Contract } };
     const childDef: ComponentDef<Child1Contract> = {
-      contextDefs: { context1: "../context1" },
+      contextsDef: { context1: "../context1" },
     };
-    const rootDef: ComponentDef<{
+    type RootContract = {
       children: { child1: Child1Contract; context1: Context1Contract };
-    }> = {
+    };
+    const rootDef: ComponentDef<RootContract> = {
       childrenComponentDefs: { child1: childDef, context1: context1Def },
     };
     const mockRootStateReader = {
@@ -111,7 +115,10 @@ describe("createValuesProvider", () => {
     mockContext1StateReader.selectValue = vi.fn().mockReturnValue(42);
 
     //WHEN
-    const result = createValueProviders(rootDef, mockRootStateReader);
+    const result = createValueProviders<RootContract>(
+      rootDef,
+      mockRootStateReader,
+    );
 
     //THEN
     expect(
