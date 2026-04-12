@@ -8,49 +8,35 @@ import {
 } from "@softer-components/utils";
 import { produce } from "immer";
 
-import {
-  NgRxAction,
-  NgrxGlobalState,
-  actionToEvent,
-  addSofterRootTree,
-  getSofterRootTree,
-  isSofterAction,
-} from "./softer-mappers";
+import { NgRxAction, SofterNgrxEventMapper } from "./softer-ngrx-event-mapper";
 
 /**
  * Creates the softer reducer for NgRx.
  * Uses Immer for immutable state updates.
  */
-export function createSofterReducer<FeatureName extends string>(
+export function createSofterReducer(
   stateManager: StateManager,
   rootComponentDef: ComponentDef,
-  featureName: FeatureName,
+  eventMapper: SofterNgrxEventMapper,
 ): ActionReducer<SofterRootState, NgRxAction> {
   // Initialize the root state
   const initialState: SofterRootState = {};
-  const globalState = addSofterRootTree(initialState as NgrxGlobalState);
-  initializeRootState(
-    getSofterRootTree(globalState, featureName),
-    rootComponentDef,
-    stateManager,
-  );
+  initializeRootState(initialState, rootComponentDef, stateManager);
 
   return (
     state: SofterRootState | undefined,
     action: NgRxAction,
   ): SofterRootState => {
-    //TODO : is this necessary?
     if (state === undefined) {
-      return getSofterRootTree(globalState);
+      return initialState;
     }
-
-    if (!isSofterAction(action)) {
+    if (!eventMapper.isSofterAction(action)) {
       return state;
     }
 
     // Use Immer's produce for immutable state updates
     return produce(state, (draftState: SofterRootState) => {
-      const globalEvent = actionToEvent(action);
+      const globalEvent = eventMapper.ngrxActionToSofterEvent(action);
       updateSofterRootState(
         draftState,
         rootComponentDef,

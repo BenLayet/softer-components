@@ -3,7 +3,7 @@ import { createBaseSelectors } from '@softer-components/utils';
 
 // Initial state definition
 export const initialState = {
-  count: 0,
+  count: 42,
 };
 type State = typeof initialState;
 // Events type declaration

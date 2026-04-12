@@ -6,7 +6,7 @@ import {
   stringToStatePath,
 } from "@softer-components/utils";
 
-import { NgrxGlobalState, eventToAction } from "./softer-mappers";
+import { SofterNgrxEventMapper } from "./softer-ngrx-event-mapper";
 
 /**
  * Service that creates and caches NgRx action dispatchers for softer components.
@@ -16,7 +16,8 @@ import { NgrxGlobalState, eventToAction } from "./softer-mappers";
 export class SofterNgrxDispatchers {
   constructor(
     private readonly rootComponentDef: ComponentDef,
-    private readonly store: Store<NgrxGlobalState>,
+    private readonly store: Store,
+    private readonly eventMapper: SofterNgrxEventMapper,
   ) {}
 
   public createDispatchers(
@@ -35,7 +36,7 @@ export class SofterNgrxDispatchers {
         eventName,
         (payload?: Payload) =>
           this.store.dispatch(
-            eventToAction({
+            this.eventMapper.softerEventToNgRxAction({
               statePath,
               name: eventName,
               payload,

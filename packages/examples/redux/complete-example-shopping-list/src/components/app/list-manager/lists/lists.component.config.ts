@@ -4,6 +4,7 @@ import { SofterContext } from "@softer-components/utils";
 import { UserContextContract } from "../../user-context";
 import { Contract } from "./lists.component.contract";
 import { EffectsDependencies, effects } from "./lists.component.effects";
+import { allEvents, uiEvents } from "./lists.component.events";
 import { contextsConfig, eventForwarders } from "./lists.component.forwarders";
 import { selectors } from "./lists.component.selectors";
 import { State, initialState } from "./lists.component.state";
@@ -18,7 +19,8 @@ export const componentDef = ({
 }): ComponentDef<Contract, State> => ({
   initialState,
   selectors,
-  uiEvents: ["listClicked", "deleteClicked"],
+  allEvents,
+  uiEvents,
   stateUpdaters,
   eventForwarders,
   effects: effects(dependencies),

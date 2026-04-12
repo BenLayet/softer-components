@@ -1,11 +1,16 @@
 import { Actions, USER_PROVIDED_EFFECTS } from "@ngrx/effects";
-import { Store, provideState } from "@ngrx/store";
+import {
+  MemoizedSelector,
+  Store,
+  createFeatureSelector,
+  provideState,
+} from "@ngrx/store";
 import { ComponentDef } from "@softer-components/types";
-import { TreeStateManager } from "@softer-components/utils";
+import { StateTree, TreeStateManager } from "@softer-components/utils";
 
-import { NGRX_SOFTER_PREFIX } from "./softer-mappers";
 import { SofterNgrxDispatchers } from "./softer-ngrx-dispatchers";
 import { SofterNgrxEffects } from "./softer-ngrx-effects";
+import { SofterNgrxEventMapper } from "./softer-ngrx-event-mapper";
 import { createSofterReducer } from "./softer-ngrx-reducer";
 import { SofterNgrxSelectors } from "./softer-ngrx-selectors";
 
@@ -16,12 +21,22 @@ export type SofterNgrxConfig = {
 export function provideSofterState(softerNgrxConfig: SofterNgrxConfig) {
   const stateManager = new TreeStateManager();
   const softerFeatureName =
-    softerNgrxConfig.softerFeatureName ?? NGRX_SOFTER_PREFIX;
+    softerNgrxConfig.softerFeatureName ?? DEFAULT_SOFTER_FEATURE_NAME;
+  const eventMapper = new SofterNgrxEventMapper(
+    softerFeatureName + SOFTER_ACTION_TYPE_PREFIX_SEPARATOR,
+  );
+  const featureSelector = createFeatureSelector(
+    softerFeatureName,
+  ) as MemoizedSelector<object, StateTree>;
   return [
     {
       provide: SofterNgrxDispatchers,
       useFactory: (store: Store) =>
-        new SofterNgrxDispatchers(softerNgrxConfig.rootComponentDef, store),
+        new SofterNgrxDispatchers(
+          softerNgrxConfig.rootComponentDef,
+          store,
+          eventMapper,
+        ),
       deps: [Store],
     },
     {
@@ -30,12 +45,16 @@ export function provideSofterState(softerNgrxConfig: SofterNgrxConfig) {
         new SofterNgrxSelectors(
           stateManager,
           softerNgrxConfig.rootComponentDef,
-          softerFeatureName,
+          featureSelector,
         ),
     },
     provideState(
       softerFeatureName,
-      createSofterReducer(stateManager, softerNgrxConfig.rootComponentDef),
+      createSofterReducer(
+        stateManager,
+        softerNgrxConfig.rootComponentDef,
+        eventMapper,
+      ),
     ),
     {
       provide: USER_PROVIDED_EFFECTS,
@@ -44,10 +63,15 @@ export function provideSofterState(softerNgrxConfig: SofterNgrxConfig) {
         new SofterNgrxEffects(
           stateManager,
           softerNgrxConfig.rootComponentDef,
+          eventMapper,
           actions,
           store,
+          featureSelector,
         ),
       deps: [Actions, Store],
     },
   ];
 }
+
+const DEFAULT_SOFTER_FEATURE_NAME = "☁️";
+const SOFTER_ACTION_TYPE_PREFIX_SEPARATOR = "/";

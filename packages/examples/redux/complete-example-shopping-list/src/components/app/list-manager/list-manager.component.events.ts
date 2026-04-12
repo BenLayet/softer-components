@@ -2,10 +2,13 @@ import { EventsContract } from "@softer-components/types";
 
 import { List } from "../../../model";
 
-type EventName = "emptyListCreated" | "listSelected" | "listNamesChanged";
-
+export const allEvents = [
+  "emptyListCreated",
+  "listSelected",
+  "listNamesChanged",
+];
 export type Events = EventsContract<
-  EventName,
+  typeof allEvents,
   {
     emptyListCreated: List;
     listSelected: List;

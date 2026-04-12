@@ -2,15 +2,16 @@ import { EventsContract } from "@softer-components/types";
 
 import { List } from "../../model";
 
-export type EventName =
-  | "displayed"
-  | "listSelected"
-  | "selectListRequested"
-  | "signInRequested"
-  | "resetRequested";
-export const uiEvents = ["displayed"] as const satisfies EventName[];
+export const uiEvents = ["displayed"] as const;
+export const allEvents = [
+  ...uiEvents,
+  "listSelected",
+  "selectListRequested",
+  "signInRequested",
+  "resetRequested",
+] as const;
 export type Events = EventsContract<
-  EventName,
+  typeof allEvents,
   { listSelected: List; authenticated: { username: string } },
   typeof uiEvents
 >;

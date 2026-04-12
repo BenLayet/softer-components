@@ -5,6 +5,7 @@ import { ListService } from "../../../port/list.service";
 import { UserContextContract } from "../user-context";
 import { createListDef } from "./create-list";
 import { Contract } from "./list-manager.component.contract";
+import { allEvents } from "./list-manager.component.events";
 import {
   childrenConfig,
   eventForwarders,
@@ -23,6 +24,7 @@ export const componentDef = ({
   context: SofterContext<{ userContext: UserContextContract }>;
 }): ComponentDef<Contract> => ({
   selectors,
+  allEvents,
   eventForwarders,
   childrenConfig,
   childrenComponentDefs: {

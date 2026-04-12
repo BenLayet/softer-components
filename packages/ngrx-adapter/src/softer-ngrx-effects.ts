@@ -1,23 +1,19 @@
 import { Actions, createEffect } from "@ngrx/effects";
-import { Store } from "@ngrx/store";
+import { concatLatestFrom } from "@ngrx/operators";
+import { MemoizedSelector, Store } from "@ngrx/store";
 import { ComponentDef } from "@softer-components/types";
 import {
   ContextEventManager,
   EffectsManager,
   GlobalEvent,
+  StateTree,
   TreeStateManager,
   generateEventsToForward,
 } from "@softer-components/utils";
-import { filter, tap } from "rxjs/operators";
+import { from } from "rxjs";
+import { filter, map, switchMap, tap } from "rxjs/operators";
 
-import {
-  NgRxAction,
-  NgrxGlobalState,
-  actionToEvent,
-  eventToAction,
-  getSofterRootTree,
-  isSofterAction,
-} from "./softer-mappers";
+import { SofterNgrxEventMapper } from "./softer-ngrx-event-mapper";
 
 /**
  * NgRx Effects for softer-components.
@@ -27,12 +23,15 @@ import {
 export class SofterNgrxEffects {
   private readonly effectsManager: EffectsManager;
   private readonly contextEventManager: ContextEventManager;
+  private readonly dispatchEvent: (newEvent: GlobalEvent) => void;
 
   constructor(
     private readonly stateManager: TreeStateManager,
     private readonly rootComponentDef: ComponentDef,
+    private readonly eventMapper: SofterNgrxEventMapper,
     private readonly actions$: Actions,
-    private readonly store: Store<NgrxGlobalState>,
+    private readonly store: Store,
+    private readonly featureSelector: MemoizedSelector<object, StateTree>,
   ) {
     this.effectsManager = new EffectsManager(
       rootComponentDef,
@@ -42,34 +41,32 @@ export class SofterNgrxEffects {
       rootComponentDef,
       this.stateManager,
     );
+    this.dispatchEvent = (newEvent: GlobalEvent) => {
+      this.store.dispatch(this.eventMapper.softerEventToNgRxAction(newEvent));
+    };
   }
 
   /**
    * Effect that forwards events based on component forwarders.
    * Listens for softer-component actions and dispatches new actions based on the forwarders.
    */
-  forwardEvents$ = createEffect(
-    () =>
-      this.actions$.pipe(
-        filter(action => isSofterAction(action as NgRxAction)),
-        tap(action => {
-          const softerRootState = this.getSofterRootState();
-          const event = actionToEvent(action as NgRxAction);
-
-          const eventsToForward = generateEventsToForward(
-            softerRootState,
-            this.rootComponentDef,
-            event,
-            this.stateManager,
-            this.contextEventManager,
-          );
-
-          eventsToForward.forEach(forwardedEvent => {
-            this.store.dispatch(eventToAction(forwardedEvent));
-          });
-        }),
+  forwardEvents$ = createEffect(() =>
+    this.actions$.pipe(
+      filter(this.eventMapper.isSofterAction),
+      map(this.eventMapper.ngrxActionToSofterEvent),
+      concatLatestFrom(() => this.store.select(this.featureSelector)),
+      map(([event, softerRootState]) =>
+        generateEventsToForward(
+          softerRootState,
+          this.rootComponentDef,
+          event,
+          this.stateManager,
+          this.contextEventManager,
+        ),
       ),
-    { dispatch: false },
+      map(events => events.map(this.eventMapper.softerEventToNgRxAction)),
+      switchMap(from),
+    ),
   );
 
   /**
@@ -78,31 +75,17 @@ export class SofterNgrxEffects {
   callEffects$ = createEffect(
     () =>
       this.actions$.pipe(
-        filter(action => isSofterAction(action as NgRxAction)),
-        tap(action => {
-          const softerRootState = this.getSofterRootState();
-          const event = actionToEvent(action as NgRxAction);
-
-          const dispatchEvent = (newEvent: GlobalEvent) => {
-            this.store.dispatch(eventToAction(newEvent));
-          };
-
-          void this.effectsManager.eventOccurred(
+        filter(this.eventMapper.isSofterAction),
+        map(this.eventMapper.ngrxActionToSofterEvent),
+        concatLatestFrom(() => this.store.select(this.featureSelector)),
+        tap(([event, softerRootState]) =>
+          this.effectsManager.eventOccurred(
             event,
             softerRootState,
-            dispatchEvent,
-          );
-        }),
+            this.dispatchEvent,
+          ),
+        ),
       ),
     { dispatch: false },
   );
-
-  private getSofterRootState() {
-    let state: NgrxGlobalState = {};
-    this.store
-      .select(s => s)
-      .subscribe(s => (state = s))
-      .unsubscribe();
-    return getSofterRootTree(state);
-  }
 }

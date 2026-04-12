@@ -29,28 +29,34 @@
     "tsc": "tsc --noEmit"
   },
   "dependencies": {
-    "@angular/core": "^21.2.0",
-    "@ngrx/effects": "^21.0.1",
-    "@ngrx/store": "^21.0.1",
     "@softer-components/types": "workspace:^",
     "@softer-components/utils": "workspace:^",
     "immer": "^10.2.0",
-    "react": "^19.1.1",
-    "reselect": "^5.1.1",
-    "rxjs": "^7.8.2",
     "tslib": "^2.3.0"
   },
   "devDependencies": {
+    "@angular/core": "^21.2.0",
+    "@ngrx/effects": "^21.1.0",
+    "@ngrx/operators": "^21.1.0",
+    "@ngrx/store": "^21.1.0",
     "@testing-library/jest-dom": "^6.8.0",
     "@testing-library/react": "^16.3.0",
     "@types/react": "^19.1.13",
     "@types/react-dom": "^19.1.9",
     "@vitejs/plugin-react": "^4.7.0",
     "jsdom": "^26.1.0",
+    "rxjs": "^7.8.2",
     "vite": "^7.2.4",
     "vite-plugin-dts": "^4.5.4",
     "vite-tsconfig-paths": "^5.1.4",
     "vitest": "^3.2.4"
+  },
+  "peerDependencies": {
+    "@angular/core": "^21.0.0",
+    "@ngrx/store": "^21.0.0",
+    "@ngrx/effects": "^21.0.0",
+    "@ngrx/operators": "^21.0.0",
+    "rxjs": "^7.0.0"
   },
   "publishConfig": {
     "access": "public"

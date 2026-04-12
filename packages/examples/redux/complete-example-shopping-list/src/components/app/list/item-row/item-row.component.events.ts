@@ -2,21 +2,14 @@ import { EventsContract } from "@softer-components/types";
 
 import { ListItem } from "../../../../model";
 
-type EventName =
-  | "initialize"
-  | "removeItemRequested"
-  | "incrementRequested"
-  | "decrementRequested"
-  | "itemChanged";
-
 export const uiEvents = [
   "removeItemRequested",
   "incrementRequested",
   "decrementRequested",
-] as const satisfies EventName[];
-
+] as const;
+export const allEvents = [...uiEvents, "initialize", "itemChanged"] as const;
 export type Events = EventsContract<
-  EventName,
+  typeof allEvents,
   {
     initialize: ListItem;
   },

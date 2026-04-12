@@ -1,8 +1,4 @@
-import {
-  MemoizedSelector,
-  createFeatureSelector,
-  createSelector,
-} from "@ngrx/store";
+import { MemoizedSelector, createSelector } from "@ngrx/store";
 import {
   ComponentContract,
   ComponentDef,
@@ -20,8 +16,6 @@ import {
   stringToStatePath,
 } from "@softer-components/utils";
 
-import { NgrxGlobalState } from "./softer-mappers";
-
 export type ChildrenPaths = Record<
   string,
   string[] | string | (string | undefined)
@@ -35,24 +29,18 @@ export type ChildrenPaths = Record<
 export class SofterNgrxSelectors {
   private readonly valuesSelectorsCache = new Map<
     string,
-    MemoizedSelector<NgrxGlobalState, Record<string, any>>
+    MemoizedSelector<object, Record<string, any>>
   >();
   private readonly childrenPathsSelectorsCache = new Map<
     string,
-    MemoizedSelector<NgrxGlobalState, any>
+    MemoizedSelector<object, any>
   >();
-  private readonly featureSelector: MemoizedSelector<
-    NgrxGlobalState,
-    StateTree
-  >;
 
   constructor(
     private readonly stateManager: TreeStateManager,
     private readonly rootComponentDef: ComponentDef,
-    featureName: string,
+    private readonly featureSelector: MemoizedSelector<object, StateTree>,
   ) {
-    this.featureSelector = createFeatureSelector<StateTree>(featureName);
-
     // Clean up cached selectors when state is removed
     this.stateManager.addStateTreeListener({
       onStateRemoved: statePath => {
@@ -65,7 +53,7 @@ export class SofterNgrxSelectors {
 
   valuesSelector<T extends ComponentContract>(
     statePath: string,
-  ): MemoizedSelector<NgrxGlobalState, Record<string, T["values"]>> {
+  ): MemoizedSelector<object, Record<string, T["values"]>> {
     if (!this.valuesSelectorsCache.has(statePath)) {
       this.valuesSelectorsCache.set(
         statePath,
@@ -77,7 +65,7 @@ export class SofterNgrxSelectors {
 
   childrenPathsSelector<T extends ComponentContract>(
     statePath: string,
-  ): MemoizedSelector<NgrxGlobalState, ExtractChildrenPaths<T>> {
+  ): MemoizedSelector<object, ExtractChildrenPaths<T>> {
     if (!this.childrenPathsSelectorsCache.has(statePath)) {
       this.childrenPathsSelectorsCache.set(
         statePath,
@@ -85,14 +73,14 @@ export class SofterNgrxSelectors {
       );
     }
     return this.childrenPathsSelectorsCache.get(statePath) as MemoizedSelector<
-      NgrxGlobalState,
+      object,
       ExtractChildrenPaths<T>
     >;
   }
 
   private createValuesSelector(
     statePath: StatePath,
-  ): MemoizedSelector<NgrxGlobalState, Record<string, any>> {
+  ): MemoizedSelector<object, Record<string, any>> {
     return createSelector(this.featureSelector, (rootState: StateTree) => {
       const values: Record<string, any> = {};
       const valueProviders = createValueProviders(
@@ -116,7 +104,7 @@ export class SofterNgrxSelectors {
 
   private createChildrenPathsSelector(
     statePath: StatePath,
-  ): MemoizedSelector<NgrxGlobalState, ChildrenPaths> {
+  ): MemoizedSelector<object, ChildrenPaths> {
     const componentDef = findComponentDefFromStatePath(
       this.rootComponentDef,
       statePath,

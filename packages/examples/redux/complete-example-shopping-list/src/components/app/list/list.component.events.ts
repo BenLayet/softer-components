@@ -4,28 +4,27 @@ import { EventsContract } from "@softer-components/types";
 import { ItemId, List, ListItem } from "../../../model";
 import { ErrorMessage } from "./list.component.state";
 
-type EventName =
-  | "initialize"
-  | "goBackClicked"
-  | "nextItemNameChanged"
-  | "newItemSubmitted"
-  | "createItemOrIncrementQuantityRequested"
-  | "resetNextItemNameRequested"
-  | "incrementItemQuantityRequested"
-  | "createItemRequested"
-  | "removeItemRequested"
-  | "saveRequested"
-  | "saveSucceeded"
-  | "saveFailed";
-
 export const uiEvents = [
   "nextItemNameChanged",
   "newItemSubmitted",
   "goBackClicked",
-] as const satisfies EventName[];
+] as const;
+
+export const allEvents = [
+  ...uiEvents,
+  "nextItemNameChanged",
+  "newItemSubmitted",
+  "resetNextItemNameRequested",
+  "incrementItemQuantityRequested",
+  "createItemRequested",
+  "removeItemRequested",
+  "saveRequested",
+  "saveSucceeded",
+  "saveFailed",
+];
 
 export type Events = EventsContract<
-  EventName,
+  typeof allEvents,
   {
     initialize: List;
     nextItemNameChanged: string;
