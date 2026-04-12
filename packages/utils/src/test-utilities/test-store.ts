@@ -1,7 +1,7 @@
 import {
   ComponentContract,
   ComponentDef,
-  GetContractAtStatePath,
+  ContractAtStatePathString,
   StatePathString,
   Values,
 } from "@softer-components/types";
@@ -73,7 +73,7 @@ export class TestStore<TContract extends ComponentContract> {
 
   getValues<P extends StatePathString<TContract>>(
     path: P = "" as P,
-  ): Values<GetContractAtStatePath<TContract, P>>["values"] {
+  ): Values<ContractAtStatePathString<TContract, P>>["values"] {
     const stateReader = new RelativePathStateReader(
       this.rootState,
       this.stateManager,

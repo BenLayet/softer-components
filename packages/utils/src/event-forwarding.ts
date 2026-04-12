@@ -1,4 +1,8 @@
-import { ComponentDef, FromEventToChildEvent } from "@softer-components/types";
+import {
+  ChildConfig,
+  ComponentDef,
+  FromEventToChildEvent,
+} from "@softer-components/types";
 
 import { findComponentDefFromStatePath } from "./component-def-tree";
 import { ContextEventManager } from "./context-event-manager";

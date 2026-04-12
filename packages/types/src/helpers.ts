@@ -18,8 +18,8 @@ export type ExtractComponentValuesContract<
     ? TResult
     : never;
 };
-export type ContractOfComponentDef<T extends ComponentDef> =
-  T extends ComponentDef<infer TComponentContract extends ComponentContract>
+export type ContractOfComponentDef<T extends ComponentDef<any, any>> =
+  T extends { __contract__?: infer TComponentContract extends ComponentContract }
     ? TComponentContract
     : never;
 export type ValuesOfComponentDef<T extends ComponentDef> = Values<

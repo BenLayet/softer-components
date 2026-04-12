@@ -103,8 +103,7 @@ export type ChildrenComponentDefs<
 > = TComponentContract["children"] extends ChildrenContract
   ? {
       [K in keyof TComponentContract["children"]]: ComponentDef<
-        TComponentContract["children"][K],
-        any
+        Omit<TComponentContract["children"][K], "type">
       >;
     }
   : never;

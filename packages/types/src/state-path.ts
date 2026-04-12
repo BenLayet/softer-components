@@ -29,6 +29,7 @@ export type StatePathStringToComponentPathString<Path extends string> =
         : never;
 
 // Utility type to get ComponentContract at a specific state path
+// TODO clarify statePath vs statePathString
 export type ContractAtStatePathString<
   T,
   Path extends string,

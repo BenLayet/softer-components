@@ -1,7 +1,7 @@
 import {
+  ComponentContract,
   ComponentDef,
   ContractOfComponentDef,
-  Values,
 } from "@softer-components/types";
 import { describe, expect, it, vi } from "vitest";
 
@@ -25,9 +25,11 @@ describe("createValuesProvider", () => {
     mockStateReader.getChildrenKeys = vi.fn().mockReturnValue({});
     mockStateReader.selectValue = vi.fn().mockReturnValue(42);
 
-    const t: ContractOfComponentDef<typeof rootDef> = {};
     //WHEN
-    const result = createValueProviders(rootDef, mockStateReader);
+    const result = createValueProviders<typeof rootDef>(
+      rootDef,
+      mockStateReader,
+    );
 
     //THEN
     expect(result.values.answer()).toEqual(42);
@@ -61,7 +63,7 @@ describe("createValuesProvider", () => {
     mockChildStateReader.selectValue = vi.fn().mockReturnValue(42);
 
     //WHEN
-    const result = createValueProviders<RootContract>(rootDef, mockStateReader);
+    const result = createValueProviders(rootDef, mockStateReader);
 
     //THEN
     expect(result.childrenValues.child.values.answer()).toEqual(42);
@@ -115,10 +117,7 @@ describe("createValuesProvider", () => {
     mockContext1StateReader.selectValue = vi.fn().mockReturnValue(42);
 
     //WHEN
-    const result = createValueProviders<RootContract>(
-      rootDef,
-      mockRootStateReader,
-    );
+    const result = createValueProviders(rootDef, mockRootStateReader);
 
     //THEN
     expect(

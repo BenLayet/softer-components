@@ -7,10 +7,8 @@ import {
   ChildrenContract,
   ComponentContract,
   ContextContract,
-  EventsContract,
   ExtractEventNames,
   ExtractUiEvents,
-  ValuesContract,
 } from "./component-contract";
 import { ContextsConfig, ContextsDef } from "./context";
 import { Effects } from "./effects";
@@ -27,19 +25,22 @@ import { IfAny, IfNonEmptyRecord } from "./util";
 export type ComponentDef<
   TComponentContract extends ComponentContract = any,
   TState extends State = any, // cannot use IfAny<TComponentContract, any, undefined>, because ComponentContract cannot be inferred in ContractOfComponentDef<T extends ComponentDef> which is necessary in ValuesProviders
-> = IfAny<
+> = {
+  /** Phantom property to preserve the contract type for inference. Never set at runtime. */
+  readonly __contract__?: TComponentContract;
+} & IfAny<
   TComponentContract,
   {
     readonly initialState?: State;
-    readonly selectors?: Selectors<any, any, any>; //<any, any, any> is necessary, so that ComponentDef<RealContract, RealState> is not assignable to ComponentDef<any, any>
+    readonly selectors?: Selectors<any, any, any>;
     readonly allEvents?: readonly string[];
     readonly uiEvents?: readonly string[];
     readonly stateUpdaters?: StateUpdaters<any, any>;
     readonly eventForwarders?: InternalEventForwarders<any>;
-    readonly initialChildren?: ChildrenInstancesDefs<any>;
+    readonly initialChildren?: Record<string, string[] | boolean | undefined>;
     readonly childrenUpdaters?: ChildrenUpdaters<any>;
     readonly childrenConfig?: ChildrenConfig<any>;
-    readonly childrenComponentDefs?: ChildrenComponentDefs<any>;
+    readonly childrenComponentDefs?: Record<string, ComponentDef>;
     readonly contextsConfig?: ContextsConfig<any>;
     readonly contextsDef?: ContextsDef<any>;
     readonly effects?: Effects<any>;
