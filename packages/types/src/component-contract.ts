@@ -4,9 +4,18 @@ export type ValuesContract = { [SelectorName in string]: any };
 
 export type EventsContract<
   TAllEvents extends readonly string[] = readonly string[],
-  TPayloads extends { [T in TAllEvents[number]]?: Payload } = {
-    [T in TAllEvents[number]]?: Payload;
-  },
+  // Default type of TPayloads has 2 possible values:
+  //  - when using EventsContract without parameter: most generic (unspecified
+  //  Payload for all events)
+  //  - when usingEventsContract with just one parameter: empty object so that
+  //  ComponentContract<{events:EventContract<["clicked"]>> does extend
+  //  ComponentContract, and the payload of clicked is recognized as undefined
+  TPayloads extends { [T in TAllEvents[number]]?: Payload } =
+    string[] extends TAllEvents
+      ? {
+          [T in TAllEvents[number]]?: Payload; // necessary
+        }
+      : {},
   TUiEvents extends readonly TAllEvents[number][] = TAllEvents,
 > = { allEvents: TAllEvents; payloads: TPayloads; uiEvents: TUiEvents };
 
