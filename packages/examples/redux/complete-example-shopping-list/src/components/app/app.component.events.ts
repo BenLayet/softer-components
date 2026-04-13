@@ -6,7 +6,7 @@ export const uiEvents = ["displayed"] as const;
 export const allEvents = [
   ...uiEvents,
   "listSelected",
-  "selectListRequested",
+  "showAllListsRequested",
   "signInRequested",
   "resetRequested",
 ] as const;

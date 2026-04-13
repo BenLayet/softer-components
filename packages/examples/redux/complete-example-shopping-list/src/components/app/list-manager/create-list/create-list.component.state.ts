@@ -3,6 +3,6 @@ export const initialState = {
   existingListNames: [] as string[],
   shouldShowErrors: false,
   isSaving: false,
-  hasSaveFailed: false,
+  hasSaveFailedError: false,
 };
 export type State = typeof initialState;

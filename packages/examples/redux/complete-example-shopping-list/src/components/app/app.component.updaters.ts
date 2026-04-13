@@ -7,8 +7,8 @@ export const stateUpdaters: StateUpdaters<Contract, State> = {
   listSelected: ({ state }) => {
     state.page = "LIST";
   },
-  selectListRequested: ({ state }) => {
-    state.page = "LIST";
+  showAllListsRequested: ({ state }) => {
+    state.page = "LIST_MANAGER";
   },
   resetRequested: () => initialState,
   signInRequested: ({ state }) => {

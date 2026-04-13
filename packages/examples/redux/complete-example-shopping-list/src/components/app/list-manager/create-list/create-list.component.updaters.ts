@@ -16,13 +16,16 @@ export const stateUpdaters: StateUpdaters<Contract, State> = {
   },
   createNewListRequested: ({ state }) => {
     state.isSaving = true;
-    state.hasSaveFailed = false;
+    state.hasSaveFailedError = false;
   },
   createNewListSucceeded: ({ state }) => {
     state.isSaving = false;
+    state.shouldShowErrors = false;
+    state.existingListNames = [...state.existingListNames, state.listName];
+    state.listName = "";
   },
   createNewListFailed: ({ state }) => {
     state.isSaving = true;
-    state.hasSaveFailed = true;
+    state.hasSaveFailedError = true;
   },
 };

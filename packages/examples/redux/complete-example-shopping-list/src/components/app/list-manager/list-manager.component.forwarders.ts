@@ -17,6 +17,12 @@ export const childrenConfig: ChildrenConfig<Contract> = {
       { from: "listSelected", to: "listSelected" },
       { from: "listNamesChanged", to: "listNamesChanged" },
     ],
+    commands: [
+      {
+        from: "emptyListCreated",
+        to: "emptyListCreated",
+      },
+    ],
   },
   createList: {
     commands: [

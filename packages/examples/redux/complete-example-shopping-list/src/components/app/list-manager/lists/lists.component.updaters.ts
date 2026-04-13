@@ -28,4 +28,7 @@ export const stateUpdaters: StateUpdaters<Contract, State> = {
     state.isLoading = false;
     (state.errors as any)["DELETE_ERROR"] = errorMessage;
   },
+  emptyListCreated: ({ state, payload: list }) => {
+    state.lists = [...state.lists, list];
+  },
 };

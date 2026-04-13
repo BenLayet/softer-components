@@ -8,7 +8,7 @@ import { selectors } from "./create-list.component.selectors";
 import { State, initialState } from "./create-list.component.state";
 import { stateUpdaters } from "./create-list.component.updaters";
 
-const componentDef = (
+export const componentDef = (
   dependencies: EffectsDependencies,
 ): ComponentDef<Contract, State> => ({
   initialState,
@@ -19,5 +19,3 @@ const componentDef = (
   eventForwarders,
   effects: effects(dependencies),
 });
-
-export { componentDef };

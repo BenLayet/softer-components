@@ -12,8 +12,8 @@ export const uiEvents = [
 
 export const allEvents = [
   ...uiEvents,
-  "nextItemNameChanged",
-  "newItemSubmitted",
+  "initialize",
+  "createItemOrIncrementQuantityRequested",
   "resetNextItemNameRequested",
   "incrementItemQuantityRequested",
   "createItemRequested",
@@ -21,7 +21,7 @@ export const allEvents = [
   "saveRequested",
   "saveSucceeded",
   "saveFailed",
-];
+] as const;
 
 export type Events = EventsContract<
   typeof allEvents,

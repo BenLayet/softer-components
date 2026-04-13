@@ -6,7 +6,7 @@ export const allEvents = [
   "emptyListCreated",
   "listSelected",
   "listNamesChanged",
-];
+] as const;
 export type Events = EventsContract<
   typeof allEvents,
   {

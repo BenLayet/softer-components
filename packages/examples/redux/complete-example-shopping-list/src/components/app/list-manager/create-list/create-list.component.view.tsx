@@ -21,7 +21,7 @@ export const View = ({ path = "" }) => {
             onChange={e => d.listNameChanged(e.target.value)}
           />
           <button type="submit">Create new list</button>
-          {v.areErrorsVisible && (
+          {v.shouldShowErrors && (
             <div>
               {v.hasNameRequiredError && (
                 <p className="error">Name should not be empty</p>

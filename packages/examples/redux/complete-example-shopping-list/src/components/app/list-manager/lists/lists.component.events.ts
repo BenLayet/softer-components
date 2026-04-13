@@ -12,6 +12,7 @@ export const uiEvents = [
 export const allEvents = [
   ...uiEvents,
   "initializeRequested",
+  "emptyListCreated",
   "fetchRequested",
   "fetchSucceeded",
   "fetchFailed",
@@ -22,6 +23,7 @@ export const allEvents = [
 export type Events = EventsContract<
   typeof allEvents,
   {
+    emptyListCreated: List;
     fetchSucceeded: List[];
     fetchFailed: string;
     listClicked: List;

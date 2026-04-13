@@ -29,15 +29,16 @@ export class DemoListService implements ListService {
   }
 
   async save(list: List) {
+    const clonedList = structuredClone(list);
     const username =
       (await this.authenticationService.username()) ?? "anonymous";
-    const existingList = demoLists[username]?.find(l => l.id === list.id);
+    const existingList = demoLists[username]?.find(l => l.id === clonedList.id);
     if (existingList) {
-      existingList.listItems = list.listItems;
-      existingList.name = list.name;
+      existingList.listItems = clonedList.listItems;
+      existingList.name = clonedList.name;
       return;
     } else {
-      demoLists[username] = [...(demoLists[username] ?? []), list];
+      demoLists[username] = [...(demoLists[username] ?? []), clonedList];
     }
   }
 }

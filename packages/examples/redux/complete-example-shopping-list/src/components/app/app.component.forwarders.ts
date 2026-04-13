@@ -18,7 +18,7 @@ export const childrenConfig: ChildrenConfig<Contract> = {
         to: "initialize",
       },
     ],
-    listeners: [{ from: "goBackClicked", to: "selectListRequested" }],
+    listeners: [{ from: "goBackClicked", to: "showAllListsRequested" }],
   },
   userMenu: {
     listeners: [

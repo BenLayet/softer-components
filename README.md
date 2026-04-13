@@ -348,7 +348,7 @@ export const appDef: ComponentDef<AppComponentContract> = {
             children.list = true;
             children.listSelect = false;
         },
-        selectListRequested: ({children}) => {
+        showAllListsRequested: ({children}) => {
             children.list = false;
             children.listSelect = true;
         },
