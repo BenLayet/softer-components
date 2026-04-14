@@ -3,6 +3,7 @@ import { ComponentDef } from "@softer-components/types";
 import {
   SofterRootState,
   StateManager,
+  StateTree,
   initializeRootState,
   updateSofterRootState,
 } from "@softer-components/utils";
@@ -18,17 +19,14 @@ export function createSofterReducer(
   stateManager: StateManager,
   rootComponentDef: ComponentDef,
   eventMapper: SofterNgrxEventMapper,
-): ActionReducer<SofterRootState, NgRxAction> {
+): ActionReducer<StateTree, NgRxAction> {
   // Initialize the root state
   const initialState: SofterRootState = {};
   initializeRootState(initialState, rootComponentDef, stateManager);
 
-  return (
-    state: SofterRootState | undefined,
-    action: NgRxAction,
-  ): SofterRootState => {
+  return (state: StateTree | undefined, action: NgRxAction): StateTree => {
     if (state === undefined) {
-      return initialState;
+      return initialState as StateTree;
     }
     if (!eventMapper.isSofterAction(action)) {
       return state;

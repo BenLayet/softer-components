@@ -20,8 +20,8 @@ import { SofterNgrxSelectors } from "./softer-ngrx-selectors";
  *   template: `
  *     <div *ngIf="v | async as values">
  *       <span>{{ values.count }}</span>
- *       <button (click)="e.increment()">+</button>
- *       <button (click)="e.decrement()">-</button>
+ *       <button (click)="e.incremented()">+</button>
+ *       <button (click)="e.decremented()">-</button>
  *     </div>
  *   `,
  * })
