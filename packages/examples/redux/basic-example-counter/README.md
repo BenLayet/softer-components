@@ -8,7 +8,7 @@ This example showcases the core principles of Softer Components:
 
 - **Pure component definition** - Business logic separated from UI framework
 - **Type safety** - Full TypeScript support with strict mode
-- **State-manager agnostic** - Component definition works with any state manager
+- ** Platform and state-manager agnostic** - Component definition is completely decoupled from React and Redux.
 
 ## Architecture
 
@@ -33,7 +33,7 @@ The React component contains only presentation logic, retrieving typed event dis
 
 ### 🎯 **Pure Business Logic**
 
-- Component definition has zero dependencies on React or Redux
+- Component definition has zero dependencies on React or Redux (it is in fact identical to the angular NgRx example)
 - Testable without any UI framework
 
 ### 🔒 **Type Safety**
@@ -52,20 +52,16 @@ The React component contains only presentation logic, retrieving typed event dis
 - Clear separation between business logic and presentation
 - Predictable component structure
 
+
+### Testing
+
+The component definition can be tested independently of React:
+
 ## Running the Example
 
 ```bash
 # install the dependencies
 pnpm install
-
-# Navigate to the redux-adapter
-cd ./packages/redux-adapter
-
-# build the library
-pnpm build
-
-# Navigate to the example
-cd ../examples/basic-example-counter
 
 # Development server
 pnpm dev
@@ -78,6 +74,7 @@ basic-example-counter/
 ├── src/
 │   ├── components/
 │   │   └── counter/
+│   │       ├── counter.component.test.ts    # Platform agnostic tests
 │   │       ├── counter.component.ts    # Pure component definition
 │   │       └── Counter.tsx             # React UI component
 │   ├── store.ts                        # Redux store configuration
@@ -88,23 +85,3 @@ basic-example-counter/
 └── README.md
 ```
 
-## Testing
-
-The component definition can be tested independently of React:
-
-```typescript
-import { counterComponentDef } from "./counter.component";
-
-describe("Counter Component", () => {
-  it("should increment count", () => {
-    // GIVEN initial state
-    const state = counterComponentDef.initialState;
-
-    // WHEN increment action is applied
-    const newState = counterComponentDef.stateUpdaters.increment(state);
-
-    // THEN count should be incremented
-    expect(newState.count).toBe(1);
-  });
-});
-```

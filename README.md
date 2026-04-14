@@ -499,8 +499,8 @@ Starting from `GlobalState#0`, when an event `Event1` occurs on component `Compo
 
 ## 🎯 Complete Examples
 
-- [app with a most basic component](./packages/examples/basic-example-counter)
-- [app with several components, event forwarding, listening and commands](./packages/examples/complete-example-shopping-list)
+- [app with a most basic component](./packages/examples/redux/basic-example-counter)
+- [app with several components, event forwarding, listening and commands](./packages/examples/redux/complete-example-shopping-list)
 
 ## 🏗️ Monorepo Structure
 
