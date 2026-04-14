@@ -47,6 +47,8 @@ export function parseEventTypeString(
   const source = parts.shift() as Source | undefined;
   assertIsNotUndefined(source);
   //TODO change type Event => EventDef + GlobalEvent => Event that includes type as string
-  const statePath = stringToStatePath(parts.join(COMPONENT_SEPARATOR));
+  const statePath = stringToStatePath(
+    parts.map(part => `${COMPONENT_SEPARATOR}${part}`).join(""),
+  );
   return { source, statePath, name };
 }

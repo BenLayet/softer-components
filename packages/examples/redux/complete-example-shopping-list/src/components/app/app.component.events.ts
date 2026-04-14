@@ -7,7 +7,7 @@ export const allEvents = [
   ...uiEvents,
   "listSelected",
   "showAllListsRequested",
-  "signInRequested",
+  "goToSignInFormRequested",
   "resetRequested",
 ] as const;
 export type Events = EventsContract<

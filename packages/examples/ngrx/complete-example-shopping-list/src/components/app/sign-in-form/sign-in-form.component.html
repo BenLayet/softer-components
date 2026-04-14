@@ -1,0 +1,56 @@
+@if (v$ | async; as v) {
+  <div>
+    <div style="margin: 2em">
+      <a (click)="e.signInCancelled()">👋 Try app without signing in</a>
+      <p>Demo users :</p>
+      <ul>
+        <li>
+          <a (click)="e.demoUserClicked({ username: 'alice', password: 'demo' })"> alice/demo </a>
+        </li>
+        <li>
+          <a (click)="e.demoUserClicked({ username: 'bob', password: 'demo' })"> bob/demo </a>
+        </li>
+      </ul>
+    </div>
+    <form
+      (submit)="e.signInFormSubmitted()"
+      style="align-items: start; max-width: 18em"
+      autocomplete="off"
+    >
+      <label>Username</label>
+      <input
+        #usernameInput
+        type="text"
+        placeholder="Username"
+        (input)="e.usernameChanged(usernameInput.value)"
+        autocomplete="off"
+        [value]="v.username"
+      />
+      <label>Password</label>
+      <input
+        #passwordInput
+        type="text"
+        placeholder="Password"
+        (input)="e.passwordChanged(passwordInput.value)"
+        autocomplete="off"
+        [value]="v.password"
+      />
+      <div>
+        <button type="submit">🚀 Sign In</button>
+      </div>
+    </form>
+    @if (v.hasInvalidCredentialError) {
+      <p class="error">
+        ❌ Invalid username or password.
+        <br />
+        Use 'alice' or 'bob' as username and 'demo' as password.
+      </p>
+    }
+    @if (v.hasNetworkError) {
+      <p class="error">🌐 Network error. Please check your connection and try again.</p>
+    }
+    @if (v.hasUnknownError) {
+      <p class="error">⚠️ An unknown error occurred. Please try again later.</p>
+    }
+  </div>
+}

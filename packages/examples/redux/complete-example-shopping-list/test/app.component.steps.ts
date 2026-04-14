@@ -64,7 +64,7 @@ export const USER_SIGNS_IN = (
   password: string,
 ): GlobalEvent[] => [
   {
-    name: "signInRequested",
+    name: "goToSignInFormRequested",
     statePath: stringToStatePath(USER_MENU),
     payload: undefined,
   },

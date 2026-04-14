@@ -8,7 +8,7 @@ export const View = ({ path = "" }) => {
     <div className="menu-item">
       {v.isAnonymous && (
         <a
-          onClick={() => d.signInRequested()}
+          onClick={() => d.goToSignInFormRequested()}
           title="Sign in to share your lists"
         >
           🔓 Sign in

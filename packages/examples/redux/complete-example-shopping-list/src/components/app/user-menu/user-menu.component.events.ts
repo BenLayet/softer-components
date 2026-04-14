@@ -1,6 +1,9 @@
 import { EventsContract } from "@softer-components/types";
 
-export const uiEvents = ["signOutRequested", "signInRequested"] as const;
+export const uiEvents = [
+  "signOutRequested",
+  "goToSignInFormRequested",
+] as const;
 export const allEvents = [...uiEvents, "signOutSucceeded", "authenticated"];
 export type AppEvents = EventsContract<
   typeof allEvents,

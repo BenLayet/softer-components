@@ -11,7 +11,7 @@ export const stateUpdaters: StateUpdaters<Contract, State> = {
     state.page = "LIST_MANAGER";
   },
   resetRequested: () => initialState,
-  signInRequested: ({ state }) => {
+  goToSignInFormRequested: ({ state }) => {
     state.page = "SIGN_IN_FORM";
   },
 };

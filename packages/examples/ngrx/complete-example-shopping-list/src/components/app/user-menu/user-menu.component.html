@@ -1,0 +1,12 @@
+@if (v$ | async; as v) {
+  <div class="menu-item">
+    @if (v.isAnonymous) {
+      <a (click)="e.goToSignInFormRequested()" title="Sign in to share your lists"> 🔓 Sign in </a>
+    }
+    @if (v.isAuthenticated) {
+      Hi <span style='{ "text-transform": "capitalize" }'>{{ v.username }}</span
+      >!
+      <a (click)="e.signOutRequested()" title="Sign out and return to anonymous mode"> sign out </a>
+    }
+  </div>
+}

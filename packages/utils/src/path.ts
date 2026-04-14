@@ -10,7 +10,9 @@ export const SINGLE_CHILD_KEY = "0";
 /**
  * Converts a state path to a string representation that can be used in event names or as keys in maps.
  * @param statePath
- * @returns string representation of the state path, with component names separated with "/" and keys separated by ":". Starts with a "/" but does not end with a "/". For example: "/ComponentA:instance1/ComponentB/ComponentC:instance2"
+ * @returns string representation of the state path, with component names separated with "/" and keys separated by ":".
+ * Root path is the empty string "". Otherwise starts with a "/" but does not end with a "/".
+ * For example: "/ComponentA:instance1/ComponentB/ComponentC:instance2"
  */
 export function statePathToString(statePath: StatePath): string {
   return statePath
@@ -27,11 +29,11 @@ export function statePathToString(statePath: StatePath): string {
  * The string is typically in the format produced by statePathToString.
  * For example: "/ComponentA:instance1/ComponentB/ComponentC:instance2"
  * but ":0" can be omitted for single child components, so "/ComponentA/ComponentB/ComponentC" is also valid and will be parsed as if it were "/ComponentA:0/ComponentB:0/ComponentC:0"
+ * Root path is the empty string "".
  * @param statePathStr
  */
 export function stringToStatePath(statePathStr: string): StatePath {
-  const parts = statePathStr.split(COMPONENT_SEPARATOR);
-  parts.shift(); // remove prefix
+  const parts = statePathStr.split(COMPONENT_SEPARATOR).filter(Boolean);
   return parts.map(part => {
     const [componentName, instanceKey] = part.split(KEY_SEPARATOR);
     return [componentName, instanceKey ?? SINGLE_CHILD_KEY] as const;

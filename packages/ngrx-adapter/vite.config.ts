@@ -9,6 +9,17 @@ export default defineConfig({
       entry: "src/index.ts",
       fileName: "index",
     },
+    rollupOptions: {
+      external: [
+        "@angular/core",
+        "@angular/core/rxjs-interop",
+        "@ngrx/store",
+        "@ngrx/effects",
+        "@ngrx/operators",
+        "rxjs",
+        /^rxjs\/.*/,
+      ],
+    },
   },
 
   test: {

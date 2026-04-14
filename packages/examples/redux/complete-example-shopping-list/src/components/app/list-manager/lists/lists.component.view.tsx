@@ -28,7 +28,7 @@ export const View = ({ path = "" }) => {
       {v.hasFetchError && (
         <p className="error">An error occurred while loading the lists</p>
       )}
-      {v.hasFetchError && (
+      {v.hasDeleteError && (
         <p className="error">An error occurred while deleting the list</p>
       )}
     </div>

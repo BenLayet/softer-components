@@ -23,8 +23,8 @@ export const childrenConfig: ChildrenConfig<Contract> = {
   userMenu: {
     listeners: [
       {
-        from: "signInRequested",
-        to: "signInRequested",
+        from: "goToSignInFormRequested",
+        to: "goToSignInFormRequested",
       },
     ],
   },
