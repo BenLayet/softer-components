@@ -6,7 +6,7 @@ describe("softer mapper tests", () => {
   it("should convert redux action to softer event", () => {
     //WHEN
     const result = actionToEvent({
-      type: "☁️🖱️/child:0/answered",
+      type: "☁️|🖱️|/child:0|answered",
       payload: 42,
     });
 
@@ -14,6 +14,7 @@ describe("softer mapper tests", () => {
     expect(result).toEqual({
       name: "answered",
       payload: 42,
+      source: "🖱️",
       statePath: [["child", "0"]],
     });
   });
@@ -27,6 +28,6 @@ describe("softer mapper tests", () => {
     });
 
     //THEN
-    expect(result).toEqual({ type: "☁️🖱️/child:0/answered", payload: 42 });
+    expect(result).toEqual({ type: "☁️|🖱️|/child:0|answered", payload: 42 });
   });
 });

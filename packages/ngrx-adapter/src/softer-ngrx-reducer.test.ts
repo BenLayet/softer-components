@@ -6,7 +6,7 @@ import { SofterNgrxEventMapper } from "./softer-ngrx-event-mapper";
 import { createSofterReducer } from "./softer-ngrx-reducer";
 
 describe("createSofterReducer", () => {
-  const PREFIX = "☁️/";
+  const PREFIX = "☁️";
   const eventMapper = new SofterNgrxEventMapper(PREFIX);
 
   describe("with a simple counter component", () => {
@@ -72,7 +72,7 @@ describe("createSofterReducer", () => {
 
       const state1 = reducer(undefined, { type: "@@INIT" });
       const state2 = reducer(state1, {
-        type: `☁️/${INPUTTED_BY_USER}/incremented`,
+        type: `☁️|${INPUTTED_BY_USER}||incremented`,
       });
 
       expect(stateManager.readState(state2, [])).toEqual({ count: 1 });
@@ -87,13 +87,13 @@ describe("createSofterReducer", () => {
 
       const state1 = reducer(undefined, { type: "@@INIT" });
       const state2 = reducer(state1, {
-        type: `☁️/${INPUTTED_BY_USER}/incremented`,
+        type: `☁️|${INPUTTED_BY_USER}||incremented`,
       });
       const state3 = reducer(state2, {
-        type: `☁️/${INPUTTED_BY_USER}/incremented`,
+        type: `☁️|${INPUTTED_BY_USER}||incremented`,
       });
       const state4 = reducer(state3, {
-        type: `☁️/${INPUTTED_BY_USER}/decremented`,
+        type: `☁️|${INPUTTED_BY_USER}||decremented`,
       });
 
       expect(stateManager.readState(state4, [])).toEqual({ count: 1 });
@@ -108,7 +108,7 @@ describe("createSofterReducer", () => {
 
       const state1 = reducer(undefined, { type: "@@INIT" });
       const state2 = reducer(state1, {
-        type: `☁️/${INPUTTED_BY_USER}/setCountRequested`,
+        type: `☁️|${INPUTTED_BY_USER}||setCountRequested`,
         payload: 42,
       });
 
@@ -124,7 +124,7 @@ describe("createSofterReducer", () => {
 
       const state1 = reducer(undefined, { type: "@@INIT" });
       const state2 = reducer(state1, {
-        type: `☁️/${INPUTTED_BY_USER}/incremented`,
+        type: `☁️|${INPUTTED_BY_USER}||incremented`,
       });
 
       expect(state1).not.toBe(state2);
@@ -208,7 +208,7 @@ describe("createSofterReducer", () => {
 
       const state1 = reducer(undefined, { type: "@@INIT" });
       const state2 = reducer(state1, {
-        type: `☁️/${INPUTTED_BY_USER}/addItem`,
+        type: `☁️|${INPUTTED_BY_USER}||addItem`,
         payload: "item1",
       });
 

@@ -11,22 +11,22 @@ describe("counter.component", () => {
   beforeEach(() => {
     testStore = initTestStore(counterDef);
   });
-  it("initialState is { count: 0 }", () => {
-    expect(testStore.getValues().count()).toBe(0);
+  it("initialState is { count: 42 }", () => {
+    expect(testStore.getValues().count()).toBe(42);
   });
-  it("when increment is requested then count should be + 1", async () => {
+  it("when increment is requested then count should be 43", async () => {
     await testStore.when({
       name: "incrementRequested",
       statePath: [],
     });
-    expect(testStore.getValues().count()).toBe(1);
+    expect(testStore.getValues().count()).toBe(43);
   });
 
-  it("when decrement is requested then count should be - 1", async () => {
+  it("when decrement is requested then count should be 41", async () => {
     await testStore.when({
       name: "decrementRequested",
       statePath: [],
     });
-    expect(testStore.getValues().count()).toBe(-1);
+    expect(testStore.getValues().count()).toBe(41);
   });
 });

@@ -7,12 +7,12 @@ import { describe, expect, it } from "vitest";
 import { SofterNgrxEventMapper } from "./softer-ngrx-event-mapper";
 
 describe("SofterNgrxEventMapper", () => {
-  const PREFIX = "☁️/";
+  const PREFIX = "☁️";
   const mapper = new SofterNgrxEventMapper(PREFIX);
 
   describe("isSofterAction", () => {
     it("returns true for actions with softer prefix", () => {
-      expect(mapper.isSofterAction({ type: "☁️/🖱️/incremented" })).toBe(true);
+      expect(mapper.isSofterAction({ type: "☁️|🖱️||incremented" })).toBe(true);
     });
 
     it("returns false for actions without softer prefix", () => {
@@ -35,7 +35,7 @@ describe("SofterNgrxEventMapper", () => {
 
       const action = mapper.softerEventToNgRxAction(event);
 
-      expect(action.type).toBe("☁️/🖱️/incremented");
+      expect(action.type).toBe("☁️|🖱️||incremented");
       expect(action.payload).toBeUndefined();
     });
 
@@ -49,7 +49,7 @@ describe("SofterNgrxEventMapper", () => {
 
       const action = mapper.softerEventToNgRxAction(event);
 
-      expect(action.type).toBe("☁️/🖱️/counter:main/incremented");
+      expect(action.type).toBe("☁️|🖱️|/counter:main|incremented");
       expect(action.payload).toBe(5);
     });
 
@@ -66,7 +66,7 @@ describe("SofterNgrxEventMapper", () => {
 
       const action = mapper.softerEventToNgRxAction(event);
 
-      expect(action.type).toBe("☁️/⏳/list:1/item:42/delete");
+      expect(action.type).toBe("☁️|⏳|/list:1/item:42|delete");
       expect(action.payload).toEqual({ reason: "test" });
     });
   });
@@ -74,7 +74,7 @@ describe("SofterNgrxEventMapper", () => {
   describe("ngrxActionToSofterEvent", () => {
     it("converts a root-level action to an event", () => {
       const action = {
-        type: "☁️/🖱️/incremented",
+        type: "☁️|🖱️||incremented",
         payload: undefined,
       };
 

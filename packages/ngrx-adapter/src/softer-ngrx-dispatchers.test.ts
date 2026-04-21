@@ -6,7 +6,7 @@ import { SofterNgrxDispatchers } from "./softer-ngrx-dispatchers";
 import { SofterNgrxEventMapper } from "./softer-ngrx-event-mapper";
 
 describe("SofterNgrxDispatchers", () => {
-  const PREFIX = "☁️/";
+  const PREFIX = "☁️";
   const eventMapper = new SofterNgrxEventMapper(PREFIX);
 
   const counterDef: ComponentDef<
@@ -72,7 +72,7 @@ describe("SofterNgrxDispatchers", () => {
 
       expect(mockStore.dispatch).toHaveBeenCalledTimes(1);
       expect(mockStore.dispatch).toHaveBeenCalledWith({
-        type: `☁️/${INPUTTED_BY_USER}/incremented`,
+        type: `☁️|${INPUTTED_BY_USER}||incremented`,
         payload: undefined,
       });
     });
@@ -89,24 +89,24 @@ describe("SofterNgrxDispatchers", () => {
       actions.setCountRequested(42);
 
       expect(mockStore.dispatch).toHaveBeenCalledWith({
-        type: `☁️/${INPUTTED_BY_USER}/setCountRequested`,
+        type: `☁️|${INPUTTED_BY_USER}||setCountRequested`,
         payload: 42,
       });
     });
 
     it("includes state path in action type for nested components", () => {
       const childDef: ComponentDef<
-        { events: EventsContract<["click"]> },
+        { events: EventsContract<["clicked"]> },
         { clicked: boolean }
       > = {
         initialState: { clicked: false },
-        allEvents: ["click"],
-        uiEvents: ["click"],
+        allEvents: ["clicked"],
+        uiEvents: ["clicked"],
       };
 
       const parentDef: ComponentDef<
         {
-          children: { child: { events: EventsContract<["click"]> } };
+          children: { child: { events: EventsContract<["clicked"]> } };
         },
         {}
       > = {
@@ -122,10 +122,10 @@ describe("SofterNgrxDispatchers", () => {
       );
 
       const actions = dispatchers.createDispatchers("/child:main");
-      actions.click();
+      actions.clicked();
 
       expect(mockStore.dispatch).toHaveBeenCalledWith({
-        type: `☁️/${INPUTTED_BY_USER}/child:main/click`,
+        type: `☁️|${INPUTTED_BY_USER}|/child:main|clicked`,
         payload: undefined,
       });
     });
