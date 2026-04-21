@@ -3,7 +3,7 @@
     <ul style="{width: 100%}">
       @for (list of v.lists; track list.id) {
         <li style="{ display: flex; justify-content: space-between}">
-          <a href="#" (click)="e.listClicked(list)">
+          <a (click)="e.listClicked(list)">
             {{ list.name }}
           </a>
           <button style="{font-size: 0.5em}" (click)="e.deleteClicked(list)">X</button>

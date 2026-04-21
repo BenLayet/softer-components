@@ -13,7 +13,7 @@
       </ul>
     </div>
     <form
-      (submit)="e.signInFormSubmitted()"
+      (submit)="$event.preventDefault(); e.signInFormSubmitted()"
       style="align-items: start; max-width: 18em"
       autocomplete="off"
     >

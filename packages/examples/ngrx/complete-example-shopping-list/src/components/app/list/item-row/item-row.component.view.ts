@@ -7,6 +7,6 @@ import { AsyncPipe } from '@angular/common';
   selector: 'app-item-row',
   templateUrl: './item-row.component.html',
   imports: [AsyncPipe],
+  styleUrls: ['./item-row.component.scss'],
 })
 export class ItemRow extends AbstractSofterComponent<Contract> {}
-
