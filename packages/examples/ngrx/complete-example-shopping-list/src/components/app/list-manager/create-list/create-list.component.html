@@ -1,7 +1,7 @@
 @if (v$ | async; as v) {
   <div>
     <div class="horizontal">
-      <form (submit)="e.createNewListSubmitted()">
+      <form (submit)="$event.preventDefault(); e.createNewListSubmitted()">
         <input
           #listNameInput
           type="text"

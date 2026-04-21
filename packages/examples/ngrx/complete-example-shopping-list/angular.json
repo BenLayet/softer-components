@@ -6,7 +6,7 @@
   },
   "newProjectRoot": "projects",
   "projects": {
-    "basic-example-counter": {
+    "shopping-list": {
       "projectType": "application",
       "schematics": {},
       "root": "",
@@ -60,16 +60,25 @@
           "builder": "@angular/build:dev-server",
           "configurations": {
             "production": {
-              "buildTarget": "basic-example-counter:build:production"
+              "buildTarget": "shopping-list:build:production"
             },
             "development": {
-              "buildTarget": "basic-example-counter:build:development"
+              "buildTarget": "shopping-list:build:development"
             }
           },
           "defaultConfiguration": "development"
         },
         "test": {
-          "builder": "@angular/build:unit-test"
+          "builder": "@angular/build:unit-test",
+          "options": {
+            "tsConfig": "tsconfig.spec.json",
+            "include": [
+              "src/**/*.spec.ts",
+              "src/**/*.test.ts",
+              "test/**/*.spec.ts",
+              "test/**/*.test.ts"
+            ]
+          }
         }
       }
     }
