@@ -1,44 +1,48 @@
+import { inject, Injectable } from "@angular/core";
 import { Actions, createEffect } from "@ngrx/effects";
 import { concatLatestFrom } from "@ngrx/operators";
-import { MemoizedSelector, Store } from "@ngrx/store";
-import { ComponentDef } from "@softer-components/types";
+import { Store } from "@ngrx/store";
 import {
   ContextEventManager,
   EffectsManager,
   GlobalEvent,
-  StateTree,
-  TreeStateManager,
   generateEventsToForward,
 } from "@softer-components/utils";
-import { from } from "rxjs";
-import { filter, map, switchMap, tap } from "rxjs/operators";
+import {  from } from "rxjs";
+import { filter, map,  switchMap, tap } from "rxjs/operators";
 
-import { SofterNgrxEventMapper } from "./softer-ngrx-event-mapper";
+import {
+  SOFTER_EVENT_MAPPER,
+  SOFTER_FEATURE_SELECTOR,
+  SOFTER_ROOT_COMPONENT_DEF,
+  SOFTER_STATE_MANAGER,
+} from "./softer-ngrx-config";
 
 /**
  * NgRx Effects for softer-components.
  * - Forwards events based on component forwarders
  * - Calls softer effects when events occur
  */
+@Injectable()
 export class SofterNgrxEffects {
+  private readonly actions$ = inject(Actions);
+  private readonly store = inject(Store);
+  private readonly stateManager = inject(SOFTER_STATE_MANAGER);
+  private readonly rootComponentDef = inject(SOFTER_ROOT_COMPONENT_DEF);
+  private readonly eventMapper = inject(SOFTER_EVENT_MAPPER);
+  private readonly featureSelector = inject(SOFTER_FEATURE_SELECTOR);
+
   private readonly effectsManager: EffectsManager;
   private readonly contextEventManager: ContextEventManager;
   private readonly dispatchEvent: (newEvent: GlobalEvent) => void;
 
-  constructor(
-    private readonly stateManager: TreeStateManager,
-    private readonly rootComponentDef: ComponentDef,
-    private readonly eventMapper: SofterNgrxEventMapper,
-    private readonly actions$: Actions,
-    private readonly store: Store,
-    private readonly featureSelector: MemoizedSelector<object, StateTree>,
-  ) {
+  constructor() {
     this.effectsManager = new EffectsManager(
-      rootComponentDef,
+      this.rootComponentDef,
       this.stateManager,
     );
     this.contextEventManager = new ContextEventManager(
-      rootComponentDef,
+      this.rootComponentDef,
       this.stateManager,
     );
     this.dispatchEvent = (newEvent: GlobalEvent) => {
@@ -65,7 +69,7 @@ export class SofterNgrxEffects {
         ),
       ),
       map(events => events.map(this.eventMapper.softerEventToNgRxAction)),
-      switchMap(from),
+      switchMap(actions => from(actions)),
     ),
   );
 

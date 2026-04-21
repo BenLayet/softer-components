@@ -1,4 +1,5 @@
-import { Actions, USER_PROVIDED_EFFECTS } from "@ngrx/effects";
+import { InjectionToken } from "@angular/core";
+import { provideEffects } from "@ngrx/effects";
 import {
   MemoizedSelector,
   Store,
@@ -18,6 +19,13 @@ export type SofterNgrxConfig = {
   rootComponentDef: ComponentDef;
   softerFeatureName?: string;
 };
+
+// Injection tokens for SofterNgrxEffects dependencies
+export const SOFTER_ROOT_COMPONENT_DEF = new InjectionToken<ComponentDef>('SOFTER_ROOT_COMPONENT_DEF');
+export const SOFTER_EVENT_MAPPER = new InjectionToken<SofterNgrxEventMapper>('SOFTER_EVENT_MAPPER');
+export const SOFTER_STATE_MANAGER = new InjectionToken<TreeStateManager>('SOFTER_STATE_MANAGER');
+export const SOFTER_FEATURE_SELECTOR = new InjectionToken<MemoizedSelector<object, StateTree>>('SOFTER_FEATURE_SELECTOR');
+
 export function provideSofterState(softerNgrxConfig: SofterNgrxConfig) {
   const stateManager = new TreeStateManager();
   const softerFeatureName =
@@ -29,6 +37,13 @@ export function provideSofterState(softerNgrxConfig: SofterNgrxConfig) {
     softerFeatureName,
   ) as MemoizedSelector<object, StateTree>;
   return [
+    // Provide injection tokens for effects
+    { provide: SOFTER_ROOT_COMPONENT_DEF, useValue: softerNgrxConfig.rootComponentDef },
+    { provide: SOFTER_EVENT_MAPPER, useValue: eventMapper },
+    { provide: SOFTER_STATE_MANAGER, useValue: stateManager },
+    { provide: SOFTER_FEATURE_SELECTOR, useValue: featureSelector },
+    // Register effects
+    provideEffects(SofterNgrxEffects),
     {
       provide: SofterNgrxDispatchers,
       useFactory: (store: Store) =>
@@ -56,20 +71,6 @@ export function provideSofterState(softerNgrxConfig: SofterNgrxConfig) {
         eventMapper,
       ),
     ),
-    {
-      provide: USER_PROVIDED_EFFECTS,
-      multi: true,
-      useFactory: (actions: Actions, store: Store) =>
-        new SofterNgrxEffects(
-          stateManager,
-          softerNgrxConfig.rootComponentDef,
-          eventMapper,
-          actions,
-          store,
-          featureSelector,
-        ),
-      deps: [Actions, Store],
-    },
   ];
 }
 
