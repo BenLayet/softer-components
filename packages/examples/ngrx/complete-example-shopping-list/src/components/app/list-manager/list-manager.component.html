@@ -1,0 +1,13 @@
+@if (v$ | async; as v) {
+  @if (c$ | async; as c) {
+    <div>
+      @if (v.hasAnyList) {
+        <div>
+          <p style="{ text-align:start; width:300px}">All lists ({{ v.listCount }})</p>
+          <app-lists [path]="c.lists" />
+        </div>
+      }
+      <app-create-list [path]="c.createList" />
+    </div>
+  }
+}

@@ -8,10 +8,7 @@ describe("configureSofterStore", () => {
   it("should create a store with initial state", () => {
     //GIVEN a root component definition with initial state and state updaters
     const initialState = { count: 0 };
-    const rootComponentDef: ComponentDef<
-      { values: typeof initialState },
-      typeof initialState
-    > = {
+    const rootComponentDef: ComponentDef<{}, typeof initialState> = {
       initialState,
     };
     //WHEN the store is configured

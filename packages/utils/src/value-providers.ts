@@ -1,10 +1,9 @@
 import {
   ChildrenValues,
-  ComponentContract,
   ComponentDef,
   ContextsDef,
   ContextsValues,
-  Values,
+  ValuesOfComponentDef,
 } from "@softer-components/types";
 
 import {
@@ -17,12 +16,10 @@ import { RelativePathStateReader } from "./relative-path-state-manager";
 /**
  * Create Values provider for a component given its definition and state
  */
-export function createValueProviders<
-  TComponentContract extends ComponentContract,
->(
-  rootComponentDef: ComponentDef<TComponentContract, any>,
+export function createValueProviders<TComponentDef extends ComponentDef>(
+  rootComponentDef: TComponentDef,
   stateReader: RelativePathStateReader,
-): Values<TComponentContract> {
+): ValuesOfComponentDef<TComponentDef> {
   const genericRootComponentDef = rootComponentDef as ComponentDef;
   // Create children's values
   const childrenValues = createChildrenValues(
@@ -55,7 +52,7 @@ export function createValueProviders<
     values,
     childrenValues,
     contextsValues,
-  } as unknown as Values<TComponentContract>;
+  } as unknown as ValuesOfComponentDef<TComponentDef>;
 }
 
 function createOwnValues(
@@ -116,7 +113,7 @@ function createChildrenValues(
       if (isCollectionChild(componentDef, childName)) {
         const childInstancesValueProviders = Object.fromEntries(
           childKeys.map(key => {
-            const childValueProviders = createValueProviders(
+            const childValueProviders = createValueProviders<any>(
               rootComponentDef,
               stateReader.childStateReader(childName, key),
             );
@@ -137,7 +134,7 @@ function createChildrenValues(
         }
         return [
           childName,
-          createValueProviders(
+          createValueProviders<any>(
             rootComponentDef,
             stateReader.firstChildStateReader(childName),
           ),
@@ -156,13 +153,13 @@ export function createContextsValues(
     stateReader.currentPath,
   );
   return Object.fromEntries(
-    Object.entries((componentDef.contextDefs ?? {}) as ContextsDef).map(
+    Object.entries((componentDef.contextsDef ?? {}) as ContextsDef).map(
       ([contextName, contextRelativePath]) => {
         const stateReaderForContext =
           stateReader.forRelativePath(contextRelativePath);
         return [
           contextName,
-          createValueProviders(rootComponentDef, stateReaderForContext),
+          createValueProviders<any>(rootComponentDef, stateReaderForContext),
         ];
       },
     ),

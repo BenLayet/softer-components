@@ -237,7 +237,7 @@ function generateEventsToContext(
       name: command.to,
       statePath: computeRelativePath(
         triggeringEvent.statePath,
-        ensureIsNotUndefined(componentDef.contextDefs?.[contextName]),
+        ensureIsNotUndefined(componentDef.contextsDef?.[contextName]),
       ),
       payload: command.withPayload
         ? (command as any).withPayload({ ...eventConsumerInput() })

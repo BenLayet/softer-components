@@ -1,0 +1,7 @@
+@if (v$ | async; as v) {
+  <div class="text-big">{{ v.count }}</div>
+  <div class="horizontal">
+    <button aria-label="Decrement" (click)="e.decrementRequested()">-</button>
+    <button aria-label="Increment" (click)="e.incrementRequested()">+</button>
+  </div>
+}

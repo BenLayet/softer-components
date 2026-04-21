@@ -1,0 +1,23 @@
+@if (v$ | async; as v) {
+  <div style="{max-width:300px}">
+    <ul style="{width: 100%}">
+      @for (list of v.lists; track list.id) {
+        <li style="{ display: flex; justify-content: space-between}">
+          <a (click)="e.listClicked(list)">
+            {{ list.name }}
+          </a>
+          <button style="{font-size: 0.5em}" (click)="e.deleteClicked(list)">X</button>
+        </li>
+      }
+    </ul>
+    @if (v.isLoading) {
+      <span class="spinner"></span>
+    }
+    @if (v.hasFetchError) {
+      <p class="error">An error occurred while loading the lists</p>
+    }
+    @if (v.hasFetchError) {
+      <p class="error">An error occurred while deleting the list</p>
+    }
+  </div>
+}

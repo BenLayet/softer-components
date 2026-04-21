@@ -12,12 +12,12 @@ export type ComponentTreePaths<T> =
       : never);
 
 // Utility type to get ComponentContract at a specific path
-export type GetContractAtPath<T, Path extends string> = Path extends ""
+export type ContractAtComponentPath<T, Path extends string> = Path extends ""
   ? T
   : Path extends `/${infer First}/${infer Rest}`
     ? T extends { children: infer C }
       ? First extends keyof C
-        ? GetContractAtPath<C[First], `/${Rest}`>
+        ? ContractAtComponentPath<C[First], `/${Rest}`>
         : never
       : never
     : Path extends `/${infer Only}`

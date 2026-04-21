@@ -1,0 +1,21 @@
+@if (v$ | async; as v) {
+  @if (c$ | async; as c) {
+    <div>
+      <div class="menu-bar">
+        @if (v.isUserMenuVisible) {
+          <app-user-menu [path]="c.userMenu" />
+        }
+      </div>
+      <h1>Shopping List</h1>
+      @if (v.page === 'LIST_MANAGER') {
+        <app-list-manager [path]="c.listManager" />
+      }
+      @if (v.page === 'LIST') {
+        <app-list [path]="c.list" />
+      }
+      @if (v.page === 'SIGN_IN_FORM') {
+        <app-sign-in-form [path]="c.signInForm" />
+      }
+    </div>
+  }
+}

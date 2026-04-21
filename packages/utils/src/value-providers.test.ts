@@ -1,4 +1,8 @@
-import { ComponentDef, Values } from "@softer-components/types";
+import {
+  ComponentContract,
+  ComponentDef,
+  ContractOfComponentDef,
+} from "@softer-components/types";
 import { describe, expect, it, vi } from "vitest";
 
 import { RelativePathStateReader } from "./relative-path-state-manager";
@@ -22,10 +26,10 @@ describe("createValuesProvider", () => {
     mockStateReader.selectValue = vi.fn().mockReturnValue(42);
 
     //WHEN
-    const result = createValueProviders(
+    const result = createValueProviders<typeof rootDef>(
       rootDef,
       mockStateReader,
-    ) as Values<TestContract>;
+    );
 
     //THEN
     expect(result.values.answer()).toEqual(42);
@@ -41,7 +45,8 @@ describe("createValuesProvider", () => {
         answer: (state: { answer: number }) => state.answer,
       },
     };
-    const rootDef: ComponentDef<{ children: { child: ChildContract } }> = {
+    type RootContract = { children: { child: ChildContract } };
+    const rootDef: ComponentDef<RootContract> = {
       childrenComponentDefs: { child: childDef },
     };
     const mockStateReader = {
@@ -75,11 +80,12 @@ describe("createValuesProvider", () => {
     };
     type Child1Contract = { context: { context1: Context1Contract } };
     const childDef: ComponentDef<Child1Contract> = {
-      contextDefs: { context1: "../context1" },
+      contextsDef: { context1: "../context1" },
     };
-    const rootDef: ComponentDef<{
+    type RootContract = {
       children: { child1: Child1Contract; context1: Context1Contract };
-    }> = {
+    };
+    const rootDef: ComponentDef<RootContract> = {
       childrenComponentDefs: { child1: childDef, context1: context1Def },
     };
     const mockRootStateReader = {

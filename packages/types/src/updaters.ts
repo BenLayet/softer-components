@@ -8,8 +8,8 @@ import { State } from "./state";
 import { Values } from "./values";
 
 export type StateUpdaters<
-  TComponentContract extends ComponentContract = any,
-  TState extends State = any,
+  TComponentContract extends ComponentContract,
+  TState extends State,
 > = TComponentContract["events"] extends EventsContract
   ? {
       [EventName in ExtractEventNameUnion<TComponentContract>]?: (
@@ -21,15 +21,14 @@ export type StateUpdaters<
     }
   : never;
 
-export type ChildrenUpdaters<
-  TComponentContract extends ComponentContract = any,
-> = TComponentContract["events"] extends EventsContract
-  ? {
-      [EventName in ExtractEventNameUnion<TComponentContract>]?: (
-        params: Values<TComponentContract> & {
-          children: ChildrenInstancesDefs<TComponentContract["children"]>; //mutable
-          payload: TComponentContract["events"]["payloads"][EventName];
-        },
-      ) => void | ChildrenInstancesDefs<TComponentContract["children"]>;
-    }
-  : never;
+export type ChildrenUpdaters<TComponentContract extends ComponentContract> =
+  TComponentContract["events"] extends EventsContract
+    ? {
+        [EventName in ExtractEventNameUnion<TComponentContract>]?: (
+          params: Values<TComponentContract> & {
+            children: ChildrenInstancesDefs<TComponentContract["children"]>; //mutable
+            payload: TComponentContract["events"]["payloads"][EventName];
+          },
+        ) => void | ChildrenInstancesDefs<TComponentContract["children"]>;
+      }
+    : never;

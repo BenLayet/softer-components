@@ -24,6 +24,11 @@ export type StateTree = {
   [CHILDREN_BRANCHES_KEY]?: Record<string, Record<string, StateTree>>;
 };
 
+export const emptyStateTree: StateTree = {
+  [OWN_VALUE_KEY]: {},
+  [CHILDREN_BRANCHES_KEY]: {},
+};
+
 /**
  * @param treeAtRootOfPath
  * @param statePath

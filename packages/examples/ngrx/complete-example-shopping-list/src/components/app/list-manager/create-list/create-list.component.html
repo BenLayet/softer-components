@@ -1,0 +1,30 @@
+@if (v$ | async; as v) {
+  <div>
+    <div class="horizontal">
+      <form (submit)="$event.preventDefault(); e.createNewListSubmitted()">
+        <input
+          #listNameInput
+          type="text"
+          placeholder="Groceries, hardware store, etc."
+          required
+          autoFocus
+          (change)="e.listNameChanged(listNameInput.value)"
+        />
+        <button type="submit">Create new list</button>
+        @if (v.shouldShowErrors) {
+          <div>
+            @if (v.hasNameRequiredError) {
+              <p class="error">Name should not be empty</p>
+            }
+            @if (v.hasListAlreadyExistsError) {
+              <p class="error">{{ v.listName }} already exists</p>
+            }
+            @if (v.hasSaveFailedError) {
+              <p class="error">Error while saving...</p>
+            }
+          </div>
+        }
+      </form>
+    </div>
+  </div>
+}

@@ -145,7 +145,7 @@ export const counterDef: ComponentDef<CounterContract> = {
   },
 
   // UI events that can be dispatched from the component
-  uiEvents: ["increment", "decrement", "set"],
+  events: ["increment", "decrement", "set"],
 
   // Updaters - handle events and update state
   updaters: {
@@ -348,7 +348,7 @@ export const appDef: ComponentDef<AppComponentContract> = {
             children.list = true;
             children.listSelect = false;
         },
-        selectListRequested: ({children}) => {
+        showAllListsRequested: ({children}) => {
             children.list = false;
             children.listSelect = true;
         },
@@ -371,7 +371,7 @@ export const counterDef: ComponentDef<CounterContract> = {
     count: state => state.count,
   },
 
-  uiEvents: ["btnClicked"],
+  events: ["btnClicked"],
 
   updaters: {
     incrementRequested: ({ state }) => {
@@ -499,8 +499,8 @@ Starting from `GlobalState#0`, when an event `Event1` occurs on component `Compo
 
 ## 🎯 Complete Examples
 
-- [app with a most basic component](./packages/examples/basic-example-counter)
-- [app with several components, event forwarding, listening and commands](./packages/examples/complete-example-shopping-list)
+- [app with a most basic component](./packages/examples/redux/basic-example-counter)
+- [app with several components, event forwarding, listening and commands](./packages/examples/redux/complete-example-shopping-list)
 
 ## 🏗️ Monorepo Structure
 
@@ -566,7 +566,7 @@ type ComponentDef<TComponentContract extends ComponentContract> = {
       state: TComponentContract["state"],
     ) => TComponentContract["values"][K];
   };
-  uiEvents?: (keyof TComponentContract["events"])[];
+  events?: (keyof TComponentContract["events"])[];
   updaters?: {
     [K in keyof TComponentContract["events"]]?: (
       params: UpdaterParams,

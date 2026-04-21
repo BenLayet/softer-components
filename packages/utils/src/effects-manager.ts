@@ -35,9 +35,6 @@ export class EffectsManager {
       this.stateReader,
       event.statePath,
     );
-    if (relativePathStateManager.readState()) {
-    }
-
     const eventConsumerInput = eventConsumerInputProvider(
       this.rootComponentDef as ComponentDef,
       event,

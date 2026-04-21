@@ -1,0 +1,34 @@
+@if (v$ | async; as v) {
+  @if (c$ | async; as c) {
+    <div>
+      <p style="text-align: start; width: 300px">
+        <a class="clickable" (click)="e.goBackClicked()">
+          All lists
+        </a>
+        &gt;&gt; {{ v.name }}
+      </p>
+      <form (submit)="$event.preventDefault(); e.newItemSubmitted()">
+        <input
+          #nextItemInput
+          type="text"
+          [value]="v.nextItemName"
+          autoFocus
+          (input)="e.nextItemNameChanged(nextItemInput.value)"
+        />
+        <button type="submit">Add Item</button>
+      </form>
+      <div style="max-width: 500px">
+        @for (path of c.itemRows; track path) {
+          <app-item-row [path]="path" />
+        }
+      </div>
+      @if (v.hasSaveFailedError) {
+        <p class="error">Error while saving the list</p>
+      }
+      @if (v.isSaving) {
+        <span class="spinner"></span>
+      }
+    </div>
+  }
+}
+

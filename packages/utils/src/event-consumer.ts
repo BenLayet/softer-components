@@ -38,8 +38,8 @@ function createEventConsumerInput<
   event: GlobalEvent<Event<TPayload>>,
   stateReader: RelativePathStateReader,
 ): EventConsumerInput<TPayload, TComponentContract> {
-  const { values, childrenValues } = createValueProviders<TComponentContract>(
-    rootComponentDef as ComponentDef<TComponentContract>,
+  const { values, childrenValues } = createValueProviders(
+    rootComponentDef,
     stateReader,
   );
   const payload = event.payload as TPayload;

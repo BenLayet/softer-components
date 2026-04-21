@@ -13,7 +13,7 @@ describe("useSofter with memoization", () => {
     type CounterContract = {
       state: { count: number };
       values: { doubled: number; tripled: number };
-      events: EventsContract<"incrementRequested", {}, ["incrementRequested"]>;
+      events: EventsContract<["incrementRequested"]>;
     };
 
     const counterDef: ComponentDef<CounterContract, { count: number }> = {
@@ -22,6 +22,7 @@ describe("useSofter with memoization", () => {
         doubled: state => state.count * 2,
         tripled: state => state.count * 3,
       },
+      allEvents: ["incrementRequested"],
       uiEvents: ["incrementRequested"],
       stateUpdaters: {
         incrementRequested: ({ state }) => {
@@ -59,21 +60,22 @@ describe("useSofter with memoization", () => {
       state: { count: number };
       values: { doubled: number };
       events: {
-        eventName: "increment";
+        allEvents: ["incrementRequested"];
         payloads: {};
-        uiEvents: ["increment"];
+        uiEvents: ["incrementRequested"];
       };
     };
 
     const counterDef: ComponentDef<CounterContract, { count: number }> = {
       initialState: { count: 0 },
-      uiEvents: ["increment"],
+      allEvents: ["incrementRequested"],
+      uiEvents: ["incrementRequested"],
       selectors: {
         doubled: state => state.count * 2,
       },
       stateUpdaters: {
         // @ts-ignore
-        increment: ({ state }) => {
+        incrementRequested: ({ state }) => {
           state.count += 1;
         },
       },
@@ -94,7 +96,7 @@ describe("useSofter with memoization", () => {
 
     // WHEN dispatching event
     act(() => {
-      result.current[1].increment();
+      result.current[1].incrementRequested();
     });
 
     // THEN values should update
@@ -142,7 +144,7 @@ describe("useSofter with memoization", () => {
       initialChildren: { itemRows: ["1", "2", "3"] },
     };
 
-    const store = configureSofterStore(listDef);
+    const store = configureSofterStore<ListContract>(listDef);
 
     const wrapper = ({ children }: { children: React.ReactNode }) => (
       <Provider store={store}>{children}</Provider>

@@ -19,11 +19,12 @@ describe("reducer tests", () => {
 
     const componentDef: ComponentDef<
       {
-        events: EventsContract<"incrementRequested">;
+        events: EventsContract<["incrementRequested"]>;
       },
       MyState
     > = {
       initialState,
+      allEvents: ["incrementRequested"],
       uiEvents: ["incrementRequested"],
       stateUpdaters: {
         incrementRequested: ({ state }) => {
@@ -65,11 +66,12 @@ describe("reducer tests", () => {
 
     const componentDef: ComponentDef<
       {
-        events: EventsContract<"incrementRequested">;
+        events: EventsContract<["incrementRequested"]>;
       },
       MyState
     > = {
       initialState,
+      allEvents: ["incrementRequested"],
       uiEvents: ["incrementRequested"],
       stateUpdaters: {
         incrementRequested: ({ state }) => {
@@ -335,14 +337,16 @@ type ItemState =
       name: string;
       quantity: number;
     };
-
-type ItemEventName =
-  | "incrementQuantityRequested"
-  | "decrementQuantityRequested"
-  | "removeRequested"
-  | "initialize";
-
-type ItemEvents = EventsContract<ItemEventName, { initialize: string }>;
+const uiEvents = [
+  "incrementQuantityRequested",
+  "decrementQuantityRequested",
+] as const;
+const allEvents = [...uiEvents, "removeRequested", "initialize"] as const;
+type ItemEvents = EventsContract<
+  typeof allEvents,
+  { initialize: string },
+  typeof uiEvents
+>;
 
 const selectors = {
   name: state => state?.name,
@@ -359,7 +363,8 @@ export type ItemContract = {
 const itemDef: ComponentDef<ItemContract, ItemState> = {
   initialState: undefined,
   selectors,
-  uiEvents: ["incrementQuantityRequested", "decrementQuantityRequested"],
+  allEvents,
+  uiEvents,
   stateUpdaters: {
     initialize: ({ payload: name }) => ({
       name: name,
@@ -393,23 +398,25 @@ const initialState = {
 };
 
 type ListState = typeof initialState;
-type ListEventName =
-  | "nextItemNameChanged"
-  | "addItemRequested"
-  | "createItemRequested"
-  | "incrementItemQuantityRequested"
-  | "resetItemNameRequested"
-  | "removeItemRequested"
-  | "newItemSubmitted";
+const listUiEvents = ["nextItemNameChanged", "addItemRequested"] as const;
+const listAllEvents = [
+  ...listUiEvents,
+  "createItemRequested",
+  "incrementItemQuantityRequested",
+  "resetItemNameRequested",
+  "removeItemRequested",
+  "newItemSubmitted",
+] as const;
 type ListEvents = EventsContract<
-  ListEventName,
+  typeof listAllEvents,
   {
     nextItemNameChanged: string;
     addItemRequested: string;
     removeItemRequested: number;
     incrementItemQuantityRequested: number;
     createItemRequested: { itemName: string; itemId: number };
-  }
+  },
+  typeof listUiEvents
 >;
 
 const childrenComponents = {
@@ -433,6 +440,7 @@ type ListContract = {
 const listDef: ComponentDef<ListContract, ListState> = {
   initialState,
   selectors: listSelectors,
+  allEvents: listAllEvents,
   uiEvents: ["nextItemNameChanged", "addItemRequested"],
   stateUpdaters: {
     nextItemNameChanged: ({ state, payload: nextItemName }) => {

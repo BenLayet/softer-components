@@ -173,7 +173,7 @@ describe("event forwarding tests", () => {
         // GIVEN
         type Contract = {
           events: EventsContract<
-            "btnClicked" | "incrementRequested",
+            ["btnClicked", "incrementRequested"],
             {},
             ["btnClicked"]
           >;
@@ -182,6 +182,7 @@ describe("event forwarding tests", () => {
         type State = { isPassing: boolean };
         const componentDef: ComponentDef<Contract, State> = {
           initialState: { isPassing },
+          allEvents: ["btnClicked", "incrementRequested"],
           uiEvents: ["btnClicked"],
           selectors: {
             isPassing: state => state.isPassing,
@@ -225,7 +226,7 @@ describe("event forwarding tests", () => {
     // GIVEN
     type Contract = {
       events: EventsContract<
-        "btnClicked" | "incrementRequested",
+        ["btnClicked", "incrementRequested"],
         { incrementRequested: number },
         ["btnClicked"]
       >;
@@ -234,6 +235,7 @@ describe("event forwarding tests", () => {
     type State = { nextPayload: number };
     const componentDef: ComponentDef<Contract, State> = {
       initialState: { nextPayload: 42 },
+      allEvents: ["btnClicked", "incrementRequested"],
       uiEvents: ["btnClicked"],
       selectors: { nextPayload: state => state.nextPayload },
       eventForwarders: [

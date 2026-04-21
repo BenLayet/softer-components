@@ -89,7 +89,7 @@ export type ChildConfig<
 > = WithChildListeners<TParentContract, TChildContract> &
   WithChildCommands<TParentContract, TChildContract>;
 
-export type ChildrenConfig<TComponentContract extends ComponentContract = any> =
+export type ChildrenConfig<TComponentContract extends ComponentContract> =
   TComponentContract["children"] extends ChildrenContract
     ? {
         [K in keyof TComponentContract["children"]]?: ChildConfig<
@@ -103,8 +103,7 @@ export type ChildrenComponentDefs<
 > = TComponentContract["children"] extends ChildrenContract
   ? {
       [K in keyof TComponentContract["children"]]: ComponentDef<
-        TComponentContract["children"][K],
-        any
+        Omit<TComponentContract["children"][K], "type">
       >;
     }
   : never;
