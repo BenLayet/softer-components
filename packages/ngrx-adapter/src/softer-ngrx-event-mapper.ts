@@ -19,21 +19,15 @@ export class SofterNgrxEventMapper {
       throw new Error(`Not a softer event: '${action.type}'`);
     }
     return {
-      ...parseEventTypeString(this.removeSofterActionTypePrefix(action.type)),
+      ...parseEventTypeString(action.type, this.actionTypePrefix),
       payload: action.payload,
     };
   };
 
   softerEventToNgRxAction = (event: GlobalEvent): NgRxAction => {
     return {
-      type: this.addSofterActionTypePrefix(toEventTypeString(event)),
+      type: toEventTypeString(event, this.actionTypePrefix),
       payload: event.payload,
     };
   };
-  private removeSofterActionTypePrefix(actionType: string): string {
-    return actionType.slice(this.actionTypePrefix.length);
-  }
-  private addSofterActionTypePrefix(actionType: string): string {
-    return `${this.actionTypePrefix}${actionType}`;
-  }
 }

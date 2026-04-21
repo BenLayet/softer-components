@@ -12,11 +12,6 @@ import {
 
 const PART_SEPARATOR = "|";
 
-function eventNameWithoutComponentPath(globalEventName: string): string {
-  const eventName = globalEventName.split(PART_SEPARATOR).pop();
-  assertIsNotUndefined(eventName);
-  return eventName;
-}
 export type ReduxDispatch = (action: ReduxAction) => void;
 type ReduxAction = {
   type: string;
@@ -26,11 +21,6 @@ type ReduxAction = {
 export function isSofterEvent(action: ReduxAction): boolean {
   return action.type.startsWith(REDUX_SOFTER_PREFIX);
 }
-
-export function removeSofterPrefix(actionType: string) {
-  return actionType.slice(REDUX_SOFTER_PREFIX.length + 1);
-}
-
 export function actionToEvent(action: ReduxAction): GlobalEvent {
   if (!isSofterEvent(action)) {
     throw new Error(`Not a softer event: '${action.type}'`);

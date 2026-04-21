@@ -21,24 +21,33 @@ export type SofterNgrxConfig = {
 };
 
 // Injection tokens for SofterNgrxEffects dependencies
-export const SOFTER_ROOT_COMPONENT_DEF = new InjectionToken<ComponentDef>('SOFTER_ROOT_COMPONENT_DEF');
-export const SOFTER_EVENT_MAPPER = new InjectionToken<SofterNgrxEventMapper>('SOFTER_EVENT_MAPPER');
-export const SOFTER_STATE_MANAGER = new InjectionToken<TreeStateManager>('SOFTER_STATE_MANAGER');
-export const SOFTER_FEATURE_SELECTOR = new InjectionToken<MemoizedSelector<object, StateTree>>('SOFTER_FEATURE_SELECTOR');
+export const SOFTER_ROOT_COMPONENT_DEF = new InjectionToken<ComponentDef>(
+  "SOFTER_ROOT_COMPONENT_DEF",
+);
+export const SOFTER_EVENT_MAPPER = new InjectionToken<SofterNgrxEventMapper>(
+  "SOFTER_EVENT_MAPPER",
+);
+export const SOFTER_STATE_MANAGER = new InjectionToken<TreeStateManager>(
+  "SOFTER_STATE_MANAGER",
+);
+export const SOFTER_FEATURE_SELECTOR = new InjectionToken<
+  MemoizedSelector<object, StateTree>
+>("SOFTER_FEATURE_SELECTOR");
 
 export function provideSofterState(softerNgrxConfig: SofterNgrxConfig) {
   const stateManager = new TreeStateManager();
   const softerFeatureName =
     softerNgrxConfig.softerFeatureName ?? DEFAULT_SOFTER_FEATURE_NAME;
-  const eventMapper = new SofterNgrxEventMapper(
-    softerFeatureName + SOFTER_ACTION_TYPE_PREFIX_SEPARATOR,
-  );
+  const eventMapper = new SofterNgrxEventMapper(softerFeatureName);
   const featureSelector = createFeatureSelector(
     softerFeatureName,
   ) as MemoizedSelector<object, StateTree>;
   return [
     // Provide injection tokens for effects
-    { provide: SOFTER_ROOT_COMPONENT_DEF, useValue: softerNgrxConfig.rootComponentDef },
+    {
+      provide: SOFTER_ROOT_COMPONENT_DEF,
+      useValue: softerNgrxConfig.rootComponentDef,
+    },
     { provide: SOFTER_EVENT_MAPPER, useValue: eventMapper },
     { provide: SOFTER_STATE_MANAGER, useValue: stateManager },
     { provide: SOFTER_FEATURE_SELECTOR, useValue: featureSelector },
@@ -75,4 +84,3 @@ export function provideSofterState(softerNgrxConfig: SofterNgrxConfig) {
 }
 
 const DEFAULT_SOFTER_FEATURE_NAME = "☁️";
-const SOFTER_ACTION_TYPE_PREFIX_SEPARATOR = "/";

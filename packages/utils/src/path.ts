@@ -3,8 +3,8 @@ type ChildKey = string;
 export type ChildrenKeys = Record<string, string[]>;
 export type StatePathSegment = [ComponentName, ChildKey];
 export type StatePath = StatePathSegment[];
-export const COMPONENT_SEPARATOR = "/";
-export const KEY_SEPARATOR = ":";
+const COMPONENT_SEPARATOR = "/";
+const KEY_SEPARATOR = ":";
 export const SINGLE_CHILD_KEY = "0";
 
 /**
