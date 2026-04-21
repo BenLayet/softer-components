@@ -1,4 +1,3 @@
-import { InjectionToken } from "@angular/core";
 import { provideEffects } from "@ngrx/effects";
 import {
   MemoizedSelector,
@@ -7,10 +6,18 @@ import {
   provideState,
 } from "@ngrx/store";
 import { ComponentDef } from "@softer-components/types";
-import { StateTree, TreeStateManager } from "@softer-components/utils";
+import {
+  ContextEventManager,
+  EffectsManager,
+  StateTree,
+  TreeStateManager,
+} from "@softer-components/utils";
 
 import { SofterNgrxDispatchers } from "./softer-ngrx-dispatchers";
-import { SofterNgrxEffects } from "./softer-ngrx-effects";
+import {
+  createNgrxEffectThatCallsSofterEffects,
+  createNgrxEffectThatForwardsSofterEvents,
+} from "./softer-ngrx-effects";
 import { SofterNgrxEventMapper } from "./softer-ngrx-event-mapper";
 import { createSofterReducer } from "./softer-ngrx-reducer";
 import { SofterNgrxSelectors } from "./softer-ngrx-selectors";
@@ -20,39 +27,40 @@ export type SofterNgrxConfig = {
   softerFeatureName?: string;
 };
 
-// Injection tokens for SofterNgrxEffects dependencies
-export const SOFTER_ROOT_COMPONENT_DEF = new InjectionToken<ComponentDef>(
-  "SOFTER_ROOT_COMPONENT_DEF",
-);
-export const SOFTER_EVENT_MAPPER = new InjectionToken<SofterNgrxEventMapper>(
-  "SOFTER_EVENT_MAPPER",
-);
-export const SOFTER_STATE_MANAGER = new InjectionToken<TreeStateManager>(
-  "SOFTER_STATE_MANAGER",
-);
-export const SOFTER_FEATURE_SELECTOR = new InjectionToken<
-  MemoizedSelector<object, StateTree>
->("SOFTER_FEATURE_SELECTOR");
-
 export function provideSofterState(softerNgrxConfig: SofterNgrxConfig) {
+  const rootComponentDef = softerNgrxConfig.rootComponentDef;
   const stateManager = new TreeStateManager();
   const softerFeatureName =
     softerNgrxConfig.softerFeatureName ?? DEFAULT_SOFTER_FEATURE_NAME;
   const eventMapper = new SofterNgrxEventMapper(softerFeatureName);
-  const featureSelector = createFeatureSelector(
+  const softerRootStateSelector = createFeatureSelector(
     softerFeatureName,
   ) as MemoizedSelector<object, StateTree>;
+  const contextEventManager = new ContextEventManager(
+    rootComponentDef,
+    stateManager,
+  );
+  const ngrxEffectThatForwardsSofterEvents =
+    createNgrxEffectThatForwardsSofterEvents(
+      rootComponentDef,
+      eventMapper,
+      stateManager,
+      softerRootStateSelector,
+      contextEventManager,
+    );
+  const effectsManager = new EffectsManager(rootComponentDef, stateManager);
+  const ngrxEffectThatCallsSofterEffects =
+    createNgrxEffectThatCallsSofterEffects(
+      eventMapper,
+      softerRootStateSelector,
+      effectsManager,
+    );
   return [
-    // Provide injection tokens for effects
-    {
-      provide: SOFTER_ROOT_COMPONENT_DEF,
-      useValue: softerNgrxConfig.rootComponentDef,
-    },
-    { provide: SOFTER_EVENT_MAPPER, useValue: eventMapper },
-    { provide: SOFTER_STATE_MANAGER, useValue: stateManager },
-    { provide: SOFTER_FEATURE_SELECTOR, useValue: featureSelector },
     // Register effects
-    provideEffects(SofterNgrxEffects),
+    provideEffects({
+      ngrxEffectThatForwardsSofterEvents,
+      ngrxEffectThatCallsSofterEffects,
+    }),
     {
       provide: SofterNgrxDispatchers,
       useFactory: (store: Store) =>
@@ -69,7 +77,7 @@ export function provideSofterState(softerNgrxConfig: SofterNgrxConfig) {
         new SofterNgrxSelectors(
           stateManager,
           softerNgrxConfig.rootComponentDef,
-          featureSelector,
+          softerRootStateSelector,
         ),
     },
     provideState(
