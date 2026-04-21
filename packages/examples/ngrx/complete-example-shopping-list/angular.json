@@ -73,10 +73,10 @@
           "options": {
             "tsConfig": "tsconfig.spec.json",
             "include": [
-              "src/**/*.spec.ts",
-              "src/**/*.test.ts",
-              "test/**/*.spec.ts",
-              "test/**/*.test.ts"
+              "**/*.spec.ts",
+              "**/*.test.ts",
+              "../test/**/*.spec.ts",
+              "../test/**/*.test.ts"
             ]
           }
         }

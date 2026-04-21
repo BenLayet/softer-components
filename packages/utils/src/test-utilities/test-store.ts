@@ -21,7 +21,13 @@ import { TestLogger } from "./test-logger";
 export const initTestStore = <TContract extends ComponentContract>(
   rootComponentDef: ComponentDef<TContract, any>,
 ) => new TestStore(rootComponentDef);
+const isSofterDebugEnabled = (): boolean => {
+  const g = globalThis as {
+    __SOFTER_DEBUG__?: boolean;
+  };
 
+  return g.__SOFTER_DEBUG__ === true;
+};
 export class TestStore<TContract extends ComponentContract> {
   private readonly stateManager = new TreeStateManager();
   private readonly effectsManager;
@@ -42,7 +48,7 @@ export class TestStore<TContract extends ComponentContract> {
       this.stateManager,
     );
 
-    if (process.env.SOFTER_DEBUG) {
+    if (isSofterDebugEnabled()) {
       this.testListener = new TestLogger();
     }
     this.effectsManager = new EffectsManager(

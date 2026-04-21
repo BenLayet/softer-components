@@ -31,12 +31,12 @@
     "tslib": "^2.3.0"
   },
   "devDependencies": {
-    "@types/lodash": "^4.17.21",
-    "@types/lodash-es": "^4.17.12",
     "@angular/build": "21.2.7",
     "@angular/cli": "21.2.7",
     "@angular/compiler-cli": "21.2.8",
     "@ngrx/store-devtools": "^21.1.0",
+    "@types/lodash": "^4.17.21",
+    "@types/lodash-es": "^4.17.12",
     "jsdom": "^28.0.0",
     "prettier": "^3.8.1",
     "typescript": "~5.9.2",
