@@ -4,15 +4,16 @@ import {
   GlobalEvent,
   OWN_VALUE_KEY,
   SofterRootState,
+  Source,
   StateTree,
   statePathToString,
   stringToStatePath,
 } from "@softer-components/utils";
 
-const EVENT_SEPARATOR = "/";
+const PART_SEPARATOR = "|";
 
 function eventNameWithoutComponentPath(globalEventName: string): string {
-  const eventName = globalEventName.split(EVENT_SEPARATOR).pop();
+  const eventName = globalEventName.split(PART_SEPARATOR).pop();
   assertIsNotUndefined(eventName);
   return eventName;
 }
@@ -34,23 +35,29 @@ export function actionToEvent(action: ReduxAction): GlobalEvent {
   if (!isSofterEvent(action)) {
     throw new Error(`Not a softer event: '${action.type}'`);
   }
-  const pathStr = removeSofterPrefix(action.type);
-  const name = eventNameWithoutComponentPath(action.type);
-  const statePathStr = pathStr.substring(
-    0,
-    pathStr.length - (name.length + EVENT_SEPARATOR.length),
-  );
+  const parts = action.type.split(PART_SEPARATOR);
+  if (parts.length < 4) {
+    throw new Error(
+      `Invalid softer event type: '${action.type}'. Expected format: '☁️/source/statePath/eventName'`,
+    );
+  }
+  parts.shift(); // remove softer prefix
+  const source = parts.shift() as Source;
+  const name = parts.pop() as string;
+  const statePathStr = parts.join(PART_SEPARATOR); // rebuild statePathStr
   const statePath = stringToStatePath(statePathStr);
   const payload = action.payload;
-  return { name, statePath, payload };
+  return { name, statePath, payload, source };
 }
 
 export function eventToAction(event: GlobalEvent): ReduxAction {
   const type =
     REDUX_SOFTER_PREFIX +
+    PART_SEPARATOR +
     (event.source ?? "?") +
+    PART_SEPARATOR +
     statePathToString(event.statePath) +
-    EVENT_SEPARATOR +
+    PART_SEPARATOR +
     event.name;
   return {
     type,
