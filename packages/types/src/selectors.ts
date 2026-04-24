@@ -1,5 +1,5 @@
 import { ChildrenContract, ContextContract } from "./component-contract";
-import { State } from "./state";
+import { State } from "./data";
 import { ChildrenValues, ContextsValues } from "./values";
 
 export type Selectors<

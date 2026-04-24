@@ -1,8 +1,5 @@
-import {
-  ComponentContract,
-  EventsContract,
-  ExtractEventNameUnion,
-} from "./component-contract";
+import { ComponentContract, EventsContract } from "./component-contract";
+import { ExtractEventNameUnion } from "./component-contract-helpers";
 import { Dispatcher } from "./event";
 import { EventConsumerInput } from "./event-consumer";
 

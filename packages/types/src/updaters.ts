@@ -1,10 +1,7 @@
 import { ChildrenInstancesDefs } from "./children";
-import {
-  ComponentContract,
-  EventsContract,
-  ExtractEventNameUnion,
-} from "./component-contract";
-import { State } from "./state";
+import { ComponentContract, EventsContract } from "./component-contract";
+import { ExtractEventNameUnion } from "./component-contract-helpers";
+import { State } from "./data";
 import { Values } from "./values";
 
 export type StateUpdaters<

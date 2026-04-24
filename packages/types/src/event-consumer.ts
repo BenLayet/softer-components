@@ -1,5 +1,5 @@
 import { ComponentContract } from "./component-contract";
-import { Payload } from "./event";
+import { Payload } from "./data";
 import { Values } from "./values";
 
 export type EventConsumerInput<

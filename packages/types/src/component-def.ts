@@ -7,14 +7,16 @@ import {
   ChildrenContract,
   ComponentContract,
   ContextContract,
+} from "./component-contract";
+import {
   ExtractEventNames,
   ExtractUiEvents,
-} from "./component-contract";
+} from "./component-contract-helpers";
 import { ContextsConfig, ContextsDef } from "./context";
+import { State } from "./data";
 import { Effects } from "./effects";
 import { InternalEventForwarders } from "./event-forwarder";
 import { Selectors } from "./selectors";
-import { State } from "./state";
 import { ChildrenUpdaters, StateUpdaters } from "./updaters";
 import { IfAny, IfNonEmptyRecord } from "./util";
 

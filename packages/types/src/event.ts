@@ -1,6 +1,5 @@
-import { OptionalValue } from "./value";
+import { Payload } from "./data";
 
-export type Payload = OptionalValue;
 export type Event<
   TPayload extends Payload = Payload,
   TEventName extends string = string,

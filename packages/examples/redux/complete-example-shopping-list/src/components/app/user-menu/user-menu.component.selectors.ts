@@ -11,10 +11,10 @@ export type Context = {
 };
 
 export const selectors = {
-  isAuthenticated: (_: any, __: any, { userContext }) =>
+  isAuthenticated: (_, __, { userContext }) =>
     userContext.values.isAuthenticated(),
-  isAnonymous: (_: any, __: any, { userContext }) =>
+  isAnonymous: (_, __, { userContext }) =>
     !userContext.values.isAuthenticated(),
-  username: (_: any, __: any, { userContext }) => userContext.values.username(),
+  username: (_, __, { userContext }) => userContext.values.username(),
 } satisfies Selectors<State, {}, Context>;
 export type Values = ExtractComponentValuesContract<typeof selectors>;

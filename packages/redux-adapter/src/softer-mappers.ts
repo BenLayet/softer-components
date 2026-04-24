@@ -85,6 +85,6 @@ function assertIsNotUndefined<T>(
   message?: string,
 ): asserts value is T {
   if (typeof value === "undefined") {
-    throw new Error(message || "Value is not defined");
+    throw new Error(message ?? "Value is not defined");
   }
 }

@@ -1,6 +1,5 @@
 export * from "./values";
-export * from "./value";
-export * from "./state";
+export * from "./data";
 export * from "./selectors";
 export * from "./event";
 export * from "./component-contract";

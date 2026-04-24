@@ -22,7 +22,7 @@ export function assertIsNotUndefined<T>(
   message?: string,
 ): asserts value is T {
   if (isUndefined(value)) {
-    throw new Error(message || "Value is not defined");
+    throw new Error(message ?? "Value is not defined");
   }
 }
 
@@ -49,7 +49,7 @@ export function assertIsNumber(
   message?: string,
 ): asserts value is number {
   if (typeof value !== "number") {
-    throw new Error(message || `Expected number, got ${typeof value}`);
+    throw new Error(message ?? `Expected number, got ${typeof value}`);
   }
 }
 
@@ -58,6 +58,6 @@ export function assertIsArray(
   message?: string,
 ): asserts value is any[] {
   if (!Array.isArray(value)) {
-    throw new Error(message || `Expected array, got ${typeof value}`);
+    throw new Error(message ?? `Expected array, got ${typeof value}`);
   }
 }

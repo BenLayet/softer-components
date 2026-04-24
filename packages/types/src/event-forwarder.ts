@@ -1,5 +1,6 @@
 import { ComponentContract, EventsContract } from "./component-contract";
-import { Event, Payload } from "./event";
+import { Payload } from "./data";
+import { Event } from "./event";
 import { Values } from "./values";
 
 /**

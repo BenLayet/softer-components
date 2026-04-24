@@ -11,12 +11,3 @@ export type IsNonEmptyRecord<T> =
     : false;
 export type IfNonEmptyRecord<T, Then, Else = never> =
   IsNonEmptyRecord<T> extends true ? Then : Else;
-/*
-TODO remove tests
-type Contract = {events: {allEvents: string[]}};
-const t2 :IsNonEmptyRecord<{}> = false;
-const t3 :IsNonEmptyRecord<Contract> = true;
-const t4 :IsNonEmptyRecord<Contract["events"]> = true;
-const t5 :IsNonEmptyRecord<Contract["values"]> = false;
-
- */
