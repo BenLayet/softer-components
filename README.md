@@ -45,610 +45,221 @@ Softer Components goes one step further:
 
 - 1 UI component = 1 'softer component' managing its own slice of the store
 - Complete break down of application complexity into simple component logic while keeping a unique global state
-  - a component is unaware of its 'path' in the component tree and can be reused anywhere, multiple times
+    - a component is unaware of its 'path' in the component tree and can be reused anywhere, multiple times
 - minimum boilerplate
-  - a component is defined by a declarative 'description' of its behavior
+    - a component is defined by a declarative 'description' of its behavior
 - maximum reusability: each component can potentially be shared and reused in any application
-  - no tie to a specific platform or state manager (a component used in React/Redux can be reused in Angular/NgRx)
+    - no tie to a specific platform or state manager (a component used in React/Redux can be reused in Angular/NgRx)
 - Clear dependencies: a component only knows about the 'contract' of its children
-  - it 'knows nothing' about its parent or the rest of the application
+    - it 'knows nothing' about its parent or the rest of the application
 - Strict separation of concerns:
-  - Display logic in UI components
-  - Behavior in 'softer component'
-  - Interaction with external systems in effects (HTTP, localstorage, service worker, etc...)
+    - Display logic in UI components
+    - Behavior in 'softer component'
+    - Interaction with external systems in effects (HTTP, localstorage, service worker, etc...)
 
 The tradeoff is that a strict coding pattern needs to be applied.
+## Monorepo packages
+
+- `packages/types`: core type system (`ComponentContract`, `ComponentDef`, events, paths, etc.)
+- `packages/utils`: runtime engine (reducer helpers, event forwarding, effects orchestration)
+- `packages/redux-adapter`: Redux store and React hooks
+- `packages/ngrx-adapter`: NgRx providers and Angular base component
+- `packages/examples`: Redux and NgRx sample apps
 
 ## 🧠 Core Concepts
 
-### Component Definition (`ComponentDef`)
 
-Defines the behavior and structure of a component type.
+### Component contract (`ComponentContract`)
 
-- One `ComponentDef` can be used by multiple components at runtime
-- Each component has its own state at runtime
+The contract is the public interface of a component type.
 
-### Events
+- `values?`: values exposed by selectors
+- `events?`: event names, payloads, and UI-dispatchable events
+- `children?`: child component contracts
+- `context?`: context component contracts
 
-Each component communicates with the rest of the application through events that can be triggered:
+### Component definition (`ComponentDef<TContract, TState>`)
 
-- **by the UI**: e.g. `buttonClicked`, `inputChanged`
-- **by internal event chain**: e.g. `buttonClicked` => `submitRequested` to encourage separation of UI event and behavior events, and flexibility about UI interaction
-- **by listening to a child component**: e.g., if a table is listening to a pager: `pageSelected` from the pager => `fetchPageRequested`
-- **by a parent component**: e.g. `selectAllRequested` from a checkboxList => `selectRequested` for each checkbox
-- **by an effect**: e.g. `httpFetchSucceeded`, `timeoutExpired`
-- _coming in issue #11_: **by listening to a context**: e.g., if a basket component is listening to security context: `authenticationSuceeded` => `loadPreviouslySavedBasket`
-- _coming in issue #11_: **by a component to a context**: e.g., login component `loginSubmitted` => security context: `authenticationRequested`
+- `initialState`
+- `selectors`
+- `allEvents`, `uiEvents`
+- `stateUpdaters`, `childrenUpdaters`
+- `eventForwarders`
+- `effects`
+- `childrenComponentDefs`, `childrenConfig`, `initialChildren`
+- `contextsDef`, `contextsConfig`
 
-Inspired by NgRx concept of Good Action Hygiene https://www.youtube.com/watch?v=JmnsEvoy-gY&themeRefresh=1, events in Softer Components:
+### Event flow
 
-- they tell where they are dispatched from
-- they tell what event has occurred (in the past)
-- they are unaware about who will consume them
+When an event occurs, the runtime can:
+
+1. run updaters
+2. generate the event chain (forwarded/listener/command events)
+3. run effects
+4. dispatch generated events
+
+This keeps business logic declarative and composable.
+
 
 ## 📦 Installation
 
 ```bash
-# Install core types
-pnpm add -D @softer-components/types
-
-# Install Redux adapter (if using Redux)
-pnpm add @softer-components/redux-adapter
-
+pnpm add @softer-components/types
 ```
 
-## 🚀 Quick Start
+If you use React + Redux:
 
-### 1. Define Your Component Contract
+```bash
+pnpm add @softer-components/redux-adapter react-redux @reduxjs/toolkit
+```
 
-```typescript
-import { ComponentContract } from "@softer-components/types";
+If you use Angular + NgRx:
 
-// Define the contract for a counter component
-type CounterContract = {
-  // Component state
-  state: {
-    count: number;
-  };
+```bash
+pnpm add @softer-components/ngrx-adapter @ngrx/store @ngrx/effects @ngrx/operators rxjs
+```
 
-  // Computed values (from selectors)
-  values: {
-    doubled: number;
-    isEven: boolean;
-  };
+## Quick start (React + Redux)
 
-  // Events the component can handle
-  events: {
-    increment: { payload: undefined };
-    decrement: { payload: undefined };
-    set: { payload: number };
-  };
+### 1) Define contract and definition
 
-  // Child components
-  children: {};
+```ts
+import { ComponentDef, EventsContract } from "@softer-components/types";
+import { createBaseSelectors } from "@softer-components/utils";
+
+const initialState = { count: 0 };
+type State = typeof initialState;
+
+const allEvents = ["incrementRequested", "decrementRequested"] as const;
+type CounterEvents = EventsContract<typeof allEvents>;
+
+export type CounterContract = {
+  values: { count: number };
+  events: CounterEvents;
 };
-```
 
-### 2. Create Component Definition
-
-```typescript
-import { ComponentDef } from "@softer-components/types";
-
-export const counterDef: ComponentDef<CounterContract> = {
-  // Initial state
-  initialState: { count: 0 },
-
-  // Selectors - compute derived values
-  selectors: {
-    doubled: state => state.count * 2,
-    isEven: state => state.count % 2 === 0,
-  },
-
-  // UI events that can be dispatched from the component
-  events: ["increment", "decrement", "set"],
-
-  // Updaters - handle events and update state
-  updaters: {
-    increment: ({ state }) => {
-      state.count += 1; // ✅ Immer allows mutation
+export const counterDef: ComponentDef<CounterContract, State> = {
+  initialState,
+  selectors: createBaseSelectors(initialState),
+  allEvents,
+  uiEvents: allEvents,
+  stateUpdaters: {
+    incrementRequested: ({ state }) => {
+      state.count++;
     },
-    decrement: ({ state }) => {
-      state.count -= 1;
-    },
-    set: ({ state, payload }) => {
-      state.count = payload;
+    decrementRequested: ({ state }) => {
+      state.count--;
     },
   },
 };
 ```
 
-### 3. Use with Redux
+### 2) Create store
 
-```tsx
+```ts
 import { configureSofterStore } from "@softer-components/redux-adapter";
-import { Provider } from "react-redux";
 
-// Create Redux store with Softer Components
-const store = configureSofterStore(counterDef);
-
-// Wrap your app with Redux Provider
-function App() {
-  return (
-    <Provider store={store}>
-      <Counter />
-    </Provider>
-  );
-}
+export const store = configureSofterStore(counterDef);
 ```
 
-or create your own adapter for your own state manager using `@softer-components/utils` (and share it!)
-
-### 4. Use in React Component
+### 3) Use in a React component
 
 ```tsx
 import { useSofter } from "@softer-components/redux-adapter";
 
-interface CounterProps {
-  path?: string;
-}
-
-export const Counter = ({ path = "" }: CounterProps) => {
-  // ☁️ Get values, events, and children paths
-  const [values, events] = useSofter<CounterContract>(path);
+export const Counter = ({ path = "" }: { path?: string }) => {
+  const [{ count }, { incrementRequested, decrementRequested }] =
+    useSofter<CounterContract>(path);
 
   return (
     <div>
-      <h1>Count: {values.doubled}</h1>
-      <p>{values.isEven ? "Even" : "Odd"}</p>
-      <button onClick={events.increment}>+</button>
-      <button onClick={events.decrement}>-</button>
-      <button onClick={() => events.set(0)}>Reset</button>
+      <div>{count}</div>
+      <button onClick={() => decrementRequested()}>-</button>
+      <button onClick={() => incrementRequested()}>+</button>
     </div>
   );
 };
 ```
 
-## 🔄 Detailed Features
+## Quick start (Angular + NgRx)
 
-### Component Contract
-The component contract is a `typescript` type that defines how the component can be used by the UI and by other components:
- - values: their name and return type (corresponding to the selectors)
- - events: their name and payload type
- - children: their name, contract, and configuration (optional / collection / unique)
- - effects: their name and the list of events that can be dispatched from them
+### 1) Provide softer state in app config
 
-#### Reusability
-The UI component only depends on the component contract, and not on the component definition, so the component definition can be changed without impacting the UI component, as long as the contract stays the same.
+```ts
+import { ApplicationConfig } from "@angular/core";
+import { provideStore } from "@ngrx/store";
+import { provideSofterState } from "@softer-components/ngrx-adapter";
 
-Parent component use the component definition in `childrenComponentDefs`, but otherwise only use the component contract (in `listeners`, `commands` and `childrenValues`). So replacing the component definition by another implementation of the same contract has minimal impact on the parent component.
+import { appDef } from "./components/app";
 
-### Component Definition
-
-####  `initialState` and `State` type
-* The state is immutable and must be serializable.
-* The initial state should be a POJO (Plain Old JavaScript object) with zero dependencies.
-* The `State` type is typically derived as `typeof initialState`
-
-#### `selectors` and `Values` type
-* Selectors are functions that compute derived values from the component state tree (own state of the component, and values of its children).
-* They must be pure functions.
-* Adapters typically memoize the results of selectors to avoid recomputing them unnecessarily.
-* The values selected by the selectors are exposed to the component through the `values` property of the component contract, they are provided to the UI through the `useSofter` and `useSofterValues` hook.
-* They are also provided to the updaters, the parent selectors, the effects, the event forwarders, listeners, and commands, through the `values` argument of the `onCondition` function.
-
-#### `Events` type
-* the `Events` type defines the list of events names, and for each event 
-  * the payload type
-  * if the event can be dispatched from the UI component
-  * if the event can trigger an effect and if so, to dispatch which events 
-* UI events are available in React Component with the `useSofter` and `useSofterEvents` hook.
-
-#### Updaters
-* Updaters are functions that handle events and update the component state and the children instances
-* They must be pure functions.
-* They can mutate the state of the component that they receive as an argument (as it is an Immer draft), or they can return a new state
-
-#### eventForwarders
-* They are defined as a list of forwarders that forward events from the component to its children.
-* cf [Event Forwarding (Internal)](#event-forwarding-internal)
-#### initialChildren
-- by default, a child is unique and non-optional, so they would not and cannot be declared in the `initialChildren` property of the component definition.
-- to declare a child as optional, add `type: "optional"` in the component contract.
-- to declare a child as a collection, add `type: "collection"` in the component contract.
-
-
-#### childrenComponentDefs
-* They are defined as a map of component name to component definition that matches the children contract of the component.
-* By default, they are instantiated when the component is instantiated and destroyed when the component is destroyed (i.e. their state is created in the state tree when the component state is added to the state tree)
-  * exceptions: children that are declared as optional or collection in the component contract
-  * cf [Managing Children Instances](#managing-children-instances)
-
-#### childrenConfig
-* They are defined as a map of component name to a configuration object that contains:
-  * `commands`: a list of commands to send to the children instances
-  * `listeners`: a list of listeners to subscribe to events from the children instances
-  * cf [Parent-Child Communication](#parent-child-communication)
-
-#### effects
-* They are defined as a map of event names to an array of event names that can be dispatched from the effect
-* They can be configured outside the component definition, so the component definition itself has minimum dependency.
-
-### Managing Children Instances
-
-#### Collection children
-- initialize with an array of keys (`string[]`) in `initialChildren`
-- update collection of keys in `updaters`
-
-
-```typescript
-type ListContract = {
-    state: { nextId: number };
-    values: { itemCount: number };
-    events: {
-        addItem: { payload: string };
-        removeItem: { payload: string };
-    };
-    children: {
-        items: ItemContract & {isCollection:true};
-    };
-};
-
-export const listDef: ComponentDef<ListContract> = {
-    initialState: { nextId: 0 },
-
-    // Initial children
-    initialChildren: {
-        items: [], // Start with no items
-    },
-
-    updaters: {
-        addItem: ({ state, children, payload }) => {
-            const newId = String(state.nextId);
-            state.nextId += 1;
-
-            // 🔧 Mutate children to add child
-            children.items.push(newId);
-        },
-
-        removeItem: ({ children, payload }) => {
-            // 🔧 Mutate children to remove child
-            const index = children.items.indexOf(payload);
-            if (index > -1) {
-                children.items.splice(index, 1);
-            }
-        },
-    },
-
-    childrenComponents: {
-        items: itemDef,
-    },
-};
-```
-#### Optional child
-
-- initialize with a `boolean` (`true` by default) in `initialChildren`
-- update in `updaters`
-```typescript
-import {ListSelectContract} from "./list-select.component";
-
-export type AppComponentContract = {
-    state: undefined;
-    events: AppEvents;
-    children: {
-        list: ListContract & { type: "optional" };
-        listSelect: ListSelectContract & { type: "optional"  };
-    };
-    values: {};
-}
-    ;
-// Component definition
-export const appDef: ComponentDef<AppComponentContract> = {
-    updaters: {
-        listSelected: ({children}) => {
-            children.list = true;
-            children.listSelect = false;
-        },
-        showAllListsRequested: ({children}) => {
-            children.list = false;
-            children.listSelect = true;
-        },
-    },
-    initialChildren: {list: false},
-    childrenComponentDefs,
-    //...
-};
-```
-
-### Event Forwarding (Internal)
-
-Forward events within the same component:
-
-```typescript
-export const counterDef: ComponentDef<CounterContract> = {
-  initialState: { count: 0 },
-
-  selectors: {
-    count: state => state.count,
-  },
-
-  events: ["btnClicked"],
-
-  updaters: {
-    incrementRequested: ({ state }) => {
-      state.count++;
-    },
-  },
-
-  // 🔄 Forward btnClicked -> incrementRequested
-  eventForwarders: [
-    {
-        from: "itemClicked",
-        to: "itemSelected",
-        // Only forward if condition is met
-        onCondition: ({ values }) => {
-            return values.isEnabled;
-        },
-        // Transform payload
-        withPayload: ({ payload :{id}}) => {
-            return { id, nextId: id+1 };
-        }
-    }
+export const appConfig: ApplicationConfig = {
+  providers: [
+    provideStore(),
+    ...provideSofterState({ rootComponentDef: appDef }),
   ],
 };
 ```
 
-### Parent-Child Communication
+### 2) Extend `AbstractSofterComponent`
 
-#### Child-to-Parent (Listeners)
+```ts
+import { Component } from "@angular/core";
+import { AsyncPipe } from "@angular/common";
+import { AbstractSofterComponent } from "@softer-components/ngrx-adapter";
 
-```typescript
-type ItemContract = {
-  state: { name: string };
-  selectors: { displayName: string };
-  events: {
-    removed: { payload: undefined };
-  };
-  children: {};
-};
+import { CounterContract } from "./counter.component";
 
-type ListContract = {
-  state: { items: string[] };
-  values: { itemCount: number };
-  events: {
-    itemRemoved: { payload: string };
-  };
-  children: {
-    items: ItemContract;
-  };
-};
-
-export const listDef: ComponentDef<ListContract> = {
-  initialState: { items: [] },
-
-  selectors: {
-    itemCount: state => state.items.length,
-  },
-
-  updaters: {
-    itemRemoved: ({ state, payload }) => {
-      state.items = state.items.filter(id => id !== payload);
-    },
-  },
-
-  childrenComponents: {
-    items: itemDef,
-  },
-
-  childrenConfig: {
-    items: {
-      // 👂 Listen to child events
-      listeners: [
-        {
-          from: "removed", // Child event
-          to: "itemRemoved", // Parent event
-          withPayload: ({ childKey }) => childKey,
-        },
-      ],
-    },
-  },
-};
+@Component({
+  selector: "app-counter",
+  templateUrl: "./counter.component.html",
+  imports: [AsyncPipe],
+})
+export class CounterView extends AbstractSofterComponent<CounterContract> {}
 ```
 
-#### Parent-to-Child (Commands)
+In template, use:
 
-```typescript
-export const listDef: ComponentDef<ListContract> = {
-  // ...existing code...
+- `v$ | async` for values
+- `c$ | async` for children paths
+- `e` for UI dispatchers
 
-  childrenConfig: {
-    items: {
-      // 📢 Send commands to children
-      commands: [
-        {
-          from: "clearAllRequested", // Parent event
-          to: "clearRequested", // Child event
-        },
-      ],
-    },
-  },
-};
+## Redux adapter API
+
+Exports from `@softer-components/redux-adapter`:
+
+- `configureSofterStore`
+- `useSofter`
+- `useSofterSelectors`
+- `useSofterEvents`
+- `useSofterChildrenPaths`
+
+Examples:
+
+```ts
+const [values, events, children] = useSofter<MyContract>("");
+const valuesOnly = useSofterSelectors<MyContract>("");
+const eventsOnly = useSofterEvents<MyContract>("");
+const childrenOnly = useSofterChildrenPaths<MyContract>("");
 ```
 
+## NgRx adapter API
 
-## Processing of events
+Exports from `@softer-components/ngrx-adapter`:
 
-Starting from `GlobalState#0`, when an event `Event1` occurs on component `Component1`:
-1. the updater of `Event1` is called, updating the state of `Component1`, and its optional and collection children
-    - if a child is removed, its state tree is removed
-    - if a child is added, its state tree is initialized
-    - this gives `GlobalState#1`
-2. a collection of events is created, using `GlobalState#1` in `values` argument of `onCondition`, and `withPayload` arguments :
-    - first from its own forwarders, in the order they are defined in of `Component1.eventForwarders`,
-    - then from the commands to its children, in the order they are defined in `Component1.childrenConfig.[].commands`,
-    - then from the listeners of its parent, in the order they are defined in`ParentComponent1.childrenConfig.component1.listeners`,
-3. the effects of the event are processed, in the order they are defined `Component1.effects.event1`, still using `GlobalState#1` in `values` argument of `onCondition`, and `withPayload`
-     - the effects are ran 'synchronously', i.e., before the UI is updated, so they can call API that requires to be called 'immediately after a user interaction', like `window.open()`, `audio.load()`, etc...
-     - if they dispatch an event, it dispatches it 'asynchronously', i.e., after the current event chained has been entirely processed, and the UI updated. So events dispatched from effects are not part of the event chain.
-4. the event chain created in step 2 is dispatched
-     - each new event can potentially create a new event chain that would be processed before the UI is refreshed.
-     - we make sure that there is no infinite loop of events by checking that the event chain is not cyclic.
-5. the UI is updated, using the new global state, resulting from the complete event chain.
-6. the events from the effects are processed, in the order they are defined `Component1.effects.event1`, still using `GlobalState#1` in `values` argument of `onCondition`, and `withPayload`
+- `provideSofterState`
+- `AbstractSofterComponent`
 
+## Examples
 
+Redux examples:
 
-## 🎯 Complete Examples
+- `packages/examples/redux/basic-example-counter`
+- `packages/examples/redux/complete-example-shopping-list`
 
-- [app with a most basic component](./packages/examples/redux/basic-example-counter)
-- [app with several components, event forwarding, listening and commands](./packages/examples/redux/complete-example-shopping-list)
+NgRx examples:
 
-## 🏗️ Monorepo Structure
-
-```
-softer-components/
-├── packages/
-│   ├── types/                    # ☁️ Core type definitions
-│   │   ├── src/
-│   │   │   └── softer-component-types.ts
-│   │   ├── package.json
-│   │   └── tsconfig.json
-│   ├── utils/                    # 🛠️ Utility functions
-│   │   ├── src/
-│   │   │   ├── reducer.ts       # State update logic
-│   │   │   ├── state.ts         # State tree utilities
-│   │   │   └── predicate.functions.ts
-│   │   ├── package.json
-│   │   └── tsconfig.json
-│   ├── redux-adapter/            # 🎯 Redux integration
-│   │   ├── src/
-│   │   │   ├── softer-store.ts  # Redux store setup
-│   │   │   ├── softer-hooks.ts  # React hooks
-│   │   │   └── mappers.ts       # Redux mappers
-│   │   ├── package.json
-│   │   └── tsconfig.json
-│   └── examples/
-│       └── complete-example-shopping-list/
-│           └── src/
-│               ├── components/
-│               │   ├── list/
-│               │   └── item-row/
-│               └── main.tsx
-├── .github/
-│   └── copilot-instructions.md
-├── package.json                  # Root workspace config
-├── pnpm-workspace.yaml
-└── tsconfig.json                 # Root project references
-```
-
-## 🔧 API Reference
-
-### Core Types
-
-#### `ComponentContract`
-
-```typescript
-type ComponentContract = {
-  state: OptionalValue;
-  values: ComponentValuesContract;
-  events: EventsContract;
-  children: ComponentChildrenContract;
-};
-```
-
-#### `ComponentDef<TComponentContract>`
-
-```typescript
-type ComponentDef<TComponentContract extends ComponentContract> = {
-  initialState?: TComponentContract["state"];
-  initialChildren?: ChildrenKeys<TComponentContract["children"]>;
-  selectors?: {
-    [K in keyof TComponentContract["values"]]: (
-      state: TComponentContract["state"],
-    ) => TComponentContract["values"][K];
-  };
-  events?: (keyof TComponentContract["events"])[];
-  updaters?: {
-    [K in keyof TComponentContract["events"]]?: (
-      params: UpdaterParams,
-    ) => void | TComponentContract["state"];
-  };
-  eventForwarders?: InternalEventForwarders<TComponentContract>;
-  childrenComponents?: {
-    [K in keyof TComponentContract["children"]]: ComponentDef<
-      TComponentContract["children"][K]
-    >;
-  };
-  childrenConfig?: {
-    [K in keyof TComponentContract["children"]]?: ChildConfig<
-      TComponentContract,
-      TComponentContract["children"][K]
-    >;
-  };
-};
-```
-
-#### `Values<TComponentContract>`
-
-Runtime interface for accessing component values:
-
-```typescript
-type Values<TComponentContract extends ComponentContract> = {
-  values: {
-    [K in keyof TComponentContract["values"]]: () => TComponentContract["values"][K];
-  };
-  children: ChildrenValues<TComponentContract>;
-};
-```
-
-### Redux Adapter
-
-#### `configureSofterStore(rootComponentDef)`
-
-Creates a Redux store with Softer Components integration:
-
-```typescript
-const store = configureSofterStore(counterDef);
-```
-
-#### `useSofter<TComponentContract>(path)`
-
-React hook for accessing component state, events, and children:
-
-```typescript
-const [values, events, children] = useSofter<CounterContract>("");
-```
-
-#### `useSofterSelectors<TValuesContract>(path)`
-
-Hook for accessing only computed values:
-
-```typescript
-const values = useSofterSelectors<CounterContract["values"]>("");
-```
-
-#### `useSofterEvents<TEventsContract>(path)`
-
-Hook for accessing only event dispatchers:
-
-```typescript
-const events = useSofterEvents<CounterContract["events"]>("");
-```
-
-#### `useSofterSingleChildrenPaths<TChildrenContract>(path)`
-
-Hook for accessing only children's paths (first instance only), as a string that can be undefined:
-
-```typescript
-const children = useSofterSingleChildrenPaths<CounterContract["children"]>("");
-```
-
-#### `useSofterChildrenPaths<TChildrenContract>(path)`
-
-Hook for accessing only children's paths, as arrays of strings:
-
-```typescript
-const children = useSofterChildrenPaths<CounterContract["children"]>("");
-```
+- `packages/examples/ngrx/basic-example-counter`
+- `packages/examples/ngrx/complete-example-shopping-list`
 
 ## 🤝 Contributing
 
@@ -656,8 +267,7 @@ Contributions are welcome! Please feel free to submit a Pull Request.
 
 ## 📄 License
 
-MIT License
-See the [LICENSE](LICENSE) file for details.
+MIT. See `LICENSE`.
 
 ## 🙋‍♂️ Support
 
