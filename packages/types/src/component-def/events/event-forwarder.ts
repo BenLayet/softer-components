@@ -1,10 +1,24 @@
-import { ComponentContract, EventsContract } from "./component-contract";
-import { Payload } from "./data";
-import { Event } from "./event";
-import { Values } from "./values";
+import {
+  ChildInstanceContract,
+  ChildrenContract,
+  ComponentContract,
+  ContextContract,
+  EventsContract,
+} from "../../component-contract/component-contract";
+import { Payload } from "../../component-contract/payload";
+import { Values } from "../values/values";
+
+//TODO do not export event
+export type Event<
+  TPayload extends Payload = Payload,
+  TEventName extends string = string,
+> = {
+  readonly name: TEventName;
+  readonly payload?: TPayload;
+};
 
 /**
- * Defines withPayload property for event forwarders
+ * Defines withPayload property for events forwarders
  * Required when payload types don't match, optional when they do
  */
 type WithPayloadDef<
@@ -34,8 +48,8 @@ type WithPayloadDef<
       };
 
 /**
- * Defines onCondition property for event forwarders
- * Optional condition to determine if the event should be forwarded
+ * Defines onCondition property for events forwarders
+ * Optional condition to determine if the events should be forwarded
  */
 type OnConditionDef<
   TComponentContract extends ComponentContract,
@@ -187,4 +201,69 @@ export type InternalEventForwarder<
   : never;
 export type InternalEventForwarders<
   TComponentContract extends ComponentContract,
-> = InternalEventForwarder<TComponentContract>[]; //array of forwarders per event
+> = InternalEventForwarder<TComponentContract>[]; //array of forwarders per events
+
+/***************************************************************************************************************
+ *                         CHILDREN DEFINITION
+ ***************************************************************************************************************/
+
+export type ListenersDef<
+  TParentContract extends ComponentContract,
+  TChildContract extends ComponentContract & ChildInstanceContract,
+> = FromEventContractToEventContract<
+  TParentContract,
+  TChildContract["events"], //from child
+  TParentContract["events"] //to parent
+>[];
+
+type WithChildListeners<
+  TParentContract extends ComponentContract,
+  TChildContract extends ComponentContract & ChildInstanceContract,
+> = {
+  readonly listeners?: ListenersDef<TParentContract, TChildContract>;
+};
+
+export type CommandsDef<
+  TParentContract extends ComponentContract,
+  TChildContract extends ComponentContract & ChildInstanceContract,
+> = FromEventContractToChildEventContract<
+  TParentContract,
+  TChildContract extends { type: "collection" } ? true : false,
+  TParentContract["events"], //from parent
+  TChildContract["events"] //to child
+>[];
+
+type WithChildCommands<
+  TParentContract extends ComponentContract,
+  TChildContract extends ComponentContract & ChildInstanceContract,
+> = {
+  readonly commands?: CommandsDef<TParentContract, TChildContract>;
+};
+/***************************************************************************************************************
+ *                         CHILDREN AND CONTEXTS CONFIGS
+ ***************************************************************************************************************/
+
+export type ChildConfig<
+  TParentContract extends ComponentContract,
+  TChildContract extends ComponentContract & ChildInstanceContract,
+> = WithChildListeners<TParentContract, TChildContract> &
+  WithChildCommands<TParentContract, TChildContract>;
+
+export type ChildrenConfig<TComponentContract extends ComponentContract> =
+  TComponentContract["children"] extends ChildrenContract
+    ? {
+        [K in keyof TComponentContract["children"]]?: ChildConfig<
+          TComponentContract,
+          TComponentContract["children"][K]
+        >;
+      }
+    : never;
+
+export type ContextsConfig<
+  TComponentContract extends { context: ContextContract } & ComponentContract,
+> = {
+  [K in keyof TComponentContract["context"]]?: ChildConfig<
+    TComponentContract,
+    TComponentContract["context"][K]
+  >;
+};

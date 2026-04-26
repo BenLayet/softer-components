@@ -1,8 +1,11 @@
-import { ComponentContract, EventsContract } from "./component-contract";
+import {
+  ComponentContract,
+  EventsContract,
+} from "../component-contract/component-contract";
 import { ComponentDef } from "./component-def";
-import { Dispatcher } from "./event";
-import { Selectors } from "./selectors";
-import { Values } from "./values";
+import { Dispatcher } from "./events/event-dispatcher";
+import { Selectors } from "./values/selectors";
+import { Values } from "./values/values";
 
 /***************************************************************************************************************
  *                       HELPER TYPES TO EXTRACT CONTRACTS FROM DEFINITIONS
@@ -19,7 +22,9 @@ export type ExtractComponentValuesContract<
     : never;
 };
 export type ContractOfComponentDef<T extends ComponentDef<any, any>> =
-  T extends { __contract__?: infer TComponentContract extends ComponentContract }
+  T extends {
+    __contract__?: infer TComponentContract extends ComponentContract;
+  }
     ? TComponentContract
     : never;
 export type ValuesOfComponentDef<T extends ComponentDef> = Values<

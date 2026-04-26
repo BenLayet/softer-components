@@ -1,24 +1,23 @@
 import {
-  ChildrenComponentDefs,
-  ChildrenConfig,
-  ChildrenInstancesDefs,
-} from "./children";
-import {
   ChildrenContract,
   ComponentContract,
   ContextContract,
-} from "./component-contract";
+} from "../component-contract/component-contract";
 import {
   ExtractEventNames,
   ExtractUiEvents,
-} from "./component-contract-helpers";
-import { ContextsConfig, ContextsDef } from "./context";
-import { State } from "./data";
-import { Effects } from "./effects";
-import { InternalEventForwarders } from "./event-forwarder";
-import { Selectors } from "./selectors";
-import { ChildrenUpdaters, StateUpdaters } from "./updaters";
-import { IfAny, IfNonEmptyRecord } from "./util";
+} from "../component-contract/component-contract-extractors";
+import { ChildrenInstancesDefs } from "./dependencies/children-instances-def";
+import { ContextsDef } from "./dependencies/contexts-def";
+import { Effects } from "./events/effects";
+import {
+  ChildrenConfig,
+  ContextsConfig,
+  InternalEventForwarders,
+} from "./events/event-forwarder";
+import { ChildrenUpdaters, StateUpdaters } from "./events/updaters";
+import { Selectors } from "./values/selectors";
+import { State } from "./values/state";
 
 /**
  * Definition of a component
@@ -96,6 +95,16 @@ type ChildrenPart<TComponentContract extends ComponentContract> =
         readonly childrenUpdaters?: NO_CHILDREN_DEFINED;
       };
 
+export type ChildrenComponentDefs<
+  TComponentContract extends ComponentContract = ComponentContract,
+> = TComponentContract["children"] extends ChildrenContract
+  ? {
+      [K in keyof TComponentContract["children"]]: ComponentDef<
+        Omit<TComponentContract["children"][K], "type">
+      >;
+    }
+  : never;
+
 type NO_VALUES_DEFINED = never;
 type SelectorsPart<
   TComponentContract extends ComponentContract,
@@ -153,3 +162,19 @@ type ContextsPart<TComponentContract extends ComponentContract> =
         contextsDef?: NO_CONTEXT_DEFINED;
         contextsConfig?: NO_CONTEXT_DEFINED;
       };
+/***************************************************************************************************************
+ * // --- utilities to detect `any` and branch in conditional types ---
+ * // Detect `any`: true when T is `any`, false otherwise
+ ****************************************************************************************************************/
+
+type IsAny<T> = 0 extends 1 & T ? true : false;
+// IfAny: choose one of two branches depending on whether T is `any`
+type IfAny<T, Y, N = never> = IsAny<T> extends true ? Y : N;
+type IsNonEmptyRecord<T> =
+  T extends Record<any, any>
+    ? [keyof T] extends [never]
+      ? false
+      : true
+    : false;
+type IfNonEmptyRecord<T, Then, Else = never> =
+  IsNonEmptyRecord<T> extends true ? Then : Else;

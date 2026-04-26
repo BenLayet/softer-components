@@ -4,7 +4,7 @@ import {
   ComponentContract,
   EventsContract,
 } from "./component-contract";
-import { Payload } from "./data";
+import { Payload } from "./payload";
 
 export type ExtractUiEvents<TComponentContract extends ComponentContract> =
   TComponentContract["events"] extends EventsContract

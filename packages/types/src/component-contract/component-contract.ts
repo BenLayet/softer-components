@@ -1,4 +1,4 @@
-import { Payload } from "./data";
+import { Payload } from "./payload";
 
 export type ValuesContract = { [SelectorName in string]: any };
 

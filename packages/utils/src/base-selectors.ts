@@ -1,7 +1,7 @@
-import { OptionalValue, State } from "@softer-components/types";
+import { State } from "@softer-components/types";
 
 type SelectableState = {
-  [key: string]: OptionalValue;
+  [key: string]: State;
 };
 type BaseSelectors<T extends State> = T extends SelectableState
   ? {

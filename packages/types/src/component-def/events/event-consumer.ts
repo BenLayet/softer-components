@@ -1,6 +1,6 @@
-import { ComponentContract } from "./component-contract";
-import { Payload } from "./data";
-import { Values } from "./values";
+import { ComponentContract } from "../../component-contract/component-contract";
+import { Payload } from "../../component-contract/payload";
+import { Values } from "../values/values";
 
 export type EventConsumerInput<
   TPayload extends Payload = Payload,

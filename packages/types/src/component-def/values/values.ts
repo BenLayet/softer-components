@@ -2,7 +2,7 @@ import {
   ChildrenContract,
   ComponentContract,
   ValuesContract,
-} from "./component-contract";
+} from "../../component-contract/component-contract";
 
 /**
  * Provides access to computed values (from selectors) and child values
