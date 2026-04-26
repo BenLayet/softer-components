@@ -1,8 +1,6 @@
 import {
   ComponentContract,
   ComponentDef,
-  ContractAtStatePathString,
-  StatePathString,
   Values,
 } from "@softer-components/types";
 
@@ -16,6 +14,7 @@ import { baseTree } from "../state-tree";
 import { TreeStateManager } from "../tree-state-manager";
 import { createValueProviders } from "../value-providers";
 import { EventProcessorListener, whenEventOccurs } from "./event-processor";
+import { ContractAtStatePathString, StatePathString } from "./state-path";
 import { TestLogger } from "./test-logger";
 
 export const initTestStore = <TContract extends ComponentContract>(

@@ -9,10 +9,9 @@ export * from "./component-def/values/values";
 export * from "./component-def/values/state";
 export * from "./component-def/events/effects";
 export * from "./component-def/events/event-forwarder";
+export * from "./component-def/events/updaters";
 export * from "./component-def/component-def";
 
 //FOR ADAPTERS
-export * from "./component-path";
-export * from "./state-path";
 export * from "./component-def/events/event-consumer";
 export * from "./component-def/component-def-extractors";
