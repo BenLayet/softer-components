@@ -1,10 +1,10 @@
 import { Store } from "@ngrx/store";
-import { ComponentDef, Payload } from "@softer-components/types";
 import {
   INPUTTED_BY_USER,
   findComponentDefFromStatePath,
   stringToStatePath,
-} from "@softer-components/utils";
+} from "@softer-components/base-adapter";
+import { ComponentDef, Payload } from "@softer-components/types";
 
 import { SofterNgrxEventMapper } from "./softer-ngrx-event-mapper";
 

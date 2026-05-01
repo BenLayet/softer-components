@@ -3,6 +3,6 @@
   "references": [
     { "path": "./packages/redux-adapter" },
     { "path": "./packages/types" },
-    { "path": "./packages/utils" }
+    { "path": "./packages/base-adapter"}
   ]
 }

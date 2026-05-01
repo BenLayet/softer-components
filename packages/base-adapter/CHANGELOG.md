@@ -1,4 +1,4 @@
-# @softer-components/utils
+# @softer-components/base-adapter
 
 ## 0.8.0
 

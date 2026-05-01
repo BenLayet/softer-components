@@ -1,10 +1,5 @@
 import { MemoizedSelector, createSelector } from "@ngrx/store";
 import {
-  ComponentContract,
-  ComponentDef,
-  ExtractChildrenPaths,
-} from "@softer-components/types";
-import {
   ChildrenKeys,
   RelativePathStateReader,
   StatePath,
@@ -14,7 +9,12 @@ import {
   findComponentDefFromStatePath,
   statePathToString,
   stringToStatePath,
-} from "@softer-components/utils";
+} from "@softer-components/base-adapter";
+import {
+  ComponentContract,
+  ComponentDef,
+  ExtractChildrenPaths,
+} from "@softer-components/types";
 
 export type ChildrenPaths = Record<
   string,

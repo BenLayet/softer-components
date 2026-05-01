@@ -1,8 +1,4 @@
-import {
-  ComponentContract,
-  ComponentDef,
-  ContractOfComponentDef,
-} from "@softer-components/types";
+import { ComponentDef } from "@softer-components/types";
 import { describe, expect, it, vi } from "vitest";
 
 import { RelativePathStateReader } from "./relative-path-state-manager";

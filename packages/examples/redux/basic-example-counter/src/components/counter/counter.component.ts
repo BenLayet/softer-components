@@ -1,5 +1,5 @@
+import { createBaseSelectors } from "@softer-components/base-adapter";
 import { ComponentDef, EventsContract } from "@softer-components/types";
-import { createBaseSelectors } from "@softer-components/utils";
 
 // Initial state definition
 export const initialState = {

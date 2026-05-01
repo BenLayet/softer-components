@@ -1,5 +1,5 @@
+import { SofterContext } from "@softer-components/base-adapter";
 import { ComponentDef } from "@softer-components/types";
-import { SofterContext } from "@softer-components/utils";
 
 import { ListService } from "../../../port/list.service";
 import { UserContextContract } from "../user-context";

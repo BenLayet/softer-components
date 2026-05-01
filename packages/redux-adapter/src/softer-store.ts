@@ -3,7 +3,6 @@ import {
   createListenerMiddleware,
   createReducer,
 } from "@reduxjs/toolkit";
-import { ComponentContract, ComponentDef } from "@softer-components/types";
 import {
   ContextEventManager,
   EffectsManager,
@@ -13,7 +12,8 @@ import {
   generateEventsToForward,
   initializeRootState,
   updateSofterRootState,
-} from "@softer-components/utils";
+} from "@softer-components/base-adapter";
+import { ComponentContract, ComponentDef } from "@softer-components/types";
 
 import {
   actionToEvent,

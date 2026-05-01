@@ -1,5 +1,4 @@
 import { createSelector } from "@reduxjs/toolkit";
-import { ComponentDef } from "@softer-components/types";
 import {
   ChildrenKeys,
   INPUTTED_BY_USER,
@@ -12,7 +11,8 @@ import {
   findComponentDefFromStatePath,
   statePathToString,
   stringToStatePath,
-} from "@softer-components/utils";
+} from "@softer-components/base-adapter";
+import { ComponentDef } from "@softer-components/types";
 
 import {
   GlobalState,

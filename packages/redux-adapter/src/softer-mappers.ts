@@ -1,4 +1,3 @@
-import { Payload } from "@softer-components/types";
 import {
   CHILDREN_BRANCHES_KEY,
   GlobalEvent,
@@ -8,7 +7,8 @@ import {
   StateTree,
   statePathToString,
   stringToStatePath,
-} from "@softer-components/utils";
+} from "@softer-components/base-adapter";
+import { Payload } from "@softer-components/types";
 
 const PART_SEPARATOR = "|";
 

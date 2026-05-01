@@ -1,5 +1,5 @@
+import { assertIsNotUndefined } from "@softer-components/base-adapter";
 import { ChildrenUpdaters, StateUpdaters } from "@softer-components/types";
-import { assertIsNotUndefined } from "@softer-components/utils";
 
 import { Contract } from "./list.component.contract";
 import { State } from "./list.component.state";

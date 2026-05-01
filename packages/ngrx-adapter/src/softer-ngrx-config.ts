@@ -5,13 +5,13 @@ import {
   createFeatureSelector,
   provideState,
 } from "@ngrx/store";
-import { ComponentDef } from "@softer-components/types";
 import {
   ContextEventManager,
   EffectsManager,
   StateTree,
   TreeStateManager,
-} from "@softer-components/utils";
+} from "@softer-components/base-adapter";
+import { ComponentDef } from "@softer-components/types";
 
 import { SofterNgrxDispatchers } from "./softer-ngrx-dispatchers";
 import {

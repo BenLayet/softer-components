@@ -1,7 +1,7 @@
 import {
   DISPATCHED_BY_EFFECT,
   INPUTTED_BY_USER,
-} from "@softer-components/utils";
+} from "@softer-components/base-adapter";
 import { describe, expect, it } from "vitest";
 
 import { SofterNgrxEventMapper } from "./softer-ngrx-event-mapper";
@@ -86,7 +86,7 @@ describe("SofterNgrxEventMapper", () => {
       expect(event.payload).toBeUndefined();
     });
 
-    // Note: Tests for nested paths are skipped because parseEventTypeString in utils
+    // Note: Tests for nested paths are skipped because parseEventTypeString in base-adapter
     // has a limitation where it doesn't properly reconstruct paths after splitting.
     // The round-trip test below demonstrates that the conversion works correctly
     // when going from event -> action -> event for root-level events.

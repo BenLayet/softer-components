@@ -1,4 +1,7 @@
-import { GlobalEvent, stringToStatePath } from "@softer-components/utils";
+import {
+  GlobalEvent,
+  stringToStatePath,
+} from "@softer-components/base-adapter";
 
 export const LIST_MANAGER = `/listManager`;
 export const CREATE_LIST = `${LIST_MANAGER}/createList`;

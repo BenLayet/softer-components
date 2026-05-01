@@ -1,12 +1,13 @@
+import {
+  ContextEventManager,
+  EffectsManager,
+  GlobalEvent,
+  StateManager,
+  StateTree,
+  generateEventsToForward,
+  updateSofterRootState,
+} from "@softer-components/base-adapter";
 import { ComponentDef } from "@softer-components/types";
-
-import { ContextEventManager } from "../context-event-manager";
-import { EffectsManager } from "../effects-manager";
-import { generateEventsToForward } from "../event-forwarding";
-import { GlobalEvent } from "../global-event";
-import { updateSofterRootState } from "../reducer";
-import { StateManager } from "../state-manager";
-import { StateTree } from "../state-tree";
 
 export interface EventProcessorListener {
   stateUpdated: (event: GlobalEvent, stateAfter: StateTree) => void;

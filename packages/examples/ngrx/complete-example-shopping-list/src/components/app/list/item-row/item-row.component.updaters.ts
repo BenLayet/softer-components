@@ -1,8 +1,8 @@
-import { StateUpdaters } from "@softer-components/types";
-import { assertIsNotUndefined } from "@softer-components/utils";
+import { StateUpdaters } from '@softer-components/types';
+import { assertIsNotUndefined } from '@softer-components/base-adapter';
 
-import { Contract } from "./item-row.component.contract";
-import { State } from "./item-row.component.state";
+import { Contract } from './item-row.component.contract';
+import { State } from './item-row.component.state';
 
 export const stateUpdaters: StateUpdaters<Contract, State> = {
   initialize: ({ payload: listItem }) => listItem,

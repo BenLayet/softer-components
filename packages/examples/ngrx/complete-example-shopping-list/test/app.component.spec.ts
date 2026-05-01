@@ -1,4 +1,4 @@
-import { TestStore, initTestStore } from '@softer-components/utils/test-utilities';
+import { TestStore, initTestStore } from '@softer-components/test-utilities';
 
 import { AppContract, appDef } from '../src/components/app';
 import {

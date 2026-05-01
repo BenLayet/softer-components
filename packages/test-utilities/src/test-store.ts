@@ -1,18 +1,20 @@
 import {
+  ContextEventManager,
+  EffectsManager,
+  GlobalEvent,
+  RelativePathStateReader,
+  TreeStateManager,
+  baseTree,
+  createValueProviders,
+  initializeRootState,
+  stringToStatePath,
+} from "@softer-components/base-adapter";
+import {
   ComponentContract,
   ComponentDef,
   Values,
 } from "@softer-components/types";
 
-import { ContextEventManager } from "../context-event-manager";
-import { EffectsManager } from "../effects-manager";
-import { GlobalEvent } from "../global-event";
-import { stringToStatePath } from "../path";
-import { RelativePathStateReader } from "../relative-path-state-manager";
-import { initializeRootState } from "../state-initializer";
-import { baseTree } from "../state-tree";
-import { TreeStateManager } from "../tree-state-manager";
-import { createValueProviders } from "../value-providers";
 import { EventProcessorListener, whenEventOccurs } from "./event-processor";
 import { ContractAtStatePathString, StatePathString } from "./state-path";
 import { TestLogger } from "./test-logger";

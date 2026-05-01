@@ -15,7 +15,7 @@
     "jsx": "react-jsx",
     "paths": {
       "@softer-components/types": ["../types/src"],
-      "@softer-components/utils": ["../utils/src"]
+      "@softer-components/base-adapter": ["../base-adapter/src"]
     }
   },
   "include": ["src/**/*"]

@@ -1,6 +1,9 @@
-import { GlobalEvent } from "../global-event";
-import { statePathToString } from "../path";
-import { StateTree } from "../state-tree";
+import {
+  GlobalEvent,
+  StateTree,
+  statePathToString,
+} from "@softer-components/base-adapter";
+
 import { diff } from "./diff";
 import { EventProcessorListener } from "./event-processor";
 

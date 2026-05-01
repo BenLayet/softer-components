@@ -15,3 +15,5 @@ export * from "./path";
 export * from "./context-event-manager";
 export * from "./base-selectors";
 export * from "./predicate.functions";
+// for test utilities
+export * from "./context-event-manager";

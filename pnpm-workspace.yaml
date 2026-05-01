@@ -1,6 +1,7 @@
 packages:
   - packages/types
-  - packages/utils
+  - packages/base-adapter
+  - packages/test-utilities
   - packages/redux-adapter
   - packages/ngrx-adapter
   - packages/examples/ngrx/basic-example-counter

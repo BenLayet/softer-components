@@ -1,5 +1,5 @@
+import { SofterContext } from "@softer-components/base-adapter";
 import { ComponentDef } from "@softer-components/types";
-import { SofterContext } from "@softer-components/utils";
 
 import { UserContextContract } from "../../user-context";
 import { Contract } from "./lists.component.contract";

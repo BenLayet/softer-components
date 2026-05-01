@@ -1,9 +1,9 @@
-import { Payload } from "@softer-components/types";
 import {
   GlobalEvent,
   parseEventTypeString,
   toEventTypeString,
-} from "@softer-components/utils";
+} from "@softer-components/base-adapter";
+import { Payload } from "@softer-components/types";
 
 export type NgRxAction = {
   type: string;

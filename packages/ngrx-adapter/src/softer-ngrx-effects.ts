@@ -2,14 +2,14 @@ import { inject } from "@angular/core";
 import { Actions, createEffect } from "@ngrx/effects";
 import { concatLatestFrom } from "@ngrx/operators";
 import { MemoizedSelector, Store } from "@ngrx/store";
-import { ComponentDef } from "@softer-components/types";
 import {
   ContextEventManager,
   EffectsManager,
   StateTree,
   TreeStateManager,
   generateEventsToForward,
-} from "@softer-components/utils";
+} from "@softer-components/base-adapter";
+import { ComponentDef } from "@softer-components/types";
 import { from } from "rxjs";
 import { filter, map, switchMap, tap } from "rxjs/operators";
 

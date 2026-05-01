@@ -1,5 +1,5 @@
+import { INPUTTED_BY_USER } from "@softer-components/base-adapter";
 import { ComponentDef, EventsContract } from "@softer-components/types";
-import { INPUTTED_BY_USER } from "@softer-components/utils";
 import { describe, expect, it, vi } from "vitest";
 
 import { SofterNgrxDispatchers } from "./softer-ngrx-dispatchers";

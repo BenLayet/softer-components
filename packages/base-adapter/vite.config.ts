@@ -10,7 +10,6 @@ export default defineConfig({
       formats: ["es"],
       entry: {
         index: "src/index.ts",
-        "test-utilities": "src/test-utilities/index.ts",
       },
     },
     rollupOptions: {

@@ -23,13 +23,13 @@
     "@ngrx/effects": "^21.1.0",
     "@ngrx/operators": "^21.1.0",
     "@softer-components/types": "workspace:^",
-    "@softer-components/utils": "workspace:^",
     "@softer-components/ngrx-adapter": "workspace:^",
     "immer": "^10.2.0",
     "rxjs": "~7.8.0",
     "tslib": "^2.3.0"
   },
   "devDependencies": {
+    "@softer-components/test-utilities": "workspace:^",
     "@angular/build": "21.2.7",
     "@angular/cli": "21.2.7",
     "@angular/compiler-cli": "21.2.8",

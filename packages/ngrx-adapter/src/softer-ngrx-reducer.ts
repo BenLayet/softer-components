@@ -1,12 +1,12 @@
 import { ActionReducer } from "@ngrx/store";
-import { ComponentDef } from "@softer-components/types";
 import {
   SofterRootState,
   StateManager,
   StateTree,
   initializeRootState,
   updateSofterRootState,
-} from "@softer-components/utils";
+} from "@softer-components/base-adapter";
+import { ComponentDef } from "@softer-components/types";
 import { produce } from "immer";
 
 import { NgRxAction, SofterNgrxEventMapper } from "./softer-ngrx-event-mapper";

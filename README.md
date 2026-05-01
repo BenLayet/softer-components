@@ -61,7 +61,7 @@ The tradeoff is that a strict coding pattern needs to be applied.
 ## Monorepo packages
 
 - `packages/types`: core type system (`ComponentContract`, `ComponentDef`, events, paths, etc.)
-- `packages/utils`: runtime engine (reducer helpers, event forwarding, effects orchestration)
+- `packages/base-adapter`: runtime engine (reducer helpers, event forwarding, effects orchestration)
 - `packages/redux-adapter`: Redux store and React hooks
 - `packages/ngrx-adapter`: NgRx providers and Angular base component
 - `packages/examples`: Redux and NgRx sample apps
@@ -125,7 +125,7 @@ pnpm add @softer-components/ngrx-adapter @ngrx/store @ngrx/effects @ngrx/operato
 
 ```ts
 import { ComponentDef, EventsContract } from "@softer-components/types";
-import { createBaseSelectors } from "@softer-components/utils";
+import { createBaseSelectors } from "@softer-components/base-adapter";
 
 const initialState = { count: 0 };
 type State = typeof initialState;

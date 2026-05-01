@@ -1,5 +1,8 @@
+import {
+  CHILDREN_BRANCHES_KEY,
+  OWN_VALUE_KEY,
+} from "@softer-components/base-adapter";
 import { ComponentDef } from "@softer-components/types";
-import { CHILDREN_BRANCHES_KEY, OWN_VALUE_KEY } from "@softer-components/utils";
 import { describe, expect, it } from "vitest";
 
 import { configureSofterStore } from "./softer-store";

@@ -24,7 +24,6 @@
     "@ngrx/store": "^21.1.0",
     "@softer-components/ngrx-adapter": "workspace:^",
     "@softer-components/types": "workspace:^",
-    "@softer-components/utils": "workspace:^",
     "immer": "^10.2.0",
     "lodash": "^4.17.23",
     "lodash-es": "^4.17.23",
@@ -32,6 +31,7 @@
     "tslib": "^2.3.0"
   },
   "devDependencies": {
+    "@softer-components/test-utilities": "workspace:^",
     "@angular/build": "21.2.7",
     "@angular/cli": "21.2.7",
     "@angular/compiler-cli": "21.2.8",

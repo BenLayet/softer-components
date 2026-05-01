@@ -1,5 +1,8 @@
+import {
+  INPUTTED_BY_USER,
+  TreeStateManager,
+} from "@softer-components/base-adapter";
 import { ComponentDef, EventsContract } from "@softer-components/types";
-import { INPUTTED_BY_USER, TreeStateManager } from "@softer-components/utils";
 import { describe, expect, it } from "vitest";
 
 import { SofterNgrxEventMapper } from "./softer-ngrx-event-mapper";
@@ -219,6 +222,6 @@ describe("createSofterReducer", () => {
 
     // Note: Testing nested child actions requires more complex setup with
     // childrenConfig to route events from parent to child. This is tested
-    // in the utils package's reducer.test.ts with proper event forwarding setup.
+    // in the base-adapter package's reducer.test.ts with proper event forwarding setup.
   });
 });

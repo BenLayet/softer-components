@@ -1,12 +1,12 @@
 {
-  "name": "@softer-components/utils",
+  "name": "@softer-components/base-adapter",
   "type": "module",
   "version": "0.8.0",
   "license": "MIT",
   "repository": {
     "type": "git",
     "url": "https://github.com/BenLayet/softer-components.git",
-    "directory": "packages/utils"
+    "directory": "packages/base-adapter"
   },
   "files": [
     "lib"
@@ -15,10 +15,6 @@
     ".": {
       "types": "./lib/index.d.ts",
       "import": "./lib/index.js"
-    },
-    "./test-utilities": {
-      "types": "./lib/test-utilities.d.ts",
-      "import": "./lib/test-utilities.js"
     }
   },
   "scripts": {
@@ -37,7 +33,7 @@
     "lodash": "^4.17.23"
   },
   "devDependencies": {
-    "vite": "^7.2.4",
+    "vite": "8.0.5",
     "vite-plugin-dts": "^4.5.4",
     "vitest": "^3.2.4"
   },

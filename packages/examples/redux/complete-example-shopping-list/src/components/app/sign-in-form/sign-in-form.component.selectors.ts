@@ -1,5 +1,5 @@
+import { createBaseSelectors } from "@softer-components/base-adapter";
 import { Selectors } from "@softer-components/types";
-import { createBaseSelectors } from "@softer-components/utils";
 
 import { State, initialState } from "./sign-in-form.component.state";
 
