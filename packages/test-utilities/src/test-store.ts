@@ -100,3 +100,6 @@ export class TestStore<TContract extends ComponentContract> {
     return !!stateReader.readState();
   }
 }
+//TODO
+export type { GlobalEvent };
+export { stringToStatePath };

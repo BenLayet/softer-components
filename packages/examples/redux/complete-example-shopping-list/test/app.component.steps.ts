@@ -1,11 +1,10 @@
 import {
   GlobalEvent,
   stringToStatePath,
-} from "@softer-components/base-adapter";
+} from "@softer-components/test-utilities";
 
 export const LIST_MANAGER = `/listManager`;
 export const CREATE_LIST = `${LIST_MANAGER}/createList`;
-export const LISTS = `${LIST_MANAGER}/lists`;
 export const LIST = `/list`;
 export const FIRST_ITEM = `${LIST}/itemRows:0`;
 export const USER_MENU = `/userMenu`;

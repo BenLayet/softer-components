@@ -1,6 +1,6 @@
 /**
- * Tree structure and utilities to manipulate it.
- * State Managers could use these utilities to read/write states at specific paths or create their own structures.
+ * Tree structure and app-utilities to manipulate it.
+ * State Managers could use these app-utilities to read/write states at specific paths or create their own structures.
  */
 import { State } from "@softer-components/types";
 

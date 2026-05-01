@@ -6,7 +6,6 @@ import {
   StatePath,
   StateTree,
   TreeStateManager,
-  assertIsNotUndefined,
   createValueProviders,
   findComponentDefFromStatePath,
   statePathToString,
@@ -121,10 +120,11 @@ export class SofterApplicationViewModel implements SofterViewModel {
       this.rootComponentDef,
       statePath,
     );
-    assertIsNotUndefined(
-      componentDef,
-      "no component definition found at path: " + statePathToString(statePath),
-    );
+    if (!componentDef) {
+      throw new Error(
+        `no component definition found at path: ${statePathToString(statePath)}`,
+      );
+    }
     const initialChildren =
       typeof componentDef.initialChildren === "object"
         ? componentDef.initialChildren

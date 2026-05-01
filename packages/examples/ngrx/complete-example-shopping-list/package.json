@@ -13,6 +13,8 @@
   "private": true,
   "packageManager": "pnpm@10.19.0",
   "dependencies": {
+    "@softer-components/ngrx-adapter": "workspace:^",
+    "@softer-components/app-utilities": "workspace:^",
     "@angular/common": "21.2.8",
     "@angular/compiler": "21.2.8",
     "@angular/core": "21.2.8",
@@ -22,8 +24,6 @@
     "@ngrx/effects": "^21.1.0",
     "@ngrx/operators": "^21.1.0",
     "@ngrx/store": "^21.1.0",
-    "@softer-components/ngrx-adapter": "workspace:^",
-    "@softer-components/types": "workspace:^",
     "immer": "^10.2.0",
     "lodash": "^4.17.23",
     "lodash-es": "^4.17.23",
@@ -31,6 +31,7 @@
     "tslib": "^2.3.0"
   },
   "devDependencies": {
+    "@softer-components/types": "workspace:^",
     "@softer-components/test-utilities": "workspace:^",
     "@angular/build": "21.2.7",
     "@angular/cli": "21.2.7",

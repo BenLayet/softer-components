@@ -1,7 +1,7 @@
 import { ExtractComponentValuesContract, Selectors } from '@softer-components/types';
-import { createBaseSelectors } from '@softer-components/base-adapter';
 
 import { State, initialState } from './lists.component.state';
+import { createBaseSelectors } from '@softer-components/app-utilities';
 
 export const selectors = {
   ...createBaseSelectors(initialState),

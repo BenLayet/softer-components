@@ -10,10 +10,7 @@ export * from "./state-tree";
 export * from "./effects-manager";
 export * from "./value-providers";
 export * from "./effects-manager";
-export * from "./context-provider";
 export * from "./path";
 export * from "./context-event-manager";
-export * from "./base-selectors";
-export * from "./predicate.functions";
-// for test utilities
+// for test app-utilities
 export * from "./context-event-manager";

@@ -163,7 +163,7 @@ type ContextsPart<TComponentContract extends ComponentContract> =
         contextsConfig?: NO_CONTEXT_DEFINED;
       };
 /***************************************************************************************************************
- * // --- utilities to detect `any` and branch in conditional types ---
+ * // --- app-utilities to detect `any` and branch in conditional types ---
  * // Detect `any`: true when T is `any`, false otherwise
  ****************************************************************************************************************/
 

@@ -26,10 +26,8 @@
     "paths": {
       "@softer-components/redux-adapter": ["../../../redux-adapter/src"],
       "@softer-components/types": ["../../../types/src"],
-      "@softer-components/base-adapter": ["../../../base-adapter/src"],
-      "@softer-components/test-utilities": [
-        "../../../base-adapter/src/test-utilities"
-      ]
+      "@softer-components/test-utilities": ["../../../test-utilities/src"],
+      "@softer-components/app-utilities": ["../../../app-utilities/src"]
     }
   },
   "include": ["src", "test"]

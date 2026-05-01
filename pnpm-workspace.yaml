@@ -1,5 +1,6 @@
 packages:
   - packages/types
+  - packages/app-utilities
   - packages/base-adapter
   - packages/test-utilities
   - packages/redux-adapter

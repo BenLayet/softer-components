@@ -1,6 +1,6 @@
 import { ComponentContract } from "@softer-components/types";
 
-import { assertIsNotUndefined } from "./predicate.functions";
+import { assertIsNotUndefined } from "./assert.functions";
 
 export class SofterContext<T extends Record<string, ComponentContract>> {
   constructor(private readonly contextPaths: { [K in keyof T]: string }) {}

@@ -1,5 +1,5 @@
 import { ComponentDef } from '@softer-components/types';
-import { emptyContext } from '@softer-components/base-adapter';
+import { emptyContext } from '@softer-components/app-utilities';
 
 import { AuthenticationService } from '../../port/authentication.service';
 import { ListService } from '../../port/list.service';

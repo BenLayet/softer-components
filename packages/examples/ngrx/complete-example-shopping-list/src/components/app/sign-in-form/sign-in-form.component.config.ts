@@ -1,5 +1,5 @@
 import { ComponentDef } from '@softer-components/types';
-import { SofterContext } from '@softer-components/base-adapter';
+import { SofterContext } from '@softer-components/app-utilities';
 
 import { UserContextContract } from '../user-context';
 import { Contract } from './sign-in-form.component.contract';

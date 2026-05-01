@@ -1,6 +1,6 @@
-import { assertIsNotUndefined } from "@softer-components/base-adapter";
 import { ChildrenUpdaters, StateUpdaters } from "@softer-components/types";
 
+import { assertIsNotUndefined } from "../../../utils/assert.functions";
 import { Contract } from "./list.component.contract";
 import { State } from "./list.component.state";
 
@@ -15,40 +15,25 @@ export const stateUpdaters: StateUpdaters<Contract, State> = {
     };
   },
   nextItemNameChanged: ({ state, payload: nextItemName }) => {
-    assertIsNotUndefined(
-      state,
-      "State should be defined when handling nextItemNameChanged event",
-    );
+    assertIsNotUndefined(state);
     state.nextItemName = nextItemName;
   },
   resetNextItemNameRequested: ({ state }) => {
-    assertIsNotUndefined(
-      state,
-      "State should be defined when handling resetNextItemNameRequested event",
-    );
+    assertIsNotUndefined(state);
     state.nextItemName = "";
   },
   saveRequested: ({ state }) => {
-    assertIsNotUndefined(
-      state,
-      "State should be defined when handling saveRequested event",
-    );
+    assertIsNotUndefined(state);
     state.isSaving = true;
     state.errors = {};
   },
   saveFailed: ({ state, payload: errorMessage }) => {
-    assertIsNotUndefined(
-      state,
-      "State should be defined when handling saveFailed event",
-    );
+    assertIsNotUndefined(state);
     state.errors["SAVE_FAILED"] = errorMessage;
     state.isSaving = false;
   },
   saveSucceeded: ({ state }) => {
-    assertIsNotUndefined(
-      state,
-      "State should be defined when handling saveSucceeded event",
-    );
+    assertIsNotUndefined(state);
     state.isSaving = false;
     state.errors = {};
   },

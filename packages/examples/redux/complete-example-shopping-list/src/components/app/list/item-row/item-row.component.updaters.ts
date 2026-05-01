@@ -1,6 +1,6 @@
-import { assertIsNotUndefined } from "@softer-components/base-adapter";
 import { StateUpdaters } from "@softer-components/types";
 
+import { assertIsNotUndefined } from "../../../../utils/assert.functions";
 import { Contract } from "./item-row.component.contract";
 import { State } from "./item-row.component.state";
 

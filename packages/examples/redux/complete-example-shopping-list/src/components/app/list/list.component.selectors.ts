@@ -3,7 +3,7 @@ import {
   Selector,
   Selectors,
 } from "@softer-components/types";
-import { flow } from "lodash";
+import { flow } from "lodash-es";
 
 import { List } from "../../../model";
 import { Children } from "./list.component.children";

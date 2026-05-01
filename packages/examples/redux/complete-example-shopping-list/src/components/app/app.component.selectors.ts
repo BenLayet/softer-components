@@ -1,4 +1,4 @@
-import { createBaseSelectors } from "@softer-components/base-adapter";
+import { createBaseSelectors } from "@softer-components/app-utilities";
 import type {
   ExtractComponentValuesContract,
   Selectors,

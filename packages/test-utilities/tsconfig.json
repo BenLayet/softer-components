@@ -10,7 +10,7 @@
     "strict": true,
     "paths": {
       "@softer-components/types": ["../types/src"],
-      "@softer-components/base-adapter": ["../types/base-adapter"]
+      "@softer-components/base-adapter": ["../base-adapter/src"]
     }
   },
   "include": ["src/**/*"]

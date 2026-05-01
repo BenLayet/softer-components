@@ -15,10 +15,9 @@
     "target": "ES2022",
     "module": "preserve",
     "paths": {
-      "@softer-components/redux-adapter": ["../../../redux-adapter/src"],
       "@softer-components/types": ["../../../types/src"],
-      "@softer-components/base-adapter": ["../../../base-adapter/src"],
-      "@softer-components/test-utilities": ["../../../base-adapter/src/test-utilities"],
+      "@softer-components/app-utilities": ["../../../app-utilities/src"],
+      "@softer-components/test-utilities": ["../../../test-utilities/src"],
       "@softer-components/ngrx-adapter": ["../../../ngrx-adapter/src"]
     }
   },
