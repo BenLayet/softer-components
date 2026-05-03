@@ -7,6 +7,7 @@ export * from "./component-def/dependencies/contexts-def";
 export * from "./component-def/values/selectors";
 export * from "./component-def/values/values";
 export * from "./component-def/values/state";
+export * from "./component-def/events/event-def";
 export * from "./component-def/events/effects";
 export * from "./component-def/events/event-forwarder";
 export * from "./component-def/events/updaters";

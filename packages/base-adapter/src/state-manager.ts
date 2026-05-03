@@ -1,11 +1,11 @@
-import {
+import type {
   ChildrenValues,
   ContextsValues,
   State,
 } from "@softer-components/types";
 
-import { ChildrenKeys, StatePath } from "./path";
-import { SofterRootState } from "./state-initializer";
+import type { ChildrenKeys, StatePath } from "./path";
+import type { SofterRootState } from "./state-initializer";
 
 /**
  * StateReader

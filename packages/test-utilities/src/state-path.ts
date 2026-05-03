@@ -1,5 +1,5 @@
 // Recursive type to get all possible state paths
-import { ContractAtComponentPath } from "./component-path";
+import type { ContractAtComponentPath } from "./component-path";
 
 // Union type of all possible state paths in the state tree, including collection keys
 export type StatePathString<T> =

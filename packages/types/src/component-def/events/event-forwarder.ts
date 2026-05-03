@@ -7,15 +7,7 @@ import {
 } from "../../component-contract/component-contract";
 import { Payload } from "../../component-contract/payload";
 import { Values } from "../values/values";
-
-//TODO do not export event
-export type Event<
-  TPayload extends Payload = Payload,
-  TEventName extends string = string,
-> = {
-  readonly name: TEventName;
-  readonly payload?: TPayload;
-};
+import type { EventDef } from "./event-def";
 
 /**
  * Defines withPayload property for events forwarders
@@ -65,8 +57,8 @@ type OnConditionDef<
 
 type ToEventDef<
   TComponentContract extends ComponentContract,
-  TFromEvent extends Event, //not expecting a union
-  TToEvent extends Event, //not expecting a union
+  TFromEvent extends EventDef, //not expecting a union
+  TToEvent extends EventDef, //not expecting a union
 > = {
   readonly to: TToEvent["name"];
 } & WithPayloadDef<
@@ -75,23 +67,23 @@ type ToEventDef<
   TToEvent["payload"]
 >;
 
-type FromEventDef<TFromEvent extends Event> = {
+type FromEventDef<TFromEvent extends EventDef> = {
   readonly from: TFromEvent["name"];
 };
-export type FromEventToEvent<
+export type FromEventDefToEventDef<
   TComponentContract extends ComponentContract,
-  TFromEvent extends Event, //not expecting a union
-  TToEvent extends Event, //not expecting a union
+  TFromEvent extends EventDef, //not expecting a union
+  TToEvent extends EventDef, //not expecting a union
 > = FromEventDef<TFromEvent> &
   ToEventDef<TComponentContract, TFromEvent, TToEvent> &
   OnConditionDef<TComponentContract, TFromEvent["payload"]>;
 
-export type FromEventToChildEvent<
+export type FromEventDefToChildEventDef<
   TComponentContract extends ComponentContract,
   TIsDestinationACollection extends boolean | undefined,
-  TFromEvent extends Event, //not expecting a union
-  TToEvent extends Event, //not expecting a union
-> = FromEventToEvent<TComponentContract, TFromEvent, TToEvent> &
+  TFromEvent extends EventDef, //not expecting a union
+  TToEvent extends EventDef, //not expecting a union
+> = FromEventDefToEventDef<TComponentContract, TFromEvent, TToEvent> &
   (TIsDestinationACollection extends undefined | false
     ? {}
     : {
@@ -103,7 +95,7 @@ export type FromEventToChildEvent<
         ) => string[];
       });
 
-export type FromEventContractToChildEventContract<
+type FromEventContractToChildEventContract<
   TComponentContract extends ComponentContract,
   TIsDestinationACollection extends boolean | undefined,
   TFromEvents extends EventsContract | undefined,
@@ -126,7 +118,7 @@ type FromNonUndefinedEventContractToNonUndefinedChildEventContract<
   TToEvents extends EventsContract,
 > = {
   [TFromEventName in TFromEvents["allEvents"][number]]: {
-    [TToEventName in TToEvents["allEvents"][number]]: FromEventToChildEvent<
+    [TToEventName in TToEvents["allEvents"][number]]: FromEventDefToChildEventDef<
       TComponentContract,
       TIsDestinationACollection,
       {
@@ -141,7 +133,7 @@ type FromNonUndefinedEventContractToNonUndefinedChildEventContract<
   }[TToEvents["allEvents"][number]];
 }[TFromEvents["allEvents"][number]];
 
-export type FromEventContractToEventContract<
+type FromEventContractToEventContract<
   TComponentContract extends ComponentContract,
   TFromEvents extends EventsContract | undefined,
   TToEvents extends EventsContract | undefined,
@@ -161,7 +153,7 @@ type FromNonUndefinedEventContractToNonUndefinedEventContract<
   TToEvents extends EventsContract,
 > = {
   [TFromEventName in TFromEvents["allEvents"][number]]: {
-    [TToEventName in TToEvents["allEvents"][number]]: FromEventToEvent<
+    [TToEventName in TToEvents["allEvents"][number]]: FromEventDefToEventDef<
       TComponentContract,
       {
         name: TFromEventName & string;
@@ -180,7 +172,7 @@ export type InternalEventForwarder<
 > = TComponentContract["events"] extends EventsContract
   ? {
       [TFromEventName in TComponentContract["events"]["allEvents"][number]]: {
-        [TToEventName in TComponentContract["events"]["allEvents"][number]]: FromEventToEvent<
+        [TToEventName in TComponentContract["events"]["allEvents"][number]]: FromEventDefToEventDef<
           TComponentContract,
           {
             name: TFromEventName & string;

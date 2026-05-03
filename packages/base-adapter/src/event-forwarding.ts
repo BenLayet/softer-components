@@ -1,4 +1,7 @@
-import { ComponentDef, FromEventToChildEvent } from "@softer-components/types";
+import {
+  ComponentDef,
+  FromEventDefToChildEventDef,
+} from "@softer-components/types";
 
 import { findComponentDefFromStatePath } from "./component-def-tree";
 import { ContextEventManager } from "./context-event-manager";
@@ -164,7 +167,7 @@ function generateEventsToChildren(
       .filter(command => command.from === triggeringEvent.name)
       .map(command => ({
         childName,
-        command: command as FromEventToChildEvent<any, true, any, any>,
+        command: command as FromEventDefToChildEventDef<any, true, any, any>,
       })),
   );
 
@@ -216,7 +219,7 @@ function generateEventsToContext(
       .filter(command => command.from === triggeringEvent.name)
       .map(command => ({
         contextName,
-        command: command as FromEventToChildEvent<any, true, any, any>,
+        command: command as FromEventDefToChildEventDef<any, true, any, any>,
       })),
   );
 

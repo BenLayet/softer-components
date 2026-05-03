@@ -11,7 +11,7 @@ export const SINGLE_CHILD_KEY = "0";
  * Converts a state path to a string representation that can be used in event names or as keys in maps.
  * @param statePath
  * @returns string representation of the state path, with component names separated with "/" and keys separated by ":".
- * Root path is the empty string "". Otherwise starts with a "/" but does not end with a "/".
+ * Root path is the empty string "". Otherwise, it starts with a "/" but does not end with a "/".
  * For example: "/ComponentA:instance1/ComponentB/ComponentC:instance2"
  */
 export function statePathToString(statePath: StatePath): string {

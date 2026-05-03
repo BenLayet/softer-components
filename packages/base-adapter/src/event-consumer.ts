@@ -1,8 +1,8 @@
 import {
   ComponentContract,
   ComponentDef,
-  Event,
   EventConsumerInput,
+  EventDef,
   Payload,
 } from "@softer-components/types";
 
@@ -15,7 +15,7 @@ export function eventConsumerInputProvider<
   TComponentContract extends ComponentContract = ComponentContract,
 >(
   rootComponentDef: ComponentDef,
-  event: GlobalEvent<Event<TPayload>>,
+  event: GlobalEvent<EventDef<TPayload>>,
   stateReader: RelativePathStateReader,
 ): () => EventConsumerInput<TPayload, TComponentContract> {
   let cachedInput: EventConsumerInput<TPayload, TComponentContract> | undefined;
@@ -35,7 +35,7 @@ function createEventConsumerInput<
   TComponentContract extends ComponentContract = ComponentContract,
 >(
   rootComponentDef: ComponentDef,
-  event: GlobalEvent<Event<TPayload>>,
+  event: GlobalEvent<EventDef<TPayload>>,
   stateReader: RelativePathStateReader,
 ): EventConsumerInput<TPayload, TComponentContract> {
   const { values, childrenValues } = createValueProviders(

@@ -1,4 +1,4 @@
-import { Event } from "@softer-components/types";
+import { EventDef } from "@softer-components/types";
 
 import { StatePath, statePathToString, stringToStatePath } from "./path";
 import { assertIsNotUndefined } from "./predicate.functions";
@@ -22,7 +22,7 @@ export type Source =
   | typeof DISPATCHED_BY_EFFECT
   | typeof UNKNOWN_EVENT_SOURCE;
 
-export type GlobalEvent<TEvent extends Event = Event> = TEvent & {
+export type GlobalEvent<TEvent extends EventDef = EventDef> = TEvent & {
   statePath: StatePath;
   source?: Source; //TODO make Source non optional
 };
