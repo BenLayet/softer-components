@@ -4,9 +4,9 @@ import {
   State,
 } from "@softer-components/types";
 
-import { ChildrenKeys, StatePath, computeRelativePath } from "./path";
 import { SofterRootState } from "./state-initializer";
 import { StateManager, StateReader } from "./state-manager";
+import { ChildrenKeys, StatePath, computeRelativePath } from "./state-path";
 
 /**
  * Wrapper around StateManager that manages relative paths.

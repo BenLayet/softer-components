@@ -1,8 +1,8 @@
 import {
   ContextEventManager,
   EffectsManager,
-  GlobalEvent,
   RelativePathStateReader,
+  SofterEvent,
   TreeStateManager,
   baseTree,
   createValueProviders,
@@ -58,13 +58,13 @@ export class TestStore<TContract extends ComponentContract> {
     );
   }
 
-  async when(eventOrEventArray: GlobalEvent[] | GlobalEvent) {
+  async when(eventOrEventArray: SofterEvent[] | SofterEvent) {
     // Normalize to an array
-    const globalEvents: GlobalEvent[] = Array.isArray(eventOrEventArray)
+    const softerEvents: SofterEvent[] = Array.isArray(eventOrEventArray)
       ? eventOrEventArray
       : [eventOrEventArray];
     return Promise.all(
-      globalEvents.map(
+      softerEvents.map(
         whenEventOccurs(
           this.rootState,
           this.rootComponentDef as ComponentDef,
@@ -101,5 +101,5 @@ export class TestStore<TContract extends ComponentContract> {
   }
 }
 //TODO
-export type { GlobalEvent };
+export type { SofterEvent };
 export { stringToStatePath };

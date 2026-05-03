@@ -1,7 +1,7 @@
 import {
   ContextEventManager,
   EffectsManager,
-  GlobalEvent,
+  SofterEvent,
   StateManager,
   StateTree,
   generateEventsToForward,
@@ -10,7 +10,7 @@ import {
 import { ComponentDef } from "@softer-components/types";
 
 export interface EventProcessorListener {
-  stateUpdated: (event: GlobalEvent, stateAfter: StateTree) => void;
+  stateUpdated: (event: SofterEvent, stateAfter: StateTree) => void;
 }
 
 export const whenEventOccurs = (
@@ -21,21 +21,21 @@ export const whenEventOccurs = (
   contextEventManager: ContextEventManager,
   listener?: EventProcessorListener,
 ) => {
-  const processEvent = async (globalEvent: GlobalEvent): Promise<void> => {
+  const processEvent = async (softerEvent: SofterEvent): Promise<void> => {
     //reducer
     updateSofterRootState(
       rootState,
       rootComponentDef,
-      globalEvent,
+      softerEvent,
       stateManager,
     );
-    listener?.stateUpdated(globalEvent, rootState);
+    listener?.stateUpdated(softerEvent, rootState);
 
     //event forwarding
     const newEvents = generateEventsToForward(
       rootState,
       rootComponentDef,
-      globalEvent,
+      softerEvent,
       stateManager,
       contextEventManager,
     );
@@ -46,7 +46,7 @@ export const whenEventOccurs = (
 
     //effects
     const effectsPromise = effectsManager.eventOccurred(
-      globalEvent,
+      softerEvent,
       rootState,
       processEvent,
     );

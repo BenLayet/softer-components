@@ -1,15 +1,15 @@
 import { ComponentDef, EventsContract } from "@softer-components/types";
 import { describe, expect, it, vi } from "vitest";
 
-import { ContextEventManager } from "./context-event-manager";
+import { StateManager } from "../state/state-manager";
+import type { ContextEventManager } from "./context-event-manager";
 import { generateEventsToForward } from "./event-forwarding";
 import {
   FORWARDED_FROM_CHILD_TO_PARENT,
   FORWARDED_FROM_PARENT_TO_CHILD,
   FORWARDED_INTERNALLY,
-  GlobalEvent,
-} from "./global-event";
-import { StateManager } from "./state-manager";
+  SofterEvent,
+} from "./softer-event";
 
 describe("event forwarding tests", () => {
   it("generates an event from a simple event forwarder", () => {
@@ -22,7 +22,7 @@ describe("event forwarding tests", () => {
         },
       ],
     };
-    const event: GlobalEvent = {
+    const event: SofterEvent = {
       name: "btnClicked",
       payload: undefined,
       statePath: [],
@@ -69,7 +69,7 @@ describe("event forwarding tests", () => {
         },
       },
     };
-    const event: GlobalEvent = {
+    const event: SofterEvent = {
       name: "btnClicked",
       payload: undefined,
       statePath: [["child", "0"]],
@@ -119,7 +119,7 @@ describe("event forwarding tests", () => {
         },
       },
     };
-    const event: GlobalEvent = {
+    const event: SofterEvent = {
       name: "btnClicked",
       payload: undefined,
       statePath: [],
@@ -195,7 +195,7 @@ describe("event forwarding tests", () => {
             },
           ],
         };
-        const event: GlobalEvent = {
+        const event: SofterEvent = {
           name: "btnClicked",
           payload: undefined,
           statePath: [],
@@ -246,7 +246,7 @@ describe("event forwarding tests", () => {
         },
       ],
     };
-    const event: GlobalEvent = {
+    const event: SofterEvent = {
       name: "btnClicked",
       payload: undefined,
       statePath: [],
@@ -297,7 +297,7 @@ describe("event forwarding tests", () => {
         },
       },
     };
-    const event: GlobalEvent = {
+    const event: SofterEvent = {
       name: "btnClicked",
       payload: undefined,
       statePath: [],

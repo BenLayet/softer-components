@@ -1,5 +1,5 @@
 import {
-  GlobalEvent,
+  SofterEvent,
   parseEventTypeString,
   toEventTypeString,
 } from "@softer-components/base-adapter";
@@ -14,7 +14,7 @@ export class SofterNgrxEventMapper {
   constructor(private readonly actionTypePrefix: string) {}
   isSofterAction = (action: { type: string }) =>
     action.type.startsWith(this.actionTypePrefix);
-  ngrxActionToSofterEvent = (action: NgRxAction): GlobalEvent => {
+  ngrxActionToSofterEvent = (action: NgRxAction): SofterEvent => {
     if (!this.isSofterAction(action)) {
       throw new Error(`Not a softer event: '${action.type}'`);
     }
@@ -24,7 +24,7 @@ export class SofterNgrxEventMapper {
     };
   };
 
-  softerEventToNgRxAction = (event: GlobalEvent): NgRxAction => {
+  softerEventToNgRxAction = (event: SofterEvent): NgRxAction => {
     return {
       type: toEventTypeString(event, this.actionTypePrefix),
       payload: event.payload,

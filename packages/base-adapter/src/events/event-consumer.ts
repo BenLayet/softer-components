@@ -6,8 +6,8 @@ import {
   Payload,
 } from "@softer-components/types";
 
-import { GlobalEvent } from "./global-event";
-import { RelativePathStateReader } from "./relative-path-state-manager";
+import { RelativePathStateReader } from "../state/relative-path-state-manager";
+import { SofterEvent } from "./softer-event";
 import { createValueProviders } from "./value-providers";
 
 export function eventConsumerInputProvider<
@@ -15,7 +15,7 @@ export function eventConsumerInputProvider<
   TComponentContract extends ComponentContract = ComponentContract,
 >(
   rootComponentDef: ComponentDef,
-  event: GlobalEvent<EventDef<TPayload>>,
+  event: SofterEvent<EventDef<TPayload>>,
   stateReader: RelativePathStateReader,
 ): () => EventConsumerInput<TPayload, TComponentContract> {
   let cachedInput: EventConsumerInput<TPayload, TComponentContract> | undefined;
@@ -35,7 +35,7 @@ function createEventConsumerInput<
   TComponentContract extends ComponentContract = ComponentContract,
 >(
   rootComponentDef: ComponentDef,
-  event: GlobalEvent<EventDef<TPayload>>,
+  event: SofterEvent<EventDef<TPayload>>,
   stateReader: RelativePathStateReader,
 ): EventConsumerInput<TPayload, TComponentContract> {
   const { values, childrenValues } = createValueProviders(

@@ -9,9 +9,9 @@ import {
 import {
   findComponentDefFromStatePath,
   isCollectionChild,
-} from "./component-def-tree";
-import { assertIsNotUndefined } from "./predicate.functions";
-import { RelativePathStateReader } from "./relative-path-state-manager";
+} from "../state/component-def-tree";
+import { RelativePathStateReader } from "../state/relative-path-state-manager";
+import { assertIsNotUndefined } from "../utilities/assert.functions";
 
 /**
  * Create Values provider for a component given its definition and state
@@ -144,7 +144,7 @@ function createChildrenValues(
   ) as ChildrenValues;
 }
 
-export function createContextsValues(
+function createContextsValues(
   rootComponentDef: ComponentDef,
   stateReader: RelativePathStateReader,
 ): ContextsValues {

@@ -1,5 +1,5 @@
 import {
-  GlobalEvent,
+  SofterEvent,
   stringToStatePath,
 } from "@softer-components/test-utilities";
 
@@ -10,53 +10,53 @@ export const FIRST_ITEM = `${LIST}/itemRows:0`;
 export const USER_MENU = `/userMenu`;
 export const SIGN_IN_FORM = `/signInForm`;
 
-export const USER_SETS_LIST_NAME = (name: string): GlobalEvent[] => [
+export const USER_SETS_LIST_NAME = (name: string): SofterEvent[] => [
   {
     payload: name,
     name: "listNameChanged",
     statePath: stringToStatePath(CREATE_LIST),
   },
 ];
-export const USER_SUBMITS_NEW_LIST = (): GlobalEvent[] => [
+export const USER_SUBMITS_NEW_LIST = (): SofterEvent[] => [
   {
     name: "createNewListSubmitted",
     statePath: stringToStatePath(CREATE_LIST),
     payload: undefined,
   },
 ];
-export const USER_SETS_NEXT_ITEM_NAME = (name: string): GlobalEvent[] => [
+export const USER_SETS_NEXT_ITEM_NAME = (name: string): SofterEvent[] => [
   {
     name: "nextItemNameChanged",
     payload: name,
     statePath: stringToStatePath(LIST),
   },
 ];
-export const USER_SUBMITS_NEW_ITEM = (): GlobalEvent[] => [
+export const USER_SUBMITS_NEW_ITEM = (): SofterEvent[] => [
   {
     name: "newItemSubmitted",
     statePath: stringToStatePath(LIST),
     payload: undefined,
   },
 ];
-export const USER_INCREMENTS_QUANTITY_OF_FIRST_ITEM = (): GlobalEvent[] => [
+export const USER_INCREMENTS_QUANTITY_OF_FIRST_ITEM = (): SofterEvent[] => [
   {
     name: "incrementRequested",
     statePath: stringToStatePath(FIRST_ITEM),
     payload: undefined,
   },
 ];
-export const USER_DECREMENTS_QUANTITY_OF_FIRST_ITEM = (): GlobalEvent[] => [
+export const USER_DECREMENTS_QUANTITY_OF_FIRST_ITEM = (): SofterEvent[] => [
   {
     name: "decrementRequested",
     statePath: stringToStatePath(FIRST_ITEM),
     payload: undefined,
   },
 ];
-export const USER_CREATES_NEW_LIST = (name: string): GlobalEvent[] => [
+export const USER_CREATES_NEW_LIST = (name: string): SofterEvent[] => [
   ...USER_SETS_LIST_NAME(name),
   ...USER_SUBMITS_NEW_LIST(),
 ];
-export const USER_CREATES_NEW_ITEM = (name: string): GlobalEvent[] => [
+export const USER_CREATES_NEW_ITEM = (name: string): SofterEvent[] => [
   ...USER_SETS_NEXT_ITEM_NAME(name),
   ...USER_SUBMITS_NEW_ITEM(),
 ];
@@ -64,7 +64,7 @@ export const USER_CREATES_NEW_ITEM = (name: string): GlobalEvent[] => [
 export const USER_SIGNS_IN = (
   username: string,
   password: string,
-): GlobalEvent[] => [
+): SofterEvent[] => [
   {
     name: "goToSignInFormRequested",
     statePath: stringToStatePath(USER_MENU),
@@ -87,7 +87,7 @@ export const USER_SIGNS_IN = (
   },
 ];
 
-export const USER_SIGNS_OUT = (): GlobalEvent[] => [
+export const USER_SIGNS_OUT = (): SofterEvent[] => [
   {
     name: "signOutRequested",
     statePath: stringToStatePath(USER_MENU),

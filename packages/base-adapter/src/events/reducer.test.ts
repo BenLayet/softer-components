@@ -6,10 +6,10 @@ import {
 } from "@softer-components/types";
 import { describe, expect, it, vi } from "vitest";
 
-import { GlobalEvent } from "./global-event";
-import { assertIsNotUndefined } from "./predicate.functions";
+import { StateManager } from "../state/state-manager";
+import { assertIsNotUndefined } from "../utilities/assert.functions";
 import { updateSofterRootState } from "./reducer";
-import { StateManager } from "./state-manager";
+import { SofterEvent } from "./softer-event";
 
 describe("reducer tests", () => {
   it("should update simple state", () => {
@@ -33,7 +33,7 @@ describe("reducer tests", () => {
       },
     };
 
-    const event: GlobalEvent = {
+    const event: SofterEvent = {
       name: "incrementRequested",
       payload: null,
       statePath: [],
@@ -79,7 +79,7 @@ describe("reducer tests", () => {
         },
       },
     };
-    const event: GlobalEvent = {
+    const event: SofterEvent = {
       name: "otherEvent",
       payload: null,
       statePath: [],
@@ -308,7 +308,7 @@ describe("reducer tests", () => {
         updateSofterRootState(
           {},
           listDef as ComponentDef,
-          event as GlobalEvent,
+          event as SofterEvent,
           stateManager,
         );
 

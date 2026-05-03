@@ -4,16 +4,19 @@ import { produce } from "immer";
 import {
   findComponentDefFromStatePath,
   isCollectionChild,
-} from "./component-def-tree";
-import { GlobalEvent } from "./global-event";
+} from "../state/component-def-tree";
+import { RelativePathStateManager } from "../state/relative-path-state-manager";
+import {
+  SofterRootState,
+  initializeChildState,
+} from "../state/state-initializer";
+import { StateManager } from "../state/state-manager";
 import {
   assertIsArray,
   assertIsNotUndefined,
   isNotUndefined,
-} from "./predicate.functions";
-import { RelativePathStateManager } from "./relative-path-state-manager";
-import { SofterRootState, initializeChildState } from "./state-initializer";
-import { StateManager } from "./state-manager";
+} from "../utilities/assert.functions";
+import { SofterEvent } from "./softer-event";
 import { createValueProviders } from "./value-providers";
 
 /**
@@ -27,7 +30,7 @@ import { createValueProviders } from "./value-providers";
 export function updateSofterRootState(
   softerRootState: SofterRootState,
   rootComponentDef: ComponentDef,
-  event: GlobalEvent,
+  event: SofterEvent,
   stateManager: StateManager,
 ) {
   updateStateOfComponentOfEvent(
@@ -43,7 +46,7 @@ export function updateSofterRootState(
 
 function updateStateOfComponentOfEvent(
   rootComponentDef: ComponentDef,
-  event: GlobalEvent,
+  event: SofterEvent,
   stateManager: RelativePathStateManager,
 ) {
   const componentDef = findComponentDefFromStatePath(
@@ -58,7 +61,7 @@ function updateState(
   rootComponentDef: ComponentDef,
   componentDef: ComponentDef,
   stateManager: RelativePathStateManager,
-  event: GlobalEvent,
+  event: SofterEvent,
 ) {
   if (typeof componentDef.stateUpdaters !== "object") return;
   const stateUpdater = componentDef.stateUpdaters[event.name];
@@ -89,7 +92,7 @@ function updateChildrenInstances(
   rootComponentDef: ComponentDef,
   componentDef: ComponentDef,
   stateManager: RelativePathStateManager,
-  event: GlobalEvent,
+  event: SofterEvent,
 ) {
   const childrenUpdater = componentDef.childrenUpdaters?.[event.name];
   if (!childrenUpdater) return;
@@ -119,9 +122,10 @@ function updateChildrenInstances(
  */
 function prepareUpdaterParams(
   rootComponentDef: ComponentDef,
-  event: GlobalEvent,
+  event: SofterEvent,
   stateManager: RelativePathStateManager,
 ) {
+  //TODO use event-consumer-input
   const { values, childrenValues, contextsValues } = createValueProviders(
     rootComponentDef,
     stateManager,

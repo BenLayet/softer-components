@@ -1,7 +1,7 @@
 import {
   CHILDREN_BRANCHES_KEY,
-  GlobalEvent,
   OWN_VALUE_KEY,
+  SofterEvent,
   SofterRootState,
   Source,
   StateTree,
@@ -21,7 +21,7 @@ type ReduxAction = {
 export function isSofterEvent(action: ReduxAction): boolean {
   return action.type.startsWith(REDUX_SOFTER_PREFIX);
 }
-export function actionToEvent(action: ReduxAction): GlobalEvent {
+export function actionToEvent(action: ReduxAction): SofterEvent {
   if (!isSofterEvent(action)) {
     throw new Error(`Not a softer event: '${action.type}'`);
   }
@@ -40,7 +40,7 @@ export function actionToEvent(action: ReduxAction): GlobalEvent {
   return { name, statePath, payload, source };
 }
 
-export function eventToAction(event: GlobalEvent): ReduxAction {
+export function eventToAction(event: SofterEvent): ReduxAction {
   const type =
     REDUX_SOFTER_PREFIX +
     PART_SEPARATOR +

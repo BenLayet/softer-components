@@ -4,8 +4,8 @@ import type {
   State,
 } from "@softer-components/types";
 
-import type { ChildrenKeys, StatePath } from "./path";
 import type { SofterRootState } from "./state-initializer";
+import type { ChildrenKeys, StatePath } from "./state-path";
 
 /**
  * StateReader

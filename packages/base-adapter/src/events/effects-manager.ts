@@ -1,13 +1,13 @@
 import { ComponentDef } from "@softer-components/types";
 
-import { findComponentDefFromStatePath } from "./component-def-tree";
+import { findComponentDefFromStatePath } from "../state/component-def-tree";
+import { RelativePathStateReader } from "../state/relative-path-state-manager";
+import { SofterRootState } from "../state/state-initializer";
+import { StateReader } from "../state/state-manager";
+import { StatePath } from "../state/state-path";
+import { isUndefined } from "../utilities/assert.functions";
 import { eventConsumerInputProvider } from "./event-consumer";
-import { DISPATCHED_BY_EFFECT, GlobalEvent } from "./global-event";
-import { StatePath } from "./path";
-import { isUndefined } from "./predicate.functions";
-import { RelativePathStateReader } from "./relative-path-state-manager";
-import { SofterRootState } from "./state-initializer";
-import { StateReader } from "./state-manager";
+import { DISPATCHED_BY_EFFECT, SofterEvent } from "./softer-event";
 
 export class EffectsManager {
   constructor(
@@ -15,9 +15,9 @@ export class EffectsManager {
     private readonly stateReader: StateReader,
   ) {}
   async eventOccurred(
-    event: GlobalEvent,
+    event: SofterEvent,
     softerRootState: SofterRootState,
-    dispatchEvent: (event: GlobalEvent) => void,
+    dispatchEvent: (event: SofterEvent) => void,
   ) {
     const componentDefOfEvent = findComponentDefFromStatePath(
       this.rootComponentDef,
@@ -50,7 +50,7 @@ export class EffectsManager {
 
 const createEventEffectDispatchers = (
   statePath: StatePath,
-  dispatchEvent: (event: GlobalEvent) => void,
+  dispatchEvent: (event: SofterEvent) => void,
 ) =>
   new Proxy(
     {},

@@ -1,5 +1,5 @@
 import {
-  GlobalEvent,
+  SofterEvent,
   StateTree,
   statePathToString,
 } from "@softer-components/base-adapter";
@@ -8,9 +8,9 @@ import { diff } from "./diff";
 import { EventProcessorListener } from "./event-processor";
 
 export class TestLogger implements EventProcessorListener {
-  private readonly events: GlobalEvent[] = [];
+  private readonly events: SofterEvent[] = [];
   private readonly states: StateTree[] = [];
-  stateUpdated(event: GlobalEvent, stateAfter: StateTree) {
+  stateUpdated(event: SofterEvent, stateAfter: StateTree) {
     this.events.push(event);
     this.states.push(JSON.parse(JSON.stringify(stateAfter)));
     const prefix = `EVT#${this.events.length}:`;

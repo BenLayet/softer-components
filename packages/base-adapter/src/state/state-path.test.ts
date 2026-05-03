@@ -1,7 +1,7 @@
 /// <reference types="vitest" />
 import { describe, expect, it } from "vitest";
 
-import { normalizePath, stringToStatePath } from "./path";
+import { normalizePath, stringToStatePath } from "./state-path";
 
 describe("normalizeContextPath", () => {
   it("resolves .. and . in absolute paths", () => {

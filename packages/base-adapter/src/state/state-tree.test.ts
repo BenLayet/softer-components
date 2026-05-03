@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 
-import { StatePath, statePathToString, stringToStatePath } from "./path";
+import { StatePath, statePathToString, stringToStatePath } from "./state-path";
 import {
   CHILDREN_BRANCHES_KEY,
   OWN_VALUE_KEY,

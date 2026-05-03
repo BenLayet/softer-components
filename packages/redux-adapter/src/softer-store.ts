@@ -6,7 +6,7 @@ import {
 import {
   ContextEventManager,
   EffectsManager,
-  GlobalEvent,
+  SofterEvent,
   StateManager,
   StateReader,
   generateEventsToForward,
@@ -143,7 +143,7 @@ const softerEventProcessor =
       return;
     }
     // map state, dispatch and event to softer objects
-    const dispatchEvent = (event: GlobalEvent) =>
+    const dispatchEvent = (event: SofterEvent) =>
       listenerApi.dispatch(eventToAction(event));
     const softerRootState = getSofterRootTree(listenerApi.getState());
     const event = actionToEvent(action);

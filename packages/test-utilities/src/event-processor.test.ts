@@ -1,6 +1,3 @@
-import type {
-  ComponentDef,
-} from "@softer-components/types";
 import {
   generateEventsToForward,
   updateSofterRootState,
@@ -8,19 +5,20 @@ import {
 import type {
   ContextEventManager,
   EffectsManager,
-  GlobalEvent,
+  SofterEvent,
   StateManager,
   StateTree,
 } from "@softer-components/base-adapter";
-import { describe, expect, it, vi, beforeEach } from "vitest";
+import type { ComponentDef } from "@softer-components/types";
+import { beforeEach, describe, expect, it, vi } from "vitest";
 
 import type { EventProcessorListener } from "./event-processor";
 import { whenEventOccurs } from "./event-processor";
 
 vi.mock("@softer-components/base-adapter", async () => {
-  const actual = await vi.importActual<typeof import("@softer-components/base-adapter")>(
-    "@softer-components/base-adapter",
-  );
+  const actual = await vi.importActual<
+    typeof import("@softer-components/base-adapter")
+  >("@softer-components/base-adapter");
   return {
     ...actual,
     generateEventsToForward: vi.fn(),
@@ -51,7 +49,7 @@ describe("whenEventOccurs", () => {
 
   it("updates state, notifies the listener, generates forwarded events, and runs effects", async () => {
     const log: string[] = [];
-    const event: GlobalEvent = { name: "clicked", statePath: [], payload: 1 };
+    const event: SofterEvent = { name: "clicked", statePath: [], payload: 1 };
     const listener: EventProcessorListener = {
       stateUpdated: vi.fn(() => {
         log.push("listener");
@@ -104,8 +102,12 @@ describe("whenEventOccurs", () => {
 
   it("starts forwarded events before current effects and waits for all async work", async () => {
     const log: string[] = [];
-    const rootEvent: GlobalEvent = { name: "root", statePath: [], payload: undefined };
-    const forwardedEvent: GlobalEvent = {
+    const rootEvent: SofterEvent = {
+      name: "root",
+      statePath: [],
+      payload: undefined,
+    };
+    const forwardedEvent: SofterEvent = {
       name: "forwarded",
       statePath: [["child", "0"]],
       payload: undefined,
@@ -122,7 +124,7 @@ describe("whenEventOccurs", () => {
     });
 
     const effectsManager = {
-      eventOccurred: vi.fn((eventArg: GlobalEvent) => {
+      eventOccurred: vi.fn((eventArg: SofterEvent) => {
         log.push(`effects:${eventArg.name}`);
         return eventArg.name === "root"
           ? rootEffect.promise
@@ -164,12 +166,12 @@ describe("whenEventOccurs", () => {
 
   it("lets effects dispatch follow-up events through the provided callback", async () => {
     const log: string[] = [];
-    const rootEvent: GlobalEvent = {
+    const rootEvent: SofterEvent = {
       name: "submitted",
       statePath: [],
       payload: undefined,
     };
-    const effectDispatchedEvent: GlobalEvent = {
+    const effectDispatchedEvent: SofterEvent = {
       name: "succeeded",
       statePath: [],
       payload: "ok",
@@ -183,9 +185,9 @@ describe("whenEventOccurs", () => {
     const effectsManager = {
       eventOccurred: vi.fn(
         async (
-          eventArg: GlobalEvent,
+          eventArg: SofterEvent,
           _state: StateTree,
-          dispatchEvent: (event: GlobalEvent) => Promise<void>,
+          dispatchEvent: (event: SofterEvent) => Promise<void>,
         ) => {
           log.push(`effects:${eventArg.name}`);
           if (eventArg.name === "submitted") {
@@ -220,7 +222,11 @@ describe("whenEventOccurs", () => {
   });
 
   it("works without a listener", async () => {
-    const event: GlobalEvent = { name: "clicked", statePath: [], payload: undefined };
+    const event: SofterEvent = {
+      name: "clicked",
+      statePath: [],
+      payload: undefined,
+    };
     const effectsManager = {
       eventOccurred: vi.fn().mockResolvedValue(undefined),
     } as unknown as EffectsManager;
@@ -239,5 +245,3 @@ describe("whenEventOccurs", () => {
     ).resolves.toEqual([undefined]);
   });
 });
-
-

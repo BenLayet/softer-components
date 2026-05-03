@@ -4,12 +4,12 @@
  */
 import { State } from "@softer-components/types";
 
-import { ChildrenKeys, StatePath, statePathToString } from "./path";
 import {
   assertIsNotUndefined,
   isNotUndefined,
   isUndefined,
-} from "./predicate.functions";
+} from "../utilities/assert.functions";
+import { ChildrenKeys, StatePath, statePathToString } from "./state-path";
 
 // tree constants
 export const CHILDREN_BRANCHES_KEY = "🪾";

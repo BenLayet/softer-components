@@ -4,10 +4,10 @@ import {
   State,
 } from "@softer-components/types";
 
-import { ChildrenKeys, StatePath, statePathToString } from "./path";
-import { assertIsNotUndefined } from "./predicate.functions";
+import { assertIsNotUndefined } from "../utilities/assert.functions";
 import { SofterRootState } from "./state-initializer";
 import { StateManager, StateTreeListener } from "./state-manager";
+import { ChildrenKeys, StatePath, statePathToString } from "./state-path";
 import {
   StateTree,
   createValueAtPath,

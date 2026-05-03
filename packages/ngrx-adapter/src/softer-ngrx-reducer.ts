@@ -34,11 +34,11 @@ export function createSofterReducer(
 
     // Use Immer's produce for immutable state updates
     return produce(state, (draftState: SofterRootState) => {
-      const globalEvent = eventMapper.ngrxActionToSofterEvent(action);
+      const softerEvent = eventMapper.ngrxActionToSofterEvent(action);
       updateSofterRootState(
         draftState,
         rootComponentDef,
-        globalEvent,
+        softerEvent,
         stateManager,
       );
     });

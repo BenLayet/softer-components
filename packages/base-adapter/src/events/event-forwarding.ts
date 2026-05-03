@@ -3,7 +3,15 @@ import {
   FromEventDefToChildEventDef,
 } from "@softer-components/types";
 
-import { findComponentDefFromStatePath } from "./component-def-tree";
+import { findComponentDefFromStatePath } from "../state/component-def-tree";
+import { RelativePathStateReader } from "../state/relative-path-state-manager";
+import { SofterRootState } from "../state/state-initializer";
+import { StateReader } from "../state/state-manager";
+import { computeRelativePath } from "../state/state-path";
+import {
+  assertIsNotUndefined,
+  ensureIsNotUndefined,
+} from "../utilities/assert.functions";
 import { ContextEventManager } from "./context-event-manager";
 import { eventConsumerInputProvider } from "./event-consumer";
 import {
@@ -11,16 +19,8 @@ import {
   FORWARDED_FROM_PARENT_TO_CHILD,
   FORWARDED_INTERNALLY,
   FORWARDED_TO_CONTEXT,
-  GlobalEvent,
-} from "./global-event";
-import { computeRelativePath } from "./path";
-import {
-  assertIsNotUndefined,
-  ensureIsNotUndefined,
-} from "./predicate.functions";
-import { RelativePathStateReader } from "./relative-path-state-manager";
-import { SofterRootState } from "./state-initializer";
-import { StateReader } from "./state-manager";
+  SofterEvent,
+} from "./softer-event";
 
 /**
  * Generate events to forward based on the triggering event
@@ -28,11 +28,11 @@ import { StateReader } from "./state-manager";
 export function generateEventsToForward(
   softerRootState: SofterRootState,
   rootComponentDef: ComponentDef,
-  triggeringEvent: GlobalEvent,
+  triggeringEvent: SofterEvent,
   absoluteStateReader: StateReader,
   contextEventManager: ContextEventManager,
 ) {
-  const result: GlobalEvent[] = [];
+  const result: SofterEvent[] = [];
   const stateReader = new RelativePathStateReader(
     softerRootState,
     absoluteStateReader,
@@ -65,9 +65,9 @@ export function generateEventsToForward(
 
 function generateEventsFromOwnComponent(
   rootComponentDef: ComponentDef,
-  triggeringEvent: GlobalEvent,
+  triggeringEvent: SofterEvent,
   stateReader: RelativePathStateReader,
-): GlobalEvent[] {
+): SofterEvent[] {
   const componentDef = findComponentDefFromStatePath(
     rootComponentDef,
     triggeringEvent.statePath,
@@ -104,9 +104,9 @@ function generateEventsFromOwnComponent(
 
 function generateEventsToParent(
   rootComponentDef: ComponentDef,
-  triggeringEvent: GlobalEvent,
+  triggeringEvent: SofterEvent,
   stateReader: RelativePathStateReader,
-): GlobalEvent[] {
+): SofterEvent[] {
   if (!triggeringEvent.statePath?.length) {
     return [];
   }
@@ -151,9 +151,9 @@ function generateEventsToParent(
 
 function generateEventsToChildren(
   rootComponentDef: ComponentDef,
-  triggeringEvent: GlobalEvent,
+  triggeringEvent: SofterEvent,
   stateReader: RelativePathStateReader,
-): GlobalEvent[] {
+): SofterEvent[] {
   const componentDef = findComponentDefFromStatePath(
     rootComponentDef,
     triggeringEvent.statePath,
@@ -204,9 +204,9 @@ function generateEventsToChildren(
 
 function generateEventsToContext(
   rootComponentDef: ComponentDef,
-  triggeringEvent: GlobalEvent,
+  triggeringEvent: SofterEvent,
   stateReader: RelativePathStateReader,
-): GlobalEvent[] {
+): SofterEvent[] {
   const componentDef = findComponentDefFromStatePath(
     rootComponentDef,
     triggeringEvent.statePath,

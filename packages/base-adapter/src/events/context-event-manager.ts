@@ -1,21 +1,25 @@
 import { ComponentDef, EventConsumerInput } from "@softer-components/types";
 
-import { findComponentDefFromStatePath } from "./component-def-tree";
-import { eventConsumerInputProvider } from "./event-consumer";
-import { FORWARDED_FROM_CONTEXT, GlobalEvent } from "./global-event";
+import { findComponentDefFromStatePath } from "../state/component-def-tree";
+import { RelativePathStateReader } from "../state/relative-path-state-manager";
+import { SofterRootState } from "../state/state-initializer";
+import {
+  StateManager,
+  StateReader,
+  StateTreeListener,
+} from "../state/state-manager";
 import {
   StatePath,
   computeRelativePath,
   statePathStartsWith,
   statePathToComponentPath,
-} from "./path";
+} from "../state/state-path";
 import {
   assertIsNotUndefined,
   ensureIsNotUndefined,
-} from "./predicate.functions";
-import { RelativePathStateReader } from "./relative-path-state-manager";
-import { SofterRootState } from "./state-initializer";
-import { StateManager, StateReader, StateTreeListener } from "./state-manager";
+} from "../utilities/assert.functions";
+import { eventConsumerInputProvider } from "./event-consumer";
+import { FORWARDED_FROM_CONTEXT, SofterEvent } from "./softer-event";
 
 type EventType = {
   componentPath: string;
@@ -63,8 +67,8 @@ export class ContextEventManager {
 
   generateEvents(
     rootState: SofterRootState,
-    triggeringEvent: GlobalEvent,
-  ): GlobalEvent[] {
+    triggeringEvent: SofterEvent,
+  ): SofterEvent[] {
     const componentPath = statePathToComponentPath(triggeringEvent.statePath);
     const triggeringEventType = {
       componentPath,
@@ -76,8 +80,8 @@ export class ContextEventManager {
   }
 
   private generateEvent =
-    (rootState: SofterRootState, triggeringEvent: GlobalEvent) =>
-    (listener: EventListener): GlobalEvent[] => {
+    (rootState: SofterRootState, triggeringEvent: SofterEvent) =>
+    (listener: EventListener): SofterEvent[] => {
       const relativeStateReader = new RelativePathStateReader(
         rootState,
         this.stateReader,

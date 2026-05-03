@@ -4,9 +4,9 @@ import {
   ComponentDef,
 } from "@softer-components/types";
 
-import { SINGLE_CHILD_KEY } from "./path";
 import { RelativePathStateManager } from "./relative-path-state-manager";
 import { StateManager } from "./state-manager";
+import { SINGLE_CHILD_KEY } from "./state-path";
 
 // contains state for the whole application,
 // and each state of each component is stored inside it

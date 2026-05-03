@@ -4,7 +4,7 @@ import {
   ComponentDef,
 } from "@softer-components/types";
 
-import { StatePath } from "./path";
+import type { StatePath } from "./state-path";
 
 /**
  * Find the component definition at the given path within the root component definition

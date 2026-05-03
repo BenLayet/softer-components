@@ -1,7 +1,7 @@
 import { ComponentDef } from "@softer-components/types";
 import { describe, expect, it, vi } from "vitest";
 
-import { RelativePathStateReader } from "./relative-path-state-manager";
+import { RelativePathStateReader } from "../state/relative-path-state-manager";
 import { createValueProviders } from "./value-providers";
 
 describe("createValuesProvider", () => {
