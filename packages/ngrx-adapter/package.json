@@ -29,12 +29,12 @@
     "tsc": "tsc --noEmit"
   },
   "dependencies": {
-    "@softer-components/types": "workspace:^",
     "@softer-components/base-adapter": "workspace:^",
     "immer": "^10.2.0",
     "tslib": "^2.3.0"
   },
   "devDependencies": {
+    "@softer-components/types": "workspace:^",
     "@angular/core": "21.2.8",
     "@ngrx/effects": "^21.1.0",
     "@ngrx/operators": "^21.1.0",

@@ -1,6 +1,7 @@
 {
-  "name": "shopping-list",
-  "version": "0.1.1",
+  "name": "nrgx-shopping-list",
+  "private": true,
+  "version": "0.8.0",
   "scripts": {
     "ng": "ng",
     "start": "ng serve --configuration development",
@@ -10,8 +11,6 @@
     "test": "ng test",
     "test:ci": "ng test --watch=false"
   },
-  "private": true,
-  "packageManager": "pnpm@10.19.0",
   "dependencies": {
     "@softer-components/ngrx-adapter": "workspace:^",
     "@softer-components/app-utilities": "workspace:^",

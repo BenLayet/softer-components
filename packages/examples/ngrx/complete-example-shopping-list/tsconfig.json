@@ -17,8 +17,9 @@
     "paths": {
       "@softer-components/types": ["../../../types/src"],
       "@softer-components/app-utilities": ["../../../app-utilities/src"],
+      "@softer-components/ngrx-adapter": ["../../../ngrx-adapter/src"],
       "@softer-components/test-utilities": ["../../../test-utilities/src"],
-      "@softer-components/ngrx-adapter": ["../../../ngrx-adapter/src"]
+      "@softer-components/base-adapter": ["../../../base-adapter/src"]
     }
   },
   "angularCompilerOptions": {

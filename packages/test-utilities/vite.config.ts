@@ -13,13 +13,7 @@ export default defineConfig({
       },
     },
     rollupOptions: {
-      external: [
-        "@softer-components/types",
-        "@softer-components/base-adapter",
-        "immer",
-        "lodash",
-        "vitest",
-      ],
+      external: ["@softer-components/types", "immer", "lodash", "vitest"],
     },
   },
 });

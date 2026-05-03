@@ -31,13 +31,13 @@
   },
   "dependencies": {
     "@reduxjs/toolkit": "^2.6.1",
-    "@softer-components/types": "workspace:^",
     "@softer-components/base-adapter": "workspace:^",
     "react": "^19.1.1",
     "react-redux": "^9.2.0",
     "reselect": "^5.1.1"
   },
   "devDependencies": {
+    "@softer-components/types": "workspace:^",
     "@testing-library/jest-dom": "^6.8.0",
     "@testing-library/react": "^16.3.0",
     "@types/react": "^19.1.13",
