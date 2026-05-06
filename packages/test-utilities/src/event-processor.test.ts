@@ -1,4 +1,5 @@
 import {
+  INPUTTED_BY_USER,
   generateEventsToForward,
   updateSofterRootState,
 } from "@softer-components/base-adapter";
@@ -49,7 +50,12 @@ describe("whenEventOccurs", () => {
 
   it("updates state, notifies the listener, generates forwarded events, and runs effects", async () => {
     const log: string[] = [];
-    const event: SofterEvent = { name: "clicked", statePath: [], payload: 1 };
+    const event: SofterEvent = {
+      name: "clicked",
+      statePath: [],
+      payload: 1,
+      source: INPUTTED_BY_USER,
+    };
     const listener: EventProcessorListener = {
       stateUpdated: vi.fn(() => {
         log.push("listener");
@@ -105,12 +111,12 @@ describe("whenEventOccurs", () => {
     const rootEvent: SofterEvent = {
       name: "root",
       statePath: [],
-      payload: undefined,
+      source: INPUTTED_BY_USER,
     };
     const forwardedEvent: SofterEvent = {
       name: "forwarded",
       statePath: [["child", "0"]],
-      payload: undefined,
+      source: INPUTTED_BY_USER,
     };
     const rootEffect = createDeferred();
     const forwardedEffect = createDeferred();
@@ -169,12 +175,13 @@ describe("whenEventOccurs", () => {
     const rootEvent: SofterEvent = {
       name: "submitted",
       statePath: [],
-      payload: undefined,
+      source: INPUTTED_BY_USER,
     };
     const effectDispatchedEvent: SofterEvent = {
       name: "succeeded",
       statePath: [],
       payload: "ok",
+      source: INPUTTED_BY_USER,
     };
 
     mockedUpdateSofterRootState.mockImplementation((_, __, eventArg) => {
@@ -225,7 +232,7 @@ describe("whenEventOccurs", () => {
     const event: SofterEvent = {
       name: "clicked",
       statePath: [],
-      payload: undefined,
+      source: INPUTTED_BY_USER,
     };
     const effectsManager = {
       eventOccurred: vi.fn().mockResolvedValue(undefined),

@@ -1,6 +1,7 @@
 import {
   ContextEventManager,
   EffectsManager,
+  INPUTTED_BY_USER,
   RelativePathStateReader,
   SofterEvent,
   TreeStateManager,
@@ -58,11 +59,11 @@ export class TestStore<TContract extends ComponentContract> {
     );
   }
 
-  async when(eventOrEventArray: SofterEvent[] | SofterEvent) {
+  async when(eventOrEventArray: SofterTestEvent[] | SofterTestEvent) {
     // Normalize to an array
-    const softerEvents: SofterEvent[] = Array.isArray(eventOrEventArray)
-      ? eventOrEventArray
-      : [eventOrEventArray];
+    const softerEvents: SofterEvent[] = (
+      Array.isArray(eventOrEventArray) ? eventOrEventArray : [eventOrEventArray]
+    ).map(event => ({ ...event, source: event.source ?? INPUTTED_BY_USER }));
     return Promise.all(
       softerEvents.map(
         whenEventOccurs(
@@ -100,6 +101,7 @@ export class TestStore<TContract extends ComponentContract> {
     return !!stateReader.readState();
   }
 }
-//TODO
-export type { SofterEvent };
+export type SofterTestEvent = Omit<SofterEvent, "source"> & {
+  source?: SofterEvent["source"];
+};
 export { stringToStatePath };

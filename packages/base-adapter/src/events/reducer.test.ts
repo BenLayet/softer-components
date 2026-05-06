@@ -9,7 +9,7 @@ import { describe, expect, it, vi } from "vitest";
 import { StateManager } from "../state/state-manager";
 import { assertIsNotUndefined } from "../utilities/assert.functions";
 import { updateSofterRootState } from "./reducer";
-import { SofterEvent } from "./softer-event";
+import { INPUTTED_BY_USER, SofterEvent } from "./softer-event";
 
 describe("reducer tests", () => {
   it("should update simple state", () => {
@@ -37,6 +37,7 @@ describe("reducer tests", () => {
       name: "incrementRequested",
       payload: null,
       statePath: [],
+      source: INPUTTED_BY_USER,
     };
 
     const stateManager = {} as StateManager;
@@ -83,6 +84,7 @@ describe("reducer tests", () => {
       name: "otherEvent",
       payload: null,
       statePath: [],
+      source: INPUTTED_BY_USER,
     };
     const stateManager = {} as StateManager;
     stateManager.readState = vi.fn().mockReturnValue(initialState);

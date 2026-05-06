@@ -1,5 +1,6 @@
 import {
-  SofterEvent,
+  SofterTestEvent,
+  eventSequenceFactory,
   stringToStatePath,
 } from "@softer-components/test-utilities";
 
@@ -10,87 +11,49 @@ export const FIRST_ITEM = `${LIST}/itemRows:0`;
 export const USER_MENU = `/userMenu`;
 export const SIGN_IN_FORM = `/signInForm`;
 
-export const USER_SETS_LIST_NAME = (name: string): SofterEvent[] => [
-  {
-    payload: name,
-    name: "listNameChanged",
-    statePath: stringToStatePath(CREATE_LIST),
-  },
-];
-export const USER_SUBMITS_NEW_LIST = (): SofterEvent[] => [
-  {
-    name: "createNewListSubmitted",
-    statePath: stringToStatePath(CREATE_LIST),
-    payload: undefined,
-  },
-];
-export const USER_SETS_NEXT_ITEM_NAME = (name: string): SofterEvent[] => [
-  {
-    name: "nextItemNameChanged",
-    payload: name,
-    statePath: stringToStatePath(LIST),
-  },
-];
-export const USER_SUBMITS_NEW_ITEM = (): SofterEvent[] => [
-  {
-    name: "newItemSubmitted",
-    statePath: stringToStatePath(LIST),
-    payload: undefined,
-  },
-];
-export const USER_INCREMENTS_QUANTITY_OF_FIRST_ITEM = (): SofterEvent[] => [
-  {
-    name: "incrementRequested",
-    statePath: stringToStatePath(FIRST_ITEM),
-    payload: undefined,
-  },
-];
-export const USER_DECREMENTS_QUANTITY_OF_FIRST_ITEM = (): SofterEvent[] => [
-  {
-    name: "decrementRequested",
-    statePath: stringToStatePath(FIRST_ITEM),
-    payload: undefined,
-  },
-];
-export const USER_CREATES_NEW_LIST = (name: string): SofterEvent[] => [
+export const USER_SETS_LIST_NAME = eventSequenceFactory<string>()
+  .atPath(CREATE_LIST)
+  .events("listNameChanged");
+export const USER_SUBMITS_NEW_LIST = eventSequenceFactory()
+  .atPath(CREATE_LIST)
+  .events("createNewListSubmitted");
+export const USER_SETS_NEXT_ITEM_NAME = eventSequenceFactory<string>()
+  .atPath(LIST)
+  .events("nextItemNameChanged");
+export const USER_SUBMITS_NEW_ITEM = eventSequenceFactory()
+  .atPath(LIST)
+  .events("newItemSubmitted");
+export const USER_INCREMENTS_QUANTITY_OF_FIRST_ITEM = eventSequenceFactory()
+  .atPath(FIRST_ITEM)
+  .events("incrementRequested");
+export const USER_DECREMENTS_QUANTITY_OF_FIRST_ITEM = eventSequenceFactory()
+  .atPath(FIRST_ITEM)
+  .events("decrementRequested");
+export const USER_CREATES_NEW_LIST = (name: string) => [
   ...USER_SETS_LIST_NAME(name),
   ...USER_SUBMITS_NEW_LIST(),
 ];
-export const USER_CREATES_NEW_ITEM = (name: string): SofterEvent[] => [
+export const USER_CREATES_NEW_ITEM = (name: string) => [
   ...USER_SETS_NEXT_ITEM_NAME(name),
   ...USER_SUBMITS_NEW_ITEM(),
 ];
 
-export const USER_SIGNS_IN = (
-  username: string,
-  password: string,
-): SofterEvent[] => [
-  {
-    name: "goToSignInFormRequested",
-    statePath: stringToStatePath(USER_MENU),
-    payload: undefined,
-  },
-  {
-    name: "usernameChanged",
-    statePath: stringToStatePath(SIGN_IN_FORM),
-    payload: username,
-  },
-  {
-    name: "passwordChanged",
-    statePath: stringToStatePath(SIGN_IN_FORM),
-    payload: password,
-  },
-  {
-    name: "signInFormSubmitted",
-    statePath: stringToStatePath(SIGN_IN_FORM),
-    payload: undefined,
-  },
-];
+export const USER_SIGNS_IN = eventSequenceFactory<{
+  username: string;
+  password: string;
+}>()
+  .atPath(USER_MENU)
+  .events("goToSignInFormRequested")
+  .thenAtPath(SIGN_IN_FORM)
+  .events("usernameChanged")
+  .withPayload(input => input.username)
+  .events("passwordChanged")
+  .withPayload(input => input.password)
+  .events("signInFormSubmitted");
 
-export const USER_SIGNS_OUT = (): SofterEvent[] => [
+export const USER_SIGNS_OUT = (): SofterTestEvent[] => [
   {
     name: "signOutRequested",
     statePath: stringToStatePath(USER_MENU),
-    payload: undefined,
   },
 ];

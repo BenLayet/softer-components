@@ -8,6 +8,7 @@ import {
   FORWARDED_FROM_CHILD_TO_PARENT,
   FORWARDED_FROM_PARENT_TO_CHILD,
   FORWARDED_INTERNALLY,
+  INPUTTED_BY_USER,
   SofterEvent,
 } from "./softer-event";
 
@@ -26,6 +27,7 @@ describe("event forwarding tests", () => {
       name: "btnClicked",
       payload: undefined,
       statePath: [],
+      source: INPUTTED_BY_USER,
     };
     const stateManager = {} as StateManager;
     stateManager.getChildrenKeys = vi.fn().mockReturnValue({});
@@ -73,6 +75,7 @@ describe("event forwarding tests", () => {
       name: "btnClicked",
       payload: undefined,
       statePath: [["child", "0"]],
+      source: INPUTTED_BY_USER,
     };
     const stateManager = {} as StateManager;
     stateManager.getChildrenKeys = vi
@@ -123,6 +126,7 @@ describe("event forwarding tests", () => {
       name: "btnClicked",
       payload: undefined,
       statePath: [],
+      source: INPUTTED_BY_USER,
     };
     const stateManager = {} as StateManager;
     stateManager.getChildrenKeys = vi
@@ -199,6 +203,7 @@ describe("event forwarding tests", () => {
           name: "btnClicked",
           payload: undefined,
           statePath: [],
+          source: INPUTTED_BY_USER,
         };
 
         const stateManager = {} as StateManager;
@@ -250,6 +255,7 @@ describe("event forwarding tests", () => {
       name: "btnClicked",
       payload: undefined,
       statePath: [],
+      source: INPUTTED_BY_USER,
     };
 
     const stateManager = {} as StateManager;
@@ -301,6 +307,7 @@ describe("event forwarding tests", () => {
       name: "btnClicked",
       payload: undefined,
       statePath: [],
+      source: INPUTTED_BY_USER,
     };
     const stateManager = {} as StateManager;
     stateManager.getChildrenKeys = vi.fn().mockReturnValue({});

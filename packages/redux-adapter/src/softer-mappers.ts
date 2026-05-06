@@ -2,8 +2,8 @@ import {
   CHILDREN_BRANCHES_KEY,
   OWN_VALUE_KEY,
   SofterEvent,
+  SofterEventSource,
   SofterRootState,
-  Source,
   StateTree,
   statePathToString,
   stringToStatePath,
@@ -32,7 +32,7 @@ export function actionToEvent(action: ReduxAction): SofterEvent {
     );
   }
   parts.shift(); // remove softer prefix
-  const source = parts.shift() as Source;
+  const source = parts.shift() as SofterEventSource;
   const name = parts.pop() as string;
   const statePathStr = parts.join(PART_SEPARATOR); // rebuild statePathStr
   const statePath = stringToStatePath(statePathStr);
