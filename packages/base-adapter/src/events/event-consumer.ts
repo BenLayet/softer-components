@@ -7,8 +7,8 @@ import {
 } from "@softer-components/types";
 
 import { RelativePathStateReader } from "../state/relative-path-state-manager";
+import { createValueProviders } from "../values/value-providers";
 import { SofterEvent } from "./softer-event";
-import { createValueProviders } from "./value-providers";
 
 export function eventConsumerInputProvider<
   TPayload extends Payload,

@@ -16,8 +16,8 @@ import {
   assertIsNotUndefined,
   isNotUndefined,
 } from "../utilities/assert.functions";
+import { createValueProviders } from "../values/value-providers";
 import { SofterEvent } from "./softer-event";
-import { createValueProviders } from "./value-providers";
 
 /**
  * Update the global state tree based on the given event
