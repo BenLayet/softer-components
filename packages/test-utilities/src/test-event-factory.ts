@@ -33,7 +33,7 @@ const defaultPayloadResolver = <TInput>(
 
 export const eventSequenceFactory = <TInput = undefined>() => {
   const steps: SequenceStep<TInput>[] = [];
-  let currentPath: string | undefined = "";
+  let currentPath: string = "";
   let pendingPayloadIndexes: number[] = [];
 
   const chain = ((...input: SequenceArgs<TInput>) =>
@@ -48,12 +48,6 @@ export const eventSequenceFactory = <TInput = undefined>() => {
     )) as EventSequenceChain<TInput>;
 
   chain.events = (...eventNames: string[]) => {
-    if (!currentPath) {
-      throw new Error(
-        "eventSequenceFactory.events() requires a path. Call atPath() first.",
-      );
-    }
-
     const path = currentPath;
 
     pendingPayloadIndexes = eventNames.map(name => {
@@ -91,5 +85,6 @@ export const eventSequenceFactory = <TInput = undefined>() => {
 
   return {
     atPath: (path: string) => chain.thenAtPath(path),
+    events: chain.events,
   };
 };

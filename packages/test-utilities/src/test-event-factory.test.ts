@@ -1,4 +1,7 @@
-import { INPUTTED_BY_USER, stringToStatePath } from "@softer-components/base-adapter";
+import {
+  INPUTTED_BY_USER,
+  stringToStatePath,
+} from "@softer-components/base-adapter";
 import { describe, expect, it } from "vitest";
 
 import { eventSequenceFactory } from "./test-event-factory";
@@ -13,6 +16,19 @@ describe("eventSequenceFactory", () => {
       {
         name: "listNameChanged",
         statePath: stringToStatePath("/createList"),
+        payload: "Groceries",
+        source: INPUTTED_BY_USER,
+      },
+    ]);
+  });
+  it("uses input directly as payload when withPayload is not specified, with implicit default path", () => {
+    const setListName =
+      eventSequenceFactory<string>().events("listNameChanged");
+
+    expect(setListName("Groceries")).toEqual([
+      {
+        name: "listNameChanged",
+        statePath: stringToStatePath(""),
         payload: "Groceries",
         source: INPUTTED_BY_USER,
       },
@@ -63,7 +79,9 @@ describe("eventSequenceFactory", () => {
   });
 
   it("supports tuple args so generated functions can mirror regular signatures", () => {
-    const userSignsIn = eventSequenceFactory<[username: string, password: string]>()
+    const userSignsIn = eventSequenceFactory<
+      [username: string, password: string]
+    >()
       .atPath("/userMenu")
       .events("goToSignInFormRequested")
       .thenAtPath("/signInForm")
@@ -101,4 +119,3 @@ describe("eventSequenceFactory", () => {
     ]);
   });
 });
-
