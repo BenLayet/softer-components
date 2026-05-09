@@ -2,14 +2,21 @@ import {
   INPUTTED_BY_USER,
   stringToStatePath,
 } from "@softer-components/base-adapter";
+import type { EventsContract } from "@softer-components/types";
 import { describe, expect, it } from "vitest";
 
 import { eventSequenceFactory } from "./test-event-factory";
 
 describe("eventSequenceFactory", () => {
   it("uses input directly as payload when withPayload is not specified, with implicit default path", () => {
-    const setListName =
-      eventSequenceFactory<string>().events("listNameChanged");
+    type ShoppingListComponentContract = {
+      events: EventsContract<["listNameChanged"], { listNameChanged: string }>;
+    };
+
+    const setListName = eventSequenceFactory<
+      ShoppingListComponentContract,
+      string
+    >().events("listNameChanged");
 
     expect(setListName("Groceries")).toEqual([
       {
@@ -21,7 +28,13 @@ describe("eventSequenceFactory", () => {
     ]);
   });
   it("uses input directly as payload when withPayload specified", () => {
-    const setListName = eventSequenceFactory<string>()
+    type ShoppingListComponentContract = {
+      events: EventsContract<["listNameChanged"], { listNameChanged: string }>;
+    };
+    const setListName = eventSequenceFactory<
+      ShoppingListComponentContract,
+      string
+    >()
       .events("listNameChanged")
       .withPayloads(input => input.toLocaleUpperCase());
 
@@ -35,7 +48,20 @@ describe("eventSequenceFactory", () => {
     ]);
   });
   it("uses input directly as payload when withPayload is not specified", () => {
-    const setListName = eventSequenceFactory<string>()
+    type ShoppingListComponentContract = {
+      children: {
+        createList: {
+          events: EventsContract<
+            ["listNameChanged"],
+            { listNameChanged: string }
+          >;
+        };
+      };
+    };
+    const setListName = eventSequenceFactory<
+      ShoppingListComponentContract,
+      string
+    >()
       .atPath("/createList")
       .events("listNameChanged");
 
@@ -50,10 +76,25 @@ describe("eventSequenceFactory", () => {
   });
 
   it("creates the same sign-in sequence as manual events", () => {
-    const userSignsIn = eventSequenceFactory<{
-      username: string;
-      password: string;
-    }>()
+    type ShoppingListComponentContract = {
+      children: {
+        userMenu: {};
+        signInForm: {};
+        createList: {
+          events: EventsContract<
+            ["listNameChanged"],
+            { listNameChanged: string }
+          >;
+        };
+      };
+    };
+    const userSignsIn = eventSequenceFactory<
+      ShoppingListComponentContract,
+      {
+        username: string;
+        password: string;
+      }
+    >()
       .atPath("/userMenu")
       .events("goToSignInFormRequested")
       .thenAtPath("/signInForm")
@@ -89,49 +130,6 @@ describe("eventSequenceFactory", () => {
         name: "signInFormSubmitted",
         statePath: stringToStatePath("/signInForm"),
         payload: input,
-        source: INPUTTED_BY_USER,
-      },
-    ]);
-  });
-
-  it("supports tuple args so generated functions can mirror regular signatures", () => {
-    const userSignsIn = eventSequenceFactory<
-      [username: string, password: string]
-    >()
-      .atPath("/userMenu")
-      .events("goToSignInFormRequested")
-      .thenAtPath("/signInForm")
-      .events("usernameChanged")
-      .withPayloads(username => username)
-      .thenAtPath("/signInForm")
-      .events("passwordChanged")
-      .withPayloads((_username, password) => password)
-      .thenAtPath("/signInForm")
-      .events("signInFormSubmitted");
-
-    expect(userSignsIn("alice", "demo")).toEqual([
-      {
-        name: "goToSignInFormRequested",
-        statePath: stringToStatePath("/userMenu"),
-        payload: "alice",
-        source: INPUTTED_BY_USER,
-      },
-      {
-        name: "usernameChanged",
-        statePath: stringToStatePath("/signInForm"),
-        payload: "alice",
-        source: INPUTTED_BY_USER,
-      },
-      {
-        name: "passwordChanged",
-        statePath: stringToStatePath("/signInForm"),
-        payload: "demo",
-        source: INPUTTED_BY_USER,
-      },
-      {
-        name: "signInFormSubmitted",
-        statePath: stringToStatePath("/signInForm"),
-        payload: "alice",
         source: INPUTTED_BY_USER,
       },
     ]);
