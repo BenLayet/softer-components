@@ -17,14 +17,28 @@ type SequenceStep<TInput> = {
   payloadResolver: PayloadResolver<TInput>;
 };
 
-type EventSequenceChain<TInput> = ((
+type AfterThenAtPathStage<TInput> = {
+  events: (...eventNames: string[]) => AfterEventsStage<TInput>;
+};
+
+type AfterWithPayloadsStage<TInput> = ((
   ...input: SequenceArgs<TInput>
 ) => SofterEvent[]) & {
-  events: (...eventNames: string[]) => EventSequenceChain<TInput>;
-  thenAtPath: (path: string) => EventSequenceChain<TInput>;
-  withPayload: (
+  thenAtPath: (path: string) => AfterThenAtPathStage<TInput>;
+};
+
+type AfterEventsStage<TInput> = ((
+  ...input: SequenceArgs<TInput>
+) => SofterEvent[]) & {
+  withPayloads: (
     payloadResolver: PayloadResolver<TInput>,
-  ) => EventSequenceChain<TInput>;
+  ) => AfterWithPayloadsStage<TInput>;
+  thenAtPath: (path: string) => AfterThenAtPathStage<TInput>;
+};
+
+type InitialStage<TInput> = {
+  atPath: (path: string) => AfterThenAtPathStage<TInput>;
+  events: (...eventNames: string[]) => AfterEventsStage<TInput>;
 };
 
 const defaultPayloadResolver = <TInput>(
@@ -36,7 +50,7 @@ export const eventSequenceFactory = <TInput = undefined>() => {
   let currentPath: string = "";
   let pendingPayloadIndexes: number[] = [];
 
-  const chain = ((...input: SequenceArgs<TInput>) =>
+  const createEvents = (...input: SequenceArgs<TInput>) =>
     steps.map(
       step =>
         ({
@@ -45,12 +59,15 @@ export const eventSequenceFactory = <TInput = undefined>() => {
           payload: step.payloadResolver(...input),
           source: INPUTTED_BY_USER,
         }) satisfies SofterEvent,
-    )) as EventSequenceChain<TInput>;
+    );
 
-  chain.events = (...eventNames: string[]) => {
+  const events = (
+    firstEventName: string,
+    ...otherEventNames: string[]
+  ): AfterEventsStage<TInput> => {
     const path = currentPath;
 
-    pendingPayloadIndexes = eventNames.map(name => {
+    pendingPayloadIndexes = [firstEventName, ...otherEventNames].map(name => {
       steps.push({
         name,
         path,
@@ -59,14 +76,14 @@ export const eventSequenceFactory = <TInput = undefined>() => {
       return steps.length - 1;
     });
 
-    return chain;
+    return afterEvents;
   };
 
-  chain.withPayload = payloadResolver => {
+  const withPayloads = (
+    payloadResolver: PayloadResolver<TInput>,
+  ): AfterWithPayloadsStage<TInput> => {
     if (pendingPayloadIndexes.length === 0) {
-      throw new Error(
-        "eventSequenceFactory.withPayload() must be called right after events().",
-      );
+      throw new Error("withPayloads can only be called right after events().");
     }
 
     for (const stepIndex of pendingPayloadIndexes) {
@@ -74,17 +91,29 @@ export const eventSequenceFactory = <TInput = undefined>() => {
     }
 
     pendingPayloadIndexes = [];
-    return chain;
+    return afterWithPayloads;
   };
 
-  chain.thenAtPath = path => {
+  const thenAtPath = (path: string): AfterThenAtPathStage<TInput> => {
     currentPath = path;
-    pendingPayloadIndexes = [];
-    return chain;
+    return afterThenAtPath;
   };
 
-  return {
-    atPath: (path: string) => chain.thenAtPath(path),
-    events: chain.events,
+  const afterEvents = Object.assign(createEvents, {
+    withPayloads,
+    thenAtPath,
+  }) as AfterEventsStage<TInput>;
+  const afterThenAtPath: AfterThenAtPathStage<TInput> = {
+    events,
   };
+  const afterWithPayloads = Object.assign(createEvents, {
+    thenAtPath,
+  }) as AfterWithPayloadsStage<TInput>;
+
+  const initialStage: InitialStage<TInput> = {
+    atPath: thenAtPath,
+    events,
+  };
+
+  return initialStage;
 };

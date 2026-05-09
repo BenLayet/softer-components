@@ -46,9 +46,11 @@ export const USER_SIGNS_IN = eventSequenceFactory<{
   .events("goToSignInFormRequested")
   .thenAtPath(SIGN_IN_FORM)
   .events("usernameChanged")
-  .withPayload(input => input.username)
+  .withPayloads(input => input.username)
+  .thenAtPath(SIGN_IN_FORM)
   .events("passwordChanged")
-  .withPayload(input => input.password)
+  .withPayloads(input => input.password)
+  .thenAtPath(SIGN_IN_FORM)
   .events("signInFormSubmitted");
 
 export const USER_SIGNS_OUT = (): SofterTestEvent[] => [

@@ -7,6 +7,33 @@ import { describe, expect, it } from "vitest";
 import { eventSequenceFactory } from "./test-event-factory";
 
 describe("eventSequenceFactory", () => {
+  it("uses input directly as payload when withPayload is not specified, with implicit default path", () => {
+    const setListName =
+      eventSequenceFactory<string>().events("listNameChanged");
+
+    expect(setListName("Groceries")).toEqual([
+      {
+        name: "listNameChanged",
+        statePath: stringToStatePath(""),
+        payload: "Groceries",
+        source: INPUTTED_BY_USER,
+      },
+    ]);
+  });
+  it("uses input directly as payload when withPayload specified", () => {
+    const setListName = eventSequenceFactory<string>()
+      .events("listNameChanged")
+      .withPayloads(input => input.toLocaleUpperCase());
+
+    expect(setListName("Groceries")).toEqual([
+      {
+        name: "listNameChanged",
+        statePath: stringToStatePath(""),
+        payload: "GROCERIES",
+        source: INPUTTED_BY_USER,
+      },
+    ]);
+  });
   it("uses input directly as payload when withPayload is not specified", () => {
     const setListName = eventSequenceFactory<string>()
       .atPath("/createList")
@@ -16,19 +43,6 @@ describe("eventSequenceFactory", () => {
       {
         name: "listNameChanged",
         statePath: stringToStatePath("/createList"),
-        payload: "Groceries",
-        source: INPUTTED_BY_USER,
-      },
-    ]);
-  });
-  it("uses input directly as payload when withPayload is not specified, with implicit default path", () => {
-    const setListName =
-      eventSequenceFactory<string>().events("listNameChanged");
-
-    expect(setListName("Groceries")).toEqual([
-      {
-        name: "listNameChanged",
-        statePath: stringToStatePath(""),
         payload: "Groceries",
         source: INPUTTED_BY_USER,
       },
@@ -44,9 +58,11 @@ describe("eventSequenceFactory", () => {
       .events("goToSignInFormRequested")
       .thenAtPath("/signInForm")
       .events("usernameChanged")
-      .withPayload(input => input.username)
+      .withPayloads(input => input.username)
+      .thenAtPath("/signInForm")
       .events("passwordChanged")
-      .withPayload(input => input.password)
+      .withPayloads(input => input.password)
+      .thenAtPath("/signInForm")
       .events("signInFormSubmitted");
 
     const input = { username: "alice", password: "demo" };
@@ -86,9 +102,11 @@ describe("eventSequenceFactory", () => {
       .events("goToSignInFormRequested")
       .thenAtPath("/signInForm")
       .events("usernameChanged")
-      .withPayload(username => username)
+      .withPayloads(username => username)
+      .thenAtPath("/signInForm")
       .events("passwordChanged")
-      .withPayload((_username, password) => password)
+      .withPayloads((_username, password) => password)
+      .thenAtPath("/signInForm")
       .events("signInFormSubmitted");
 
     expect(userSignsIn("alice", "demo")).toEqual([
