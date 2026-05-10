@@ -47,8 +47,9 @@ describe("eventSequenceFactory", () => {
       },
     ]);
   });
-  it("uses input directly as payload when withPayload is not specified", () => {
+  it("uses input directly as payload for all events when withPayloads is not specified", () => {
     type ShoppingListComponentContract = {
+      events: EventsContract<["done"]>;
       children: {
         createList: {
           events: EventsContract<
@@ -63,13 +64,23 @@ describe("eventSequenceFactory", () => {
       string
     >()
       .atPath("/createList")
-      .events("listNameChanged");
-
+      .events("listNameChanged")
+      .thenAtPath("/")
+      .events("done");
     expect(setListName("Groceries")).toEqual([
       {
         name: "listNameChanged",
         statePath: stringToStatePath("/createList"),
         payload: "Groceries",
+        source: INPUTTED_BY_USER,
+      },
+      {
+        name: "done",
+        // Default is always identity — type system prevents *wrong* withPayloads
+        // return types but does not suppress the default payload at runtime.
+        // Call .withPayloads(() => undefined) explicitly to suppress it.
+        payload: "Groceries",
+        statePath: stringToStatePath("/"),
         source: INPUTTED_BY_USER,
       },
     ]);
@@ -78,8 +89,15 @@ describe("eventSequenceFactory", () => {
   it("creates the same sign-in sequence as manual events", () => {
     type ShoppingListComponentContract = {
       children: {
-        userMenu: {};
-        signInForm: {};
+        userMenu: {
+          events: EventsContract<["goToSignInFormRequested"]>;
+        };
+        signInForm: {
+          events: EventsContract<
+            ["usernameChanged", "passwordChanged", "signInFormSubmitted"],
+            { usernameChanged: string; passwordChanged: string }
+          >;
+        };
         createList: {
           events: EventsContract<
             ["listNameChanged"],

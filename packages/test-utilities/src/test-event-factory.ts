@@ -5,7 +5,11 @@ import {
 } from "@softer-components/base-adapter";
 import type { ComponentContract, Payload } from "@softer-components/types";
 
-import type { ComponentTreePaths } from "./component-path";
+import type {
+  ComponentTreePaths,
+  EventNameAtPath,
+  PayloadAtPathAndEvent,
+} from "./component-path";
 
 type SequenceArgs<TInput> = TInput extends undefined
   ? []
@@ -21,41 +25,63 @@ type SequenceStep<TInput> = {
 
 type AfterThenAtPathStage<
   TRootComponentContract extends ComponentContract,
+  TPath extends string,
   TInput,
 > = {
-  events: (
-    ...eventNames: string[]
-  ) => AfterEventsStage<TRootComponentContract, TInput>;
+  events: <
+    TSelectedEventName extends EventNameAtPath<TRootComponentContract, TPath>,
+  >(
+    firstEventName: TSelectedEventName,
+    ...otherEventNames: TSelectedEventName[]
+  ) => AfterEventsStage<
+    TRootComponentContract,
+    TPath,
+    TSelectedEventName,
+    TInput
+  >;
 };
 
 type AfterWithPayloadsStage<
   TRootComponentContract extends ComponentContract,
+  TPath extends string,
   TInput,
 > = ((...input: SequenceArgs<TInput>) => SofterEvent[]) & {
-  thenAtPath: (
-    path: ComponentTreePaths<TRootComponentContract>,
-  ) => AfterThenAtPathStage<TRootComponentContract, TInput>;
+  thenAtPath: <TNextPath extends ComponentTreePaths<TRootComponentContract>>(
+    path: TNextPath,
+  ) => AfterThenAtPathStage<TRootComponentContract, TNextPath, TInput>;
 };
 
 type AfterEventsStage<
   TRootComponentContract extends ComponentContract,
+  TPath extends string,
+  TEventName extends EventNameAtPath<TRootComponentContract, TPath>,
   TInput,
 > = ((...input: SequenceArgs<TInput>) => SofterEvent[]) & {
   withPayloads: (
-    payloadResolver: PayloadResolver<TInput>,
-  ) => AfterWithPayloadsStage<TRootComponentContract, TInput>;
-  thenAtPath: (
-    path: string,
-  ) => AfterThenAtPathStage<TRootComponentContract, TInput>;
+    payloadResolver: (
+      ...input: SequenceArgs<TInput>
+    ) => PayloadAtPathAndEvent<TRootComponentContract, TPath, TEventName>,
+  ) => AfterWithPayloadsStage<TRootComponentContract, TPath, TInput>;
+  thenAtPath: <TNextPath extends ComponentTreePaths<TRootComponentContract>>(
+    path: TNextPath,
+  ) => AfterThenAtPathStage<TRootComponentContract, TNextPath, TInput>;
 };
 
 type InitialStage<TRootComponentContract extends ComponentContract, TInput> = {
-  atPath: (
-    path: ComponentTreePaths<TRootComponentContract>,
-  ) => AfterThenAtPathStage<TRootComponentContract, TInput>;
-  events: (
-    ...eventNames: string[]
-  ) => AfterEventsStage<TRootComponentContract, TInput>;
+  atPath: <TPath extends ComponentTreePaths<TRootComponentContract>>(
+    path: TPath,
+  ) => AfterThenAtPathStage<TRootComponentContract, TPath, TInput>;
+  events: <
+    TSelectedEventName extends EventNameAtPath<TRootComponentContract, "">,
+  >(
+    firstEventName: TSelectedEventName,
+    ...otherEventNames: TSelectedEventName[]
+  ) => AfterEventsStage<
+    TRootComponentContract,
+    "",
+    TSelectedEventName,
+    TInput
+  >;
 };
 
 const defaultPayloadResolver = <TInput>(
@@ -70,9 +96,7 @@ export const eventSequenceFactory = <
   let currentPath: string = "";
   let pendingPayloadIndexes: number[] = [];
 
-  const createEvents = <T extends ComponentContract>(
-    ...input: SequenceArgs<TInput>
-  ) =>
+  const createEvents = (...input: SequenceArgs<TInput>) =>
     steps.map(
       step =>
         ({
@@ -83,10 +107,16 @@ export const eventSequenceFactory = <
         }) satisfies SofterEvent,
     );
 
-  const events = <T extends ComponentContract>(
-    firstEventName: string,
-    ...otherEventNames: string[]
-  ): AfterEventsStage<TRootComponentContract, TInput> => {
+  const eventsAtPath = <TPath extends string>(
+    _typedPath: TPath,
+    firstEventName: EventNameAtPath<TRootComponentContract, TPath>,
+    ...otherEventNames: EventNameAtPath<TRootComponentContract, TPath>[]
+  ): AfterEventsStage<
+    TRootComponentContract,
+    TPath,
+    EventNameAtPath<TRootComponentContract, TPath>,
+    TInput
+  > => {
     const path = currentPath;
 
     pendingPayloadIndexes = [firstEventName, ...otherEventNames].map(name => {
@@ -98,12 +128,20 @@ export const eventSequenceFactory = <
       return steps.length - 1;
     });
 
-    return afterEvents;
+    return createAfterEvents<
+      TPath,
+      EventNameAtPath<TRootComponentContract, TPath>
+    >();
   };
 
-  const withPayloads = (
-    payloadResolver: PayloadResolver<TInput>,
-  ): AfterWithPayloadsStage<TRootComponentContract, TInput> => {
+  const withPayloads = <
+    TPath extends string,
+    TEventName extends EventNameAtPath<TRootComponentContract, TPath>,
+  >(
+    payloadResolver: (
+      ...input: SequenceArgs<TInput>
+    ) => PayloadAtPathAndEvent<TRootComponentContract, TPath, TEventName>,
+  ): AfterWithPayloadsStage<TRootComponentContract, TPath, TInput> => {
     if (pendingPayloadIndexes.length === 0) {
       throw new Error("withPayloads can only be called right after events().");
     }
@@ -113,30 +151,61 @@ export const eventSequenceFactory = <
     }
 
     pendingPayloadIndexes = [];
-    return afterWithPayloads;
+    return createAfterWithPayloads<TPath>();
   };
 
-  const thenAtPath = (
-    path: ComponentTreePaths<TRootComponentContract>,
-  ): AfterThenAtPathStage<TRootComponentContract, TInput> => {
+  const thenAtPath = <TPath extends ComponentTreePaths<TRootComponentContract>>(
+    path: TPath,
+  ): AfterThenAtPathStage<TRootComponentContract, TPath, TInput> => {
     currentPath = path;
-    return afterThenAtPath;
+    return createAfterThenAtPath(path);
   };
-  const afterEvents = Object.assign(createEvents, {
-    withPayloads,
-    thenAtPath,
-  }) as AfterEventsStage<TRootComponentContract, TInput>;
-  const afterThenAtPath: AfterThenAtPathStage<TRootComponentContract, TInput> =
-    {
-      events,
-    };
-  const afterWithPayloads = Object.assign(createEvents, {
-    thenAtPath,
-  }) as AfterWithPayloadsStage<TRootComponentContract, TInput>;
+
+  const createAfterEvents = <
+    TPath extends string,
+    TEventName extends EventNameAtPath<TRootComponentContract, TPath>,
+  >(): AfterEventsStage<TRootComponentContract, TPath, TEventName, TInput> =>
+    Object.assign(createEvents, {
+      withPayloads: (
+        payloadResolver: (
+          ...input: SequenceArgs<TInput>
+        ) => PayloadAtPathAndEvent<TRootComponentContract, TPath, TEventName>,
+      ) => withPayloads<TPath, TEventName>(payloadResolver),
+      thenAtPath,
+    }) as AfterEventsStage<TRootComponentContract, TPath, TEventName, TInput>;
+
+  const createAfterThenAtPath = <TPath extends string>(
+    typedPath: TPath,
+  ): AfterThenAtPathStage<TRootComponentContract, TPath, TInput> => ({
+    events: <
+      TSelectedEventName extends EventNameAtPath<TRootComponentContract, TPath>,
+    >(
+      firstEventName: TSelectedEventName,
+      ...otherEventNames: TSelectedEventName[]
+    ) => {
+      eventsAtPath(typedPath, firstEventName, ...otherEventNames);
+      return createAfterEvents<TPath, TSelectedEventName>();
+    },
+  });
+
+  const createAfterWithPayloads = <
+    TPath extends string,
+  >(): AfterWithPayloadsStage<TRootComponentContract, TPath, TInput> =>
+    Object.assign(createEvents, {
+      thenAtPath,
+    }) as AfterWithPayloadsStage<TRootComponentContract, TPath, TInput>;
 
   const initialStage: InitialStage<TRootComponentContract, TInput> = {
     atPath: thenAtPath,
-    events,
+    events: <
+      TSelectedEventName extends EventNameAtPath<TRootComponentContract, "">,
+    >(
+      firstEventName: TSelectedEventName,
+      ...otherEventNames: TSelectedEventName[]
+    ) => {
+      eventsAtPath("", firstEventName, ...otherEventNames);
+      return createAfterEvents<"", TSelectedEventName>();
+    },
   };
 
   return initialStage;

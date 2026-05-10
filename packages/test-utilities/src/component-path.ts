@@ -1,3 +1,9 @@
+import type {
+  ComponentContract,
+  ExtractEventNameUnion,
+  Payload,
+} from "@softer-components/types";
+
 // Recursive type to get all component paths
 export type ComponentTreePaths<T> =
   | "/"
@@ -27,3 +33,31 @@ export type ContractAtComponentPath<T, Path extends string> = Path extends ""
           : never
         : never
       : never;
+
+export type NormalizedPath<TPath extends string> = TPath extends "/"
+  ? ""
+  : TPath;
+export type ContractAtPath<
+  TRootComponentContract extends ComponentContract,
+  TPath extends string,
+> = ContractAtComponentPath<TRootComponentContract, NormalizedPath<TPath>>;
+export type EventNameAtPath<
+  TRootComponentContract extends ComponentContract,
+  TPath extends string,
+> = ExtractEventNameUnion<ContractAtPath<TRootComponentContract, TPath>>;
+// ExtractPayload checks `TPayloads extends Record<string, Payload>` which fails for
+// concrete keyed objects (only index-signature types pass). We check `keyof TPayloads`
+// directly and distribute over TEventName unions via the leading conditional.
+export type PayloadAtPathAndEvent<
+  TRootComponentContract extends ComponentContract,
+  TPath extends string,
+  TEventName extends string,
+> = TEventName extends string
+  ? ContractAtPath<TRootComponentContract, TPath> extends {
+      events: { payloads: infer TPayloads };
+    }
+    ? TEventName extends keyof TPayloads
+      ? TPayloads[TEventName] & Payload
+      : undefined
+    : undefined
+  : undefined;
