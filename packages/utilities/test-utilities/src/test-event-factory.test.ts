@@ -65,7 +65,7 @@ describe("eventSequenceFactory", () => {
     >()
       .atPath("/createList")
       .events("listNameChanged")
-      .thenAtPath("/")
+      .thenAtPath("")
       .events("done");
     expect(setListName("Groceries")).toEqual([
       {

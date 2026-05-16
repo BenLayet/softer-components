@@ -8,8 +8,11 @@
     "skipLibCheck": true,
     "noEmit": true,
     "strict": true,
+    "esModuleInterop": true,
+    "jsx": "react-jsx",
     "paths": {
-      "@softer-components/types": ["../types/src"]
+      "@softer-components/types": ["../../types/src"],
+      "@softer-components/base-adapter": ["../base-adapter/src"]
     }
   },
   "include": ["src/**/*"]

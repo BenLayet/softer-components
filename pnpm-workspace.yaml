@@ -1,10 +1,10 @@
 packages:
   - packages/types
-  - packages/app-utilities
-  - packages/base-adapter
-  - packages/test-utilities
-  - packages/redux-adapter
-  - packages/ngrx-adapter
+  - packages/adapters/base-adapter
+  - packages/adapters/redux-adapter
+  - packages/adapters/ngrx-adapter
+  - packages/utilities/test-utilities
+  - packages/utilities/app-utilities
   - packages/examples/ngrx/basic-example-counter
   - packages/examples/ngrx/complete-example-shopping-list
   - packages/examples/redux/basic-example-counter

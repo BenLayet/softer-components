@@ -9,7 +9,7 @@
     "noEmit": true,
     "strict": true,
     "paths": {
-      "@softer-components/types": ["../types/src"]
+      "@softer-components/types": ["../../types/src"]
     }
   },
   "include": ["src/**/*"]
