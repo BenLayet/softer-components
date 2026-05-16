@@ -5,14 +5,14 @@ import {
 } from "@softer-components/types";
 import { useDispatch, useSelector, useStore } from "react-redux";
 
-import { SofterStore } from "./softer-store";
+import { SofterReduxStore } from "./softer-redux-store";
 
 export const useSofterSelectors = <
   TComponentContract extends ComponentContract,
 >(
   pathStr: string,
 ): TComponentContract["values"] => {
-  const store = useStore() as SofterStore;
+  const store = useStore() as SofterReduxStore;
   // Subscribe to Redux state with useSelector
   return useSelector(
     store.softerViewModel.valuesSelector(pathStr),
@@ -22,7 +22,7 @@ export const useSofterSelectors = <
 export const useSofterEvents = <TComponentContract extends ComponentContract>(
   pathStr: string,
 ): ExtractUiDispatchers<TComponentContract> => {
-  const store = useStore() as SofterStore;
+  const store = useStore() as SofterReduxStore;
   return store.softerViewModel.dispatchers(
     pathStr,
     useDispatch(),
@@ -34,7 +34,7 @@ export const useSofterChildrenPaths = <
 >(
   pathStr: string,
 ): ExtractChildrenPaths<TComponentContract> => {
-  const store = useStore() as SofterStore;
+  const store = useStore() as SofterReduxStore;
   // Subscribe to Redux state with useSelector
   return useSelector(
     store.softerViewModel.childrenPathsSelector(pathStr),

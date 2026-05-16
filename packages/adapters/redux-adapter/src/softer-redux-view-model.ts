@@ -18,7 +18,7 @@ import {
   ReduxDispatch,
   eventToAction,
   getSofterRootTree,
-} from "./softer-mappers";
+} from "./softer-redux-mappers";
 
 export type ChildrenPaths = Record<
   string,
@@ -32,7 +32,7 @@ export type ComponentViewModel = {
   ) => Record<string, (payload: any) => void>;
 };
 
-export interface SofterViewModel {
+export interface SofterReduxViewModel {
   valuesSelector(
     statePathStr: string,
   ): (globalState: GlobalState) => Record<string, any>;
@@ -48,7 +48,7 @@ export interface SofterViewModel {
 /**
  * Maintains a map of memoized component view models at each path in the global state tree.
  */
-export class SofterApplicationViewModel implements SofterViewModel {
+export class SofterApplicationViewModel implements SofterReduxViewModel {
   private readonly componentViewModels: Record<string, ComponentViewModel> = {};
   public readonly stateManager = new TreeStateManager();
 

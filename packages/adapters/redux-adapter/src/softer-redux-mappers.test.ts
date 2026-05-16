@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 
-import { actionToEvent, eventToAction } from "./softer-mappers";
+import { actionToEvent, eventToAction } from "./softer-redux-mappers";
 
 describe("softer mapper tests", () => {
   it("should convert redux action to softer event", () => {

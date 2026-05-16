@@ -4,8 +4,8 @@ import React from "react";
 import { Provider } from "react-redux";
 import { describe, expect, it } from "vitest";
 
-import { useSofter, useSofterSelectors } from "./softer-hooks";
-import { configureSofterStore } from "./softer-store";
+import { useSofter, useSofterSelectors } from "./softer-redux-hooks";
+import { configureSofterStore } from "./softer-redux-store";
 
 describe("useSofter with memoization", () => {
   it("should memoize selectors and prevent unnecessary re-renders", () => {

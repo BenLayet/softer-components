@@ -21,14 +21,14 @@ import {
   eventToAction,
   getSofterRootTree,
   isSofterEvent,
-} from "./softer-mappers";
+} from "./softer-redux-mappers";
 import {
   SofterApplicationViewModel,
-  SofterViewModel,
-} from "./softer-view-model";
+  SofterReduxViewModel,
+} from "./softer-redux-view-model";
 
-export type SofterStore = ReturnType<typeof configureStore> & {
-  softerViewModel: SofterViewModel;
+export type SofterReduxStore = ReturnType<typeof configureStore> & {
+  softerViewModel: SofterReduxViewModel;
 };
 type ReduxEffect = (action: any, listenerApi: any) => void;
 
@@ -84,7 +84,7 @@ export function createSofterMiddleware(eventProcessor: ReduxEffect) {
 }
 export function configureSofterStore<T extends ComponentContract>(
   rootComponentDef: ComponentDef<T, any>,
-): SofterStore {
+): SofterReduxStore {
   const config = createSofterStoreConfiguration(rootComponentDef);
   return {
     ...configureStore({

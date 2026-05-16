@@ -5,7 +5,7 @@ import {
 import { ComponentDef } from "@softer-components/types";
 import { describe, expect, it } from "vitest";
 
-import { configureSofterStore } from "./softer-store";
+import { configureSofterStore } from "./softer-redux-store";
 
 describe("configureSofterStore", () => {
   it("should create a store with initial state", () => {
