@@ -3,10 +3,7 @@ import {
   ComponentContract,
   ContextContract,
 } from "../component-contract/component-contract";
-import {
-  ExtractEventNames,
-  ExtractUiEvents,
-} from "../component-contract/component-contract-extractors";
+import { ExtractUiEvents } from "../component-contract/component-contract-extractors";
 import { ChildrenInstancesDefs } from "./dependencies/children-instances-def";
 import { ContextsDef } from "./dependencies/contexts-def";
 import { Effects } from "./events/effects";
@@ -34,7 +31,6 @@ export type ComponentDef<
   {
     readonly initialState?: State;
     readonly selectors?: Selectors<any, any, any>;
-    readonly allEvents?: readonly string[];
     readonly uiEvents?: readonly string[];
     readonly stateUpdaters?: StateUpdaters<any, any>;
     readonly eventForwarders?: InternalEventForwarders<any>;
@@ -129,7 +125,6 @@ type EventsPart<
 > = IfNonEmptyRecord<
   TComponentContract["events"],
   {
-    readonly allEvents: ExtractEventNames<TComponentContract>;
     readonly stateUpdaters?: StateUpdaters<TComponentContract, TState>;
     readonly childrenUpdaters?: ChildrenUpdaters<TComponentContract>;
     readonly eventForwarders?: InternalEventForwarders<TComponentContract>;
