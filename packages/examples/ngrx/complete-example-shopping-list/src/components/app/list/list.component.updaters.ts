@@ -29,7 +29,7 @@ export const stateUpdaters: StateUpdaters<Contract, State> = {
   },
   saveFailed: ({ state, payload: errorMessage }) => {
     assertIsNotUndefined(state);
-    state.errors["SAVE_FAILED"] = errorMessage;
+    state.errors.SAVE_FAILED = errorMessage;
     state.isSaving = false;
   },
   saveSucceeded: ({ state }) => {

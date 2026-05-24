@@ -1,7 +1,9 @@
-import type { ChildrenConfig, InternalEventForwarders } from "@softer-components/types";
+import type {
+  ChildrenConfig,
+  InternalEventForwarders,
+} from "@softer-components/types";
 
 import type { Contract } from "./list.component.contract";
-import type { ListItem } from "../../../model";
 
 export const eventForwarders: InternalEventForwarders<Contract> = [
   {
@@ -14,7 +16,9 @@ export const eventForwarders: InternalEventForwarders<Contract> = [
     from: "createItemOrIncrementQuantityRequested",
     to: "createItemRequested",
     onCondition: ({ childrenValues: { itemRows }, payload: itemName }) =>
-      Object.values(itemRows).every((itemRow) => itemRow.values.name() !== itemName),
+      Object.values(itemRows).every(
+        itemRow => itemRow.values.name() !== itemName,
+      ),
     withPayload: ({ payload: name, childrenValues: { itemRows } }) => ({
       item: {
         name,
@@ -30,7 +34,9 @@ export const eventForwarders: InternalEventForwarders<Contract> = [
     from: "createItemOrIncrementQuantityRequested",
     to: "incrementItemQuantityRequested",
     onCondition: ({ childrenValues: { itemRows }, payload: itemName }) =>
-      Object.values(itemRows).some((itemRow) => itemRow.values.name() === itemName),
+      Object.values(itemRows).some(
+        itemRow => itemRow.values.name() === itemName,
+      ),
     withPayload: ({ childrenValues: { itemRows }, payload: itemName }) =>
       Object.entries(itemRows)
         .filter(([, item]) => item.values.name() === itemName)
@@ -71,7 +77,7 @@ export const childrenConfig: ChildrenConfig<Contract> = {
         from: "initialize",
         to: "initialize",
         withPayload: ({ childKey, payload: { listItems } }) =>
-          listItems.find((i) => i.item.id === parseInt(childKey)) as ListItem,
+          listItems.find(i => i.item.id === parseInt(childKey))!,
       },
     ],
     listeners: [
