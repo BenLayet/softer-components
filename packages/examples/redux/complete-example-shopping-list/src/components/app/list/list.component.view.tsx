@@ -1,14 +1,14 @@
 import { useSofter } from "@softer-components/redux-adapter";
 
 import { ItemRow } from "./item-row";
-import { ListContract } from "./list.component";
+import type { ListContract } from "./list.component";
 
 export const View = ({ path = "" }) => {
   const [v, d, c] = useSofter<ListContract>(path);
   return (
     <div>
       <p style={{ textAlign: "start", width: "300px" }}>
-        <a className="clickable" onClick={() => d.goBackClicked()}>
+        <a className="clickable" onClick={() => { d.goBackClicked(); }}>
           All lists
         </a>{" "}
         &gt;&gt; {v.name}
@@ -23,7 +23,7 @@ export const View = ({ path = "" }) => {
           type="text"
           value={v.nextItemName}
           autoFocus
-          onChange={e => d.nextItemNameChanged(e.target.value)}
+          onChange={e => { d.nextItemNameChanged(e.target.value); }}
         />
         <button type="submit">Add Item</button>
       </form>

@@ -1,6 +1,6 @@
 * {
   /* Wireframe font */
-  font-family: 'Courier New', 'Courier', monospace;
+  font-family: "Courier New", "Courier", monospace;
 
   /* Remove colors, use grayscale */
   color: #333;
@@ -49,8 +49,8 @@ h6 {
 
 /* Buttons - wireframe style */
 button,
-input[type='button'],
-input[type='submit'],
+input[type="button"],
+input[type="submit"],
 .btn {
   background-color: #bababa;
   border: 2px solid #333;
@@ -63,18 +63,18 @@ input[type='submit'],
 }
 
 button:hover,
-input[type='button']:hover,
-input[type='submit']:hover {
+input[type="button"]:hover,
+input[type="submit"]:hover {
   background-color: #e0e0e0;
   transform: translate(1px, 1px);
   box-shadow: 2px 2px 0 #ccc;
 }
 
 /* Input fields */
-input[type='text'],
-input[type='email'],
-input[type='password'],
-input[type='number'],
+input[type="text"],
+input[type="email"],
+input[type="password"],
+input[type="number"],
 textarea,
 select {
   background-color: #fff;
@@ -100,7 +100,7 @@ img {
 
 /* Add "IMAGE" text overlay on images */
 img::after {
-  content: '[IMAGE]';
+  content: "[IMAGE]";
   position: absolute;
   top: 50%;
   left: 50%;
@@ -110,11 +110,15 @@ img::after {
 }
 
 /* Links - underlined and simple */
+button.link,
 a {
   color: #333;
   text-decoration: underline;
   text-decoration-style: dashed;
   cursor: pointer;
+  background: none;
+  border: none;
+  box-shadow: none;
 }
 
 a:hover {
@@ -155,8 +159,8 @@ th {
 /* Cards/Panels */
 .card,
 .panel,
-[class*='card'],
-[class*='panel'] {
+[class*="card"],
+[class*="panel"] {
   background-color: #fafafa;
   border: 2px solid #333;
   box-shadow: 4px 4px 0 #ddd;
@@ -165,8 +169,8 @@ th {
 }
 
 /* Checkbox and Radio */
-input[type='checkbox'],
-input[type='radio'] {
+input[type="checkbox"],
+input[type="radio"] {
   width: 20px;
   height: 20px;
   border: 2px solid #333;
@@ -174,20 +178,20 @@ input[type='radio'] {
   -webkit-appearance: none;
 }
 
-input[type='checkbox']:checked::before {
-  content: '✓';
+input[type="checkbox"]:checked::before {
+  content: "✓";
   display: block;
   text-align: center;
   font-weight: bold;
   color: #333;
 }
 
-input[type='radio'] {
+input[type="radio"] {
   border-radius: 50%;
 }
 
-input[type='radio']:checked::before {
-  content: '●';
+input[type="radio"]:checked::before {
+  content: "●";
   display: block;
   text-align: center;
   color: #333;
@@ -202,8 +206,8 @@ input[type='radio']:checked::before {
 
 /* Exception for buttons - keep minimal shadow */
 button,
-input[type='button'],
-input[type='submit'],
+input[type="button"],
+input[type="submit"],
 .btn {
   box-shadow: 3px 3px 0 #ccc;
 }

@@ -1,14 +1,18 @@
 @if (v$ | async; as v) {
   <div>
     <div style="margin: 2em">
-      <a (click)="e.signInCancelled()">👋 Try app without signing in</a>
+      <button class="link" (click)="e.signInCancelled()">👋 Try app without signing in</button>
       <p>Demo users :</p>
       <ul>
         <li>
-          <a (click)="e.demoUserClicked({ username: 'alice', password: 'demo' })"> alice/demo </a>
+          <button class="link" (click)="e.demoUserClicked({ username: 'alice', password: 'demo' })">
+            alice/demo
+          </button>
         </li>
         <li>
-          <a (click)="e.demoUserClicked({ username: 'bob', password: 'demo' })"> bob/demo </a>
+          <button class="link" (click)="e.demoUserClicked({ username: 'bob', password: 'demo' })">
+            bob/demo
+          </button>
         </li>
       </ul>
     </div>
@@ -17,8 +21,9 @@
       style="align-items: start; max-width: 18em"
       autocomplete="off"
     >
-      <label>Username</label>
+      <label for="usernameInput">Username</label>
       <input
+        id="usernameInput"
         #usernameInput
         type="text"
         placeholder="Username"
@@ -26,8 +31,9 @@
         autocomplete="off"
         [value]="v.username"
       />
-      <label>Password</label>
+      <label for="passwordInput">Password</label>
       <input
+        id="passwordInput"
         #passwordInput
         type="text"
         placeholder="Password"

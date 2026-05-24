@@ -1,6 +1,6 @@
 import { useSofter } from "@softer-components/redux-adapter";
 
-import { UserMenuContract } from "./user-menu.component";
+import type { UserMenuContract } from "./user-menu.component";
 
 export const View = ({ path = "" }) => {
   const [v, d] = useSofter<UserMenuContract>(path);
@@ -8,7 +8,7 @@ export const View = ({ path = "" }) => {
     <div className="menu-item">
       {v.isAnonymous && (
         <a
-          onClick={() => d.goToSignInFormRequested()}
+          onClick={() => { d.goToSignInFormRequested(); }}
           title="Sign in to share your lists"
         >
           🔓 Sign in
@@ -18,7 +18,7 @@ export const View = ({ path = "" }) => {
         <>
           Hi <span style={{ textTransform: "capitalize" }}>{v.username}</span>!{" "}
           <a
-            onClick={() => d.signOutRequested()}
+            onClick={() => { d.signOutRequested(); }}
             title="Sign out and return to anonymous mode"
           >
             sign out

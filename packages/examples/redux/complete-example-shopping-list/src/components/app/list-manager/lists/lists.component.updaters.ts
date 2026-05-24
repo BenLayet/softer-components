@@ -1,7 +1,7 @@
-import { StateUpdaters } from "@softer-components/types";
+import type { StateUpdaters } from "@softer-components/types";
 
-import { Contract } from "./lists.component.contract";
-import { State } from "./lists.component.state";
+import type { Contract } from "./lists.component.contract";
+import type { State } from "./lists.component.state";
 
 export const stateUpdaters: StateUpdaters<Contract, State> = {
   fetchRequested: ({ state }) => {
@@ -14,7 +14,7 @@ export const stateUpdaters: StateUpdaters<Contract, State> = {
   },
   fetchFailed: ({ state, payload: errorMessage }) => {
     state.isLoading = false;
-    (state.errors as any)["FETCH_ERROR"] = errorMessage;
+    (state.errors as any).FETCH_ERROR = errorMessage;
   },
   deleteRequested: ({ state, payload: id }) => {
     state.isLoading = true;
@@ -26,7 +26,7 @@ export const stateUpdaters: StateUpdaters<Contract, State> = {
   },
   deleteFailed: ({ state, payload: errorMessage }) => {
     state.isLoading = false;
-    (state.errors as any)["DELETE_ERROR"] = errorMessage;
+    (state.errors as any).DELETE_ERROR = errorMessage;
   },
   emptyListCreated: ({ state, payload: list }) => {
     state.lists = [...state.lists, list];

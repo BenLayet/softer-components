@@ -1,5 +1,6 @@
+import type {
+  SofterTestEvent} from "@softer-components/test-utilities";
 import {
-  SofterTestEvent,
   eventSequenceFactory,
   stringToStatePath,
 } from "@softer-components/test-utilities";

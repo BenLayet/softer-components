@@ -1,9 +1,9 @@
-export const not = <T = any>(predicate: (value: T) => boolean) => {
+export const not = <T = unknown>(predicate: (value: T) => boolean) => {
   return (value: T) => !predicate(value);
 };
-export const and = <T = any>(...predicates: Array<(value: T) => boolean>) => {
+export const and = <T = unknown>(...predicates: ((value: T) => boolean)[]) => {
   return (value: T) => predicates.every((predicate) => predicate(value));
 };
-export const or = <T = any>(...predicates: Array<(value: T) => boolean>) => {
+export const or = <T = unknown>(...predicates: ((value: T) => boolean)[]) => {
   return (value: T) => predicates.some((predicate) => predicate(value));
 };

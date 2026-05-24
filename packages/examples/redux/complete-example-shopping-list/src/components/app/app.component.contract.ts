@@ -1,6 +1,6 @@
-import { Children } from "./app.component.children";
-import { Events } from "./app.component.events";
-import { Values } from "./app.component.selectors";
+import type { Children } from "./app.component.children";
+import type { Events } from "./app.component.events";
+import type { Values } from "./app.component.selectors";
 
 export type Contract = {
   events: Events;

@@ -1,85 +1,42 @@
-import js from "@eslint/js";
-import vitestPlugin from "@vitest/eslint-plugin";
-import prettierConfig from "eslint-config-prettier/flat";
-import reactPlugin from "eslint-plugin-react";
-import reactHooksPlugin from "eslint-plugin-react-hooks";
-import globals from "globals";
-import { config, configs } from "typescript-eslint";
+// @ts-check
+const eslint = require("@eslint/js");
+const { defineConfig } = require("eslint/config");
+const tseslint = require("typescript-eslint");
+const angular = require("angular-eslint");
 
-const eslintConfig = config(
+module.exports = defineConfig([
   {
-    name: "global-ignores",
-    ignores: [
-      "**/*.snap",
-      "**/lib/",
-      "**/dist/",
-      "**/.yalc/",
-      "**/build/",
-      "**/temp/",
-      "**/.temp/",
-      "**/.tmp/",
-      "**/.yarn/",
-      "**/coverage/",
+    files: ["**/*.ts"],
+    extends: [
+      eslint.configs.recommended,
+      tseslint.configs.recommended,
+      tseslint.configs.stylistic,
+      angular.configs.tsRecommended,
     ],
-  },
-  {
-    name: `${js.meta.name}/recommended`,
-    ...js.configs.recommended,
-  },
-  configs.strictTypeChecked,
-  configs.stylisticTypeChecked,
-  vitestPlugin.configs.recommended,
-  {
-    name: "eslint-plugin-react/jsx-runtime",
-    ...reactPlugin.configs.flat["jsx-runtime"],
-  },
-  reactHooksPlugin.configs["recommended-latest"],
-  {
-    name: "main",
-    linterOptions: {
-      reportUnusedDisableDirectives: 2,
-    },
-    languageOptions: {
-      ecmaVersion: 2020,
-      globals: globals.browser,
-      parserOptions: {
-        projectService: true,
-        tsconfigRootDir: import.meta.dirname,
-      },
-    },
-    settings: {
-      vitest: {
-        typecheck: true,
-      },
-    },
+    processor: angular.processInlineTemplates,
     rules: {
-      "no-undef": [0],
-      "@typescript-eslint/consistent-type-definitions": [2, "type"],
-      "@typescript-eslint/consistent-type-imports": [
-        2,
+      "@typescript-eslint/consistent-type-definitions": ["error", "type"],
+      "@angular-eslint/directive-selector": [
+        "error",
         {
-          prefer: "type-imports",
-          fixStyle: "separate-type-imports",
-          disallowTypeAnnotations: true,
+          type: "attribute",
+          prefix: "app",
+          style: "camelCase",
         },
       ],
-      "no-restricted-imports": [
-        2,
+      "@angular-eslint/component-selector": [
+        "error",
         {
-          paths: [
-            {
-              name: "react-redux",
-              importNames: ["useSelector", "useStore", "useDispatch"],
-              message:
-                "Please use pre-typed versions from `src/app/hooks.ts` instead.",
-            },
-          ],
+          type: "element",
+          prefix: "app",
+          style: "kebab-case",
         },
       ],
     },
   },
-
-  prettierConfig,
-);
-
-export default eslintConfig;
+  {
+    files: ["**/*.html"],
+    extends: [angular.configs.templateRecommended, angular.configs.templateAccessibility],
+    rules: {},
+  },
+]);

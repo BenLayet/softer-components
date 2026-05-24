@@ -1,7 +1,7 @@
-import { Effects } from "@softer-components/types";
+import type { Effects } from "@softer-components/types";
 
-import { ListService } from "../../../../port/list.service";
-import { Contract } from "./create-list.component.contract";
+import type { ListService } from "../../../../port/list.service";
+import type { Contract } from "./create-list.component.contract";
 
 export type EffectsDependencies = {
   listService: ListService;

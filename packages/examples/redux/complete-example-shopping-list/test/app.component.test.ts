@@ -1,7 +1,9 @@
-import { TestStore, initTestStore } from "@softer-components/test-utilities";
+import type { TestStore} from "@softer-components/test-utilities";
+import { initTestStore } from "@softer-components/test-utilities";
 import { describe, expect, it } from "vitest";
 
-import { AppContract, appDef } from "../src/components/app";
+import type { AppContract} from "../src/components/app";
+import { appDef } from "../src/components/app";
 import {
   CREATE_LIST,
   FIRST_ITEM,
@@ -63,7 +65,7 @@ describe("app.component", () => {
   });
   it("when user signs in successfully, her lists should be displayed", async () => {
     //GIVEN
-    mockDependencies.listService.savedLists["alice"] = [
+    mockDependencies.listService.savedLists.alice = [
       {
         id: "1",
         name: "Alice's list",

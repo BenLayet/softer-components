@@ -1,5 +1,5 @@
 import { componentDef } from "./sign-in-form.component.config";
-import { Contract } from "./sign-in-form.component.contract";
+import type { Contract } from "./sign-in-form.component.contract";
 import { View } from "./sign-in-form.component.view";
 
 export const SignInForm = View;

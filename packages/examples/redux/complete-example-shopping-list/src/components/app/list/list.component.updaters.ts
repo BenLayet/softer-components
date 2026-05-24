@@ -1,8 +1,8 @@
-import { ChildrenUpdaters, StateUpdaters } from "@softer-components/types";
+import type { ChildrenUpdaters, StateUpdaters } from "@softer-components/types";
 
 import { assertIsNotUndefined } from "../../../utils/assert.functions";
-import { Contract } from "./list.component.contract";
-import { State } from "./list.component.state";
+import type { Contract } from "./list.component.contract";
+import type { State } from "./list.component.state";
 
 export const stateUpdaters: StateUpdaters<Contract, State> = {
   initialize: ({ payload: list }) => {
@@ -29,7 +29,7 @@ export const stateUpdaters: StateUpdaters<Contract, State> = {
   },
   saveFailed: ({ state, payload: errorMessage }) => {
     assertIsNotUndefined(state);
-    state.errors["SAVE_FAILED"] = errorMessage;
+    state.errors.SAVE_FAILED = errorMessage;
     state.isSaving = false;
   },
   saveSucceeded: ({ state }) => {

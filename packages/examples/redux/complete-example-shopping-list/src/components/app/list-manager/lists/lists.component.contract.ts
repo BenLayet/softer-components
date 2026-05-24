@@ -1,6 +1,6 @@
-import { UserContextContract } from "../../user-context";
-import { Events } from "./lists.component.events";
-import { Values } from "./lists.component.selectors";
+import type { UserContextContract } from "../../user-context";
+import type { Events } from "./lists.component.events";
+import type { Values } from "./lists.component.selectors";
 
 export type Contract = {
   values: Values;

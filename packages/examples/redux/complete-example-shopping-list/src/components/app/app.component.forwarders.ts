@@ -1,6 +1,6 @@
-import { ChildrenConfig } from "@softer-components/types";
+import type { ChildrenConfig } from "@softer-components/types";
 
-import { Contract } from "./app.component.contract";
+import type { Contract } from "./app.component.contract";
 
 export const childrenConfig: ChildrenConfig<Contract> = {
   listManager: {

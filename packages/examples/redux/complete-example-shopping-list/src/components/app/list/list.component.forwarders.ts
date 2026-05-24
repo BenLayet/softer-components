@@ -1,9 +1,9 @@
-import {
+import type {
   ChildrenConfig,
   InternalEventForwarders,
 } from "@softer-components/types";
 
-import { Contract } from "./list.component.contract";
+import type { Contract } from "./list.component.contract";
 
 export const eventForwarders: InternalEventForwarders<Contract> = [
   {
@@ -79,7 +79,7 @@ export const childrenConfig: ChildrenConfig<Contract> = {
         withPayload: ({ childKey, payload: { listItems } }) =>
           listItems.find(
             i => i.item.id === parseInt(childKey),
-          ) as import("../../../model").ListItem,
+          )!,
       },
     ],
     listeners: [

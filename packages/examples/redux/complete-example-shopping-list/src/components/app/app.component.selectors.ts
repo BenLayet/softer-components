@@ -4,7 +4,8 @@ import type {
   Selectors,
 } from "@softer-components/types";
 
-import { State, initialState } from "./app.component.state";
+import type { State} from "./app.component.state";
+import { initialState } from "./app.component.state";
 
 export const selectors = {
   ...createBaseSelectors(initialState),

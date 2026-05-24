@@ -1,6 +1,6 @@
-import { ListId } from "../../../model";
+import { ListId } from '../../../model';
 
-export type Error = "SAVE_FAILED";
+export type Error = 'SAVE_FAILED';
 export type ErrorMessage = string;
 export type State =
   | undefined
@@ -9,5 +9,5 @@ export type State =
       name: string;
       nextItemName: string;
       isSaving: boolean;
-      errors: { [key in Error]?: {} };
+      errors: Partial<Record<Error, string>>;
     };

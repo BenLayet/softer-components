@@ -1,6 +1,6 @@
-import { EventsContract } from "@softer-components/types";
+import type { EventsContract } from "@softer-components/types";
 
-import { List, ListId } from "../../../../model";
+import type { List, ListId } from "../../../../model";
 
 export const uiEvents = [
   "listNamesChanged",

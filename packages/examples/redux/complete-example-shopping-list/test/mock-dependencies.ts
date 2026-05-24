@@ -1,9 +1,9 @@
-import { List } from "../src/model";
-import { AuthenticationService } from "../src/port/authentication.service";
-import { ListService } from "../src/port/list.service";
+import type { List } from "../src/model";
+import type { AuthenticationService } from "../src/port/authentication.service";
+import type { ListService } from "../src/port/list.service";
 
 class MockListService implements ListService {
-  readonly savedLists: { [username in string]: List[] } = {};
+  readonly savedLists: Record<string, List[]> = {};
   get savedList() {
     return this.savedLists[this.authenticationService.authenticatedUser] ?? [];
   }

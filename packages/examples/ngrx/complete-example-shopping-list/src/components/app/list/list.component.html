@@ -2,9 +2,7 @@
   @if (c$ | async; as c) {
     <div>
       <p style="text-align: start; width: 300px">
-        <a class="clickable" (click)="e.goBackClicked()">
-          All lists
-        </a>
+        <button class="link clickable" (click)="e.goBackClicked()">All lists</button>
         &gt;&gt; {{ v.name }}
       </p>
       <form (submit)="$event.preventDefault(); e.newItemSubmitted()">
@@ -31,4 +29,3 @@
     </div>
   }
 }
-

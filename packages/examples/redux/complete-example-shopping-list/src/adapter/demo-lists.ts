@@ -1,4 +1,4 @@
-import { List } from "../model";
+import type { List } from "../model";
 
 export const demoLists: Record<string, List[]> = {
   anonymous: [],

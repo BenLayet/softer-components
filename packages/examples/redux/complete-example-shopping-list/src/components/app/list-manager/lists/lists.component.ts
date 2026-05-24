@@ -1,5 +1,5 @@
 import { componentDef } from "./lists.component.config";
-import { Contract } from "./lists.component.contract";
+import type { Contract } from "./lists.component.contract";
 import { View } from "./lists.component.view";
 
 export const Lists = View;

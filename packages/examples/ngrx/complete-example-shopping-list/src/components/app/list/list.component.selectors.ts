@@ -17,9 +17,9 @@ const list: Selector<State, Children> = (state, childrenValues) => {
   const list: List = {
     id: id(state),
     name: name(state),
-    listItems: Object.values(childrenValues.itemRows).map((itemRow: any) =>
-      itemRow.values.listItem(),
-    ),
+    listItems: Object.values(childrenValues.itemRows)
+      .map((itemRow) => itemRow.values.listItem())
+      .filter((listItem) => !!listItem),
   };
   return list;
 };

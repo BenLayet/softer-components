@@ -1,5 +1,5 @@
 import { componentDef } from "./user-menu.component.config";
-import { Contract } from "./user-menu.component.contract";
+import type { Contract } from "./user-menu.component.contract";
 import { View } from "./user-menu.component.view";
 
 export const userMenuDef = componentDef;

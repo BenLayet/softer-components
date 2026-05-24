@@ -1,13 +1,13 @@
-import {
+import type {
   ExtractComponentValuesContract,
   Selector,
   Selectors,
 } from "@softer-components/types";
 import { flow } from "lodash-es";
 
-import { List } from "../../../model";
-import { Children } from "./list.component.children";
-import { State } from "./list.component.state";
+import type { List } from "../../../model";
+import type { Children } from "./list.component.children";
+import type { State } from "./list.component.state";
 
 const id = (state: State) => state?.id ?? "";
 const name = (state: State) => state?.name ?? "";
@@ -20,16 +20,16 @@ const isNextItemNameValid = flow(
 const errors = (state: State) => state?.errors ?? {};
 const hasSaveFailedError = flow(
   errors,
-  errors => errors["SAVE_FAILED"] !== undefined,
+  errors => errors.SAVE_FAILED !== undefined,
 );
 const isSaving = (state: State) => state?.isSaving ?? false;
 const list: Selector<State, Children> = (state, childrenValues) => {
   const list: List = {
     id: id(state),
     name: name(state),
-    listItems: Object.values(childrenValues.itemRows).map((itemRow: any) =>
-      itemRow.values.listItem(),
-    ),
+    listItems: Object.values(childrenValues.itemRows)
+      .map(itemRow => itemRow.values.listItem())
+      .filter(listItem => !!listItem),
   };
   return list;
 };

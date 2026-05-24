@@ -1,6 +1,6 @@
-import { List } from "../model";
+import type { List } from "../model";
 
-export interface ListService {
+export type ListService = {
   create(name: string): Promise<List>;
   getAll(): Promise<List[]>;
   delete(listId: string): Promise<void>;
