@@ -18,9 +18,9 @@ The component definition contains all business logic and state management withou
 
 ### UI Component (`counter.component.view.ts`)
 
-* The Angular component is almost empty, only the template contains only presentation logic, retrieving typed event dispatchers and selectors:
-* [counter.component.view.ts](src/components/counter/counter.component.view.ts)
-* [counter.component.html](src/components/counter/counter.component.html)
+- The Angular component is almost empty, only the template contains only presentation logic, retrieving typed event dispatchers and selectors:
+- [counter.component.view.ts](src/components/counter/counter.component.view.ts)
+- [counter.component.html](src/components/counter/counter.component.html)
 
 #### event dispatchers
 
@@ -82,10 +82,9 @@ basic-example-counter/
 │   ├── app/
 │   │   ├── app.config.ts     # Configures softer components with `provideSofterState`
 │   │   ├── app.html          # App template, including the counter component
-│   │   └── app.ts             # Angular application setup 
+│   │   └── app.ts             # Angular application setup
 │   ├── main.ts                           # Angular application entry point
 ├── package.json
 ├── tsconfig.json
 └── README.md
 ```
-

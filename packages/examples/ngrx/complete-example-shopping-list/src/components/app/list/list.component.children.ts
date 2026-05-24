@@ -1,3 +1,3 @@
-import { ItemRowContract } from "./item-row";
+import { ItemRowContract } from './item-row';
 
-export type Children = { itemRows: ItemRowContract & { type: "collection" } };
+export type Children = { itemRows: ItemRowContract & { type: 'collection' } };

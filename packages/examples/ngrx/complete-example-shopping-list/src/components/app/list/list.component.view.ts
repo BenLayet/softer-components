@@ -10,4 +10,3 @@ import { ItemRow } from './item-row/item-row.component.view';
   imports: [AsyncPipe, ItemRow],
 })
 export class List extends AbstractSofterComponent<Contract> {}
-

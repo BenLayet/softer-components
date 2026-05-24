@@ -1,9 +1,6 @@
-import {
-  ExtractComponentValuesContract,
-  Selectors,
-} from "@softer-components/types";
+import { ExtractComponentValuesContract, Selectors } from '@softer-components/types';
 
-import { State } from "./item-row.component.state";
+import { State } from './item-row.component.state';
 
 export const selectors = {
   listItem: (state: State) => state,

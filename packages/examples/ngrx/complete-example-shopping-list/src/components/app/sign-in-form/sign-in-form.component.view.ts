@@ -9,4 +9,3 @@ import { AsyncPipe } from '@angular/common';
   imports: [AsyncPipe],
 })
 export class SignInForm extends AbstractSofterComponent<Contract> {}
-

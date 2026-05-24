@@ -3,4 +3,4 @@ export type AuthenticationService = {
   signOut(): Promise<void>;
   isSignedIn(): Promise<boolean>;
   username(): Promise<string | undefined>;
-}
+};

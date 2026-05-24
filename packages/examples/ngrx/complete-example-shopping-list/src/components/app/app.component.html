@@ -7,13 +7,13 @@
         }
       </div>
       <h1>Shopping List</h1>
-      @if (v.page === 'LIST_MANAGER') {
+      @if (v.page === "LIST_MANAGER") {
         <app-list-manager [path]="c.listManager" />
       }
-      @if (v.page === 'LIST') {
+      @if (v.page === "LIST") {
         <app-list [path]="c.list" />
       }
-      @if (v.page === 'SIGN_IN_FORM') {
+      @if (v.page === "SIGN_IN_FORM") {
         <app-sign-in-form [path]="c.signInForm" />
       }
     </div>
