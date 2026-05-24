@@ -14,7 +14,7 @@ export const stateUpdaters: StateUpdaters<Contract, State> = {
   },
   fetchFailed: ({ state, payload: errorMessage }) => {
     state.isLoading = false;
-    state.errors["FETCH_ERROR"] = errorMessage;
+    state.errors.FETCH_ERROR = errorMessage;
   },
   deleteRequested: ({ state, payload: id }) => {
     state.isLoading = true;
@@ -26,7 +26,7 @@ export const stateUpdaters: StateUpdaters<Contract, State> = {
   },
   deleteFailed: ({ state, payload: errorMessage }) => {
     state.isLoading = false;
-    state.errors["DELETE_ERROR"] = errorMessage;
+    state.errors.DELETE_ERROR = errorMessage;
   },
   emptyListCreated: ({ state, payload: list }) => {
     state.lists = [...state.lists, list];
