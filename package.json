@@ -13,7 +13,7 @@
     "test:ci": "pnpm -r test:ci",
     "build": "pnpm -r --bail build",
     "format": "pnpm -r format",
-    "sync:ngrx-components-to-redux": "node scripts/copy-ngrx-components-to-redux.mjs"
+    "maintenance:copy-ngrx-components-to-redux": "node maintenance/copy-ngrx-components-to-redux.mjs"
   },
   "author": "BenLayet",
   "license": "MIT",
