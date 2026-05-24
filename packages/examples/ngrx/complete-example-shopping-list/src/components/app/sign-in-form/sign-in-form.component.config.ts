@@ -1,7 +1,7 @@
 import type { ComponentDef } from "@softer-components/types";
 import type { SofterContext } from "@softer-components/app-utilities";
 
-import type { UserContextContract } from "../user-context";
+import type { UserContextContract } from "../user-context/user-context.component";
 import type { Contract } from "./sign-in-form.component.contract";
 import { uiEvents } from "./sign-in-form.component.events";
 import { contextsConfig } from "./sign-in-form.component.forwarders";

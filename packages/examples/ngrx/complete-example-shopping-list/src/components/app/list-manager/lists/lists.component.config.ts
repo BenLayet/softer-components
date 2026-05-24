@@ -1,7 +1,7 @@
 import type { ComponentDef } from "@softer-components/types";
 import type { SofterContext } from "@softer-components/app-utilities";
 
-import type { UserContextContract } from "../../user-context";
+import type { UserContextContract } from "../../user-context/user-context.component";
 import type { Contract } from "./lists.component.contract";
 import type { EffectsDependencies} from "./lists.component.effects";
 import { effects } from "./lists.component.effects";

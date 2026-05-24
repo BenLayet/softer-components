@@ -1,6 +1,6 @@
 import type { ComponentDef } from "@softer-components/types";
 
-import { itemRowDef } from "./item-row";
+import { itemRowDef } from "./item-row/item-row.component";
 import type { Contract } from "./list.component.contract";
 import type { EffectsDependencies} from "./list.component.effects";
 import { effects } from "./list.component.effects";

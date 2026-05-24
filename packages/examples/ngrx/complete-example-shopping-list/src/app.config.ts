@@ -6,7 +6,7 @@ import { provideStoreDevtools } from "@ngrx/store-devtools";
 import { environment } from "./environments/environment";
 import { provideSofterState } from "@softer-components/ngrx-adapter";
 import type { ComponentDef } from "@softer-components/types";
-import { appDef } from "./components/app";
+import { appDef } from "./components/app/app.component";
 import { DemoListService } from "./adapter/demo-list.service";
 import { DemoAuthenticationService } from "./adapter/demo-authentication.service";
 
