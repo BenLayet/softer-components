@@ -1,4 +1,4 @@
-import { ComponentDef, EventsContract } from '@softer-components/types';
+import { ComponentDef, EventsContract } from "@softer-components/types";
 
 // Initial state definition
 export const initialState = {
@@ -6,7 +6,7 @@ export const initialState = {
 };
 type State = typeof initialState;
 // Events type declaration
-export const allEvents = ['incrementRequested', 'decrementRequested'] as const;
+export const allEvents = ["incrementRequested", "decrementRequested"] as const;
 type CounterEvents = EventsContract<typeof allEvents>;
 export type CounterContract = {
   events: CounterEvents;

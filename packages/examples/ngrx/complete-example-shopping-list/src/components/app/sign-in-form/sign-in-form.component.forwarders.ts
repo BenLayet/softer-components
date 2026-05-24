@@ -1,13 +1,13 @@
-import { ContextsConfig } from '@softer-components/types';
+import { ContextsConfig } from "@softer-components/types";
 
-import { Contract } from './sign-in-form.component.contract';
+import { Contract } from "./sign-in-form.component.contract";
 
 export const contextsConfig: ContextsConfig<Contract> = {
   userContext: {
     commands: [
       {
-        from: 'signInFormSubmitted',
-        to: 'signInRequested',
+        from: "signInFormSubmitted",
+        to: "signInRequested",
         withPayload: ({ values }) => ({
           username: values.username(),
           password: values.password(),
@@ -16,8 +16,8 @@ export const contextsConfig: ContextsConfig<Contract> = {
     ],
     listeners: [
       {
-        from: 'signInFailed',
-        to: 'signInFailed',
+        from: "signInFailed",
+        to: "signInFailed",
       },
     ],
   },

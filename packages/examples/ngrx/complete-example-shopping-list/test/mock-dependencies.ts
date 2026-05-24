@@ -1,6 +1,6 @@
-import { List } from '../src/model';
-import { AuthenticationService } from '../src/port/authentication.service';
-import { ListService } from '../src/port/list.service';
+import { List } from "../src/model";
+import { AuthenticationService } from "../src/port/authentication.service";
+import { ListService } from "../src/port/list.service";
 
 class MockListService implements ListService {
   readonly savedLists: { [username in string]: List[] } = {};
@@ -12,7 +12,7 @@ class MockListService implements ListService {
   create(name: string): Promise<List> {
     const newList = {
       name,
-      id: 'fake-uuid',
+      id: "fake-uuid",
       listItems: [],
     };
     this.savedList.push(newList);
@@ -43,20 +43,20 @@ class MockListService implements ListService {
 }
 
 class MockAuthenticationService implements AuthenticationService {
-  authenticatedUser = 'anonymous';
+  authenticatedUser = "anonymous";
   constructor(private readonly users: { username: string; password: string }[]) {}
   signIn(username: string, password: string): Promise<boolean> {
     this.authenticatedUser =
       this.users.find((user) => user.username === username && user.password === password)
-        ?.username ?? 'anonymous';
+        ?.username ?? "anonymous";
     return this.isSignedIn();
   }
   signOut(): Promise<void> {
-    this.authenticatedUser = 'anonymous';
+    this.authenticatedUser = "anonymous";
     return Promise.resolve();
   }
   isSignedIn(): Promise<boolean> {
-    return Promise.resolve(this.authenticatedUser !== 'anonymous');
+    return Promise.resolve(this.authenticatedUser !== "anonymous");
   }
   async username(): Promise<string | undefined> {
     const isSignedIn = await this.isSignedIn();
@@ -65,6 +65,6 @@ class MockAuthenticationService implements AuthenticationService {
 }
 
 export class MockDependencies {
-  authenticationService = new MockAuthenticationService([{ username: 'alice', password: 'demo' }]);
+  authenticationService = new MockAuthenticationService([{ username: "alice", password: "demo" }]);
   listService = new MockListService(this.authenticationService);
 }

@@ -1,33 +1,33 @@
-import { ChildrenConfig, InternalEventForwarders } from '@softer-components/types';
+import { ChildrenConfig, InternalEventForwarders } from "@softer-components/types";
 
-import { Contract } from './list-manager.component.contract';
+import { Contract } from "./list-manager.component.contract";
 
 export const eventForwarders: InternalEventForwarders<Contract> = [
   {
-    from: 'emptyListCreated',
-    to: 'listSelected',
+    from: "emptyListCreated",
+    to: "listSelected",
   },
 ];
 export const childrenConfig: ChildrenConfig<Contract> = {
   lists: {
     listeners: [
-      { from: 'listSelected', to: 'listSelected' },
-      { from: 'listNamesChanged', to: 'listNamesChanged' },
+      { from: "listSelected", to: "listSelected" },
+      { from: "listNamesChanged", to: "listNamesChanged" },
     ],
     commands: [
       {
-        from: 'emptyListCreated',
-        to: 'emptyListCreated',
+        from: "emptyListCreated",
+        to: "emptyListCreated",
       },
     ],
   },
   createList: {
     commands: [
       {
-        from: 'listNamesChanged',
-        to: 'setExistingListNames',
+        from: "listNamesChanged",
+        to: "setExistingListNames",
       },
     ],
-    listeners: [{ from: 'createNewListSucceeded', to: 'emptyListCreated' }],
+    listeners: [{ from: "createNewListSucceeded", to: "emptyListCreated" }],
   },
 };

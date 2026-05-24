@@ -1,6 +1,6 @@
-import { ListId } from '../../../model';
+import { ListId } from "../../../model";
 
-export type Error = 'SAVE_FAILED';
+export type Error = "SAVE_FAILED";
 export type ErrorMessage = string;
 export type State =
   | undefined

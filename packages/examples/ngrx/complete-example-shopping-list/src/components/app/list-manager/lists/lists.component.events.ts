@@ -1,24 +1,24 @@
-import { EventsContract } from '@softer-components/types';
+import { EventsContract } from "@softer-components/types";
 
-import { List, ListId } from '../../../../model';
+import { List, ListId } from "../../../../model";
 
 export const uiEvents = [
-  'listNamesChanged',
-  'listClicked',
-  'listSelected',
-  'deleteClicked',
+  "listNamesChanged",
+  "listClicked",
+  "listSelected",
+  "deleteClicked",
 ] as const;
 
 export const allEvents = [
   ...uiEvents,
-  'initializeRequested',
-  'emptyListCreated',
-  'fetchRequested',
-  'fetchSucceeded',
-  'fetchFailed',
-  'deleteRequested',
-  'deleteSucceeded',
-  'deleteFailed',
+  "initializeRequested",
+  "emptyListCreated",
+  "fetchRequested",
+  "fetchSucceeded",
+  "fetchFailed",
+  "deleteRequested",
+  "deleteSucceeded",
+  "deleteFailed",
 ] as const;
 export type Events = EventsContract<
   typeof allEvents,

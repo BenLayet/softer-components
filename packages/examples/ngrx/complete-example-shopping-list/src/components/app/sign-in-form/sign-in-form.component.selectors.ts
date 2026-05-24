@@ -1,12 +1,12 @@
-import { Selectors } from '@softer-components/types';
+import { Selectors } from "@softer-components/types";
 
-import { State, initialState } from './sign-in-form.component.state';
-import { createBaseSelectors } from '@softer-components/app-utilities';
+import { State, initialState } from "./sign-in-form.component.state";
+import { createBaseSelectors } from "@softer-components/app-utilities";
 
 export const selectors = {
   ...createBaseSelectors(initialState),
   hasInvalidCredentialError: (state: State) =>
-    state.errors.map((e) => e.type).includes('invalid credentials'),
-  hasNetworkError: (state: State) => state.errors.map((e) => e.type).includes('network error'),
-  hasUnknownError: (state: State) => state.errors.map((e) => e.type).includes('unknown error'),
+    state.errors.map((e) => e.type).includes("invalid credentials"),
+  hasNetworkError: (state: State) => state.errors.map((e) => e.type).includes("network error"),
+  hasUnknownError: (state: State) => state.errors.map((e) => e.type).includes("unknown error"),
 } satisfies Selectors<State>;

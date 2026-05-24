@@ -1,40 +1,40 @@
-import { ChildrenConfig } from '@softer-components/types';
+import { ChildrenConfig } from "@softer-components/types";
 
-import { Contract } from './app.component.contract';
+import { Contract } from "./app.component.contract";
 
 export const childrenConfig: ChildrenConfig<Contract> = {
   listManager: {
     listeners: [
       {
-        from: 'listSelected',
-        to: 'listSelected',
+        from: "listSelected",
+        to: "listSelected",
       },
     ],
   },
   list: {
     commands: [
       {
-        from: 'listSelected',
-        to: 'initialize',
+        from: "listSelected",
+        to: "initialize",
       },
     ],
-    listeners: [{ from: 'goBackClicked', to: 'showAllListsRequested' }],
+    listeners: [{ from: "goBackClicked", to: "showAllListsRequested" }],
   },
   userMenu: {
     listeners: [
       {
-        from: 'goToSignInFormRequested',
-        to: 'goToSignInFormRequested',
+        from: "goToSignInFormRequested",
+        to: "goToSignInFormRequested",
       },
     ],
   },
   userContext: {
     commands: [
       {
-        from: 'displayed',
-        to: 'userRequired',
+        from: "displayed",
+        to: "userRequired",
       },
     ],
-    listeners: [{ from: 'userChanged', to: 'resetRequested' }],
+    listeners: [{ from: "userChanged", to: "resetRequested" }],
   },
 };

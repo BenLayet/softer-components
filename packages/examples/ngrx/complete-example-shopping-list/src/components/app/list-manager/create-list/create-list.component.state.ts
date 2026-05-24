@@ -1,5 +1,5 @@
 export const initialState = {
-  listName: '',
+  listName: "",
   existingListNames: [] as string[],
   shouldShowErrors: false,
   isSaving: false,

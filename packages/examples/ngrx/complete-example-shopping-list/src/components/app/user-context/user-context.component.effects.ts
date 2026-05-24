@@ -1,7 +1,7 @@
-import { Effects } from '@softer-components/types';
+import { Effects } from "@softer-components/types";
 
-import { AuthenticationService } from '../../../port/authentication.service';
-import { Contract } from './user-context.component.contract';
+import { AuthenticationService } from "../../../port/authentication.service";
+import { Contract } from "./user-context.component.contract";
 
 type Dependencies = {
   authenticationService: AuthenticationService;
@@ -16,13 +16,13 @@ export const effects = ({ authenticationService }: Dependencies): Effects<Contra
       if (await authenticationService.signIn(username, password)) {
         signInSucceeded({ username });
       } else {
-        signInFailed({ type: 'invalid credentials' });
+        signInFailed({ type: "invalid credentials" });
       }
     } catch (e: unknown) {
-      if (e instanceof Error && e.message === 'network error') {
-        signInFailed({ type: 'network error', message: e.message });
+      if (e instanceof Error && e.message === "network error") {
+        signInFailed({ type: "network error", message: e.message });
       } else {
-        signInFailed({ type: 'unknown error', message: String(e) });
+        signInFailed({ type: "unknown error", message: String(e) });
       }
     }
   },

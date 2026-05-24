@@ -1,4 +1,4 @@
-import { List } from '../model';
+import { List } from "../model";
 
 export type ListService = {
   create(name: string): Promise<List>;

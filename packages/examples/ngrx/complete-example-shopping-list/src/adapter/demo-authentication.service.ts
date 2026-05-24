@@ -1,7 +1,7 @@
-import { AuthenticationService } from '../port/authentication.service';
+import { AuthenticationService } from "../port/authentication.service";
 
-const demoUserNames = ['alice', 'bob'];
-const demoPassword = 'demo';
+const demoUserNames = ["alice", "bob"];
+const demoPassword = "demo";
 
 export class DemoAuthenticationService implements AuthenticationService {
   private usernameCookie: undefined | string;

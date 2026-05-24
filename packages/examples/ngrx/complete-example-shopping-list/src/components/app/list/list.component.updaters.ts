@@ -1,8 +1,8 @@
-import { ChildrenUpdaters, StateUpdaters } from '@softer-components/types';
+import { ChildrenUpdaters, StateUpdaters } from "@softer-components/types";
 
-import { Contract } from './list.component.contract';
-import { State } from './list.component.state';
-import { assertIsNotUndefined } from '../../../utils/assert.functions';
+import { Contract } from "./list.component.contract";
+import { State } from "./list.component.state";
+import { assertIsNotUndefined } from "../../../utils/assert.functions";
 
 export const stateUpdaters: StateUpdaters<Contract, State> = {
   initialize: ({ payload: list }) => {
@@ -11,7 +11,7 @@ export const stateUpdaters: StateUpdaters<Contract, State> = {
       name: list.name,
       isSaving: false,
       errors: {},
-      nextItemName: '',
+      nextItemName: "",
     };
   },
   nextItemNameChanged: ({ state, payload: nextItemName }) => {
@@ -20,7 +20,7 @@ export const stateUpdaters: StateUpdaters<Contract, State> = {
   },
   resetNextItemNameRequested: ({ state }) => {
     assertIsNotUndefined(state);
-    state.nextItemName = '';
+    state.nextItemName = "";
   },
   saveRequested: ({ state }) => {
     assertIsNotUndefined(state);
@@ -29,7 +29,7 @@ export const stateUpdaters: StateUpdaters<Contract, State> = {
   },
   saveFailed: ({ state, payload: errorMessage }) => {
     assertIsNotUndefined(state);
-    state.errors['SAVE_FAILED'] = errorMessage;
+    state.errors["SAVE_FAILED"] = errorMessage;
     state.isSaving = false;
   },
   saveSucceeded: ({ state }) => {

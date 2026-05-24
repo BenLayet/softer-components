@@ -1,6 +1,6 @@
-import { ExtractComponentValuesContract, Selectors, State } from '@softer-components/types';
+import { ExtractComponentValuesContract, Selectors, State } from "@softer-components/types";
 
-import { UserContextContract } from '../user-context';
+import { UserContextContract } from "../user-context";
 
 export type Context = {
   userContext: UserContextContract;

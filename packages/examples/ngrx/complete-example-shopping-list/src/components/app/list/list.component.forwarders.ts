@@ -1,17 +1,17 @@
-import { ChildrenConfig, InternalEventForwarders } from '@softer-components/types';
+import { ChildrenConfig, InternalEventForwarders } from "@softer-components/types";
 
-import { Contract } from './list.component.contract';
+import { Contract } from "./list.component.contract";
 
 export const eventForwarders: InternalEventForwarders<Contract> = [
   {
-    from: 'newItemSubmitted',
-    to: 'createItemOrIncrementQuantityRequested',
+    from: "newItemSubmitted",
+    to: "createItemOrIncrementQuantityRequested",
     withPayload: ({ values }) => values.nextItemSanitizedName(),
     onCondition: ({ values }) => values.isNextItemNameValid(),
   },
   {
-    from: 'createItemOrIncrementQuantityRequested',
-    to: 'createItemRequested',
+    from: "createItemOrIncrementQuantityRequested",
+    to: "createItemRequested",
     onCondition: ({ childrenValues: { itemRows }, payload: itemName }) =>
       Object.values(itemRows).every((itemRow) => itemRow.values.name() !== itemName),
     withPayload: ({ payload: name, childrenValues: { itemRows } }) => ({
@@ -26,8 +26,8 @@ export const eventForwarders: InternalEventForwarders<Contract> = [
     }),
   },
   {
-    from: 'createItemOrIncrementQuantityRequested',
-    to: 'incrementItemQuantityRequested',
+    from: "createItemOrIncrementQuantityRequested",
+    to: "incrementItemQuantityRequested",
     onCondition: ({ childrenValues: { itemRows }, payload: itemName }) =>
       Object.values(itemRows).some((itemRow) => itemRow.values.name() === itemName),
     withPayload: ({ childrenValues: { itemRows }, payload: itemName }) =>
@@ -37,29 +37,29 @@ export const eventForwarders: InternalEventForwarders<Contract> = [
         .map(Number)[0],
   },
   {
-    from: 'createItemOrIncrementQuantityRequested',
-    to: 'resetNextItemNameRequested',
+    from: "createItemOrIncrementQuantityRequested",
+    to: "resetNextItemNameRequested",
   },
   {
-    from: 'createItemRequested',
-    to: 'saveRequested',
+    from: "createItemRequested",
+    to: "saveRequested",
   },
   {
-    from: 'removeItemRequested',
-    to: 'saveRequested',
+    from: "removeItemRequested",
+    to: "saveRequested",
   },
 ];
 export const childrenConfig: ChildrenConfig<Contract> = {
   itemRows: {
     commands: [
       {
-        from: 'incrementItemQuantityRequested',
-        to: 'incrementRequested',
+        from: "incrementItemQuantityRequested",
+        to: "incrementRequested",
         toKeys: ({ payload: id }) => [`${id}`],
       },
       {
-        from: 'createItemRequested',
-        to: 'initialize',
+        from: "createItemRequested",
+        to: "initialize",
         toKeys: ({
           payload: {
             item: { id },
@@ -67,23 +67,23 @@ export const childrenConfig: ChildrenConfig<Contract> = {
         }) => [`${id}`],
       },
       {
-        from: 'initialize',
-        to: 'initialize',
+        from: "initialize",
+        to: "initialize",
         withPayload: ({ childKey, payload: { listItems } }) =>
           listItems.find(
             (i) => i.item.id === parseInt(childKey),
-          ) as import('../../../model').ListItem,
+          ) as import("../../../model").ListItem,
       },
     ],
     listeners: [
       {
-        from: 'removeItemRequested',
-        to: 'removeItemRequested',
+        from: "removeItemRequested",
+        to: "removeItemRequested",
         withPayload: ({ childKey }) => parseInt(childKey),
       },
       {
-        from: 'itemChanged',
-        to: 'saveRequested',
+        from: "itemChanged",
+        to: "saveRequested",
       },
     ],
   },

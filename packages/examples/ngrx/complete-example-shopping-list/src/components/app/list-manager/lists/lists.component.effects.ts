@@ -1,7 +1,7 @@
-import { Effects } from '@softer-components/types';
+import { Effects } from "@softer-components/types";
 
-import { ListService } from '../../../../port/list.service';
-import { Contract } from './lists.component.contract';
+import { ListService } from "../../../../port/list.service";
+import { Contract } from "./lists.component.contract";
 
 export type EffectsDependencies = {
   listService: ListService;
@@ -16,7 +16,7 @@ export const effects = ({ listService }: EffectsDependencies): Effects<Contract>
       if (e instanceof Error) {
         fetchFailed(e.message);
       } else {
-        fetchFailed('unknown error');
+        fetchFailed("unknown error");
         console.error(e);
       }
     }
@@ -29,7 +29,7 @@ export const effects = ({ listService }: EffectsDependencies): Effects<Contract>
       if (e instanceof Error) {
         deleteFailed(e.message);
       } else {
-        deleteFailed('unknown error');
+        deleteFailed("unknown error");
         console.error(e);
       }
     }
