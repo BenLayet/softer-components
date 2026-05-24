@@ -16,6 +16,14 @@ module.exports = defineConfig([
     processor: angular.processInlineTemplates,
     rules: {
       "@typescript-eslint/consistent-type-definitions": ["error", "type"],
+      "@typescript-eslint/consistent-type-imports": [
+        "error",
+        {
+          prefer: "type-imports",
+          fixStyle: "separate-type-imports",
+          disallowTypeAnnotations: true,
+        },
+      ],
       "@angular-eslint/directive-selector": [
         "error",
         {

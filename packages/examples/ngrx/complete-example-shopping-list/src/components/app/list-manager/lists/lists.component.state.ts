@@ -1,4 +1,4 @@
-import { List } from "../../../../model";
+import type { List } from "../../../../model";
 
 export const initialState = {
   lists: [] as List[],

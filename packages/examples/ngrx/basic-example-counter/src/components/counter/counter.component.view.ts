@@ -1,5 +1,5 @@
 import { Component } from "@angular/core";
-import { CounterContract } from "./counter.component";
+import type { CounterContract } from "./counter.component";
 import { AbstractSofterComponent } from "@softer-components/ngrx-adapter";
 import { AsyncPipe } from "@angular/common";
 

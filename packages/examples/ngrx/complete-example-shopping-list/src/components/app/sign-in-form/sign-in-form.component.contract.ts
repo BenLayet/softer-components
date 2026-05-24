@@ -1,8 +1,8 @@
-import { ExtractComponentValuesContract } from "@softer-components/types";
+import type { ExtractComponentValuesContract } from "@softer-components/types";
 
-import { UserContextContract } from "../user-context";
-import { Events } from "./sign-in-form.component.events";
-import { selectors } from "./sign-in-form.component.selectors";
+import type { UserContextContract } from "../user-context";
+import type { Events } from "./sign-in-form.component.events";
+import type { selectors } from "./sign-in-form.component.selectors";
 
 export type Contract = {
   events: Events;

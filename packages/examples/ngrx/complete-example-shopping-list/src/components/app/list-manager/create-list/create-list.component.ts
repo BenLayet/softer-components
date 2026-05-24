@@ -1,5 +1,5 @@
 import { componentDef } from "./create-list.component.config";
-import { Contract } from "./create-list.component.contract";
+import type { Contract } from "./create-list.component.contract";
 
 // Exporting the component definition as a function to allow dependencies injection
 export const createListDef = componentDef;

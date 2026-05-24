@@ -1,5 +1,5 @@
 import { Component } from "@angular/core";
-import { Contract } from "./app.component.contract";
+import type { Contract } from "./app.component.contract";
 import { AbstractSofterComponent } from "@softer-components/ngrx-adapter";
 import { UserMenu } from "./user-menu/user-menu.component.view";
 import { ListManager } from "./list-manager/list-manager.component.view";

@@ -1,7 +1,7 @@
-import { StateUpdaters } from "@softer-components/types";
+import type { StateUpdaters } from "@softer-components/types";
 
-import { Contract } from "./lists.component.contract";
-import { State } from "./lists.component.state";
+import type { Contract } from "./lists.component.contract";
+import type { State } from "./lists.component.state";
 
 export const stateUpdaters: StateUpdaters<Contract, State> = {
   fetchRequested: ({ state }) => {

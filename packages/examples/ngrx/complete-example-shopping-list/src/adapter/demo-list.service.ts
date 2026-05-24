@@ -1,6 +1,6 @@
-import { List } from "../model";
-import { AuthenticationService } from "../port/authentication.service";
-import { ListService } from "../port/list.service";
+import type { List } from "../model";
+import type { AuthenticationService } from "../port/authentication.service";
+import type { ListService } from "../port/list.service";
 import { demoLists } from "./demo-lists";
 
 export class DemoListService implements ListService {

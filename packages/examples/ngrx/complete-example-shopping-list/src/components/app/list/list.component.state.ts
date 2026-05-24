@@ -1,4 +1,4 @@
-import { ListId } from "../../../model";
+import type { ListId } from "../../../model";
 
 export type Error = "SAVE_FAILED";
 export type ErrorMessage = string;

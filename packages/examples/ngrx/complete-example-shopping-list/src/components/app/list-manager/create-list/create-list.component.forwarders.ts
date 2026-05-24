@@ -1,6 +1,6 @@
-import { InternalEventForwarders } from "@softer-components/types";
+import type { InternalEventForwarders } from "@softer-components/types";
 
-import { Contract } from "./create-list.component.contract";
+import type { Contract } from "./create-list.component.contract";
 
 export const eventForwarders: InternalEventForwarders<Contract> = [
   {

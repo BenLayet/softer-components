@@ -1,5 +1,5 @@
 import { Component } from "@angular/core";
-import { Contract } from "./create-list.component.contract";
+import type { Contract } from "./create-list.component.contract";
 import { AbstractSofterComponent } from "@softer-components/ngrx-adapter";
 import { AsyncPipe } from "@angular/common";
 

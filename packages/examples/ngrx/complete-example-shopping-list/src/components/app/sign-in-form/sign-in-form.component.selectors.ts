@@ -1,6 +1,7 @@
-import { Selectors } from "@softer-components/types";
+import type { Selectors } from "@softer-components/types";
 
-import { State, initialState } from "./sign-in-form.component.state";
+import type { State} from "./sign-in-form.component.state";
+import { initialState } from "./sign-in-form.component.state";
 import { createBaseSelectors } from "@softer-components/app-utilities";
 
 export const selectors = {

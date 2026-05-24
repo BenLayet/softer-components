@@ -1,7 +1,7 @@
-import { Effects } from "@softer-components/types";
+import type { Effects } from "@softer-components/types";
 
-import { AuthenticationService } from "../../../port/authentication.service";
-import { Contract } from "./user-context.component.contract";
+import type { AuthenticationService } from "../../../port/authentication.service";
+import type { Contract } from "./user-context.component.contract";
 
 type Dependencies = {
   authenticationService: AuthenticationService;

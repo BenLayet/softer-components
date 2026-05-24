@@ -1,4 +1,4 @@
-import { EventsContract } from "@softer-components/types";
+import type { EventsContract } from "@softer-components/types";
 
 export const uiEvents = ["signOutRequested", "goToSignInFormRequested"] as const;
 export const allEvents = [...uiEvents, "signOutSucceeded", "authenticated"];

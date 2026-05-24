@@ -1,6 +1,6 @@
-import { InternalEventForwarders } from "@softer-components/types";
+import type { InternalEventForwarders } from "@softer-components/types";
 
-import { Contract } from "./user-context.component.contract";
+import type { Contract } from "./user-context.component.contract";
 
 export const eventForwarders: InternalEventForwarders<Contract> = [
   { from: "signInSucceeded", to: "authenticated" },

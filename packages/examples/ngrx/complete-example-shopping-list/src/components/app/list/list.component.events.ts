@@ -1,8 +1,8 @@
 // Events
-import { EventsContract } from "@softer-components/types";
+import type { EventsContract } from "@softer-components/types";
 
-import { ItemId, List, ListItem } from "../../../model";
-import { ErrorMessage } from "./list.component.state";
+import type { ItemId, List, ListItem } from "../../../model";
+import type { ErrorMessage } from "./list.component.state";
 
 export const uiEvents = ["nextItemNameChanged", "newItemSubmitted", "goBackClicked"] as const;
 

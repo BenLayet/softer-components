@@ -1,7 +1,7 @@
-import { StateUpdaters } from "@softer-components/types";
+import type { StateUpdaters } from "@softer-components/types";
 
-import { Contract } from "./item-row.component.contract";
-import { State } from "./item-row.component.state";
+import type { Contract } from "./item-row.component.contract";
+import type { State } from "./item-row.component.state";
 import { assertIsNotUndefined } from "../../../../utils/assert.functions";
 
 export const stateUpdaters: StateUpdaters<Contract, State> = {

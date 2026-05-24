@@ -1,7 +1,8 @@
-import { StateUpdaters } from "@softer-components/types";
+import type { StateUpdaters } from "@softer-components/types";
 
-import { Contract } from "./app.component.contract";
-import { State, initialState } from "./app.component.state";
+import type { Contract } from "./app.component.contract";
+import type { State} from "./app.component.state";
+import { initialState } from "./app.component.state";
 
 export const stateUpdaters: StateUpdaters<Contract, State> = {
   listSelected: ({ state }) => {

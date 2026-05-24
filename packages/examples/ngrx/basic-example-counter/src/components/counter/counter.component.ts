@@ -1,4 +1,4 @@
-import { ComponentDef, EventsContract } from "@softer-components/types";
+import type { ComponentDef, EventsContract } from "@softer-components/types";
 
 // Initial state definition
 export const initialState = {

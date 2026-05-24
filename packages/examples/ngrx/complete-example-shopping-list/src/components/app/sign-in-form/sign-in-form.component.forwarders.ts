@@ -1,6 +1,6 @@
-import { ContextsConfig } from "@softer-components/types";
+import type { ContextsConfig } from "@softer-components/types";
 
-import { Contract } from "./sign-in-form.component.contract";
+import type { Contract } from "./sign-in-form.component.contract";
 
 export const contextsConfig: ContextsConfig<Contract> = {
   userContext: {

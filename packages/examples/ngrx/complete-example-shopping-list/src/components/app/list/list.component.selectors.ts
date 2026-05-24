@@ -1,9 +1,9 @@
-import { ExtractComponentValuesContract, Selector, Selectors } from "@softer-components/types";
+import type { ExtractComponentValuesContract, Selector, Selectors } from "@softer-components/types";
 import { flow } from "lodash-es";
 
-import { List } from "../../../model";
-import { Children } from "./list.component.children";
-import { State } from "./list.component.state";
+import type { List } from "../../../model";
+import type { Children } from "./list.component.children";
+import type { State } from "./list.component.state";
 
 const id = (state: State) => state?.id ?? "";
 const name = (state: State) => state?.name ?? "";

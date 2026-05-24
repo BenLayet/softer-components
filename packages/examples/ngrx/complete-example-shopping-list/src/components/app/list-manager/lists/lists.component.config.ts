@@ -1,13 +1,15 @@
-import { ComponentDef } from "@softer-components/types";
-import { SofterContext } from "@softer-components/app-utilities";
+import type { ComponentDef } from "@softer-components/types";
+import type { SofterContext } from "@softer-components/app-utilities";
 
-import { UserContextContract } from "../../user-context";
-import { Contract } from "./lists.component.contract";
-import { EffectsDependencies, effects } from "./lists.component.effects";
+import type { UserContextContract } from "../../user-context";
+import type { Contract } from "./lists.component.contract";
+import type { EffectsDependencies} from "./lists.component.effects";
+import { effects } from "./lists.component.effects";
 import { uiEvents } from "./lists.component.events";
 import { contextsConfig, eventForwarders } from "./lists.component.forwarders";
 import { selectors } from "./lists.component.selectors";
-import { State, initialState } from "./lists.component.state";
+import type { State} from "./lists.component.state";
+import { initialState } from "./lists.component.state";
 import { stateUpdaters } from "./lists.component.updaters";
 
 export const componentDef = ({
