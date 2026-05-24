@@ -1,8 +1,8 @@
 import { useSofter } from "@softer-components/redux-adapter";
 
-import { CreateList } from "./create-list";
+import { CreateList } from "./create-list/create-list.component";
 import type { Contract } from "./list-manager.component.contract";
-import { Lists } from "./lists";
+import { Lists } from "./lists/lists.component";
 
 export const View = ({ path = "" }) => {
   const [v, _, c] = useSofter<Contract>(path);

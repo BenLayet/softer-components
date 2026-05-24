@@ -7,9 +7,7 @@ export type EffectsDependencies = {
   listService: ListService;
 };
 
-export const effects = ({
-  listService,
-}: EffectsDependencies): Effects<Contract> => ({
+export const effects = ({ listService }: EffectsDependencies): Effects<Contract> => ({
   createNewListRequested: async (
     { createNewListSucceeded, createNewListFailed },
     { payload: name },
@@ -17,8 +15,13 @@ export const effects = ({
     try {
       const list = await listService.create(name);
       createNewListSucceeded(list);
-    } catch (e: any) {
-      createNewListFailed(e.message);
+    } catch (e) {
+      if (e instanceof Error) {
+        createNewListFailed(e.message);
+      } else {
+        createNewListFailed("unknown error");
+        console.error(e);
+      }
     }
   },
 });

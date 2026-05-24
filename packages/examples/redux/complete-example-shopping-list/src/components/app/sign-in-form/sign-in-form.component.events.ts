@@ -9,11 +9,7 @@ export const uiEvents = [
   "signInCancelled",
   "demoUserClicked",
 ] as const;
-export const allEvents = [
-  ...uiEvents,
-  "signInFailed",
-  "signInSucceeded",
-] as const;
+export const allEvents = [...uiEvents, "signInFailed", "signInSucceeded"] as const;
 export type Events = EventsContract<
   typeof allEvents,
   {

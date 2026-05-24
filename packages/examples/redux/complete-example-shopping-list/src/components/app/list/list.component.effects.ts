@@ -7,16 +7,18 @@ export type EffectsDependencies = {
   listService: ListService;
 };
 
-export const effects = ({
-  listService,
-}: EffectsDependencies): Effects<Contract> => ({
+export const effects = ({ listService }: EffectsDependencies): Effects<Contract> => ({
   saveRequested: async ({ saveSucceeded, saveFailed }, { values }) => {
     try {
       await listService.save(values.list());
       saveSucceeded();
-    } catch (e: any) {
-      saveFailed(e.message);
-      console.error(e);
+    } catch (e) {
+      if (e instanceof Error) {
+        saveFailed(e.message);
+      } else {
+        saveFailed("unknown error");
+        console.error(e);
+      }
     }
   },
 });
