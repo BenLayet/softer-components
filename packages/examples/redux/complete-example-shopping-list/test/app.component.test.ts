@@ -1,8 +1,8 @@
-import type { TestStore} from "@softer-components/test-utilities";
+import type { TestStore } from "@softer-components/test-utilities";
 import { initTestStore } from "@softer-components/test-utilities";
 import { describe, expect, it } from "vitest";
 
-import type { AppContract} from "../src/components/app";
+import type { AppContract } from "../src/components/app";
 import { appDef } from "../src/components/app";
 import {
   CREATE_LIST,
@@ -55,11 +55,15 @@ describe("app.component", () => {
     expect(testStore.getValues("/userMenu").isAnonymous()).toBe(true);
   });
   it("when user signs in successfully, her name should be displayed", async () => {
-    await testStore.when(USER_SIGNS_IN({ username: "alice", password: "demo" }));
+    await testStore.when(
+      USER_SIGNS_IN({ username: "alice", password: "demo" }),
+    );
     expect(testStore.getValues(USER_MENU).username()).toBe("alice");
   });
   it("when user signs in and out successfully, her name should not be displayed", async () => {
-    await testStore.when(USER_SIGNS_IN({ username: "alice", password: "demo" }));
+    await testStore.when(
+      USER_SIGNS_IN({ username: "alice", password: "demo" }),
+    );
     await testStore.and(USER_SIGNS_OUT());
     expect(testStore.getValues(USER_MENU).username()).toBe("");
   });
@@ -73,7 +77,9 @@ describe("app.component", () => {
       },
     ];
 
-    await testStore.when(USER_SIGNS_IN({ username: "alice", password: "demo" }));
+    await testStore.when(
+      USER_SIGNS_IN({ username: "alice", password: "demo" }),
+    );
     expect(testStore.getValues(LIST_MANAGER).listCount()).toBe(1);
   });
 });

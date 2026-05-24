@@ -5,4 +5,4 @@ export type ListService = {
   getAll(): Promise<List[]>;
   delete(listId: string): Promise<void>;
   save(list: List): Promise<void>;
-}
+};

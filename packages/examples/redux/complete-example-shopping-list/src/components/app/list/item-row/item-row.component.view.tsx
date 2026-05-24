@@ -26,17 +26,27 @@ export const View = ({ path = "" }) => {
       <div className="horizontal">
         <button
           aria-label="Decrement value"
-          onClick={() => { d.decrementRequested(); }}
+          onClick={() => {
+            d.decrementRequested();
+          }}
         >
           -
         </button>
         <button
           aria-label="Increment value"
-          onClick={() => { d.incrementRequested(); }}
+          onClick={() => {
+            d.incrementRequested();
+          }}
         >
           +
         </button>
-        <button onClick={() => { d.removeItemRequested(); }}>X</button>
+        <button
+          onClick={() => {
+            d.removeItemRequested();
+          }}
+        >
+          X
+        </button>
       </div>
     </div>
   );

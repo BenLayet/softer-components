@@ -18,7 +18,9 @@ export const View = ({ path = "" }) => {
             placeholder="Groceries, hardware store, etc."
             required
             autoFocus
-            onChange={e => { d.listNameChanged(e.target.value); }}
+            onChange={e => {
+              d.listNameChanged(e.target.value);
+            }}
           />
           <button type="submit">Create new list</button>
           {v.shouldShowErrors && (

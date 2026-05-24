@@ -12,10 +12,18 @@ export const View = ({ path = "" }) => {
             key={list.id}
             style={{ display: "flex", justifyContent: "space-between" }}
           >
-            <a onClick={() => { d.listClicked(list); }}>{list.name}</a>{" "}
+            <a
+              onClick={() => {
+                d.listClicked(list);
+              }}
+            >
+              {list.name}
+            </a>{" "}
             <button
               style={{ fontSize: "0.5em" }}
-              onClick={() => { d.deleteClicked(list); }}
+              onClick={() => {
+                d.deleteClicked(list);
+              }}
             >
               X
             </button>

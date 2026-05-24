@@ -77,9 +77,7 @@ export const childrenConfig: ChildrenConfig<Contract> = {
         from: "initialize",
         to: "initialize",
         withPayload: ({ childKey, payload: { listItems } }) =>
-          listItems.find(
-            i => i.item.id === parseInt(childKey),
-          )!,
+          listItems.find(i => i.item.id === parseInt(childKey))!,
       },
     ],
     listeners: [

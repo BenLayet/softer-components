@@ -8,7 +8,9 @@ export const View = ({ path = "" }) => {
     <div className="menu-item">
       {v.isAnonymous && (
         <a
-          onClick={() => { d.goToSignInFormRequested(); }}
+          onClick={() => {
+            d.goToSignInFormRequested();
+          }}
           title="Sign in to share your lists"
         >
           🔓 Sign in
@@ -18,7 +20,9 @@ export const View = ({ path = "" }) => {
         <>
           Hi <span style={{ textTransform: "capitalize" }}>{v.username}</span>!{" "}
           <a
-            onClick={() => { d.signOutRequested(); }}
+            onClick={() => {
+              d.signOutRequested();
+            }}
             title="Sign out and return to anonymous mode"
           >
             sign out

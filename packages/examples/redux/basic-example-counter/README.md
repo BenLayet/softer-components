@@ -52,7 +52,6 @@ The React component contains only presentation logic, retrieving typed event dis
 - Clear separation between business logic and presentation
 - Predictable component structure
 
-
 ### Testing
 
 The component definition can be tested independently of React:
@@ -84,4 +83,3 @@ basic-example-counter/
 ├── tsconfig.json
 └── README.md
 ```
-

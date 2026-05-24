@@ -1,8 +1,13 @@
 import { Directive, effect, inject, input } from "@angular/core";
 import { toObservable } from "@angular/core/rxjs-interop";
 import { Store } from "@ngrx/store";
-import { ComponentContract, ExtractChildrenPaths, ExtractUiDispatchers } from "@softer-components/types";
+import {
+  ComponentContract,
+  ExtractChildrenPaths,
+  ExtractUiDispatchers,
+} from "@softer-components/types";
 import { Observable, switchMap } from "rxjs";
+
 import { SofterNgrxDispatchers } from "./softer-ngrx-dispatchers";
 import { SofterNgrxSelectors } from "./softer-ngrx-selectors";
 
@@ -30,7 +35,9 @@ import { SofterNgrxSelectors } from "./softer-ngrx-selectors";
  * ```
  */
 @Directive()
-export abstract class AbstractSofterComponent<TComponentContract extends ComponentContract> {
+export abstract class AbstractSofterComponent<
+  TComponentContract extends ComponentContract,
+> {
   private readonly store = inject(Store);
   private readonly selectorFactory = inject(SofterNgrxSelectors);
   private readonly actionFactory = inject(SofterNgrxDispatchers);
@@ -39,24 +46,34 @@ export abstract class AbstractSofterComponent<TComponentContract extends Compone
    * The state path of this softer component in the state tree.
    * This determines which component's state this Angular component displays.
    */
- public readonly path = input("");
+  public readonly path = input("");
 
   private readonly path$ = toObservable(this.path);
 
-  protected readonly v$: Observable<TComponentContract["values"]> = this.path$.pipe(
-    switchMap((path) => this.store.select(this.selectorFactory.valuesSelector(path)))
-  );
+  protected readonly v$: Observable<TComponentContract["values"]> =
+    this.path$.pipe(
+      switchMap(path =>
+        this.store.select(this.selectorFactory.valuesSelector(path)),
+      ),
+    );
 
-  protected readonly c$: Observable<ExtractChildrenPaths<TComponentContract>> = this.path$.pipe(
-    switchMap((path) => this.store.select(this.selectorFactory.childrenPathsSelector(path)) as Observable<ExtractChildrenPaths<TComponentContract>>)
-  );
+  protected readonly c$: Observable<ExtractChildrenPaths<TComponentContract>> =
+    this.path$.pipe(
+      switchMap(
+        path =>
+          this.store.select(
+            this.selectorFactory.childrenPathsSelector(path),
+          ) as Observable<ExtractChildrenPaths<TComponentContract>>,
+      ),
+    );
 
   protected e = {} as ExtractUiDispatchers<TComponentContract>;
 
   constructor() {
     effect(() => {
-      this.e = this.actionFactory.createDispatchers(this.path()) as ExtractUiDispatchers<TComponentContract>;
+      this.e = this.actionFactory.createDispatchers(
+        this.path(),
+      ) as ExtractUiDispatchers<TComponentContract>;
     });
   }
 }
-
