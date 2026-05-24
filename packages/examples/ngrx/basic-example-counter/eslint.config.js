@@ -15,6 +15,17 @@ module.exports = defineConfig([
     ],
     processor: angular.processInlineTemplates,
     rules: {
+      "no-unused-vars": [0],
+      "@typescript-eslint/require-await": [0],
+      "@typescript-eslint/no-unused-vars": [
+        "error",
+        {
+          argsIgnorePattern: "^_",
+          varsIgnorePattern: "^_",
+          caughtErrorsIgnorePattern: "^_",
+          destructuredArrayIgnorePattern: "^_",
+        },
+      ],
       "@typescript-eslint/consistent-type-definitions": ["error", "type"],
       "@typescript-eslint/consistent-type-imports": [
         "error",

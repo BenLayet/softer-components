@@ -15,6 +15,7 @@ module.exports = defineConfig([
     ],
     processor: angular.processInlineTemplates,
     rules: {
+      "@typescript-eslint/require-await": [0],
       "@typescript-eslint/consistent-type-definitions": ["error", "type"],
       "@typescript-eslint/consistent-type-imports": [
         "error",

@@ -13,6 +13,7 @@
     "test:ci": "pnpm -r test:ci",
     "build": "pnpm -r --bail build",
     "format": "pnpm -r format",
+    "lint": "pnpm -r lint",
     "maintenance:copy-components": "node maintenance/copy-components.mjs",
     "maintenance:copy-ngrx-components-to-redux": "node maintenance/copy-components.mjs --from ngrx --to redux",
     "maintenance:copy-redux-components-to-ngrx": "node maintenance/copy-components.mjs --from redux --to ngrx"

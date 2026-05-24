@@ -3,6 +3,7 @@ import type {
   InternalEventForwarders,
 } from "@softer-components/types";
 
+import { throwIfUndefined } from "../../../utils/assert.functions";
 import type { Contract } from "./list.component.contract";
 
 export const eventForwarders: InternalEventForwarders<Contract> = [
@@ -77,7 +78,9 @@ export const childrenConfig: ChildrenConfig<Contract> = {
         from: "initialize",
         to: "initialize",
         withPayload: ({ childKey, payload: { listItems } }) =>
-          listItems.find(i => i.item.id === parseInt(childKey))!,
+          throwIfUndefined(
+            listItems.find(i => i.item.id === parseInt(childKey)),
+          ),
       },
     ],
     listeners: [

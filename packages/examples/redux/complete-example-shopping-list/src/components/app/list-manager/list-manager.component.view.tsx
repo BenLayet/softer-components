@@ -5,7 +5,7 @@ import type { Contract } from "./list-manager.component.contract";
 import { Lists } from "./lists/lists.component";
 
 export const View = ({ path = "" }) => {
-  const [v, _, c] = useSofter<Contract>(path);
+  const [v, , c] = useSofter<Contract>(path);
   return (
     <div>
       {v.hasAnyList && (

@@ -2,8 +2,8 @@ import type { TestStore } from "@softer-components/test-utilities";
 import { initTestStore } from "@softer-components/test-utilities";
 import { describe, expect, it } from "vitest";
 
-import type { AppContract } from "../src/components/app";
-import { appDef } from "../src/components/app";
+import type { AppContract } from "../src/components/app/app.component";
+import { appDef } from "../src/components/app/app.component";
 import {
   CREATE_LIST,
   FIRST_ITEM,
