@@ -18,7 +18,10 @@ process.stdout.on("error", error => {
 const ngrxExamplesRoot = path.join(repoRoot, "packages", "examples", "ngrx");
 const reduxExamplesRoot = path.join(repoRoot, "packages", "examples", "redux");
 
-const isTsComponentFile = fileName => fileName.endsWith(".ts") && !fileName.endsWith(".view.ts");
+const isTsComponentFile = fileName =>
+  fileName.endsWith(".ts") &&
+  !fileName.endsWith(".view.ts") &&
+  !fileName.endsWith(".component.ts");
 
 async function exists(targetPath) {
   try {
@@ -66,8 +69,18 @@ async function copyNgRxComponentsToRedux() {
   let skippedExamples = 0;
 
   for (const exampleName of ngrxExamples) {
-    const ngrxComponentsRoot = path.join(ngrxExamplesRoot, exampleName, "src", "components");
-    const reduxComponentsRoot = path.join(reduxExamplesRoot, exampleName, "src", "components");
+    const ngrxComponentsRoot = path.join(
+      ngrxExamplesRoot,
+      exampleName,
+      "src",
+      "components",
+    );
+    const reduxComponentsRoot = path.join(
+      reduxExamplesRoot,
+      exampleName,
+      "src",
+      "components",
+    );
 
     if (!(await exists(ngrxComponentsRoot))) {
       continue;
@@ -75,7 +88,9 @@ async function copyNgRxComponentsToRedux() {
 
     if (!(await exists(reduxComponentsRoot))) {
       skippedExamples += 1;
-      console.log(`[SKIP] Redux target not found for example \"${exampleName}\": ${reduxComponentsRoot}`);
+      console.log(
+        `[SKIP] Redux target not found for example \"${exampleName}\": ${reduxComponentsRoot}`,
+      );
       continue;
     }
 
@@ -112,5 +127,3 @@ copyNgRxComponentsToRedux().catch(error => {
   console.error(error);
   process.exitCode = 1;
 });
-
-
