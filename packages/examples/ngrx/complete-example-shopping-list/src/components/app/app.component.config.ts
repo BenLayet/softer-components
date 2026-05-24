@@ -4,7 +4,7 @@ import { emptyContext } from '@softer-components/app-utilities';
 import { AuthenticationService } from '../../port/authentication.service';
 import { ListService } from '../../port/list.service';
 import { Contract } from './app.component.contract';
-import { allEvents, uiEvents } from './app.component.events';
+import { uiEvents } from './app.component.events';
 import { childrenConfig } from './app.component.forwarders';
 import { selectors } from './app.component.selectors';
 import { State, initialState } from './app.component.state';
@@ -27,7 +27,6 @@ export const componentDef = (dependencies: Dependencies): ComponentDef<Contract,
   return {
     initialState,
     selectors,
-    allEvents,
     uiEvents,
     stateUpdaters,
     childrenConfig,
