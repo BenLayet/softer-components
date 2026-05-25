@@ -19,14 +19,14 @@
   },
   "scripts": {
     "clean": "rimraf lib",
-    "build": "tsc -b --noEmit && vite build",
+    "build": "tsc --noEmit && vite build",
     "build:watch": "vite build --watch",
     "test": "vitest",
     "test:ci": "vitest run",
     "test-for-debug": "vitest --testTimeout=100000 --bail=1",
     "format": "prettier --write .",
     "format:check": "prettier --check .",
-    "tsc": "tsc -b --noEmit"
+    "tsc": "tsc --noEmit"
   },
   "dependencies": {
     "@softer-components/types": "workspace:^",

@@ -13,8 +13,8 @@
     "start": "vite",
     "test": "vitest",
     "test:ci": "vitest run",
-    "type-check": "tsc -b --noEmit",
-    "type-check:watch": "tsc -b --noEmit --watch",
+    "type-check": "tsc --noEmit",
+    "type-check:watch": "tsc --noEmit --watch",
     "build": "pnpm type-check && vite build"
   },
   "dependencies": {

@@ -21,13 +21,13 @@
   "types": "lib/index.d.ts",
   "scripts": {
     "clean": "rimraf lib",
-    "build": "tsc -b --noEmit && vite build",
+    "build": "tsc --noEmit && vite build",
     "build:watch": "vite build --watch",
     "test": "vitest",
     "test:ci": "vitest run",
     "format": "prettier --write .",
     "format:check": "prettier --check .",
-    "tsc": "tsc -b --noEmit"
+    "tsc": "tsc --noEmit"
   },
   "dependencies": {
     "@softer-components/base-adapter": "workspace:^",
