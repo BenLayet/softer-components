@@ -8,7 +8,7 @@
   "private": true,
   "description": "A TypeScript component types library that is state-manager-agnostic and reusable",
   "scripts": {
-    "ci": "pnpm build && pnpm lint && pnpm format",
+    "ci": "pnpm clean && pnpm format && pnpm build && pnpm lint && pnpm test",
     "clean": "pnpm -r clean",
     "test": "pnpm -r test:ci",
     "build": "pnpm -r --sequential run build",

@@ -1,8 +1,9 @@
 {
   "files": [],
   "references": [
-    { "path": "./packages/redux-adapter" },
     { "path": "./packages/types" },
-    { "path": "./packages/base-adapter"}
+    { "path": "./packages/adapters/redux-adapter" },
+    { "path": "./packages/adapters/base-adapter" },
+    { "path": "./packages/adapters/ngrx-adapter" }
   ]
 }

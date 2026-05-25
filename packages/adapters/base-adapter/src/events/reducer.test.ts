@@ -24,7 +24,6 @@ describe("reducer tests", () => {
       MyState
     > = {
       initialState,
-      allEvents: ["incrementRequested"],
       uiEvents: ["incrementRequested"],
       stateUpdaters: {
         incrementRequested: ({ state }) => {
@@ -72,7 +71,6 @@ describe("reducer tests", () => {
       MyState
     > = {
       initialState,
-      allEvents: ["incrementRequested"],
       uiEvents: ["incrementRequested"],
       stateUpdaters: {
         incrementRequested: ({ state }) => {
@@ -365,7 +363,6 @@ export type ItemContract = {
 const itemDef: ComponentDef<ItemContract, ItemState> = {
   initialState: undefined,
   selectors,
-  allEvents,
   uiEvents,
   stateUpdaters: {
     initialize: ({ payload: name }) => ({
@@ -442,7 +439,6 @@ type ListContract = {
 const listDef: ComponentDef<ListContract, ListState> = {
   initialState,
   selectors: listSelectors,
-  allEvents: listAllEvents,
   uiEvents: ["nextItemNameChanged", "addItemRequested"],
   stateUpdaters: {
     nextItemNameChanged: ({ state, payload: nextItemName }) => {

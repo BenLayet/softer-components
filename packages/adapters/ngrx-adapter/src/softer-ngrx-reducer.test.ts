@@ -26,7 +26,6 @@ describe("createSofterReducer", () => {
       CounterState
     > = {
       initialState,
-      allEvents: ["incremented", "decremented", "setCountRequested"],
       uiEvents: ["incremented", "decremented", "setCountRequested"],
       stateUpdaters: {
         incremented: ({ state }) => {
@@ -146,7 +145,6 @@ describe("createSofterReducer", () => {
       ItemState
     > = {
       initialState: itemInitialState,
-      allEvents: ["setQuantity"],
       uiEvents: ["setQuantity"],
       stateUpdaters: {
         setQuantity: ({ state, payload }) => {
@@ -171,7 +169,6 @@ describe("createSofterReducer", () => {
       ListState
     > = {
       initialState: listInitialState,
-      allEvents: ["rename", "addItem"],
       uiEvents: ["rename", "addItem"],
       stateUpdaters: {
         rename: ({ state, payload }) => {

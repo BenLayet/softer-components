@@ -22,7 +22,6 @@ describe("useSofter with memoization", () => {
         doubled: state => state.count * 2,
         tripled: state => state.count * 3,
       },
-      allEvents: ["incrementRequested"],
       uiEvents: ["incrementRequested"],
       stateUpdaters: {
         incrementRequested: ({ state }) => {
@@ -68,7 +67,6 @@ describe("useSofter with memoization", () => {
 
     const counterDef: ComponentDef<CounterContract, { count: number }> = {
       initialState: { count: 0 },
-      allEvents: ["incrementRequested"],
       uiEvents: ["incrementRequested"],
       selectors: {
         doubled: state => state.count * 2,

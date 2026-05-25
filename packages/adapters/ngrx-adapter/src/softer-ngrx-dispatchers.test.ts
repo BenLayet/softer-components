@@ -18,7 +18,6 @@ describe("SofterNgrxDispatchers", () => {
     { count: number }
   > = {
     initialState: { count: 0 },
-    allEvents: ["incremented", "decremented", "setCountRequested"],
     uiEvents: ["incremented", "decremented", "setCountRequested"],
     stateUpdaters: {
       incremented: ({ state }) => {
@@ -100,7 +99,6 @@ describe("SofterNgrxDispatchers", () => {
         { clicked: boolean }
       > = {
         initialState: { clicked: false },
-        allEvents: ["clicked"],
         uiEvents: ["clicked"],
       };
 
