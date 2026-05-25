@@ -7,7 +7,9 @@ export type EffectsDependencies = {
   listService: ListService;
 };
 
-export const effects = ({ listService }: EffectsDependencies): Effects<Contract> => ({
+export const effects = ({
+  listService,
+}: EffectsDependencies): Effects<Contract> => ({
   createNewListRequested: async (
     { createNewListSucceeded, createNewListFailed },
     { payload: name },

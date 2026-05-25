@@ -1,9 +1,9 @@
 import js from "@eslint/js";
-import { defineConfig } from "eslint/config";
 import vitestPlugin from "@vitest/eslint-plugin";
 import prettierConfig from "eslint-config-prettier/flat";
 import reactPlugin from "eslint-plugin-react";
 import reactHooksPlugin from "eslint-plugin-react-hooks";
+import { defineConfig } from "eslint/config";
 import globals from "globals";
 import { configs } from "typescript-eslint";
 

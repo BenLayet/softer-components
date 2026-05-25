@@ -1,4 +1,7 @@
-import type { ContextsConfig, InternalEventForwarders } from "@softer-components/types";
+import type {
+  ContextsConfig,
+  InternalEventForwarders,
+} from "@softer-components/types";
 
 import type { Contract } from "./lists.component.contract";
 
@@ -6,12 +9,14 @@ export const eventForwarders: InternalEventForwarders<Contract> = [
   {
     from: "listClicked",
     to: "listSelected",
-    withPayload: ({ payload: list, values }) => (values.isNotLoading() ? list : list),
+    withPayload: ({ payload: list, values }) =>
+      values.isNotLoading() ? list : list,
   },
   {
     from: "deleteClicked",
     to: "deleteRequested",
-    withPayload: ({ payload: { id }, values }) => (values.isNotLoading() ? id : id),
+    withPayload: ({ payload: { id }, values }) =>
+      values.isNotLoading() ? id : id,
   },
   {
     from: "initializeRequested",

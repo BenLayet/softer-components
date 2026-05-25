@@ -1,4 +1,7 @@
-import type { ExtractComponentValuesContract, Selectors } from "@softer-components/types";
+import type {
+  ExtractComponentValuesContract,
+  Selectors,
+} from "@softer-components/types";
 
 import type { Children } from "./list-manager.component.children";
 

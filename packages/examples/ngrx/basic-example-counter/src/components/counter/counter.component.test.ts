@@ -1,8 +1,8 @@
-import type { TestStore} from "@softer-components/test-utilities";
+import type { TestStore } from "@softer-components/test-utilities";
 import { initTestStore } from "@softer-components/test-utilities";
 import { describe, expect, it, beforeEach } from "vitest";
 
-import type { CounterContract} from "./counter.component";
+import type { CounterContract } from "./counter.component";
 import { counterDef } from "./counter.component";
 
 describe("counter.component", () => {

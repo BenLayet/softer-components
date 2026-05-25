@@ -2,8 +2,8 @@ import { useSofter } from "@softer-components/redux-adapter";
 import { useEffect } from "react";
 
 import type { AppContract } from "./app.component";
-import { List } from "./list/list.component";
 import { ListManager } from "./list-manager/list-manager.component";
+import { List } from "./list/list.component";
 import { SignInForm } from "./sign-in-form/sign-in-form.component";
 import { UserMenu } from "./user-menu/user-menu.component";
 

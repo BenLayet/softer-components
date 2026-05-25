@@ -1,8 +1,8 @@
 import type { ChildrenUpdaters, StateUpdaters } from "@softer-components/types";
 
+import { assertIsNotUndefined } from "../../../utils/assert.functions";
 import type { Contract } from "./list.component.contract";
 import type { State } from "./list.component.state";
-import { assertIsNotUndefined } from "../../../utils/assert.functions";
 
 export const stateUpdaters: StateUpdaters<Contract, State> = {
   initialize: ({ payload: list }) => {
@@ -41,7 +41,7 @@ export const stateUpdaters: StateUpdaters<Contract, State> = {
 
 export const childrenUpdaters: ChildrenUpdaters<Contract> = {
   initialize: ({ payload: list, children }) => {
-    children.itemRows = list.listItems.map((listItem) => `${listItem.item.id}`);
+    children.itemRows = list.listItems.map(listItem => `${listItem.item.id}`);
   },
   createItemRequested: ({ children: { itemRows }, payload: listItem }) => {
     itemRows.push(`${listItem.item.id}`);

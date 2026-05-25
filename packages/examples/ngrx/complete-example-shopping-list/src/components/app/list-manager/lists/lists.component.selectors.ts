@@ -1,6 +1,6 @@
 import type { ExtractComponentValuesContract, Selectors } from "@softer-components/types";
 
-import type { State} from "./lists.component.state";
+import type { State } from "./lists.component.state";
 import { initialState } from "./lists.component.state";
 import { createBaseSelectors } from "@softer-components/app-utilities";
 

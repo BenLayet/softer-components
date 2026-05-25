@@ -1,4 +1,7 @@
-import type { ExtractComponentValuesContract, Selectors } from "@softer-components/types";
+import type {
+  ExtractComponentValuesContract,
+  Selectors,
+} from "@softer-components/types";
 
 import type { State } from "./item-row.component.state";
 

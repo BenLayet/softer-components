@@ -7,7 +7,9 @@ export type EffectsDependencies = {
   listService: ListService;
 };
 
-export const effects = ({ listService }: EffectsDependencies): Effects<Contract> => ({
+export const effects = ({
+  listService,
+}: EffectsDependencies): Effects<Contract> => ({
   saveRequested: async ({ saveSucceeded, saveFailed }, { values }) => {
     try {
       await listService.save(values.list());

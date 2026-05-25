@@ -4,7 +4,11 @@ import type { EventsContract } from "@softer-components/types";
 import type { ItemId, List, ListItem } from "../../../model";
 import type { ErrorMessage } from "./list.component.state";
 
-export const uiEvents = ["nextItemNameChanged", "newItemSubmitted", "goBackClicked"] as const;
+export const uiEvents = [
+  "nextItemNameChanged",
+  "newItemSubmitted",
+  "goBackClicked",
+] as const;
 
 export const allEvents = [
   ...uiEvents,

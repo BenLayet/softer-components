@@ -1,4 +1,7 @@
-import type { ChildrenConfig, InternalEventForwarders } from "@softer-components/types";
+import type {
+  ChildrenConfig,
+  InternalEventForwarders,
+} from "@softer-components/types";
 
 import type { Contract } from "./list-manager.component.contract";
 

@@ -1,5 +1,5 @@
-import type { ComponentDef } from "@softer-components/types";
 import type { SofterContext } from "@softer-components/app-utilities";
+import type { ComponentDef } from "@softer-components/types";
 
 import type { UserContextContract } from "../user-context/user-context.component";
 import type { Contract } from "./user-menu.component.contract";
