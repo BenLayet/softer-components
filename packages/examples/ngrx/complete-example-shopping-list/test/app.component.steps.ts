@@ -4,7 +4,7 @@ import {
   stringToStatePath,
 } from "@softer-components/test-utilities";
 
-import type { AppContract } from "../src/components/app";
+import type { AppContract } from "../src/components/app/app.component";
 
 export const LIST_MANAGER = `/listManager`;
 export const CREATE_LIST = `${LIST_MANAGER}/createList`;

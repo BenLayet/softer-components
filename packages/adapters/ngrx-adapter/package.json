@@ -25,7 +25,8 @@
     "build:watch": "vite build --watch",
     "test": "vitest",
     "test:ci": "vitest run",
-    "format": "pnpx prettier --write .",
+    "format": "prettier --write .",
+    "format:check": "prettier --check .",
     "tsc": "tsc --noEmit"
   },
   "dependencies": {
