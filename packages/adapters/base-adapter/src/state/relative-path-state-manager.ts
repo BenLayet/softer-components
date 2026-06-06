@@ -6,7 +6,12 @@ import {
 
 import { SofterRootState } from "./state-initializer";
 import { StateManager, StateReader } from "./state-manager";
-import { ChildrenKeys, StatePath, computeRelativePath } from "./state-path";
+import {
+  ChildrenKeys,
+  StatePath,
+  computeRelativePath,
+  stringToStatePath,
+} from "./state-path";
 
 /**
  * Wrapper around StateManager that manages relative paths.
@@ -40,6 +45,13 @@ export class RelativePathStateReader {
       this.softerRootState,
       this.absolutePathStateReader,
       [...this.currentPath, [childName, childKey]],
+    );
+  }
+  forAbsolutePath(absolutePath: string): RelativePathStateReader {
+    return new RelativePathStateReader(
+      this.softerRootState,
+      this.absolutePathStateReader,
+      stringToStatePath(absolutePath),
     );
   }
   parentStateReader(): RelativePathStateReader {

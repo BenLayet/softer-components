@@ -10,9 +10,7 @@ import type { State } from "./create-list.component.state";
 import { initialState } from "./create-list.component.state";
 import { stateUpdaters } from "./create-list.component.updaters";
 
-export const componentDef = (
-  dependencies: EffectsDependencies,
-): ComponentDef<Contract, State> => ({
+export const componentDef = (dependencies: EffectsDependencies): ComponentDef<Contract, State> => ({
   initialState,
   selectors,
   uiEvents,

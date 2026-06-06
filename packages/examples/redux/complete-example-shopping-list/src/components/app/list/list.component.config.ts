@@ -12,9 +12,7 @@ import { childrenUpdaters, stateUpdaters } from "./list.component.updaters";
 
 export type Dependencies = EffectsDependencies;
 
-const componentDef = (
-  dependencies: Dependencies,
-): ComponentDef<Contract, State> => {
+const componentDef = (dependencies: Dependencies): ComponentDef<Contract, State> => {
   return {
     selectors,
     uiEvents,

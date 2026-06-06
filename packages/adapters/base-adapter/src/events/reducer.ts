@@ -67,14 +67,16 @@ function updateState(
   const stateUpdater = componentDef.stateUpdaters[event.name];
   if (!stateUpdater) return;
 
-  const { values, childrenValues, state, payload, contextsValues } =
-    prepareUpdaterParams(rootComponentDef as ComponentDef, event, stateManager);
+  const { values, childrenValues, state, payload } = prepareUpdaterParams(
+    rootComponentDef as ComponentDef,
+    event,
+    stateManager,
+  );
 
   const next = produce({ state }, (draft: any) => {
     const returnedValue = stateUpdater({
       values,
       childrenValues,
-      contextsValues,
       payload,
       state: draft.state,
     });
@@ -97,14 +99,16 @@ function updateChildrenInstances(
   const childrenUpdater = componentDef.childrenUpdaters?.[event.name];
   if (!childrenUpdater) return;
 
-  const { values, children, childrenValues, payload, contextsValues } =
-    prepareUpdaterParams(rootComponentDef as ComponentDef, event, stateManager);
+  const { values, children, childrenValues, payload } = prepareUpdaterParams(
+    rootComponentDef as ComponentDef,
+    event,
+    stateManager,
+  );
 
   const next = produce({ children }, (draft: any) => {
     const returnedValue = childrenUpdater({
       values,
       childrenValues,
-      contextsValues,
       payload,
       children: draft.children,
     });
@@ -126,7 +130,7 @@ function prepareUpdaterParams(
   stateManager: RelativePathStateManager,
 ) {
   //TODO use event-consumer-input
-  const { values, childrenValues, contextsValues } = createValueProviders(
+  const { values, childrenValues } = createValueProviders(
     rootComponentDef,
     stateManager,
   );
@@ -144,7 +148,6 @@ function prepareUpdaterParams(
     children,
     payload,
     childrenValues,
-    contextsValues,
     state,
   };
 }

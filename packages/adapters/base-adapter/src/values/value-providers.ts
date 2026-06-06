@@ -1,7 +1,6 @@
 import {
   ChildrenValues,
   ComponentDef,
-  ContextsDef,
   ContextsValues,
   ValuesOfComponentDef,
 } from "@softer-components/types";
@@ -34,7 +33,7 @@ export function createValueProviders<TComponentDef extends ComponentDef>(
   const contextsValues = createContextsValues(
     genericRootComponentDef,
     stateReader,
-  ) as ContextsValues;
+  );
   assertIsNotUndefined(
     contextsValues,
     "contextsValues should not be undefined",
@@ -152,16 +151,19 @@ function createContextsValues(
     rootComponentDef,
     stateReader.currentPath,
   );
+  const contextsPath = componentDef.contextsPath;
+  if (contextsPath === undefined) {
+    return {} as ContextsValues;
+  }
   return Object.fromEntries(
-    Object.entries((componentDef.contextsDef ?? {}) as ContextsDef).map(
-      ([contextName, contextRelativePath]) => {
-        const stateReaderForContext =
-          stateReader.forRelativePath(contextRelativePath);
-        return [
-          contextName,
-          createValueProviders<any>(rootComponentDef, stateReaderForContext),
-        ];
-      },
-    ),
+    Object.getOwnPropertySymbols(contextsPath).map(contextSymbol => {
+      const absolutePath = contextsPath[contextSymbol];
+      assertIsNotUndefined(absolutePath);
+      const stateReaderForContext = stateReader.forAbsolutePath(absolutePath);
+      return [
+        contextSymbol,
+        createValueProviders<any>(rootComponentDef, stateReaderForContext),
+      ];
+    }),
   ) as ContextsValues;
 }

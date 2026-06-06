@@ -7,9 +7,7 @@ type Dependencies = {
   authenticationService: AuthenticationService;
 };
 
-export const effects = ({
-  authenticationService,
-}: Dependencies): Effects<Contract> => ({
+export const effects = ({ authenticationService }: Dependencies): Effects<Contract> => ({
   signInRequested: async (
     { signInSucceeded, signInFailed },
     { payload: { username, password } },

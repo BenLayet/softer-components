@@ -31,7 +31,7 @@ const findComponentDefFromComponentPathParts = (
   const childName = componentPath[0];
   if (typeof componentDef.childrenComponentDefs !== "object") {
     throw new Error(
-      `invalid path: childName = '${childName}' not found. no childrenComponentDefs defined.`,
+      `invalid path: childName = '${childName}' not found at path '${componentPath}'. no childrenComponentDefs defined.`,
     );
   }
   const child = componentDef.childrenComponentDefs[childName];

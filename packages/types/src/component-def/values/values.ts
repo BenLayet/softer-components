@@ -3,6 +3,7 @@ import {
   ComponentContract,
   ValuesContract,
 } from "../../component-contract/component-contract";
+import type { ContextsDef } from "../dependencies/contexts-def";
 
 /**
  * Provides access to computed values (from selectors) and child values
@@ -15,8 +16,6 @@ export type Values<
   values: OwnValues<TComponentContract>;
   /** Child component values - access nested component values here */
   childrenValues: ChildrenValues<TComponentContract["children"]>;
-  /** Context component values */
-  contextsValues: ContextsValues<TComponentContract["context"]>;
 };
 
 export type OwnValues<TComponentContract extends ComponentContract> =
@@ -27,13 +26,10 @@ export type OwnValues<TComponentContract extends ComponentContract> =
     : {};
 
 export type ContextsValues<
-  TContexts extends undefined | Record<string, ComponentContract> = undefined,
-> =
-  TContexts extends Record<string, ComponentContract>
-    ? _ContextsValues<TContexts>
-    : never;
-type _ContextsValues<TContexts extends Record<string, ComponentContract>> = {
-  [ContextName in keyof TContexts]: Values<TContexts[ContextName]>;
+  TContexts extends undefined | ContextsDef = ContextsDef,
+> = TContexts extends ContextsDef ? _ContextsValues<TContexts> : never;
+type _ContextsValues<TContexts extends ContextsDef> = {
+  [ContextSymbol in keyof TContexts & symbol]: Values<TContexts[ContextSymbol]>;
 };
 export type ChildrenValues<
   TChildren extends ChildrenContract | undefined = ChildrenContract,

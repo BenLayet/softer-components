@@ -31,7 +31,7 @@ graph TD;
         Values-->ComponentContract[ComponentContract*]
         Events-->ComponentContract
         Children-->ComponentContract
-        Contexts-->ComponentContract
+        ContextsDef-->ComponentContract
     end
     ComponentContract-->selectors
     ComponentContract-->stateUpdaters
@@ -54,7 +54,7 @@ graph TD;
 
 %% Styling
 classDef typeStyle fill:#e8f0ff,stroke:#2b6cb0,stroke-width:1px,color:#0b2545,font-weight:bold;
-class State,Values,ComponentContract,Children,EventNames,Events,Contexts typeStyle;
+class State,Values,ComponentContract,Children,EventNames,Events,ContextsDef typeStyle;
 
 ```
 
@@ -76,7 +76,7 @@ For example, you can have the following files for a component called `MyComponen
    - can use **external** contexts contracts or define them here
 5. `my-component.selectors.ts` - where you define the selectors of your component, and expose the `ValuesContract` type that defines the values that the component exposes to its children and to the outside world.
    - that depends on `my-component.state.ts`, `my-component.children.ts` and `my-component.contexts.ts``
-6. `my-component.contract.ts` - compiles the `Values`, `Events`, `Children` and `Contexts` contracts into a single `ComponentContract` type.
+6. `my-component.contract.ts` - compiles the `Values`, `Events`, `Children` and `ContextsDef` contracts into a single `ComponentContract` type.
    - depends on `my-component.events.ts`, `my-component.selectors.ts`, `my-component.children.ts` and `my-component.contexts.ts`
 7. `my-component.updaters.ts` - for state and children updaters
    - depends on `my-component.contract.ts` and `my-component.state.ts`

@@ -15,7 +15,7 @@ export class SofterContext<T extends Record<string, ComponentContract>> {
     });
   };
 
-  getRelativePath<C extends ComponentContract>(
+  getPath<C extends ComponentContract>(
     contextName: ContextNameOfType<T, C>,
   ): string {
     const contextPath = this.contextPaths[contextName];

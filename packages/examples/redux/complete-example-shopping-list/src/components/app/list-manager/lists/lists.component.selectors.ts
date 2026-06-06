@@ -1,16 +1,13 @@
-import { createBaseSelectors } from "@softer-components/app-utilities";
-import type {
-  ExtractComponentValuesContract,
-  Selectors,
-} from "@softer-components/types";
+import type { ExtractComponentValuesContract, Selectors } from "@softer-components/types";
 
 import type { State } from "./lists.component.state";
 import { initialState } from "./lists.component.state";
+import { createBaseSelectors } from "@softer-components/app-utilities";
 
 export const selectors = {
   ...createBaseSelectors(initialState),
   listCount: (state: State) => state.lists.length,
-  listNames: (state: State) => state.lists.map(list => list.name),
+  listNames: (state: State) => state.lists.map((list) => list.name),
   isNotLoading: (state: State) => !state.isLoading,
   hasFetchError: (state: State) => state.errors.FETCH_ERROR !== undefined,
   hasDeleteError: (state: State) => state.errors.DELETE_ERROR !== undefined,

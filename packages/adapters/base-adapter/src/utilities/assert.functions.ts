@@ -11,6 +11,23 @@ export function assertIsNotUndefined<T>(
     throw new Error(message ?? "Value is not defined");
   }
 }
+export function assertIsNotSymbol<T>(
+  value: T | symbol,
+  message?: string,
+): asserts value is T {
+  if (typeof value === "symbol") {
+    throw new Error(message ?? "Value should not be a symbol");
+  }
+}
+
+export function assertIsSymbol<T>(
+  value: T | symbol,
+  message?: string,
+): asserts value is symbol {
+  if (typeof value !== "symbol") {
+    throw new Error(message ?? "Value should be a symbol");
+  }
+}
 
 // A variant that throws and also returns the narrowed value for convenience.
 export function ensureIsNotUndefined<T>(

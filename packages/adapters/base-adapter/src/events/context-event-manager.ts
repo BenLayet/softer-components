@@ -120,39 +120,39 @@ const stateTreeListener = (
       statePath,
     );
 
+    const contextsConfig = componentDef.contextsConfig;
     if (
-      typeof componentDef.contextsDef !== "object" ||
-      typeof componentDef.contextsConfig !== "object"
+      typeof componentDef.contextsPath !== "object" ||
+      typeof contextsConfig !== "object"
     ) {
       return;
     }
-    Object.entries(componentDef.contextsConfig).forEach(
-      ([contextName, contextConfig]) => {
-        assertIsNotUndefined(contextConfig);
-        const contextComponentStatePath = computeRelativePath(
-          statePath,
-          ensureIsNotUndefined(componentDef.contextsDef?.[contextName]),
-        );
-        const contextComponentPath = statePathToComponentPath(
-          contextComponentStatePath,
-        );
-        const listenerDefs = contextConfig.listeners ?? [];
-        listenerDefs.forEach(listenerDef => {
-          contextEventManager.registerListener({
-            from: {
-              componentPath: contextComponentPath,
-              eventName: listenerDef.from,
-            },
-            to: {
-              statePath,
-              eventName: listenerDef.to,
-            },
-            withPayload: listenerDef.withPayload,
-            onCondition: listenerDef.onCondition,
-          });
+    Object.getOwnPropertySymbols(contextsConfig).forEach(contextSymbol => {
+      const contextConfig = contextsConfig[contextSymbol];
+      assertIsNotUndefined(contextConfig);
+      const contextComponentStatePath = computeRelativePath(
+        statePath,
+        ensureIsNotUndefined(componentDef.contextsPath?.[contextSymbol]),
+      );
+      const contextComponentPath = statePathToComponentPath(
+        contextComponentStatePath,
+      );
+      const listenerDefs = contextConfig.listeners ?? [];
+      listenerDefs.forEach(listenerDef => {
+        contextEventManager.registerListener({
+          from: {
+            componentPath: contextComponentPath,
+            eventName: listenerDef.from,
+          },
+          to: {
+            statePath,
+            eventName: listenerDef.to,
+          },
+          withPayload: listenerDef.withPayload,
+          onCondition: listenerDef.onCondition,
         });
-      },
-    );
+      });
+    });
   },
   onStateRemoved: contextEventManager.unregisterListenerToStatePath,
 });

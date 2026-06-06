@@ -7,9 +7,7 @@ export type EffectsDependencies = {
   listService: ListService;
 };
 
-export const effects = ({
-  listService,
-}: EffectsDependencies): Effects<Contract> => ({
+export const effects = ({ listService }: EffectsDependencies): Effects<Contract> => ({
   fetchRequested: async ({ fetchSucceeded, fetchFailed }) => {
     try {
       const allLists = await listService.getAll();
@@ -23,10 +21,7 @@ export const effects = ({
       }
     }
   },
-  deleteRequested: async (
-    { deleteSucceeded, deleteFailed },
-    { payload: listId },
-  ) => {
+  deleteRequested: async ({ deleteSucceeded, deleteFailed }, { payload: listId }) => {
     try {
       await listService.delete(listId);
       deleteSucceeded();

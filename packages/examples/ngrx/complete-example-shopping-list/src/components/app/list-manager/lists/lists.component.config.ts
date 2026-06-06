@@ -1,7 +1,6 @@
 import type { ComponentDef } from "@softer-components/types";
-import type { SofterContext } from "@softer-components/app-utilities";
 
-import type { UserContextContract } from "../../user-context/user-context.component";
+import type { UserContextDef, UserContextPath } from "../../user-context/user-context.component";
 import type { Contract } from "./lists.component.contract";
 import type { EffectsDependencies } from "./lists.component.effects";
 import { effects } from "./lists.component.effects";
@@ -14,19 +13,17 @@ import { stateUpdaters } from "./lists.component.updaters";
 
 export const componentDef = ({
   dependencies,
-  context,
+  contextsPath,
 }: {
   dependencies: EffectsDependencies;
-  context: SofterContext<{ userContext: UserContextContract }>;
-}): ComponentDef<Contract, State> => ({
+  contextsPath: UserContextPath;
+}): ComponentDef<Contract, State, UserContextDef> => ({
   initialState,
   selectors,
   uiEvents,
   stateUpdaters,
   eventForwarders,
   effects: effects(dependencies),
-  contextsDef: {
-    userContext: context.getRelativePath<UserContextContract>("userContext"),
-  },
+  contextsPath,
   contextsConfig,
 });

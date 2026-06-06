@@ -29,7 +29,6 @@ export type ChildrenContract = Record<
   string,
   ComponentContract & ChildInstanceContract
 >;
-export type ContextContract = Record<string, ComponentContract>;
 
 /**
  * Contract of a component: defines how the component can be used by the UI and by other components
@@ -38,5 +37,4 @@ export type ComponentContract = {
   values?: ValuesContract;
   events?: EventsContract;
   children?: ChildrenContract;
-  context?: ContextContract;
 };

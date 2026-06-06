@@ -1,5 +1,4 @@
-import type { ComponentDef } from "@softer-components/types";
-import { emptyContext } from "@softer-components/app-utilities";
+import type { ComponentDef, StatePathString } from "@softer-components/types";
 
 import type { AuthenticationService } from "../../port/authentication.service";
 import type { ListService } from "../../port/list.service";
@@ -13,8 +12,11 @@ import { stateUpdaters } from "./app.component.updaters";
 import { listDef } from "./list/list.component";
 import { listManagerDef } from "./list-manager/list-manager.component";
 import { signInFormComponentDef } from "./sign-in-form/sign-in-form.component";
-import type { UserContextContract } from "./user-context/user-context.component";
-import { userContextDef } from "./user-context/user-context.component";
+import {
+  type UserContextContract,
+  userContextDef,
+  userContextSymbol,
+} from "./user-context/user-context.component";
 import { userMenuDef } from "./user-menu/user-menu.component";
 
 type Dependencies = {
@@ -23,9 +25,9 @@ type Dependencies = {
 };
 
 export const componentDef = (dependencies: Dependencies): ComponentDef<Contract, State> => {
-  const context = emptyContext
-    .addContext<"userContext", UserContextContract>("userContext")
-    .forChild();
+  const contextsPath = {
+    [userContextSymbol]: "/userContext" as StatePathString<UserContextContract>,
+  };
   return {
     initialState,
     selectors,
@@ -34,10 +36,10 @@ export const componentDef = (dependencies: Dependencies): ComponentDef<Contract,
     childrenConfig,
     childrenComponentDefs: {
       userContext: userContextDef(dependencies),
-      userMenu: userMenuDef({ context }),
-      signInForm: signInFormComponentDef({ context }),
+      userMenu: userMenuDef({ contextsPath }),
+      signInForm: signInFormComponentDef({ contextsPath }),
       list: listDef(dependencies),
-      listManager: listManagerDef({ dependencies, context }),
+      listManager: listManagerDef({ dependencies, contextsPath }),
     },
   };
 };

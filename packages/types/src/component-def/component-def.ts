@@ -1,11 +1,10 @@
 import {
   ChildrenContract,
   ComponentContract,
-  ContextContract,
 } from "../component-contract/component-contract";
 import { ExtractUiEvents } from "../component-contract/component-contract-extractors";
 import { ChildrenInstancesDefs } from "./dependencies/children-instances-def";
-import { ContextsDef } from "./dependencies/contexts-def";
+import type { ContextsDef, ContextsPath } from "./dependencies/contexts-def";
 import { Effects } from "./events/effects";
 import {
   ChildrenConfig,
@@ -23,9 +22,11 @@ import { State } from "./values/state";
 export type ComponentDef<
   TComponentContract extends ComponentContract = any,
   TState extends State = any, // cannot use IfAny<TComponentContract, any, undefined>, because ComponentContract cannot be inferred in ContractOfComponentDef<T extends ComponentDef> which is necessary in ValuesProviders
+  TContextsDef extends ContextsDef = any,
 > = {
   /** Phantom property to preserve the contract type for inference. Never set at runtime. */
   readonly __contract__?: TComponentContract;
+  readonly __contextsDef__?: TContextsDef;
 } & IfAny<
   TComponentContract,
   {
@@ -38,15 +39,15 @@ export type ComponentDef<
     readonly childrenUpdaters?: ChildrenUpdaters<any>;
     readonly childrenConfig?: ChildrenConfig<any>;
     readonly childrenComponentDefs?: Record<string, ComponentDef>;
-    readonly contextsConfig?: ContextsConfig<any>;
-    readonly contextsDef?: ContextsDef<any>;
+    readonly contextsConfig?: ContextsConfig<any, any>;
+    readonly contextsPath?: ContextsPath;
     readonly effects?: Effects<any>;
   },
   StatePart<TState> &
-    SelectorsPart<TComponentContract, TState> &
+    SelectorsPart<TComponentContract, TState, TContextsDef> &
     EventsPart<TComponentContract, TState> &
     ChildrenPart<TComponentContract> &
-    ContextsPart<TComponentContract>
+    ContextsPart<TComponentContract, TContextsDef>
 >;
 
 type NO_STATE_DEFINED = "State is undefined, cannot define initialState";
@@ -105,13 +106,14 @@ type NO_VALUES_DEFINED = never;
 type SelectorsPart<
   TComponentContract extends ComponentContract,
   TState extends State,
+  TContexts extends ContextsDef,
 > = IfNonEmptyRecord<
   TComponentContract["values"],
   {
     readonly selectors: Selectors<
       TState,
       TComponentContract["children"],
-      TComponentContract["context"]
+      TContexts
     >;
   },
   {
@@ -147,16 +149,18 @@ type EventsPart<
 >;
 
 type NO_CONTEXT_DEFINED = never;
-type ContextsPart<TComponentContract extends ComponentContract> =
-  TComponentContract extends { context: ContextContract }
-    ? {
-        contextsDef: ContextsDef<TComponentContract>;
-        contextsConfig?: ContextsConfig<TComponentContract>;
-      }
-    : {
-        contextsDef?: NO_CONTEXT_DEFINED;
-        contextsConfig?: NO_CONTEXT_DEFINED;
-      };
+type ContextsPart<
+  TComponentContract extends ComponentContract,
+  TContexts extends ContextsDef,
+> = TContexts extends ContextsDef
+  ? {
+      contextsPath: ContextsPath<TContexts>;
+      contextsConfig?: ContextsConfig<TComponentContract, TContexts>;
+    }
+  : {
+      contextsPath?: NO_CONTEXT_DEFINED;
+      contextsConfig?: NO_CONTEXT_DEFINED;
+    };
 /***************************************************************************************************************
  * // --- app-utilities to detect `any` and branch in conditional types ---
  * // Detect `any`: true when T is `any`, false otherwise

@@ -7,9 +7,11 @@ import { findComponentDefFromStatePath } from "../state/component-def-tree";
 import { RelativePathStateReader } from "../state/relative-path-state-manager";
 import { SofterRootState } from "../state/state-initializer";
 import { StateReader } from "../state/state-manager";
-import { computeRelativePath } from "../state/state-path";
+import { computeRelativePath, stringToStatePath } from "../state/state-path";
 import {
+  assertIsNotSymbol,
   assertIsNotUndefined,
+  assertIsSymbol,
   ensureIsNotUndefined,
 } from "../utilities/assert.functions";
 import { ContextEventManager } from "./context-event-manager";
@@ -211,17 +213,20 @@ function generateEventsToContext(
     rootComponentDef,
     triggeringEvent.statePath,
   );
-  if (typeof componentDef.contextsConfig !== "object") return [];
-  const contextCommands = Object.entries(
-    componentDef.contextsConfig ?? {},
-  ).flatMap(([contextName, contextConfig]) =>
-    (contextConfig?.commands ?? [])
-      .filter(command => command.from === triggeringEvent.name)
-      .map(command => ({
-        contextName,
-        command: command as FromEventDefToChildEventDef<any, true, any, any>,
-      })),
-  );
+  const contextsConfig = componentDef.contextsConfig;
+  if (typeof contextsConfig !== "object") return [];
+  const contextCommands = Object.getOwnPropertySymbols(contextsConfig)
+    .map(contextSymbol => [contextSymbol, contextsConfig[contextSymbol]])
+    .flatMap(([contextSymbol, contextConfig]) => {
+      assertIsNotUndefined(contextConfig);
+      assertIsNotSymbol(contextConfig);
+      return (contextConfig.commands ?? [])
+        .filter(command => command.from === triggeringEvent.name)
+        .map(command => ({
+          contextSymbol,
+          command: command as FromEventDefToChildEventDef<any, true, any, any>,
+        }));
+    });
 
   if (contextCommands.length === 0) {
     return [];
@@ -236,15 +241,17 @@ function generateEventsToContext(
       ({ command }) =>
         !command.onCondition || command.onCondition(eventConsumerInput()),
     )
-    .map(({ contextName, command }) => ({
-      name: command.to,
-      statePath: computeRelativePath(
-        triggeringEvent.statePath,
-        ensureIsNotUndefined(componentDef.contextsDef?.[contextName]),
-      ),
-      payload: command.withPayload
-        ? (command as any).withPayload({ ...eventConsumerInput() })
-        : triggeringEvent.payload,
-      source: FORWARDED_TO_CONTEXT,
-    }));
+    .map(({ contextSymbol, command }) => {
+      assertIsSymbol(contextSymbol);
+      return {
+        name: command.to,
+        statePath: stringToStatePath(
+          ensureIsNotUndefined(componentDef.contextsPath?.[contextSymbol]),
+        ),
+        payload: command.withPayload
+          ? (command as any).withPayload({ ...eventConsumerInput() })
+          : triggeringEvent.payload,
+        source: FORWARDED_TO_CONTEXT,
+      };
+    });
 }

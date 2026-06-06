@@ -25,7 +25,7 @@ export function statePathToString(statePath: StatePath): string {
 }
 
 /**
- * Converts a string representation of a state path back to a StatePath.
+ * Converts a string representation of a state path back to a StatePathString.
  * The string is typically in the format produced by statePathToString.
  * For example: "/ComponentA:instance1/ComponentB/ComponentC:instance2"
  * but ":0" can be omitted for single child components, so "/ComponentA/ComponentB/ComponentC" is also valid and will be parsed as if it were "/ComponentA:0/ComponentB:0/ComponentC:0"

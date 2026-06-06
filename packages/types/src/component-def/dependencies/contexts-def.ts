@@ -1,11 +1,7 @@
-import {
-  ComponentContract,
-  ContextContract,
-} from "../../component-contract/component-contract";
+import type { ComponentContract } from "../../component-contract/component-contract";
+import type { StatePathString } from "../values/state";
 
-export type ContextsDef<TComponentContract extends ComponentContract = any> =
-  TComponentContract["context"] extends ContextContract
-    ? {
-        [K in keyof TComponentContract["context"]]: string;
-      }
-    : never;
+export type ContextsDef = Record<symbol, ComponentContract>;
+export type ContextsPath<TContexts extends ContextsDef = ContextsDef> = {
+  [K in keyof TContexts & symbol]: StatePathString<TContexts[K]>;
+};

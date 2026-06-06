@@ -1,7 +1,6 @@
 import type { ComponentDef } from "@softer-components/types";
-import type { SofterContext } from "@softer-components/app-utilities";
 
-import type { UserContextContract } from "../user-context/user-context.component";
+import { type UserContextDef, type UserContextPath } from "../user-context/user-context.component";
 import type { Contract } from "./sign-in-form.component.contract";
 import { uiEvents } from "./sign-in-form.component.events";
 import { contextsConfig } from "./sign-in-form.component.forwarders";
@@ -11,18 +10,16 @@ import { initialState } from "./sign-in-form.component.state";
 import { stateUpdaters } from "./sign-in-form.component.updaters";
 
 const componentDef = ({
-  context,
+  contextsPath,
 }: {
-  context: SofterContext<{ userContext: UserContextContract }>;
-}): ComponentDef<Contract, State> => ({
+  contextsPath: UserContextPath;
+}): ComponentDef<Contract, State, UserContextDef> => ({
   initialState,
   selectors,
   uiEvents,
   stateUpdaters,
   contextsConfig,
-  contextsDef: {
-    userContext: context.getRelativePath<UserContextContract>("userContext"),
-  },
+  contextsPath,
 });
 
 export { componentDef };

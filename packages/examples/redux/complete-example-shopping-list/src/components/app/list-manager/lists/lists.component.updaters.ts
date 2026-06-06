@@ -18,7 +18,7 @@ export const stateUpdaters: StateUpdaters<Contract, State> = {
   },
   deleteRequested: ({ state, payload: id }) => {
     state.isLoading = true;
-    state.lists = state.lists.filter(list => list.id !== id);
+    state.lists = state.lists.filter((list) => list.id !== id);
   },
   deleteSucceeded: ({ state }) => {
     state.isLoading = false;

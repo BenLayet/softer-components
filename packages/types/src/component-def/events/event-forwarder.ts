@@ -2,10 +2,10 @@ import {
   ChildInstanceContract,
   ChildrenContract,
   ComponentContract,
-  ContextContract,
   EventsContract,
 } from "../../component-contract/component-contract";
 import { Payload } from "../../component-contract/payload";
+import type { ContextsDef } from "../dependencies/contexts-def";
 import { Values } from "../values/values";
 import type { EventDef } from "./event-def";
 
@@ -252,10 +252,11 @@ export type ChildrenConfig<TComponentContract extends ComponentContract> =
     : never;
 
 export type ContextsConfig<
-  TComponentContract extends { context: ContextContract } & ComponentContract,
+  TComponentContract extends ComponentContract,
+  TContextsDef extends ContextsDef,
 > = {
-  [K in keyof TComponentContract["context"]]?: ChildConfig<
+  [K in keyof TContextsDef & symbol]?: ChildConfig<
     TComponentContract,
-    TComponentContract["context"][K]
+    TContextsDef[K] & { type: "unique" }
   >;
 };
