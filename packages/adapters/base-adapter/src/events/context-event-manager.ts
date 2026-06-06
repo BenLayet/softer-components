@@ -13,6 +13,7 @@ import {
   computeRelativePath,
   statePathStartsWith,
   statePathToComponentPath,
+  stringToStatePath,
 } from "../state/state-path";
 import {
   assertIsNotUndefined,
@@ -130,8 +131,7 @@ const stateTreeListener = (
     Object.getOwnPropertySymbols(contextsConfig).forEach(contextSymbol => {
       const contextConfig = contextsConfig[contextSymbol];
       assertIsNotUndefined(contextConfig);
-      const contextComponentStatePath = computeRelativePath(
-        statePath,
+      const contextComponentStatePath = stringToStatePath(
         ensureIsNotUndefined(componentDef.contextsPath?.[contextSymbol]),
       );
       const contextComponentPath = statePathToComponentPath(
