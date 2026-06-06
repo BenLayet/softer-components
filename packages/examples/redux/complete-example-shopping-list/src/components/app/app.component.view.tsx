@@ -14,9 +14,7 @@ export const View = ({ path = "" }) => {
   }, [d]);
   return (
     <div>
-      <div className="menu-bar">
-        {v.isUserMenuVisible && <UserMenu path={c.userMenu} />}
-      </div>
+      <div className="menu-bar">{v.isUserMenuVisible && <UserMenu path={c.userMenu} />}</div>
       <h1>Shopping List</h1>
       {v.page === "LIST_MANAGER" && <ListManager path={c.listManager} />}
       {v.page === "LIST" && <List path={c.list} />}

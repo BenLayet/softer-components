@@ -1,8 +1,5 @@
 import type { SofterTestEvent } from "@softer-components/test-utilities";
-import {
-  eventSequenceFactory,
-  stringToStatePath,
-} from "@softer-components/test-utilities";
+import { eventSequenceFactory, stringToStatePath } from "@softer-components/test-utilities";
 
 import type { AppContract } from "../src/components/app/app.component";
 
@@ -19,23 +16,18 @@ export const USER_SETS_LIST_NAME = eventSequenceFactory<AppContract, string>()
 export const USER_SUBMITS_NEW_LIST = eventSequenceFactory<AppContract>()
   .atPath(CREATE_LIST)
   .events("createNewListSubmitted");
-export const USER_SETS_NEXT_ITEM_NAME = eventSequenceFactory<
-  AppContract,
-  string
->()
+export const USER_SETS_NEXT_ITEM_NAME = eventSequenceFactory<AppContract, string>()
   .atPath(LIST)
   .events("nextItemNameChanged");
 export const USER_SUBMITS_NEW_ITEM = eventSequenceFactory<AppContract>()
   .atPath(LIST)
   .events("newItemSubmitted");
-export const USER_INCREMENTS_QUANTITY_OF_FIRST_ITEM =
-  eventSequenceFactory<AppContract>()
-    .atPath(FIRST_ITEM)
-    .events("incrementRequested");
-export const USER_DECREMENTS_QUANTITY_OF_FIRST_ITEM =
-  eventSequenceFactory<AppContract>()
-    .atPath(FIRST_ITEM)
-    .events("decrementRequested");
+export const USER_INCREMENTS_QUANTITY_OF_FIRST_ITEM = eventSequenceFactory<AppContract>()
+  .atPath(FIRST_ITEM)
+  .events("incrementRequested");
+export const USER_DECREMENTS_QUANTITY_OF_FIRST_ITEM = eventSequenceFactory<AppContract>()
+  .atPath(FIRST_ITEM)
+  .events("decrementRequested");
 export const USER_CREATES_NEW_LIST = (name: string) => [
   ...USER_SETS_LIST_NAME(name),
   ...USER_SUBMITS_NEW_LIST(),
@@ -56,10 +48,10 @@ export const USER_SIGNS_IN = eventSequenceFactory<
   .events("goToSignInFormRequested")
   .thenAtPath(SIGN_IN_FORM)
   .events("usernameChanged")
-  .withPayloads(input => input.username)
+  .withPayloads((input) => input.username)
   .thenAtPath(SIGN_IN_FORM)
   .events("passwordChanged")
-  .withPayloads(input => input.password)
+  .withPayloads((input) => input.password)
   .thenAtPath(SIGN_IN_FORM)
   .events("signInFormSubmitted");
 

@@ -19,7 +19,7 @@ export const View = ({ path = "" }) => {
         &gt;&gt; {v.name}
       </p>
       <form
-        onSubmit={e => {
+        onSubmit={(e) => {
           e.preventDefault();
           d.newItemSubmitted();
         }}
@@ -28,20 +28,18 @@ export const View = ({ path = "" }) => {
           type="text"
           value={v.nextItemName}
           autoFocus
-          onChange={e => {
+          onChange={(e) => {
             d.nextItemNameChanged(e.target.value);
           }}
         />
         <button type="submit">Add Item</button>
       </form>
       <div style={{ maxWidth: "500px" }}>
-        {c.itemRows.map(path => (
+        {c.itemRows.map((path) => (
           <ItemRow key={path} path={path} />
         ))}
       </div>
-      {v.hasSaveFailedError && (
-        <p className="error">Error while saving the list </p>
-      )}
+      {v.hasSaveFailedError && <p className="error">Error while saving the list </p>}
       {v.isSaving && <span className="spinner" />}
     </div>
   );

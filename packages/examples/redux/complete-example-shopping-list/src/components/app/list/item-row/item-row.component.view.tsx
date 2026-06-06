@@ -14,14 +14,9 @@ export const View = ({ path = "" }) => {
         padding: "0 4px",
       }}
     >
-      <div
-        className="horizontal"
-        style={{ flexGrow: 1, justifyContent: "flex-start" }}
-      >
+      <div className="horizontal" style={{ flexGrow: 1, justifyContent: "flex-start" }}>
         {v.name}
-        <span style={{ marginLeft: "1em", fontSize: "0.7em" }}>
-          x{v.quantity}
-        </span>
+        <span style={{ marginLeft: "1em", fontSize: "0.7em" }}>x{v.quantity}</span>
       </div>
       <div className="horizontal">
         <button

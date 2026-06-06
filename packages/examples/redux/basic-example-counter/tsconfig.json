@@ -25,13 +25,9 @@
     "types": ["vitest/globals"],
     "paths": {
       "@softer-components/base-adapter": ["../../../adapters/base-adapter/src"],
-      "@softer-components/redux-adapter": [
-        "../../../adapters/redux-adapter/src"
-      ],
+      "@softer-components/redux-adapter": ["../../../adapters/redux-adapter/src"],
       "@softer-components/types": ["../../../types/src"],
-      "@softer-components/test-utilities": [
-        "../../../utilities/test-utilities/src"
-      ]
+      "@softer-components/test-utilities": ["../../../utilities/test-utilities/src"]
     }
   },
   "include": ["src/**/*", "vite.config.ts"]

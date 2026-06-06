@@ -9,8 +9,8 @@ import { selectors } from "./app.component.selectors";
 import type { State } from "./app.component.state";
 import { initialState } from "./app.component.state";
 import { stateUpdaters } from "./app.component.updaters";
-import { listManagerDef } from "./list-manager/list-manager.component";
 import { listDef } from "./list/list.component";
+import { listManagerDef } from "./list-manager/list-manager.component";
 import { signInFormComponentDef } from "./sign-in-form/sign-in-form.component";
 import {
   type UserContextContract,
@@ -24,9 +24,7 @@ type Dependencies = {
   listService: ListService;
 };
 
-export const componentDef = (
-  dependencies: Dependencies,
-): ComponentDef<Contract, State> => {
+export const componentDef = (dependencies: Dependencies): ComponentDef<Contract, State> => {
   const contextsPath = {
     [userContextSymbol]: "/userContext" as StatePathString<UserContextContract>,
   };

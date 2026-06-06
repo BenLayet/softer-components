@@ -3,8 +3,7 @@ import { useSofter } from "@softer-components/redux-adapter";
 import type { CounterContract } from "./counter.component";
 
 export const Counter = ({ path = "" }) => {
-  const [{ count }, { incrementRequested, decrementRequested }] =
-    useSofter<CounterContract>(path);
+  const [{ count }, { incrementRequested, decrementRequested }] = useSofter<CounterContract>(path);
 
   return (
     <div>

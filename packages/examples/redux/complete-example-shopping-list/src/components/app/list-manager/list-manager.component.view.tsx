@@ -11,9 +11,7 @@ export const View = ({ path = "" }) => {
       {v.hasAnyList && (
         <div>
           {" "}
-          <p style={{ textAlign: "start", width: "300px" }}>
-            All lists ({v.listCount})
-          </p>
+          <p style={{ textAlign: "start", width: "300px" }}>All lists ({v.listCount})</p>
           <Lists path={c.lists} />
         </div>
       )}

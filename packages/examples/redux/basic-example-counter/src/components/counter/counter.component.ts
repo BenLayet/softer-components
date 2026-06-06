@@ -15,7 +15,7 @@ export type CounterContract = {
 // Component definition
 export const counterDef: ComponentDef<CounterContract, State> = {
   initialState,
-  selectors: { count: state => state.count },
+  selectors: { count: (state) => state.count },
   uiEvents: allEvents,
   stateUpdaters: {
     incrementRequested: ({ state }) => {

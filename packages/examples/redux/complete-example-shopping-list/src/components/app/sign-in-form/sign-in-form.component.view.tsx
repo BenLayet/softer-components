@@ -37,7 +37,7 @@ export const View = ({ path = "" }) => {
         </ul>
       </div>
       <form
-        onSubmit={e => {
+        onSubmit={(e) => {
           e.preventDefault();
           d.signInFormSubmitted();
         }}
@@ -49,7 +49,7 @@ export const View = ({ path = "" }) => {
           id="usernameInput"
           type="text"
           placeholder="Username"
-          onChange={e => {
+          onChange={(e) => {
             d.usernameChanged(e.target.value);
           }}
           autoComplete="off"
@@ -60,7 +60,7 @@ export const View = ({ path = "" }) => {
           id="passwordInput"
           type="text"
           placeholder="Password"
-          onChange={e => {
+          onChange={(e) => {
             d.passwordChanged(e.target.value);
           }}
           autoComplete="off"
@@ -78,14 +78,10 @@ export const View = ({ path = "" }) => {
         </p>
       )}
       {v.hasNetworkError && (
-        <p className="error">
-          🌐 Network error. Please check your connection and try again.
-        </p>
+        <p className="error">🌐 Network error. Please check your connection and try again.</p>
       )}
       {v.hasUnknownError && (
-        <p className="error">
-          ⚠️ An unknown error occurred. Please try again later.
-        </p>
+        <p className="error">⚠️ An unknown error occurred. Please try again later.</p>
       )}
     </div>
   );

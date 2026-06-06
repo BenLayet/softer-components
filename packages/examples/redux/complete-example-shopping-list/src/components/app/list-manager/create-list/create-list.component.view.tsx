@@ -8,7 +8,7 @@ export const View = ({ path = "" }) => {
     <div>
       <div className="horizontal">
         <form
-          onSubmit={e => {
+          onSubmit={(e) => {
             e.preventDefault();
             d.createNewListSubmitted();
           }}
@@ -18,22 +18,16 @@ export const View = ({ path = "" }) => {
             placeholder="Groceries, hardware store, etc."
             required
             autoFocus
-            onChange={e => {
+            onChange={(e) => {
               d.listNameChanged(e.target.value);
             }}
           />
           <button type="submit">Create new list</button>
           {v.shouldShowErrors && (
             <div>
-              {v.hasNameRequiredError && (
-                <p className="error">Name should not be empty</p>
-              )}
-              {v.hasListAlreadyExistsError && (
-                <p className="error">{v.listName} already exists</p>
-              )}
-              {v.hasSaveFailedError && (
-                <p className="error">Error while saving...</p>
-              )}
+              {v.hasNameRequiredError && <p className="error">Name should not be empty</p>}
+              {v.hasListAlreadyExistsError && <p className="error">{v.listName} already exists</p>}
+              {v.hasSaveFailedError && <p className="error">Error while saving...</p>}
             </div>
           )}
         </form>
