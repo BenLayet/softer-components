@@ -1,7 +1,8 @@
 import type { ContextsConfig, InternalEventForwarders } from "@softer-components/types";
 
 import type { Contract } from "./lists.component.contract";
-import { type UserContextDef, userContextSymbol } from "../../user-context/user-context.component";
+import { userContextSymbol } from "../../user-context/user-context.component";
+import type { ContextsDef } from "./lists.component.dependencies";
 
 export const eventForwarders: InternalEventForwarders<Contract> = [
   {
@@ -30,7 +31,7 @@ export const eventForwarders: InternalEventForwarders<Contract> = [
     withPayload: ({ values }) => values.listNames(),
   },
 ];
-export const contextsConfig: ContextsConfig<Contract, UserContextDef> = {
+export const contextsConfig: ContextsConfig<Contract, ContextsDef> = {
   [userContextSymbol]: {
     listeners: [
       {

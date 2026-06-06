@@ -1,9 +1,10 @@
 import type { ContextsConfig } from "@softer-components/types";
 
 import type { Contract } from "./sign-in-form.component.contract";
-import { type UserContextDef, userContextSymbol } from "../user-context/user-context.component";
+import { userContextSymbol } from "../user-context/user-context.component";
+import type { ContextsDef } from "./sign-in-form.component.dependencies";
 
-export const contextsConfig: ContextsConfig<Contract, UserContextDef> = {
+export const contextsConfig: ContextsConfig<Contract, ContextsDef> = {
   [userContextSymbol]: {
     commands: [
       {
