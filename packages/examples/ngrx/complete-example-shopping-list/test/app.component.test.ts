@@ -1,5 +1,5 @@
-import { TestStore, initTestStore } from "@softer-components/test-utilities";
-import { describe, expect, it, beforeEach } from "vitest";
+import { initTestStore, TestStore } from "@softer-components/test-utilities";
+import { beforeEach, describe, expect, it } from "vitest";
 
 import { AppContract, appDef } from "../src/components/app/app.component";
 import {

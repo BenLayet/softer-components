@@ -190,7 +190,9 @@ async function copyComponents({ from, to, dryRun }) {
 
   console.log("\nDone.");
   console.log(`${dryRun ? "Planned" : "Copied"} new files: ${copiedCount}`);
-  console.log(`${dryRun ? "Planned" : "Overwritten"} files: ${overwrittenCount}`);
+  console.log(
+    `${dryRun ? "Planned" : "Overwritten"} files: ${overwrittenCount}`,
+  );
   console.log(
     `Skipped examples (missing ${getFrameworkLabel(to)} target): ${skippedExamples}`,
   );
@@ -200,7 +202,9 @@ async function main() {
   const options = parseArgs(process.argv.slice(2));
 
   if (options.help) {
-    console.log(`Usage: node maintenance/copy-components.mjs [--from ngrx|redux] [--to ngrx|redux] [--dry-run]\n\nExamples:\n  node maintenance/copy-components.mjs\n  node maintenance/copy-components.mjs --from redux --to ngrx\n  node maintenance/copy-components.mjs --from ngrx --to redux --dry-run`);
+    console.log(
+      `Usage: node maintenance/copy-components.mjs [--from ngrx|redux] [--to ngrx|redux] [--dry-run]\n\nExamples:\n  node maintenance/copy-components.mjs\n  node maintenance/copy-components.mjs --from redux --to ngrx\n  node maintenance/copy-components.mjs --from ngrx --to redux --dry-run`,
+    );
     return;
   }
 
@@ -219,4 +223,3 @@ main().catch(error => {
   console.error(error);
   process.exitCode = 1;
 });
-

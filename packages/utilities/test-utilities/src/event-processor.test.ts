@@ -1,14 +1,14 @@
-import {
-  INPUTTED_BY_USER,
-  generateEventsToForward,
-  updateSofterRootState,
-} from "@softer-components/base-adapter";
 import type {
   ContextEventManager,
   EffectsManager,
   SofterEvent,
   StateManager,
   StateTree,
+} from "@softer-components/base-adapter";
+import {
+  INPUTTED_BY_USER,
+  generateEventsToForward,
+  updateSofterRootState,
 } from "@softer-components/base-adapter";
 import type { ComponentDef } from "@softer-components/types";
 import { beforeEach, describe, expect, it, vi } from "vitest";
