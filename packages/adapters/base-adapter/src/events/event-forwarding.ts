@@ -7,7 +7,7 @@ import { findComponentDefFromStatePath } from "../state/component-def-tree";
 import { RelativePathStateReader } from "../state/relative-path-state-manager";
 import { SofterRootState } from "../state/state-initializer";
 import { StateReader } from "../state/state-manager";
-import { computeRelativePath, stringToStatePath } from "../state/state-path";
+import { stringToStatePath } from "../state/state-path";
 import {
   assertIsNotSymbol,
   assertIsNotUndefined,
@@ -122,8 +122,8 @@ function generateEventsToParent(
     triggeringEvent.statePath[triggeringEvent.statePath.length - 1]?.[0];
   assertIsNotUndefined(childName);
 
-  if (typeof parentComponentDef.childrenConfig !== "object") return [];
-  const childListeners = parentComponentDef.childrenConfig[
+  if (typeof parentComponentDef.childrenEventForwarders !== "object") return [];
+  const childListeners = parentComponentDef.childrenEventForwarders[
     childName
   ]?.listeners?.filter(listener => listener.from === triggeringEvent.name);
 
@@ -161,9 +161,9 @@ function generateEventsToChildren(
     triggeringEvent.statePath,
   );
 
-  if (typeof componentDef.childrenConfig !== "object") return [];
+  if (typeof componentDef.childrenEventForwarders !== "object") return [];
   const childrenCommands = Object.entries(
-    componentDef.childrenConfig ?? {},
+    componentDef.childrenEventForwarders ?? {},
   ).flatMap(([childName, childConfig]) =>
     (childConfig?.commands ?? [])
       .filter(command => command.from === triggeringEvent.name)
@@ -213,7 +213,7 @@ function generateEventsToContext(
     rootComponentDef,
     triggeringEvent.statePath,
   );
-  const contextsConfig = componentDef.contextsConfig;
+  const contextsConfig = componentDef.contextsEventForwarders;
   if (typeof contextsConfig !== "object") return [];
   const contextCommands = Object.getOwnPropertySymbols(contextsConfig)
     .map(contextSymbol => [contextSymbol, contextsConfig[contextSymbol]])

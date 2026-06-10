@@ -218,7 +218,7 @@ describe("createSofterReducer", () => {
     });
 
     // Note: Testing nested child actions requires more complex setup with
-    // childrenConfig to route events from parent to child. This is tested
+    // childrenEventForwarders to route events from parent to child. This is tested
     // in the base-adapter package's reducer.test.ts with proper event forwarding setup.
   });
 });

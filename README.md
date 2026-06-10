@@ -24,7 +24,7 @@ Front-end applications tend to become quite complex, as they have to tackle:
 The first step to address these challenges is to use a state manager:
 
 - no more ambiguity about what is updated when
-- excellent to separate behaviour logic from presentation logic
+- excellent to separate behavior logic from presentation logic
 - but this brings new challenges:
   - yet another data model (store data model)
   - concentration of complexity in one place (reducers, selectors, and effects/thunks)
@@ -86,8 +86,8 @@ The contract is the public interface of a component type.
 - `stateUpdaters`, `childrenUpdaters`
 - `eventForwarders`
 - `effects`
-- `childrenComponentDefs`, `childrenConfig`, `initialChildren`
-- `contextsDef`, `contextsConfig`
+- `childrenComponentDefs`, `childrenEventForwarders`, `initialChildren`
+- `contextsPath`, `contextsEventForwarders`
 
 ### Event flow
 

@@ -235,27 +235,28 @@ type WithChildCommands<
  *                         CHILDREN AND CONTEXTS CONFIGS
  ***************************************************************************************************************/
 
-export type ChildConfig<
+export type ChildEventForwarders<
   TParentContract extends ComponentContract,
   TChildContract extends ComponentContract & ChildInstanceContract,
 > = WithChildListeners<TParentContract, TChildContract> &
   WithChildCommands<TParentContract, TChildContract>;
 
-export type ChildrenConfig<TComponentContract extends ComponentContract> =
-  TComponentContract["children"] extends ChildrenContract
-    ? {
-        [K in keyof TComponentContract["children"]]?: ChildConfig<
-          TComponentContract,
-          TComponentContract["children"][K]
-        >;
-      }
-    : never;
+export type ChildrenEventForwarders<
+  TComponentContract extends ComponentContract,
+> = TComponentContract["children"] extends ChildrenContract
+  ? {
+      [K in keyof TComponentContract["children"]]?: ChildEventForwarders<
+        TComponentContract,
+        TComponentContract["children"][K]
+      >;
+    }
+  : never;
 
-export type ContextsConfig<
+export type ContextsEventForwarders<
   TComponentContract extends ComponentContract,
   TContextsDef extends ContextsDef,
 > = {
-  [K in keyof TContextsDef & symbol]?: ChildConfig<
+  [K in keyof TContextsDef & symbol]?: ChildEventForwarders<
     TComponentContract,
     TContextsDef[K] & { type: "unique" }
   >;

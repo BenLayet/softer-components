@@ -7,8 +7,8 @@ import { ChildrenInstancesDefs } from "./dependencies/children-instances-def";
 import type { ContextsDef, ContextsPath } from "./dependencies/contexts-def";
 import { Effects } from "./events/effects";
 import {
-  ChildrenConfig,
-  ContextsConfig,
+  ChildrenEventForwarders,
+  ContextsEventForwarders,
   InternalEventForwarders,
 } from "./events/event-forwarder";
 import { ChildrenUpdaters, StateUpdaters } from "./events/updaters";
@@ -37,9 +37,9 @@ export type ComponentDef<
     readonly eventForwarders?: InternalEventForwarders<any>;
     readonly initialChildren?: Record<string, string[] | boolean | undefined>;
     readonly childrenUpdaters?: ChildrenUpdaters<any>;
-    readonly childrenConfig?: ChildrenConfig<any>;
+    readonly childrenEventForwarders?: ChildrenEventForwarders<any>;
+    readonly contextsEventForwarders?: ContextsEventForwarders<any, any>;
     readonly childrenComponentDefs?: Record<string, ComponentDef>;
-    readonly contextsConfig?: ContextsConfig<any, any>;
     readonly contextsPath?: ContextsPath;
     readonly effects?: Effects<any>;
   },
@@ -70,7 +70,7 @@ type ChildrenPart<TComponentContract extends ComponentContract> =
   TComponentContract extends { children: ChildrenContract }
     ? {
         readonly childrenComponentDefs: ChildrenComponentDefs<TComponentContract>;
-        readonly childrenConfig?: ChildrenConfig<TComponentContract>;
+        readonly childrenConfig?: ChildrenEventForwarders<TComponentContract>;
         readonly childrenUpdaters?: ChildrenUpdaters<TComponentContract>;
       } & (TComponentContract["children"][keyof TComponentContract["children"]] extends {
         type: "collection";
@@ -155,7 +155,7 @@ type ContextsPart<
 > = TContexts extends ContextsDef
   ? {
       contextsPath: ContextsPath<TContexts>;
-      contextsConfig?: ContextsConfig<TComponentContract, TContexts>;
+      contextsConfig?: ContextsEventForwarders<TComponentContract, TContexts>;
     }
   : {
       contextsPath?: NO_CONTEXT_DEFINED;

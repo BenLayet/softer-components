@@ -10,7 +10,6 @@ import {
 } from "../state/state-manager";
 import {
   StatePath,
-  computeRelativePath,
   statePathStartsWith,
   statePathToComponentPath,
   stringToStatePath,
@@ -121,7 +120,7 @@ const stateTreeListener = (
       statePath,
     );
 
-    const contextsConfig = componentDef.contextsConfig;
+    const contextsConfig = componentDef.contextsEventForwarders;
     if (
       typeof componentDef.contextsPath !== "object" ||
       typeof contextsConfig !== "object"

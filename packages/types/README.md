@@ -13,7 +13,7 @@ As a developer using `@softer-component`, you main job is to create your own `Co
 7.  `effects`: that defines the side effects of the component, and which events trigger them
 8.  `initialChildrenInstances`: that defines the initial children of the component
 9.  `childrenUpdaters`: that adds or removes children after an event
-10. `childrenConfig` and `contextsConfig`: that defines the event chaining between the component and its children
+10. `childrenEventForwarders` and `contextsEventForwarders`: that defines the event chaining between the component and its children
 11. `childrenComponentDefs` and `contextComponentDefs`: that defines the specific definitions of the children and contexts
 
 The `ComponentDef` type depends on the `ComponentContract` type and `State` type:

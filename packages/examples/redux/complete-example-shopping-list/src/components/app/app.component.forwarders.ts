@@ -1,8 +1,8 @@
-import type { ChildrenConfig } from "@softer-components/types";
+import type { ChildrenEventForwarders } from "@softer-components/types";
 
 import type { Contract } from "./app.component.contract";
 
-export const childrenConfig: ChildrenConfig<Contract> = {
+export const childrenConfig: ChildrenEventForwarders<Contract> = {
   listManager: {
     listeners: [
       {

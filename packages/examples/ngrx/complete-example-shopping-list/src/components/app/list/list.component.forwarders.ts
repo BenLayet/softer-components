@@ -1,4 +1,4 @@
-import type { ChildrenConfig, InternalEventForwarders } from "@softer-components/types";
+import type { ChildrenEventForwarders, InternalEventForwarders } from "@softer-components/types";
 
 import { throwIfUndefined } from "../../../utils/assert.functions";
 import type { Contract } from "./list.component.contract";
@@ -50,7 +50,7 @@ export const eventForwarders: InternalEventForwarders<Contract> = [
     to: "saveRequested",
   },
 ];
-export const childrenConfig: ChildrenConfig<Contract> = {
+export const childrenConfig: ChildrenEventForwarders<Contract> = {
   itemRows: {
     commands: [
       {

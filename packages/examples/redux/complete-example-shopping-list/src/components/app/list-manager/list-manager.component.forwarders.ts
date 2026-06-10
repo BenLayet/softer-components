@@ -1,4 +1,4 @@
-import type { ChildrenConfig, InternalEventForwarders } from "@softer-components/types";
+import type { ChildrenEventForwarders, InternalEventForwarders } from "@softer-components/types";
 
 import type { Contract } from "./list-manager.component.contract";
 
@@ -8,7 +8,7 @@ export const eventForwarders: InternalEventForwarders<Contract> = [
     to: "listSelected",
   },
 ];
-export const childrenConfig: ChildrenConfig<Contract> = {
+export const childrenConfig: ChildrenEventForwarders<Contract> = {
   lists: {
     listeners: [
       { from: "listSelected", to: "listSelected" },
