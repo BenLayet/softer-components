@@ -160,7 +160,10 @@ type ContextsPart<
   ? {
       contextsPath: ContextsPath<TContexts>;
       readonly eventForwarders?: {
-        readonly contexts?: ContextsEventForwarders<TComponentContract, TContexts>;
+        readonly contexts?: ContextsEventForwarders<
+          TComponentContract,
+          TContexts
+        >;
       };
     }
   : {
