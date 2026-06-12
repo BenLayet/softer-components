@@ -24,10 +24,15 @@ type Dependencies = {
   listService: ListService;
 };
 
-export const componentDef = (dependencies: Dependencies): ComponentDef<Contract, State> => {
-  const contextsPath = {
-    [userContextSymbol]: "/userContext" as StatePathString<UserContextContract>,
+export const componentDef = ({
+  dependencies,
+  contextsPath,
+}: {
+  dependencies: Dependencies;
+  contextsPath: {
+    [userContextSymbol]: StatePathString<UserContextContract>;
   };
+}): ComponentDef<Contract, State> => {
   return {
     initialState,
     selectors,
