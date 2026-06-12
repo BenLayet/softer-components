@@ -244,6 +244,9 @@ importers:
       typescript-eslint:
         specifier: 8.59.2
         version: 8.59.2(eslint@9.36.0(jiti@2.6.0))(typescript@5.9.3)
+      vite-tsconfig-paths:
+        specifier: ^5.1.4
+        version: 5.1.4(typescript@5.9.3)(vite@7.3.2(@types/node@22.18.6)(jiti@2.6.0)(less@4.2.0)(lightningcss@1.32.0)(sass@1.97.3)(terser@5.44.0))
       vitest:
         specifier: ^4.0.8
         version: 4.0.18(@types/node@22.18.6)(jiti@2.6.0)(jsdom@28.1.0)(less@4.2.0)(lightningcss@1.32.0)(sass@1.97.3)(terser@5.44.0)
@@ -432,6 +435,9 @@ importers:
       vite:
         specifier: 8.0.5
         version: 8.0.5(@types/node@22.18.6)(esbuild@0.27.3)(jiti@2.6.0)(less@4.2.0)(sass@1.98.0)(terser@5.44.0)
+      vite-tsconfig-paths:
+        specifier: ^5.1.4
+        version: 5.1.4(typescript@5.9.3)(vite@8.0.5(@types/node@22.18.6)(esbuild@0.27.3)(jiti@2.6.0)(less@4.2.0)(sass@1.98.0)(terser@5.44.0))
       vitest:
         specifier: ^3.1.1
         version: 3.2.4(@types/node@22.18.6)(jiti@2.6.0)(jsdom@26.1.0)(less@4.2.0)(lightningcss@1.32.0)(sass@1.98.0)(terser@5.44.0)
@@ -11423,6 +11429,17 @@ snapshots:
       - '@types/node'
       - rollup
       - supports-color
+
+  vite-tsconfig-paths@5.1.4(typescript@5.9.3)(vite@7.3.2(@types/node@22.18.6)(jiti@2.6.0)(less@4.2.0)(lightningcss@1.32.0)(sass@1.97.3)(terser@5.44.0)):
+    dependencies:
+      debug: 4.4.3
+      globrex: 0.1.2
+      tsconfck: 3.1.6(typescript@5.9.3)
+    optionalDependencies:
+      vite: 7.3.2(@types/node@22.18.6)(jiti@2.6.0)(less@4.2.0)(lightningcss@1.32.0)(sass@1.97.3)(terser@5.44.0)
+    transitivePeerDependencies:
+      - supports-color
+      - typescript
 
   vite-tsconfig-paths@5.1.4(typescript@5.9.3)(vite@8.0.5(@types/node@22.18.6)(esbuild@0.27.3)(jiti@2.6.0)(less@4.2.0)(sass@1.98.0)(terser@5.44.0)):
     dependencies:
