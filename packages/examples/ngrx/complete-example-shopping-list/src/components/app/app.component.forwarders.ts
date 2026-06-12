@@ -1,8 +1,8 @@
-import type { ChildrenEventForwarders } from "@softer-components/types";
+import type { ChildrenEventForwarders, ComponentDef } from "@softer-components/types";
 
 import type { Contract } from "./app.component.contract";
 
-export const childrenConfig: ChildrenEventForwarders<Contract> = {
+const childrenEventForwarders: ChildrenEventForwarders<Contract> = {
   listManager: {
     listeners: [
       {
@@ -38,3 +38,7 @@ export const childrenConfig: ChildrenEventForwarders<Contract> = {
     listeners: [{ from: "userChanged", to: "resetRequested" }],
   },
 };
+
+export const eventForwarders = {
+  children: childrenEventForwarders,
+} satisfies NonNullable<ComponentDef<Contract>["eventForwarders"]>;

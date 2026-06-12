@@ -494,31 +494,31 @@ const listDef: ComponentDef<ListContract, ListState> = {
         to: "resetItemNameRequested",
       },
     ],
-    children: childrenComponents,
-  },
-  initialChildren: { items: [] },
-  childrenConfig: {
-    items: {
-      commands: [
-        {
-          from: "incrementItemQuantityRequested",
-          to: "incrementQuantityRequested",
-          toKeys: ({ payload: itemId }) => [`${itemId}`],
-        },
-        {
-          from: "createItemRequested",
-          to: "initialize",
-          withPayload: ({ payload: { itemName } }) => itemName,
-          toKeys: ({ payload: { itemId } }) => [`${itemId}`],
-        },
-      ],
-      listeners: [
-        {
-          from: "removeRequested",
-          to: "removeItemRequested",
-          withPayload: ({ childKey }) => parseInt(childKey),
-        },
-      ],
+    children: {
+      items: {
+        commands: [
+          {
+            from: "incrementItemQuantityRequested",
+            to: "incrementQuantityRequested",
+            toKeys: ({ payload: itemId }) => [`${itemId}`],
+          },
+          {
+            from: "createItemRequested",
+            to: "initialize",
+            withPayload: ({ payload: { itemName } }) => itemName,
+            toKeys: ({ payload: { itemId } }) => [`${itemId}`],
+          },
+        ],
+        listeners: [
+          {
+            from: "removeRequested",
+            to: "removeItemRequested",
+            withPayload: ({ childKey }) => parseInt(childKey),
+          },
+        ],
+      },
     },
   },
+  childrenDefs: childrenComponents,
+  initialChildren: { items: [] },
 };

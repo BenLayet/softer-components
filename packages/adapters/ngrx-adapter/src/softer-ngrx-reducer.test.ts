@@ -175,7 +175,8 @@ describe("createSofterReducer", () => {
           state.name = payload as string;
         },
       },
-      eventForwarders: { children: { items: itemDef } },
+      childrenDefs: { items: itemDef },
+      eventForwarders: { children: {} },
       initialChildren: { items: [] },
       childrenUpdaters: {
         addItem: ({ children: { items }, payload }) => {
@@ -218,7 +219,7 @@ describe("createSofterReducer", () => {
     });
 
     // Note: Testing nested child actions requires more complex setup with
-    // childrenConfig to route events from parent to child. This is tested
+    // eventForwarders.children to route events from parent to child. This is tested
     // in the base-adapter package's reducer.test.ts with proper event forwarding setup.
   });
 });

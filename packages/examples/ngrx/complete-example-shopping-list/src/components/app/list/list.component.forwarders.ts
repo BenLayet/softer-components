@@ -1,9 +1,13 @@
-import type { ChildrenEventForwarders, InternalEventForwarders } from "@softer-components/types";
+import type {
+  ChildrenEventForwarders,
+  ComponentDef,
+  InternalEventForwarders,
+} from "@softer-components/types";
 
 import { throwIfUndefined } from "../../../utils/assert.functions";
 import type { Contract } from "./list.component.contract";
 
-export const eventForwarders: InternalEventForwarders<Contract> = [
+const internalEventForwarders: InternalEventForwarders<Contract> = [
   {
     from: "newItemSubmitted",
     to: "createItemOrIncrementQuantityRequested",
@@ -50,7 +54,7 @@ export const eventForwarders: InternalEventForwarders<Contract> = [
     to: "saveRequested",
   },
 ];
-export const childrenConfig: ChildrenEventForwarders<Contract> = {
+const childrenEventForwarders: ChildrenEventForwarders<Contract> = {
   itemRows: {
     commands: [
       {
@@ -87,3 +91,8 @@ export const childrenConfig: ChildrenEventForwarders<Contract> = {
     ],
   },
 };
+
+export const eventForwarders = {
+  internal: internalEventForwarders,
+  children: childrenEventForwarders,
+} satisfies NonNullable<ComponentDef<Contract>["eventForwarders"]>;

@@ -59,19 +59,19 @@ describe("event forwarding tests", () => {
     // GIVEN
     const child = {};
     const componentDef = {
+      childrenDefs: {
+        child,
+      },
       eventForwarders: {
         children: {
-          child,
-        },
-      },
-      childrenConfig: {
-        child: {
-          listeners: [
-            {
-              from: "btnClicked",
-              to: "incrementRequested",
-            },
-          ],
+          child: {
+            listeners: [
+              {
+                from: "btnClicked",
+                to: "incrementRequested",
+              },
+            ],
+          },
         },
       },
     };
@@ -111,20 +111,20 @@ describe("event forwarding tests", () => {
     // GIVEN
     const child = {};
     const componentDef = {
+      childrenDefs: {
+        child,
+      },
       eventForwarders: {
         children: {
-          child,
-        },
-      },
-      childrenConfig: {
-        child: {
-          commands: [
-            {
-              from: "btnClicked",
-              to: "incrementRequested",
-              toKeys: () => ["0"],
-            },
-          ],
+          child: {
+            commands: [
+              {
+                from: "btnClicked",
+                to: "incrementRequested",
+                toKeys: () => ["0"],
+              },
+            ],
+          },
         },
       },
     };
@@ -296,20 +296,20 @@ describe("event forwarding tests", () => {
     // GIVEN
     const child = {};
     const componentDef = {
+      childrenDefs: {
+        child,
+      },
       eventForwarders: {
         children: {
-          child,
-        },
-      },
-      childrenConfig: {
-        child: {
-          commands: [
-            {
-              from: "btnClicked",
-              to: "incrementRequested",
-              toKeys: () => ["key1", "key2"],
-            },
-          ],
+          child: {
+            commands: [
+              {
+                from: "btnClicked",
+                to: "incrementRequested",
+                toKeys: () => ["key1", "key2"],
+              },
+            ],
+          },
         },
       },
     };

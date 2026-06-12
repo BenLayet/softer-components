@@ -161,7 +161,7 @@ function updateChildrenState(
   desiredChildrenKeys: Record<string, boolean | string[]>,
   stateManager: RelativePathStateManager,
 ) {
-  const childrenComponentDefs = componentDef.eventForwarders?.children;
+  const childrenComponentDefs = componentDef.childrenDefs;
   if (typeof childrenComponentDefs !== "object") {
     return;
   }
@@ -169,7 +169,7 @@ function updateChildrenState(
     const childDef = childrenComponentDefs[childName];
     assertIsNotUndefined(
       childDef,
-      `Child component '${childName}' not found in eventForwarders.children`,
+      `Child component '${childName}' not found in childrenDefs`,
     );
     const previousKeys = previousChildrenKeys[childName];
 

@@ -5,7 +5,7 @@ import type { Contract } from "./list.component.contract";
 import type { EffectsDependencies } from "./list.component.effects";
 import { effects } from "./list.component.effects";
 import { uiEvents } from "./list.component.events";
-import { childrenConfig, eventForwarders } from "./list.component.forwarders";
+import { eventForwarders } from "./list.component.forwarders";
 import { selectors } from "./list.component.selectors";
 import type { State } from "./list.component.state";
 import { childrenUpdaters, stateUpdaters } from "./list.component.updaters";
@@ -18,13 +18,10 @@ const componentDef = (dependencies: Dependencies): ComponentDef<Contract, State>
     uiEvents,
     stateUpdaters,
     childrenUpdaters,
-    childrenConfig,
+    eventForwarders,
     effects: effects(dependencies),
-    eventForwarders: {
-      internal: eventForwarders,
-      children: {
-        itemRows: itemRowDef(),
-      },
+    childrenDefs: {
+      itemRows: itemRowDef(),
     },
     initialChildren: { itemRows: [] },
   };

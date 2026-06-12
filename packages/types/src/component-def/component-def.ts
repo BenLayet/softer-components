@@ -36,10 +36,10 @@ export type ComponentDef<
     readonly stateUpdaters?: StateUpdaters<any, any>;
     readonly initialChildren?: Record<string, string[] | boolean | undefined>;
     readonly childrenUpdaters?: ChildrenUpdaters<any>;
-    readonly childrenConfig?: ChildrenEventForwarders<any>;
+    readonly childrenDefs?: Record<string, ComponentDef>;
     readonly eventForwarders?: {
       readonly internal?: InternalEventForwarders<any>;
-      readonly children?: Record<string, ComponentDef>;
+      readonly children?: ChildrenEventForwarders<any>;
       readonly contexts?: ContextsEventForwarders<any, any>;
     };
     readonly contextsPath?: ContextsPath;
@@ -71,10 +71,10 @@ type NO_CHILDREN_DEFINED = never;
 type ChildrenPart<TComponentContract extends ComponentContract> =
   TComponentContract extends { children: ChildrenContract }
     ? {
-        readonly eventForwarders: {
-          readonly children: ChildrenComponentDefs<TComponentContract>;
+        readonly eventForwarders?: {
+          readonly children: ChildrenEventForwarders<TComponentContract>;
         };
-        readonly childrenConfig?: ChildrenEventForwarders<TComponentContract>;
+        readonly childrenDefs: ChildrenComponentDefs<TComponentContract>;
         readonly childrenUpdaters?: ChildrenUpdaters<TComponentContract>;
       } & (TComponentContract["children"][keyof TComponentContract["children"]] extends {
         type: "collection";
@@ -91,7 +91,7 @@ type ChildrenPart<TComponentContract extends ComponentContract> =
           })
     : {
         readonly initialChildren?: NO_CHILDREN_DEFINED;
-        readonly childrenConfig?: NO_CHILDREN_DEFINED;
+        readonly childrenDefs?: NO_CHILDREN_DEFINED;
         readonly childrenUpdaters?: NO_CHILDREN_DEFINED;
       };
 

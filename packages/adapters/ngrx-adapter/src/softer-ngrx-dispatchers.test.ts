@@ -109,7 +109,7 @@ describe("SofterNgrxDispatchers", () => {
         {}
       > = {
         initialState: {},
-        eventForwarders: { children: { child: childDef } },
+        childrenDefs: { child: childDef },
       };
 
       const mockStore = createMockStore();

@@ -122,8 +122,9 @@ function generateEventsToParent(
     triggeringEvent.statePath[triggeringEvent.statePath.length - 1]?.[0];
   assertIsNotUndefined(childName);
 
-  if (typeof parentComponentDef.childrenConfig !== "object") return [];
-  const childListeners = parentComponentDef.childrenConfig[
+  if (typeof parentComponentDef.eventForwarders?.children !== "object")
+    return [];
+  const childListeners = parentComponentDef.eventForwarders.children[
     childName
   ]?.listeners?.filter(
     (listener: any) => listener.from === triggeringEvent.name,
@@ -163,9 +164,9 @@ function generateEventsToChildren(
     triggeringEvent.statePath,
   );
 
-  if (typeof componentDef.childrenConfig !== "object") return [];
+  if (typeof componentDef.eventForwarders?.children !== "object") return [];
   const childrenCommands = Object.entries(
-    componentDef.childrenConfig ?? {},
+    componentDef.eventForwarders.children ?? {},
   ).flatMap(([childName, childConfig]) =>
     (childConfig?.commands ?? [])
       .filter(command => command.from === triggeringEvent.name)

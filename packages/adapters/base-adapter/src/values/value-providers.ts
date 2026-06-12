@@ -97,7 +97,7 @@ function createChildrenValues(
   );
   const childrenKeys = stateReader.getChildrenKeys();
   assertIsNotUndefined(childrenKeys, "childrenKeys should not be undefined");
-  const childrenComponentDefs = componentDef.eventForwarders?.children;
+  const childrenComponentDefs = componentDef.childrenDefs;
   if (typeof childrenComponentDefs !== "object") {
     return {} as ChildrenValues;
   }

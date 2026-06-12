@@ -4,7 +4,7 @@ import type { AuthenticationService } from "../../port/authentication.service";
 import type { ListService } from "../../port/list.service";
 import type { Contract } from "./app.component.contract";
 import { uiEvents } from "./app.component.events";
-import { childrenConfig } from "./app.component.forwarders";
+import { eventForwarders } from "./app.component.forwarders";
 import { selectors } from "./app.component.selectors";
 import type { State } from "./app.component.state";
 import { initialState } from "./app.component.state";
@@ -33,15 +33,13 @@ export const componentDef = (dependencies: Dependencies): ComponentDef<Contract,
     selectors,
     uiEvents,
     stateUpdaters,
-    childrenConfig,
-    eventForwarders: {
-      children: {
-        userContext: userContextDef(dependencies),
-        userMenu: userMenuDef({ contextsPath }),
-        signInForm: signInFormComponentDef({ contextsPath }),
-        list: listDef(dependencies),
-        listManager: listManagerDef({ dependencies, contextsPath }),
-      },
+    eventForwarders,
+    childrenDefs: {
+      userContext: userContextDef(dependencies),
+      userMenu: userMenuDef({ contextsPath }),
+      signInForm: signInFormComponentDef({ contextsPath }),
+      list: listDef(dependencies),
+      listManager: listManagerDef({ dependencies, contextsPath }),
     },
   };
 };
