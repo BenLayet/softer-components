@@ -1,7 +1,7 @@
 import type { ComponentDef } from "@softer-components/types";
 import type { Contract } from "./sign-in-form.component.contract";
 import { uiEvents } from "./sign-in-form.component.events";
-import { contextsConfig } from "./sign-in-form.component.forwarders";
+import { eventForwarders } from "./sign-in-form.component.forwarders";
 import { selectors } from "./sign-in-form.component.selectors";
 import type { State } from "./sign-in-form.component.state";
 import { initialState } from "./sign-in-form.component.state";
@@ -16,9 +16,7 @@ const componentDef = ({
   uiEvents,
   stateUpdaters,
   contextsPath,
-  eventForwarders: {
-    contexts: contextsConfig,
-  },
+  eventForwarders,
 });
 
 export { componentDef };

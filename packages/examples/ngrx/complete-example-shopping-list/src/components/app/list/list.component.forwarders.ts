@@ -1,98 +1,91 @@
-import type {
-  ChildrenEventForwarders,
-  ComponentDef,
-  InternalEventForwarders,
-} from "@softer-components/types";
+import type { EventForwarders } from "@softer-components/types";
 
 import { throwIfUndefined } from "../../../utils/assert.functions";
 import type { Contract } from "./list.component.contract";
 
-const internalEventForwarders: InternalEventForwarders<Contract> = [
-  {
-    from: "newItemSubmitted",
-    to: "createItemOrIncrementQuantityRequested",
-    withPayload: ({ values }) => values.nextItemSanitizedName(),
-    onCondition: ({ values }) => values.isNextItemNameValid(),
-  },
-  {
-    from: "createItemOrIncrementQuantityRequested",
-    to: "createItemRequested",
-    onCondition: ({ childrenValues: { itemRows }, payload: itemName }) =>
-      Object.values(itemRows).every((itemRow) => itemRow.values.name() !== itemName),
-    withPayload: ({ payload: name, childrenValues: { itemRows } }) => ({
-      item: {
-        name,
-        id:
-          Object.keys(itemRows)
-            .map(Number)
-            .reduce((maxId, id) => (id > maxId ? id : maxId), -1) + 1,
-      },
-      quantity: 1,
-    }),
-  },
-  {
-    from: "createItemOrIncrementQuantityRequested",
-    to: "incrementItemQuantityRequested",
-    onCondition: ({ childrenValues: { itemRows }, payload: itemName }) =>
-      Object.values(itemRows).some((itemRow) => itemRow.values.name() === itemName),
-    withPayload: ({ childrenValues: { itemRows }, payload: itemName }) =>
-      Object.entries(itemRows)
-        .filter(([, item]) => item.values.name() === itemName)
-        .map(([key]) => key)
-        .map(Number)[0],
-  },
-  {
-    from: "createItemOrIncrementQuantityRequested",
-    to: "resetNextItemNameRequested",
-  },
-  {
-    from: "createItemRequested",
-    to: "saveRequested",
-  },
-  {
-    from: "removeItemRequested",
-    to: "saveRequested",
-  },
-];
-const childrenEventForwarders: ChildrenEventForwarders<Contract> = {
-  itemRows: {
-    commands: [
-      {
-        from: "incrementItemQuantityRequested",
-        to: "incrementRequested",
-        toKeys: ({ payload: id }) => [`${id}`],
-      },
-      {
-        from: "createItemRequested",
-        to: "initialize",
-        toKeys: ({
-          payload: {
-            item: { id },
-          },
-        }) => [`${id}`],
-      },
-      {
-        from: "initialize",
-        to: "initialize",
-        withPayload: ({ childKey, payload: { listItems } }) =>
-          throwIfUndefined(listItems.find((i) => i.item.id === parseInt(childKey))),
-      },
-    ],
-    listeners: [
-      {
-        from: "removeItemRequested",
-        to: "removeItemRequested",
-        withPayload: ({ childKey }) => parseInt(childKey),
-      },
-      {
-        from: "itemChanged",
-        to: "saveRequested",
-      },
-    ],
-  },
-};
-
 export const eventForwarders = {
-  internal: internalEventForwarders,
-  children: childrenEventForwarders,
-} satisfies NonNullable<ComponentDef<Contract>["eventForwarders"]>;
+  internal: [
+    {
+      from: "newItemSubmitted",
+      to: "createItemOrIncrementQuantityRequested",
+      withPayload: ({ values }) => values.nextItemSanitizedName(),
+      onCondition: ({ values }) => values.isNextItemNameValid(),
+    },
+    {
+      from: "createItemOrIncrementQuantityRequested",
+      to: "createItemRequested",
+      onCondition: ({ childrenValues: { itemRows }, payload: itemName }) =>
+        Object.values(itemRows).every((itemRow) => itemRow.values.name() !== itemName),
+      withPayload: ({ payload: name, childrenValues: { itemRows } }) => ({
+        item: {
+          name,
+          id:
+            Object.keys(itemRows)
+              .map(Number)
+              .reduce((maxId, id) => (id > maxId ? id : maxId), -1) + 1,
+        },
+        quantity: 1,
+      }),
+    },
+    {
+      from: "createItemOrIncrementQuantityRequested",
+      to: "incrementItemQuantityRequested",
+      onCondition: ({ childrenValues: { itemRows }, payload: itemName }) =>
+        Object.values(itemRows).some((itemRow) => itemRow.values.name() === itemName),
+      withPayload: ({ childrenValues: { itemRows }, payload: itemName }) =>
+        Object.entries(itemRows)
+          .filter(([, item]) => item.values.name() === itemName)
+          .map(([key]) => key)
+          .map(Number)[0],
+    },
+    {
+      from: "createItemOrIncrementQuantityRequested",
+      to: "resetNextItemNameRequested",
+    },
+    {
+      from: "createItemRequested",
+      to: "saveRequested",
+    },
+    {
+      from: "removeItemRequested",
+      to: "saveRequested",
+    },
+  ],
+  children: {
+    itemRows: {
+      commands: [
+        {
+          from: "incrementItemQuantityRequested",
+          to: "incrementRequested",
+          toKeys: ({ payload: id }) => [`${id}`],
+        },
+        {
+          from: "createItemRequested",
+          to: "initialize",
+          toKeys: ({
+            payload: {
+              item: { id },
+            },
+          }) => [`${id}`],
+        },
+        {
+          from: "initialize",
+          to: "initialize",
+          withPayload: ({ childKey, payload: { listItems } }) =>
+            throwIfUndefined(listItems.find((i) => i.item.id === parseInt(childKey))),
+        },
+      ],
+      listeners: [
+        {
+          from: "removeItemRequested",
+          to: "removeItemRequested",
+          withPayload: ({ childKey }) => parseInt(childKey),
+        },
+        {
+          from: "itemChanged",
+          to: "saveRequested",
+        },
+      ],
+    },
+  },
+} satisfies EventForwarders<Contract>;

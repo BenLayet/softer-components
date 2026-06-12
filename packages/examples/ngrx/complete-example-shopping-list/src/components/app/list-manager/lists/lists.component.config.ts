@@ -2,7 +2,7 @@ import type { ComponentDef } from "@softer-components/types";
 
 import { effects } from "./lists.component.effects";
 import { uiEvents } from "./lists.component.events";
-import { contextsConfig, eventForwarders } from "./lists.component.forwarders";
+import { eventForwarders } from "./lists.component.forwarders";
 import { selectors } from "./lists.component.selectors";
 import type { State } from "./lists.component.state";
 import { initialState } from "./lists.component.state";
@@ -20,8 +20,5 @@ export const componentDef = ({
   stateUpdaters,
   effects: effects(dependencies),
   contextsPath,
-  eventForwarders: {
-    internal: eventForwarders,
-    contexts: contextsConfig,
-  },
+  eventForwarders,
 });

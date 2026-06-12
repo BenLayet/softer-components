@@ -261,3 +261,12 @@ export type ContextsEventForwarders<
     TContextsDef[K] & { type: "unique" }
   >;
 };
+export type EventForwarders<
+  TComponentContract extends ComponentContract,
+  TContextsDef extends ContextsDef | undefined = undefined,
+> = {
+  internal?: InternalEventForwarders<TComponentContract>;
+  children?: ChildrenEventForwarders<TComponentContract>;
+} & (TContextsDef extends ContextsDef
+  ? { contexts?: ContextsEventForwarders<TComponentContract, TContextsDef> }
+  : { contexts?: never });

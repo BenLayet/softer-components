@@ -1,26 +1,28 @@
-import type { ContextsEventForwarders } from "@softer-components/types";
+import type { EventForwarders } from "@softer-components/types";
 
 import type { Contract } from "./user-menu.component.contract";
 import { userContextSymbol } from "../user-context/user-context.component";
 import type { ContextsDef } from "./user-menu.component.dependencies";
 
-export const contextsConfig: ContextsEventForwarders<Contract, ContextsDef> = {
-  [userContextSymbol]: {
-    commands: [
-      {
-        from: "signOutRequested",
-        to: "signOutRequested",
-      },
-    ],
-    listeners: [
-      {
-        from: "signOutSucceeded",
-        to: "signOutSucceeded",
-      },
-      {
-        from: "authenticated",
-        to: "authenticated",
-      },
-    ],
+export const eventForwarders = {
+  contexts: {
+    [userContextSymbol]: {
+      commands: [
+        {
+          from: "signOutRequested",
+          to: "signOutRequested",
+        },
+      ],
+      listeners: [
+        {
+          from: "signOutSucceeded",
+          to: "signOutSucceeded",
+        },
+        {
+          from: "authenticated",
+          to: "authenticated",
+        },
+      ],
+    },
   },
-};
+} satisfies EventForwarders<Contract, ContextsDef>;

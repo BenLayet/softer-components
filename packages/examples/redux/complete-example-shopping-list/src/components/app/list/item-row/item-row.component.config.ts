@@ -11,7 +11,5 @@ export const componentDef = (): ComponentDef<Contract, State> => ({
   selectors,
   uiEvents,
   stateUpdaters,
-  eventForwarders: {
-    internal: eventForwarders,
-  },
+  eventForwarders,
 });
