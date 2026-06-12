@@ -29,15 +29,15 @@ const findComponentDefFromComponentPathParts = (
     return componentDef as ComponentDef;
   }
   const childName = componentPath[0];
-  if (typeof componentDef.childrenComponentDefs !== "object") {
+  if (typeof componentDef.eventForwarders?.children !== "object") {
     throw new Error(
-      `invalid path: childName = '${childName}' not found at path '${componentPath}'. no childrenComponentDefs defined.`,
+      `invalid path: childName = '${childName}' not found at path '${componentPath}'. no eventForwarders.children defined.`,
     );
   }
-  const child = componentDef.childrenComponentDefs[childName];
+  const child = componentDef.eventForwarders.children[childName];
   if (!child) {
     const childrenNames = JSON.stringify(
-      Object.keys(componentDef.childrenComponentDefs),
+      Object.keys(componentDef.eventForwarders.children),
     );
     throw new Error(
       `invalid path: childName = '${childName}' not found. Valid children names = ${childrenNames}`,

@@ -17,6 +17,8 @@ export const componentDef = (dependencies: {
   selectors,
   uiEvents,
   stateUpdaters,
-  eventForwarders,
   effects: effects(dependencies),
+  eventForwarders: {
+    internal: eventForwarders,
+  },
 });

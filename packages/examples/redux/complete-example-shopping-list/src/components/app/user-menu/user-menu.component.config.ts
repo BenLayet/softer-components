@@ -13,6 +13,8 @@ export const componentDef = ({
 }): ComponentDef<Contract, undefined, UserContextDef> => ({
   selectors,
   uiEvents,
-  contextsConfig,
   contextsPath,
+  eventForwarders: {
+    contexts: contextsConfig,
+  },
 });

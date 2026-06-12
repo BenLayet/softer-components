@@ -10,14 +10,14 @@ describe("findComponentDef", () => {
   });
   it("returns a child component", () => {
     const child = {};
-    const root = { childrenComponentDefs: { child } };
+    const root = { eventForwarders: { children: { child } } };
     const result = findComponentDefFromStatePath(root, [["child", "0"]]);
     expect(result).toEqual(child);
   });
   it("returns a grand child component", () => {
     const grandChild = {};
-    const child = { childrenComponentDefs: { grandChild } };
-    const root = { childrenComponentDefs: { child } };
+    const child = { eventForwarders: { children: { grandChild } } };
+    const root = { eventForwarders: { children: { child } } };
     const result = findComponentDefFromStatePath(root, [
       ["child", "0"],
       ["grandChild", "0"],

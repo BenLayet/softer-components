@@ -16,12 +16,14 @@ describe("event forwarding tests", () => {
   it("generates an event from a simple event forwarder", () => {
     // GIVEN
     const componentDef = {
-      eventForwarders: [
-        {
-          from: "btnClicked",
-          to: "incrementRequested",
-        },
-      ],
+      eventForwarders: {
+        internal: [
+          {
+            from: "btnClicked",
+            to: "incrementRequested",
+          },
+        ],
+      },
     };
     const event: SofterEvent = {
       name: "btnClicked",
@@ -57,8 +59,10 @@ describe("event forwarding tests", () => {
     // GIVEN
     const child = {};
     const componentDef = {
-      childrenComponentDefs: {
-        child,
+      eventForwarders: {
+        children: {
+          child,
+        },
       },
       childrenConfig: {
         child: {
@@ -107,8 +111,10 @@ describe("event forwarding tests", () => {
     // GIVEN
     const child = {};
     const componentDef = {
-      childrenComponentDefs: {
-        child,
+      eventForwarders: {
+        children: {
+          child,
+        },
       },
       childrenConfig: {
         child: {
@@ -190,13 +196,15 @@ describe("event forwarding tests", () => {
           selectors: {
             isPassing: state => state.isPassing,
           },
-          eventForwarders: [
-            {
-              from: "btnClicked",
-              to: "incrementRequested",
-              onCondition: ({ values }) => values.isPassing(),
-            },
-          ],
+          eventForwarders: {
+            internal: [
+              {
+                from: "btnClicked",
+                to: "incrementRequested",
+                onCondition: ({ values }) => values.isPassing(),
+              },
+            ],
+          },
         };
         const event: SofterEvent = {
           name: "btnClicked",
@@ -241,13 +249,15 @@ describe("event forwarding tests", () => {
       initialState: { nextPayload: 42 },
       uiEvents: ["btnClicked"],
       selectors: { nextPayload: state => state.nextPayload },
-      eventForwarders: [
-        {
-          from: "btnClicked",
-          to: "incrementRequested",
-          withPayload: ({ values }) => values.nextPayload(),
-        },
-      ],
+      eventForwarders: {
+        internal: [
+          {
+            from: "btnClicked",
+            to: "incrementRequested",
+            withPayload: ({ values }) => values.nextPayload(),
+          },
+        ],
+      },
     };
     const event: SofterEvent = {
       name: "btnClicked",
@@ -286,8 +296,10 @@ describe("event forwarding tests", () => {
     // GIVEN
     const child = {};
     const componentDef = {
-      childrenComponentDefs: {
-        child,
+      eventForwarders: {
+        children: {
+          child,
+        },
       },
       childrenConfig: {
         child: {

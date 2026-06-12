@@ -136,8 +136,10 @@ describe("useSofter with memoization", () => {
             .map(item => item.values.name())
             .filter(name => name.includes(state.filter)),
       },
-      childrenComponentDefs: {
-        itemRows: itemDef,
+      eventForwarders: {
+        children: {
+          itemRows: itemDef,
+        },
       },
       initialChildren: { itemRows: ["1", "2", "3"] },
     };

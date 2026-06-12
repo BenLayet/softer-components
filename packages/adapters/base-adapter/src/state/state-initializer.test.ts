@@ -53,7 +53,7 @@ describe("state tests with mocks", () => {
 
     const rootDef: ComponentDef = {
       initialState: { level: 1 },
-      childrenComponentDefs: { child },
+      eventForwarders: { children: { child } },
     };
     const stateManager = {} as StateManager;
     stateManager.updateState = vi.fn();

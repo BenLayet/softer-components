@@ -74,9 +74,9 @@ function generateEventsFromOwnComponent(
     rootComponentDef,
     triggeringEvent.statePath,
   );
-  if (typeof componentDef.eventForwarders !== "object") return [];
-  const forwarders = componentDef.eventForwarders.filter(
-    forwarder => forwarder.from === triggeringEvent.name,
+  if (typeof componentDef.eventForwarders?.internal !== "object") return [];
+  const forwarders = componentDef.eventForwarders.internal.filter(
+    (forwarder: any) => forwarder.from === triggeringEvent.name,
   );
 
   if (forwarders.length === 0) {
@@ -91,7 +91,7 @@ function generateEventsFromOwnComponent(
 
   return forwarders
     .filter(
-      forwarder =>
+      (forwarder: any) =>
         !forwarder.onCondition || forwarder.onCondition(eventConsumerInput()),
     )
     .map((forwarder: any) => ({
@@ -122,10 +122,12 @@ function generateEventsToParent(
     triggeringEvent.statePath[triggeringEvent.statePath.length - 1]?.[0];
   assertIsNotUndefined(childName);
 
-  if (typeof parentComponentDef.childrenEventForwarders !== "object") return [];
-  const childListeners = parentComponentDef.childrenEventForwarders[
+  if (typeof parentComponentDef.childrenConfig !== "object") return [];
+  const childListeners = parentComponentDef.childrenConfig[
     childName
-  ]?.listeners?.filter(listener => listener.from === triggeringEvent.name);
+  ]?.listeners?.filter(
+    (listener: any) => listener.from === triggeringEvent.name,
+  );
 
   if (!childListeners || childListeners.length === 0) {
     return [];
@@ -138,7 +140,7 @@ function generateEventsToParent(
 
   return childListeners
     .filter(
-      listener =>
+      (listener: any) =>
         !listener.onCondition || listener.onCondition(eventConsumerInput()),
     )
     .map((listener: any) => ({
@@ -161,9 +163,9 @@ function generateEventsToChildren(
     triggeringEvent.statePath,
   );
 
-  if (typeof componentDef.childrenEventForwarders !== "object") return [];
+  if (typeof componentDef.childrenConfig !== "object") return [];
   const childrenCommands = Object.entries(
-    componentDef.childrenEventForwarders ?? {},
+    componentDef.childrenConfig ?? {},
   ).flatMap(([childName, childConfig]) =>
     (childConfig?.commands ?? [])
       .filter(command => command.from === triggeringEvent.name)
@@ -213,7 +215,7 @@ function generateEventsToContext(
     rootComponentDef,
     triggeringEvent.statePath,
   );
-  const contextsConfig = componentDef.contextsEventForwarders;
+  const contextsConfig = componentDef.eventForwarders?.contexts;
   if (typeof contextsConfig !== "object") return [];
   const contextCommands = Object.getOwnPropertySymbols(contextsConfig)
     .map(contextSymbol => [contextSymbol, contextsConfig[contextSymbol]])
@@ -221,8 +223,8 @@ function generateEventsToContext(
       assertIsNotUndefined(contextConfig);
       assertIsNotSymbol(contextConfig);
       return (contextConfig.commands ?? [])
-        .filter(command => command.from === triggeringEvent.name)
-        .map(command => ({
+        .filter((command: any) => command.from === triggeringEvent.name)
+        .map((command: any) => ({
           contextSymbol,
           command: command as FromEventDefToChildEventDef<any, true, any, any>,
         }));

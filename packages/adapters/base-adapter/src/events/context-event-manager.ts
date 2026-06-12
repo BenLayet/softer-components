@@ -120,7 +120,7 @@ const stateTreeListener = (
       statePath,
     );
 
-    const contextsConfig = componentDef.contextsEventForwarders;
+    const contextsConfig = componentDef.eventForwarders?.contexts;
     if (
       typeof componentDef.contextsPath !== "object" ||
       typeof contextsConfig !== "object"

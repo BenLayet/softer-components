@@ -47,14 +47,14 @@ function initializeChildrenState(
   componentDef: ComponentDef,
   stateManager: RelativePathStateManager,
 ) {
-  if (!componentDef.childrenComponentDefs) return;
+  if (!componentDef.eventForwarders?.children) return;
   const componentDefWithChildren = componentDef as ComponentDef<{
     children: ChildrenContract;
   }>;
   const initialChildren = (componentDefWithChildren.initialChildren ??
     {}) as Record<string, ChildInstancesDef>;
 
-  Object.entries(componentDefWithChildren.childrenComponentDefs).forEach(
+  Object.entries(componentDefWithChildren.eventForwarders!.children!).forEach(
     ([childName]) => {
       initializeChildState(
         stateManager,
@@ -77,7 +77,7 @@ export function initializeChildState(
     .forEach(childStateManager => {
       initializeStateRecursively(
         (componentDef as ComponentDef<{ children: ChildrenContract }>)
-          .childrenComponentDefs?.[childName] ?? {},
+          .eventForwarders?.children?.[childName] ?? {},
         childStateManager,
       );
     });

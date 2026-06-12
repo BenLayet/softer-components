@@ -34,12 +34,14 @@ export const componentDef = (dependencies: Dependencies): ComponentDef<Contract,
     uiEvents,
     stateUpdaters,
     childrenConfig,
-    childrenComponentDefs: {
-      userContext: userContextDef(dependencies),
-      userMenu: userMenuDef({ contextsPath }),
-      signInForm: signInFormComponentDef({ contextsPath }),
-      list: listDef(dependencies),
-      listManager: listManagerDef({ dependencies, contextsPath }),
+    eventForwarders: {
+      children: {
+        userContext: userContextDef(dependencies),
+        userMenu: userMenuDef({ contextsPath }),
+        signInForm: signInFormComponentDef({ contextsPath }),
+        list: listDef(dependencies),
+        listManager: listManagerDef({ dependencies, contextsPath }),
+      },
     },
   };
 };

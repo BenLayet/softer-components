@@ -34,12 +34,14 @@ export type ComponentDef<
     readonly selectors?: Selectors<any, any, any>;
     readonly uiEvents?: readonly string[];
     readonly stateUpdaters?: StateUpdaters<any, any>;
-    readonly eventForwarders?: InternalEventForwarders<any>;
     readonly initialChildren?: Record<string, string[] | boolean | undefined>;
     readonly childrenUpdaters?: ChildrenUpdaters<any>;
-    readonly childrenEventForwarders?: ChildrenEventForwarders<any>;
-    readonly contextsEventForwarders?: ContextsEventForwarders<any, any>;
-    readonly childrenComponentDefs?: Record<string, ComponentDef>;
+    readonly childrenConfig?: ChildrenEventForwarders<any>;
+    readonly eventForwarders?: {
+      readonly internal?: InternalEventForwarders<any>;
+      readonly children?: Record<string, ComponentDef>;
+      readonly contexts?: ContextsEventForwarders<any, any>;
+    };
     readonly contextsPath?: ContextsPath;
     readonly effects?: Effects<any>;
   },
@@ -69,7 +71,9 @@ type NO_CHILDREN_DEFINED = never;
 type ChildrenPart<TComponentContract extends ComponentContract> =
   TComponentContract extends { children: ChildrenContract }
     ? {
-        readonly childrenComponentDefs: ChildrenComponentDefs<TComponentContract>;
+        readonly eventForwarders: {
+          readonly children: ChildrenComponentDefs<TComponentContract>;
+        };
         readonly childrenConfig?: ChildrenEventForwarders<TComponentContract>;
         readonly childrenUpdaters?: ChildrenUpdaters<TComponentContract>;
       } & (TComponentContract["children"][keyof TComponentContract["children"]] extends {
@@ -86,7 +90,6 @@ type ChildrenPart<TComponentContract extends ComponentContract> =
             >;
           })
     : {
-        readonly childrenComponentDefs?: NO_CHILDREN_DEFINED;
         readonly initialChildren?: NO_CHILDREN_DEFINED;
         readonly childrenConfig?: NO_CHILDREN_DEFINED;
         readonly childrenUpdaters?: NO_CHILDREN_DEFINED;
@@ -129,7 +132,9 @@ type EventsPart<
   {
     readonly stateUpdaters?: StateUpdaters<TComponentContract, TState>;
     readonly childrenUpdaters?: ChildrenUpdaters<TComponentContract>;
-    readonly eventForwarders?: InternalEventForwarders<TComponentContract>;
+    readonly eventForwarders?: {
+      readonly internal?: InternalEventForwarders<TComponentContract>;
+    };
     readonly effects?: Effects<TComponentContract>;
   } & (ExtractUiEvents<TComponentContract> extends never | []
     ? {
@@ -143,7 +148,6 @@ type EventsPart<
     readonly uiEvents?: NO_EVENTS_DEFINED;
     readonly stateUpdaters?: NO_EVENTS_DEFINED;
     readonly childrenUpdaters?: NO_EVENTS_DEFINED;
-    readonly eventForwarders?: NO_EVENTS_DEFINED;
     readonly effects?: NO_EVENTS_DEFINED;
   }
 >;
@@ -155,11 +159,12 @@ type ContextsPart<
 > = TContexts extends ContextsDef
   ? {
       contextsPath: ContextsPath<TContexts>;
-      contextsConfig?: ContextsEventForwarders<TComponentContract, TContexts>;
+      readonly eventForwarders?: {
+        readonly contexts?: ContextsEventForwarders<TComponentContract, TContexts>;
+      };
     }
   : {
       contextsPath?: NO_CONTEXT_DEFINED;
-      contextsConfig?: NO_CONTEXT_DEFINED;
     };
 /***************************************************************************************************************
  * // --- app-utilities to detect `any` and branch in conditional types ---

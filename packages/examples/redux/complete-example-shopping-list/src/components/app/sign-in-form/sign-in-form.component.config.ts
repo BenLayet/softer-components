@@ -15,8 +15,10 @@ const componentDef = ({
   selectors,
   uiEvents,
   stateUpdaters,
-  contextsConfig,
   contextsPath,
+  eventForwarders: {
+    contexts: contextsConfig,
+  },
 });
 
 export { componentDef };

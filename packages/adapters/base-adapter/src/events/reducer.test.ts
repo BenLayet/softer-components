@@ -378,13 +378,15 @@ const itemDef: ComponentDef<ItemContract, ItemState> = {
       state.quantity--;
     },
   },
-  eventForwarders: [
-    {
-      from: "decrementQuantityRequested",
-      to: "removeRequested",
-      onCondition: ({ values }) => values.isEmpty(),
-    },
-  ],
+  eventForwarders: {
+    internal: [
+      {
+        from: "decrementQuantityRequested",
+        to: "removeRequested",
+        onCondition: ({ values }) => values.isEmpty(),
+      },
+    ],
+  },
 };
 
 /////////////////////
@@ -459,39 +461,41 @@ const listDef: ComponentDef<ListContract, ListState> = {
       items.splice(items.indexOf(`${idToRemove}`), 1);
     },
   },
-  eventForwarders: [
-    {
-      from: "newItemSubmitted",
-      to: "addItemRequested",
-      withPayload: ({ values }) => values.nextItemName().trim(),
-      onCondition: ({ values }) => values.nextItemName().trim() !== "",
-    },
-    {
-      from: "addItemRequested",
-      to: "createItemRequested",
-      onCondition: ({ childrenValues: { items }, payload: itemName }) =>
-        Object.values(items).every(item => item.values.name() !== itemName),
-      withPayload: ({ values, payload: itemName }) => ({
-        itemName,
-        itemId: values.nextItemId(),
-      }),
-    },
-    {
-      from: "addItemRequested",
-      to: "incrementItemQuantityRequested",
-      onCondition: ({ childrenValues: { items }, payload: itemName }) =>
-        Object.values(items).some(item => item.values.name() === itemName),
-      withPayload: ({ childrenValues: { items }, payload: itemName }) =>
-        Object.entries(items)
-          .filter(([, item]) => item.values.name() === itemName)
-          .map(([key]) => parseInt(key))[0],
-    },
-    {
-      from: "addItemRequested",
-      to: "resetItemNameRequested",
-    },
-  ],
-  childrenComponentDefs: childrenComponents,
+  eventForwarders: {
+    internal: [
+      {
+        from: "newItemSubmitted",
+        to: "addItemRequested",
+        withPayload: ({ values }) => values.nextItemName().trim(),
+        onCondition: ({ values }) => values.nextItemName().trim() !== "",
+      },
+      {
+        from: "addItemRequested",
+        to: "createItemRequested",
+        onCondition: ({ childrenValues: { items }, payload: itemName }) =>
+          Object.values(items).every(item => item.values.name() !== itemName),
+        withPayload: ({ values, payload: itemName }) => ({
+          itemName,
+          itemId: values.nextItemId(),
+        }),
+      },
+      {
+        from: "addItemRequested",
+        to: "incrementItemQuantityRequested",
+        onCondition: ({ childrenValues: { items }, payload: itemName }) =>
+          Object.values(items).some(item => item.values.name() === itemName),
+        withPayload: ({ childrenValues: { items }, payload: itemName }) =>
+          Object.entries(items)
+            .filter(([, item]) => item.values.name() === itemName)
+            .map(([key]) => parseInt(key))[0],
+      },
+      {
+        from: "addItemRequested",
+        to: "resetItemNameRequested",
+      },
+    ],
+    children: childrenComponents,
+  },
   initialChildren: { items: [] },
   childrenConfig: {
     items: {

@@ -18,11 +18,13 @@ const componentDef = (dependencies: Dependencies): ComponentDef<Contract, State>
     uiEvents,
     stateUpdaters,
     childrenUpdaters,
-    eventForwarders,
     childrenConfig,
     effects: effects(dependencies),
-    childrenComponentDefs: {
-      itemRows: itemRowDef(),
+    eventForwarders: {
+      internal: eventForwarders,
+      children: {
+        itemRows: itemRowDef(),
+      },
     },
     initialChildren: { itemRows: [] },
   };

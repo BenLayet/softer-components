@@ -43,7 +43,7 @@ describe("createValuesProvider", () => {
     };
     type RootContract = { children: { child: ChildContract } };
     const rootDef: ComponentDef<RootContract> = {
-      childrenComponentDefs: { child: childDef },
+      eventForwarders: { children: { child: childDef } },
     };
     const mockStateReader = {
       currentPath: [],
