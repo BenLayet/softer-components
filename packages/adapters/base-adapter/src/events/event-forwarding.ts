@@ -249,7 +249,9 @@ function generateEventsToContext(
       return {
         name: command.to,
         statePath: stringToStatePath(
-          ensureIsNotUndefined(componentDef.contextsPath?.[contextSymbol]),
+          ensureIsNotUndefined(
+            componentDef.config?.contextsPath?.[contextSymbol],
+          ),
         ),
         payload: command.withPayload
           ? (command as any).withPayload({ ...eventConsumerInput() })

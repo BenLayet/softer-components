@@ -20,8 +20,10 @@ export const componentDef = ({
 }): ComponentDef<Contract> => ({
   selectors,
   eventForwarders,
-  childrenDefs: {
-    lists: listsDef({ dependencies, contextsPath }),
-    createList: createListDef(dependencies),
+  config: {
+    childrenDefs: {
+      lists: listsDef({ dependencies, contextsPath }),
+      createList: createListDef(dependencies),
+    },
   },
 });

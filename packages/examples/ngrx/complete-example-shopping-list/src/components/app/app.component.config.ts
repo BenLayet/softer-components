@@ -12,11 +12,8 @@ import { stateUpdaters } from "./app.component.updaters";
 import { listDef } from "./list/list.component";
 import { listManagerDef } from "./list-manager/list-manager.component";
 import { signInFormComponentDef } from "./sign-in-form/sign-in-form.component";
-import {
-  type UserContextContract,
-  userContextDef,
-  userContextSymbol,
-} from "./user-context/user-context.component";
+import type { userContextSymbol } from "./user-context/user-context.component";
+import { type UserContextContract, userContextDef } from "./user-context/user-context.component";
 import { userMenuDef } from "./user-menu/user-menu.component";
 
 type Dependencies = {
@@ -39,12 +36,14 @@ export const componentDef = ({
     uiEvents,
     stateUpdaters,
     eventForwarders,
-    childrenDefs: {
-      userContext: userContextDef(dependencies),
-      userMenu: userMenuDef({ contextsPath }),
-      signInForm: signInFormComponentDef({ contextsPath }),
-      list: listDef(dependencies),
-      listManager: listManagerDef({ dependencies, contextsPath }),
+    config: {
+      childrenDefs: {
+        userContext: userContextDef(dependencies),
+        userMenu: userMenuDef({ contextsPath }),
+        signInForm: signInFormComponentDef({ contextsPath }),
+        list: listDef(dependencies),
+        listManager: listManagerDef({ dependencies, contextsPath }),
+      },
     },
   };
 };

@@ -136,11 +136,7 @@ describe("useSofter with memoization", () => {
             .map(item => item.values.name())
             .filter(name => name.includes(state.filter)),
       },
-      eventForwarders: {
-        children: {
-          itemRows: itemDef,
-        },
-      },
+      config: { childrenDefs: { itemRows: itemDef } },
       initialChildren: { itemRows: ["1", "2", "3"] },
     };
 

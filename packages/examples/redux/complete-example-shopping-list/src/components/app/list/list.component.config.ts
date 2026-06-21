@@ -19,9 +19,11 @@ const componentDef = (dependencies: Dependencies): ComponentDef<Contract, State>
     stateUpdaters,
     childrenUpdaters,
     eventForwarders,
-    effects: effects(dependencies),
-    childrenDefs: {
-      itemRows: itemRowDef(),
+    config: {
+      effects: effects(dependencies),
+      childrenDefs: {
+        itemRows: itemRowDef(),
+      },
     },
     initialChildren: { itemRows: [] },
   };

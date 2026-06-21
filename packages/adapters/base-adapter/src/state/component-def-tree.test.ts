@@ -10,14 +10,14 @@ describe("findComponentDef", () => {
   });
   it("returns a child component", () => {
     const child = {};
-    const root = { childrenDefs: { child } };
+    const root = { config: { childrenDefs: { child } } };
     const result = findComponentDefFromStatePath(root, [["child", "0"]]);
     expect(result).toEqual(child);
   });
   it("returns a grand child component", () => {
     const grandChild = {};
-    const child = { childrenDefs: { grandChild } };
-    const root = { childrenDefs: { child } };
+    const child = { config: { childrenDefs: { grandChild } } };
+    const root = { config: { childrenDefs: { child } } };
     const result = findComponentDefFromStatePath(root, [
       ["child", "0"],
       ["grandChild", "0"],

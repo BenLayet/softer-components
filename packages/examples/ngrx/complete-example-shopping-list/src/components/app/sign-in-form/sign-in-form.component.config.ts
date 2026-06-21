@@ -15,7 +15,7 @@ const componentDef = ({
   selectors,
   uiEvents,
   stateUpdaters,
-  contextsPath,
+  config: { contextsPath },
   eventForwarders,
 });
 

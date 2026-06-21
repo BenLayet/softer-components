@@ -161,7 +161,7 @@ function updateChildrenState(
   desiredChildrenKeys: Record<string, boolean | string[]>,
   stateManager: RelativePathStateManager,
 ) {
-  const childrenComponentDefs = componentDef.childrenDefs;
+  const childrenComponentDefs = componentDef.config?.childrenDefs;
   if (typeof childrenComponentDefs !== "object") {
     return;
   }

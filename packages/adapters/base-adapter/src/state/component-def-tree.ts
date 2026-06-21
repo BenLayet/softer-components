@@ -29,15 +29,15 @@ const findComponentDefFromComponentPathParts = (
     return componentDef as ComponentDef;
   }
   const childName = componentPath[0];
-  if (typeof componentDef.childrenDefs !== "object") {
+  if (typeof componentDef.config?.childrenDefs !== "object") {
     throw new Error(
       `invalid path: childName = '${childName}' not found at path '${componentPath}'. no childrenDefs defined.`,
     );
   }
-  const child = componentDef.childrenDefs[childName];
+  const child = componentDef.config.childrenDefs[childName];
   if (!child) {
     const childrenNames = JSON.stringify(
-      Object.keys(componentDef.childrenDefs),
+      Object.keys(componentDef.config.childrenDefs),
     );
     throw new Error(
       `invalid path: childName = '${childName}' not found. Valid children names = ${childrenNames}`,

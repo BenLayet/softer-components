@@ -175,7 +175,7 @@ describe("createSofterReducer", () => {
           state.name = payload as string;
         },
       },
-      childrenDefs: { items: itemDef },
+      config: { childrenDefs: { items: itemDef } },
       eventForwarders: { children: {} },
       initialChildren: { items: [] },
       childrenUpdaters: {

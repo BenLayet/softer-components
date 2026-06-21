@@ -519,6 +519,6 @@ const listDef: ComponentDef<ListContract, ListState> = {
       },
     },
   },
-  childrenDefs: childrenComponents,
+  config: { childrenDefs: childrenComponents },
   initialChildren: { items: [] },
 };

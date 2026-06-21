@@ -59,8 +59,10 @@ describe("event forwarding tests", () => {
     // GIVEN
     const child = {};
     const componentDef = {
-      childrenDefs: {
-        child,
+      config: {
+        childrenDefs: {
+          child,
+        },
       },
       eventForwarders: {
         children: {
@@ -111,8 +113,10 @@ describe("event forwarding tests", () => {
     // GIVEN
     const child = {};
     const componentDef = {
-      childrenDefs: {
-        child,
+      config: {
+        childrenDefs: {
+          child,
+        },
       },
       eventForwarders: {
         children: {
@@ -296,8 +300,10 @@ describe("event forwarding tests", () => {
     // GIVEN
     const child = {};
     const componentDef = {
-      childrenDefs: {
-        child,
+      config: {
+        childrenDefs: {
+          child,
+        },
       },
       eventForwarders: {
         children: {

@@ -97,7 +97,7 @@ function createChildrenValues(
   );
   const childrenKeys = stateReader.getChildrenKeys();
   assertIsNotUndefined(childrenKeys, "childrenKeys should not be undefined");
-  const childrenComponentDefs = componentDef.childrenDefs;
+  const childrenComponentDefs = componentDef.config?.childrenDefs;
   if (typeof childrenComponentDefs !== "object") {
     return {} as ChildrenValues;
   }
@@ -151,7 +151,7 @@ function createContextsValues(
     rootComponentDef,
     stateReader.currentPath,
   );
-  const contextsPath = componentDef.contextsPath;
+  const contextsPath = componentDef.config?.contextsPath;
   if (contextsPath === undefined) {
     return {} as ContextsValues;
   }

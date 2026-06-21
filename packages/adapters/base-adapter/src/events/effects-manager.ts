@@ -23,10 +23,10 @@ export class EffectsManager {
       this.rootComponentDef,
       event.statePath,
     );
-    if (typeof componentDefOfEvent.effects !== "object") {
+    if (typeof componentDefOfEvent.config?.effects !== "object") {
       return;
     }
-    const effect = componentDefOfEvent.effects[event.name];
+    const effect = componentDefOfEvent.config.effects[event.name];
     if (isUndefined(effect)) {
       return Promise.resolve();
     }

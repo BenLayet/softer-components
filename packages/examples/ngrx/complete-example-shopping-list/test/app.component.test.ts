@@ -1,7 +1,12 @@
 import { initTestStore, TestStore } from "@softer-components/test-utilities";
+import type { StatePathString } from "@softer-components/types";
 import { beforeEach, describe, expect, it } from "vitest";
 
 import { AppContract, appDef } from "../src/components/app/app.component";
+import {
+  type UserContextContract,
+  userContextSymbol,
+} from "../src/components/app/user-context/user-context.component";
 import {
   CREATE_LIST,
   FIRST_ITEM,
@@ -18,12 +23,16 @@ import {
 } from "./app.component.steps";
 import { MockDependencies } from "./mock-dependencies";
 
+const contextsPath = {
+  [userContextSymbol]: "/userContext" as StatePathString<UserContextContract>,
+};
+
 describe("app.component", () => {
   let testStore: TestStore<AppContract>;
   let mockDependencies: MockDependencies;
   beforeEach(() => {
     mockDependencies = new MockDependencies();
-    testStore = initTestStore(appDef(mockDependencies));
+    testStore = initTestStore(appDef({ dependencies: mockDependencies, contextsPath }));
   });
   it("initial list name is empty", () => {
     expect(testStore.getValues(CREATE_LIST).listName()).toBe("");

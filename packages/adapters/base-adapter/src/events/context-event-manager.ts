@@ -122,7 +122,7 @@ const stateTreeListener = (
 
     const contextsConfig = componentDef.eventForwarders?.contexts;
     if (
-      typeof componentDef.contextsPath !== "object" ||
+      typeof componentDef.config?.contextsPath !== "object" ||
       typeof contextsConfig !== "object"
     ) {
       return;
@@ -131,7 +131,9 @@ const stateTreeListener = (
       const contextConfig = contextsConfig[contextSymbol];
       assertIsNotUndefined(contextConfig);
       const contextComponentStatePath = stringToStatePath(
-        ensureIsNotUndefined(componentDef.contextsPath?.[contextSymbol]),
+        ensureIsNotUndefined(
+          componentDef.config?.contextsPath?.[contextSymbol],
+        ),
       );
       const contextComponentPath = statePathToComponentPath(
         contextComponentStatePath,
