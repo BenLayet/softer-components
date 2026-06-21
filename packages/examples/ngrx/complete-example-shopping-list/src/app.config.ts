@@ -16,11 +16,11 @@ import {
 
 const authenticationService = new DemoAuthenticationService();
 const listService = new DemoListService(authenticationService);
-const dependencies = { listService, authenticationService };
+const services = { listService, authenticationService };
 const contextsPath = {
   [userContextSymbol]: "/userContext" as StatePathString<UserContextContract>,
 };
-const configuration = { dependencies, contextsPath };
+const dependencies = { services, contextsPath };
 const devProviders = environment.devToolsEnabled
   ? [provideStoreDevtools({ maxAge: 25, logOnly: false })]
   : [];
@@ -28,7 +28,7 @@ export const appConfig: ApplicationConfig = {
   providers: [
     provideBrowserGlobalErrorListeners(),
     provideStore(),
-    provideSofterState({ rootComponentDef: appDef(configuration) as ComponentDef }),
+    provideSofterState({ rootComponentDef: appDef(dependencies) as ComponentDef }),
     ...devProviders,
   ],
 };

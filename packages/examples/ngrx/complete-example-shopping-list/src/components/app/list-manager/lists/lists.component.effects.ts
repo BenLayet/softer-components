@@ -1,8 +1,8 @@
 import type { Effects } from "@softer-components/types";
 import type { Contract } from "./lists.component.contract";
-import type { EffectsDependencies } from "./lists.component.dependencies";
+import type { Dependencies } from "./lists.component.dependencies";
 
-export const effects = ({ listService }: EffectsDependencies): Effects<Contract> => ({
+export const effects = ({ listService }: Dependencies["services"]): Effects<Contract> => ({
   fetchRequested: async ({ fetchSucceeded, fetchFailed }) => {
     try {
       const allLists = await listService.getAll();

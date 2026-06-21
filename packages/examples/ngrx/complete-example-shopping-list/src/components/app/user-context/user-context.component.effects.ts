@@ -1,13 +1,10 @@
 import type { Effects } from "@softer-components/types";
-
-import type { AuthenticationService } from "../../../port/authentication.service";
 import type { Contract } from "./user-context.component.contract";
+import type { Dependencies } from "./user-context.component.dependencies";
 
-type Dependencies = {
-  authenticationService: AuthenticationService;
-};
-
-export const effects = ({ authenticationService }: Dependencies): Effects<Contract> => ({
+export const effects = ({
+  services: { authenticationService },
+}: Dependencies): Effects<Contract> => ({
   signInRequested: async (
     { signInSucceeded, signInFailed },
     { payload: { username, password } },

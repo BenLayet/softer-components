@@ -32,7 +32,7 @@ describe("app.component", () => {
   let mockDependencies: MockDependencies;
   beforeEach(() => {
     mockDependencies = new MockDependencies();
-    testStore = initTestStore(appDef({ dependencies: mockDependencies, contextsPath }));
+    testStore = initTestStore(appDef({ services: mockDependencies, contextsPath }));
   });
   it("initial list name is empty", () => {
     expect(testStore.getValues(CREATE_LIST).listName()).toBe("");

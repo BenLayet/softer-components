@@ -17,7 +17,7 @@
     "type-check:watch": "tsc --noEmit --watch",
     "build": "pnpm type-check && vite build"
   },
-  "dependencies": {
+  "services": {
     "@reduxjs/toolkit": "^2.6.1",
     "@softer-components/redux-adapter": "workspace:^",
     "@softer-components/types": "workspace:^",

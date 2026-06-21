@@ -183,6 +183,33 @@ type ContextsPart<
         readonly contextsPath?: NO_CONTEXT_DEFINED;
       };
     };
+
+export type ComponentDefConfig<
+  TComponentContract extends ComponentContract,
+  TContextsDef extends ContextsDef = {},
+> = IfNonEmptyRecord<
+  TComponentContract["children"],
+  {
+    readonly childrenDefs: ChildrenComponentDefs<TComponentContract>;
+  },
+  {}
+> &
+  IfNonEmptyRecord<
+    TContextsDef,
+    {
+      readonly contextsPath: ContextsPath<TContextsDef>;
+    },
+    {}
+  > &
+  IfNonEmptyRecord<
+    TComponentContract["events"],
+    {
+      readonly effects?: Effects<TComponentContract>;
+    },
+    {
+      readonly effects?: never;
+    }
+  >;
 /***************************************************************************************************************
  * // --- app-utilities to detect `any` and branch in conditional types ---
  * // Detect `any`: true when T is `any`, false otherwise

@@ -1,13 +1,9 @@
 import type { Effects } from "@softer-components/types";
 
-import type { ListService } from "../../../../port/list.service";
 import type { Contract } from "./create-list.component.contract";
+import type { Dependencies } from "./create-list.component.dependencies";
 
-export type EffectsDependencies = {
-  listService: ListService;
-};
-
-export const effects = ({ listService }: EffectsDependencies): Effects<Contract> => ({
+export const effects = ({ listService }: Dependencies["services"]): Effects<Contract> => ({
   createNewListRequested: async (
     { createNewListSucceeded, createNewListFailed },
     { payload: name },

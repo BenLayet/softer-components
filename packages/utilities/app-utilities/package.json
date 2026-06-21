@@ -28,7 +28,7 @@
     "format:check": "prettier --check .",
     "tsc": "tsc --noEmit"
   },
-  "dependencies": {
+  "services": {
     "@softer-components/types": "workspace:^"
   },
   "devDependencies": {
