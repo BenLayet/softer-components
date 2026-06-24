@@ -4,7 +4,7 @@ import { createRoot } from "react-dom/client";
 import { Provider } from "react-redux";
 
 import { App, appDef } from "./components/app/app.component";
-import { dependencies } from "./dependencies";
+import { services } from "./services";
 import "./index.css";
 import type { StatePathString } from "@softer-components/types";
 import {
@@ -15,8 +15,8 @@ import {
 const contextsPath = {
   [userContextSymbol]: "/userContext" as StatePathString<UserContextContract>,
 };
-const configuration = { dependencies, contextsPath };
-export const store = configureSofterStore(appDef(configuration));
+const dependencies = { services, contextsPath };
+export const store = configureSofterStore(appDef(dependencies));
 const container = document.getElementById("root");
 
 if (container) {

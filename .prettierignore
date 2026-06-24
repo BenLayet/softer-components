@@ -2,7 +2,7 @@
 **/lib
 **/dist
 
-# Ignore dependencies
+# Ignore services
 **/node_modules
 
 # Ignore lock files

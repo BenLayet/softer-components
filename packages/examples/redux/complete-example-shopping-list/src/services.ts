@@ -3,4 +3,4 @@ import { DemoListService } from "./adapter/demo-list.service";
 
 const authenticationService = new DemoAuthenticationService();
 const listService = new DemoListService(authenticationService);
-export const dependencies = { listService, authenticationService };
+export const services = { listService, authenticationService };

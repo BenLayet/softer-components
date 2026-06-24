@@ -14,6 +14,6 @@
 
 ### Patch Changes
 
-- Updated dependencies [80abdc8]
+- Updated services [80abdc8]
   - @softer-components/types@0.8.0
   - @softer-components/utils@0.8.0

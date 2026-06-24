@@ -8,7 +8,7 @@
 
 ### Patch Changes
 
-- Updated dependencies [80abdc8]
+- Updated services [80abdc8]
   - @softer-components/types@0.8.0
   - @softer-components/utils@0.8.0
 
@@ -20,7 +20,7 @@
 
 ### Patch Changes
 
-- Updated dependencies [1ece9bb]
+- Updated services [1ece9bb]
   - @softer-components/types@0.7.0
   - @softer-components/utils@0.7.0
 
@@ -29,7 +29,7 @@
 ### Patch Changes
 
 - 02df225: fixes test-utilities exports
-- Updated dependencies [02df225]
+- Updated services [02df225]
   - @softer-components/types@0.6.1
   - @softer-components/utils@0.6.1
 
@@ -41,7 +41,7 @@
 
 ### Patch Changes
 
-- Updated dependencies [69d77db]
+- Updated services [69d77db]
   - @softer-components/types@0.6.0
   - @softer-components/utils@0.6.0
 
@@ -54,8 +54,8 @@
 
 ### Patch Changes
 
-- Updated dependencies [e518a7c]
-- Updated dependencies [cc07468]
+- Updated services [e518a7c]
+- Updated services [cc07468]
   - @softer-components/types@0.5.0
   - @softer-components/utils@0.5.0
 
@@ -64,7 +64,7 @@
 ### Patch Changes
 
 - 3afefc0: fixes packing (excludes src)
-- Updated dependencies [3afefc0]
+- Updated services [3afefc0]
   - @softer-components/types@0.4.2
   - @softer-components/utils@0.4.2
 
@@ -73,7 +73,7 @@
 ### Patch Changes
 
 - 5a64dc6: removes src from export
-- Updated dependencies [5a64dc6]
+- Updated services [5a64dc6]
   - @softer-components/types@0.4.1
   - @softer-components/utils@0.4.1
 
@@ -94,7 +94,7 @@
 
 ### Patch Changes
 
-- Updated dependencies [6291eed]
+- Updated services [6291eed]
   - @softer-components/types@0.4.0
   - @softer-components/utils@0.4.0
 
@@ -103,7 +103,7 @@
 ### Patch Changes
 
 - 6a0fca0: fixes minor typing issues
-- Updated dependencies [6a0fca0]
+- Updated services [6a0fca0]
   - @softer-components/types@0.3.3
   - @softer-components/utils@0.3.3
 
@@ -112,7 +112,7 @@
 ### Patch Changes
 
 - ead9fb8: fixes selectors (part 2)
-- Updated dependencies [ead9fb8]
+- Updated services [ead9fb8]
   - @softer-components/types@0.3.2
   - @softer-components/utils@0.3.2
 
@@ -121,7 +121,7 @@
 ### Patch Changes
 
 - fixes selectors that use children values
-- Updated dependencies
+- Updated services
   - @softer-components/types@0.3.1
   - @softer-components/utils@0.3.1
 
@@ -134,7 +134,7 @@
 
 ### Patch Changes
 
-- Updated dependencies
-- Updated dependencies [aac9205]
+- Updated services
+- Updated services [aac9205]
   - @softer-components/types@0.3.0
   - @softer-components/utils@0.3.0

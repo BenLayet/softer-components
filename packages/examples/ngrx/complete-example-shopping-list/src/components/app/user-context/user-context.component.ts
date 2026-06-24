@@ -8,7 +8,7 @@ import { stateUpdaters } from "./user-context.component.updaters";
 import { config } from "./user-context.component.config";
 import { eventForwarders } from "./user-context.component.forwarders";
 
-// Exporting the component definition as a function to allow dependencies injection
+// Exporting the component definition as a function to allow services injection
 export const userContextDef = (dependencies: Dependencies): ComponentDef<Contract, State> => ({
   initialState,
   selectors,

@@ -38,7 +38,7 @@ To address some of these new issues, the second step is to slice the global stor
 - lazy loading becomes simple
 - but again new challenges :
   - duplication of data between features stores
-  - communication between features adds boilerplate, and dependencies between them can be challenging, with a risk of circular dependencies
+  - communication between features adds boilerplate, and services between them can be challenging, with a risk of circular services
   - grouping which components into which features is not straightforward: different developers might use different practices, resulting in an inconsistent codebase
 
 Softer Components goes one step further:
@@ -50,7 +50,7 @@ Softer Components goes one step further:
     - a component is defined by a declarative 'description' of its behavior
 - maximum reusability: each component can potentially be shared and reused in any application
     - no tie to a specific platform or state manager (a component used in React/Redux can be reused in Angular/NgRx)
-- Clear dependencies: a component only knows about the 'contract' of its children
+- Clear services: a component only knows about the 'contract' of its children
     - it 'knows nothing' about its parent or the rest of the application
 - Strict separation of concerns:
     - Display logic in UI components

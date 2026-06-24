@@ -14,7 +14,7 @@ This example showcases the core principles of Softer Components:
 
 ### Component Definition (`counter.component.ts`)
 
-The component definition contains all business logic and state management without any framework dependencies: [counter.component.ts](src/components/counter/counter.component.ts)
+The component definition contains all business logic and state management without any framework services: [counter.component.ts](src/components/counter/counter.component.ts)
 
 ### UI Component (`counter.component.view.ts`)
 
@@ -34,7 +34,7 @@ The component definition contains all business logic and state management withou
 
 ### 🎯 **Pure Business Logic**
 
-- Component definition has zero dependencies on Angular or NgRx (it is in fact identical to the redux example)
+- Component definition has zero services on Angular or NgRx (it is in fact identical to the redux example)
 - Testable without any UI framework
 
 ### 🔒 **Type Safety**
@@ -60,7 +60,7 @@ The component definition can be tested independently of React:
 ## Running the Example
 
 ```bash
-# install the dependencies
+# install the services
 pnpm install
 
 # Development server
