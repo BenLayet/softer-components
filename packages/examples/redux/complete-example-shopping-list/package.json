@@ -17,7 +17,7 @@
     "type-check": "tsc --noEmit",
     "build": "pnpm type-check && vite build"
   },
-  "services": {
+  "dependencies": {
     "@reduxjs/toolkit": "^2.6.1",
     "@softer-components/redux-adapter": "workspace:^",
     "@softer-components/app-utilities": "workspace:^",

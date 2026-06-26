@@ -28,7 +28,7 @@
     "format:check": "prettier --check .",
     "tsc": "tsc --noEmit"
   },
-  "services": {
+  "dependencies": {
     "@softer-components/base-adapter": "workspace:^",
     "immer": "^10.2.0",
     "lodash": "^4.17.23"
