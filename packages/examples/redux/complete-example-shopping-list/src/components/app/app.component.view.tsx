@@ -1,11 +1,11 @@
 import { useSofter } from "@softer-components/redux-adapter";
 import { useEffect } from "react";
 
-import { AppContract } from "./app.component";
-import { List } from "./list";
-import { ListManager } from "./list-manager/";
-import { SignInForm } from "./sign-in-form";
-import { UserMenu } from "./user-menu/";
+import type { AppContract } from "./app.component";
+import { ListManager } from "./list-manager/list-manager.component";
+import { List } from "./list/list.component";
+import { SignInForm } from "./sign-in-form/sign-in-form.component";
+import { UserMenu } from "./user-menu/user-menu.component";
 
 export const View = ({ path = "" }) => {
   const [v, d, c] = useSofter<AppContract>(path);
@@ -14,9 +14,7 @@ export const View = ({ path = "" }) => {
   }, [d]);
   return (
     <div>
-      <div className="menu-bar">
-        {v.isUserMenuVisible && <UserMenu path={c.userMenu} />}
-      </div>
+      <div className="menu-bar">{v.isUserMenuVisible && <UserMenu path={c.userMenu} />}</div>
       <h1>Shopping List</h1>
       {v.page === "LIST_MANAGER" && <ListManager path={c.listManager} />}
       {v.page === "LIST" && <List path={c.list} />}

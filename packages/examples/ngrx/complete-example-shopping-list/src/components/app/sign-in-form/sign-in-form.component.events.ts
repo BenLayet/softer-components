@@ -1,6 +1,6 @@
-import { EventsContract } from "@softer-components/types";
+import type { EventsContract } from "@softer-components/types";
 
-import { AppError } from "../../../model/errors";
+import type { AppError } from "../../../model/errors";
 
 export const uiEvents = [
   "usernameChanged",
@@ -9,11 +9,7 @@ export const uiEvents = [
   "signInCancelled",
   "demoUserClicked",
 ] as const;
-export const allEvents = [
-  ...uiEvents,
-  "signInFailed",
-  "signInSucceeded",
-] as const;
+export const allEvents = [...uiEvents, "signInFailed", "signInSucceeded"] as const;
 export type Events = EventsContract<
   typeof allEvents,
   {

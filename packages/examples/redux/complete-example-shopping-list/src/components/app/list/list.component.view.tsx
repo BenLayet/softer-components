@@ -1,20 +1,25 @@
 import { useSofter } from "@softer-components/redux-adapter";
 
-import { ItemRow } from "./item-row";
-import { ListContract } from "./list.component";
+import { ItemRow } from "./item-row/item-row.component";
+import type { ListContract } from "./list.component";
 
 export const View = ({ path = "" }) => {
   const [v, d, c] = useSofter<ListContract>(path);
   return (
     <div>
       <p style={{ textAlign: "start", width: "300px" }}>
-        <a className="clickable" onClick={() => d.goBackClicked()}>
+        <a
+          className="clickable"
+          onClick={() => {
+            d.goBackClicked();
+          }}
+        >
           All lists
         </a>{" "}
         &gt;&gt; {v.name}
       </p>
       <form
-        onSubmit={e => {
+        onSubmit={(e) => {
           e.preventDefault();
           d.newItemSubmitted();
         }}
@@ -23,18 +28,18 @@ export const View = ({ path = "" }) => {
           type="text"
           value={v.nextItemName}
           autoFocus
-          onChange={e => d.nextItemNameChanged(e.target.value)}
+          onChange={(e) => {
+            d.nextItemNameChanged(e.target.value);
+          }}
         />
         <button type="submit">Add Item</button>
       </form>
       <div style={{ maxWidth: "500px" }}>
-        {c.itemRows.map(path => (
+        {c.itemRows.map((path) => (
           <ItemRow key={path} path={path} />
         ))}
       </div>
-      {v.hasSaveFailedError && (
-        <p className="error">Error while saving the list </p>
-      )}
+      {v.hasSaveFailedError && <p className="error">Error while saving the list </p>}
       {v.isSaving && <span className="spinner" />}
     </div>
   );

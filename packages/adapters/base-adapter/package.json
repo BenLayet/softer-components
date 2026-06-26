@@ -1,0 +1,43 @@
+{
+  "name": "@softer-components/base-adapter",
+  "type": "module",
+  "version": "0.8.0",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/BenLayet/softer-components.git",
+    "directory": "packages/base-adapter"
+  },
+  "files": [
+    "lib"
+  ],
+  "exports": {
+    ".": {
+      "types": "./lib/index.d.ts",
+      "import": "./lib/index.js"
+    }
+  },
+  "scripts": {
+    "clean": "rimraf lib",
+    "build": "tsc --noEmit && vite build",
+    "build:watch": "vite build --watch",
+    "test": "vitest",
+    "test:ci": "vitest run",
+    "test-for-debug": "vitest --testTimeout=100000 --bail=1",
+    "format": "prettier --write .",
+    "format:check": "prettier --check .",
+    "tsc": "tsc --noEmit"
+  },
+  "dependencies": {
+    "@softer-components/types": "workspace:^",
+    "immer": "^10.2.0",
+    "lodash": "^4.17.23"
+  },
+  "devDependencies": {
+    "vite-plugin-dts": "^4.5.4",
+    "vitest": "^3.2.4"
+  },
+  "publishConfig": {
+    "access": "public"
+  }
+}

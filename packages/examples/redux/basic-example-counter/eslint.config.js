@@ -3,14 +3,18 @@ import vitestPlugin from "@vitest/eslint-plugin";
 import prettierConfig from "eslint-config-prettier/flat";
 import reactPlugin from "eslint-plugin-react";
 import reactHooksPlugin from "eslint-plugin-react-hooks";
+import { defineConfig } from "eslint/config";
 import globals from "globals";
-import { config, configs } from "typescript-eslint";
+import { configs } from "typescript-eslint";
 
-const eslintConfig = config(
+const tsconfigRootDir = new URL(".", import.meta.url).pathname;
+
+const eslintConfig = defineConfig(
   {
     name: "global-ignores",
     ignores: [
       "**/*.snap",
+      "**/vite.config.ts",
       "**/lib",
       "**/dist/",
       "**/.yalc/",
@@ -43,8 +47,10 @@ const eslintConfig = config(
       ecmaVersion: 2020,
       globals: globals.browser,
       parserOptions: {
-        projectService: true,
-        tsconfigRootDir: import.meta.dirname,
+        projectService: {
+          allowDefaultProject: ["eslint.config.js"],
+        },
+        tsconfigRootDir,
       },
     },
     settings: {
@@ -54,6 +60,17 @@ const eslintConfig = config(
     },
     rules: {
       "no-undef": [0],
+      "no-unused-vars": [0],
+      "@typescript-eslint/require-await": [0],
+      "@typescript-eslint/no-unused-vars": [
+        2,
+        {
+          argsIgnorePattern: "^_",
+          varsIgnorePattern: "^_",
+          caughtErrorsIgnorePattern: "^_",
+          destructuredArrayIgnorePattern: "^_",
+        },
+      ],
       "@typescript-eslint/consistent-type-definitions": [2, "type"],
       "@typescript-eslint/consistent-type-imports": [
         2,
@@ -70,8 +87,7 @@ const eslintConfig = config(
             {
               name: "react-redux",
               importNames: ["useSelector", "useStore", "useDispatch"],
-              message:
-                "Please use pre-typed versions from `src/app/hooks.ts` instead.",
+              message: "Please use pre-typed versions from `src/app/hooks.ts` instead.",
             },
           ],
         },

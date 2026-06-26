@@ -1,4 +1,4 @@
-import { AuthenticationService } from "../port/authentication.service";
+import type { AuthenticationService } from "../port/authentication.service";
 
 const demoUserNames = ["alice", "bob"];
 const demoPassword = "demo";

@@ -6,6 +6,8 @@
     "lib": ["ES2020", "DOM", "DOM.Iterable"],
     "module": "ES2020",
     "skipLibCheck": true,
+    "sourceMap": true,
+    "inlineSources": true,
 
     /* Bundler mode */
     "moduleResolution": "bundler",
@@ -24,12 +26,11 @@
     "noUncheckedSideEffectImports": true,
     "types": ["vitest/globals"],
     "paths": {
-      "@softer-components/redux-adapter": ["../../../redux-adapter/src"],
       "@softer-components/types": ["../../../types/src"],
-      "@softer-components/utils": ["../../../utils/src"],
-      "@softer-components/utils/test-utilities": [
-        "../../../utils/src/test-utilities"
-      ]
+      "@softer-components/base-adapter": ["../../../adapters/base-adapter/src"],
+      "@softer-components/app-utilities": ["../../../utilities/app-utilities/src"],
+      "@softer-components/redux-adapter": ["../../../adapters/redux-adapter/src"],
+      "@softer-components/test-utilities": ["../../../utilities/test-utilities/src"]
     }
   },
   "include": ["src", "test"]

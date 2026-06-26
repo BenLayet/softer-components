@@ -1,4 +1,4 @@
-import { Item } from "./Item";
+import type { Item } from "./Item";
 
 export type ListId = string;
 export type List = {

@@ -1,22 +1,8 @@
-import { ComponentDef } from "@softer-components/types";
-
-import { AuthenticationService } from "../../../port/authentication.service";
-import { Contract } from "./user-context.component.contract";
+import type { ComponentDefConfig } from "@softer-components/types";
+import type { Contract } from "./user-context.component.contract";
 import { effects } from "./user-context.component.effects";
-import { allEvents, uiEvents } from "./user-context.component.events";
-import { eventForwarders } from "./user-context.component.forwarders";
-import { selectors } from "./user-context.component.selectors";
-import { State, initialState } from "./user-context.component.state";
-import { stateUpdaters } from "./user-context.component.updaters";
+import type { Dependencies } from "./user-context.component.dependencies";
 
-export const componentDef = (dependencies: {
-  authenticationService: AuthenticationService;
-}): ComponentDef<Contract, State> => ({
-  initialState,
-  selectors,
-  allEvents,
-  uiEvents,
-  stateUpdaters,
-  eventForwarders,
+export const config = (dependencies: Dependencies): ComponentDefConfig<Contract> => ({
   effects: effects(dependencies),
 });

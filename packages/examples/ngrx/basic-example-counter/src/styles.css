@@ -3,7 +3,7 @@
 
 * {
   /* Wireframe font */
-  font-family: 'Courier New', 'Courier', monospace !important;
+  font-family: "Courier New", "Courier", monospace !important;
 
   /* Remove colors, use grayscale */
   color: #333 !important;
@@ -50,8 +50,8 @@ h6 {
 
 /* Buttons - wireframe style */
 button,
-input[type='button'],
-input[type='submit'],
+input[type="button"],
+input[type="submit"],
 .btn {
   background-color: #bababa !important;
   border: 2px solid #333 !important;
@@ -64,18 +64,18 @@ input[type='submit'],
 }
 
 button:hover,
-input[type='button']:hover,
-input[type='submit']:hover {
+input[type="button"]:hover,
+input[type="submit"]:hover {
   background-color: #e0e0e0 !important;
   transform: translate(1px, 1px) !important;
   box-shadow: 2px 2px 0 #ccc !important;
 }
 
 /* Input fields */
-input[type='text'],
-input[type='email'],
-input[type='password'],
-input[type='number'],
+input[type="text"],
+input[type="email"],
+input[type="password"],
+input[type="number"],
 textarea,
 select {
   background-color: #fff !important;
@@ -105,7 +105,7 @@ img {
 
 /* Add "IMAGE" text overlay on images */
 img::after {
-  content: '[IMAGE]' !important;
+  content: "[IMAGE]" !important;
   position: absolute !important;
   top: 50% !important;
   left: 50% !important;
@@ -159,8 +159,8 @@ th {
 /* Cards/Panels */
 .card,
 .panel,
-[class*='card'],
-[class*='panel'] {
+[class*="card"],
+[class*="panel"] {
   background-color: #fafafa !important;
   border: 2px solid #333 !important;
   box-shadow: 4px 4px 0 #ddd !important;
@@ -169,8 +169,8 @@ th {
 }
 
 /* Checkbox and Radio */
-input[type='checkbox'],
-input[type='radio'] {
+input[type="checkbox"],
+input[type="radio"] {
   width: 20px !important;
   height: 20px !important;
   border: 2px solid #333 !important;
@@ -178,20 +178,20 @@ input[type='radio'] {
   -webkit-appearance: none !important;
 }
 
-input[type='checkbox']:checked::before {
-  content: '✓' !important;
+input[type="checkbox"]:checked::before {
+  content: "✓" !important;
   display: block !important;
   text-align: center !important;
   font-weight: bold !important;
   color: #333 !important;
 }
 
-input[type='radio'] {
+input[type="radio"] {
   border-radius: 50% !important;
 }
 
-input[type='radio']:checked::before {
-  content: '●' !important;
+input[type="radio"]:checked::before {
+  content: "●" !important;
   display: block !important;
   text-align: center !important;
   color: #333 !important;
@@ -206,15 +206,15 @@ input[type='radio']:checked::before {
 
 /* Exception for buttons - keep minimal shadow */
 button,
-input[type='button'],
-input[type='submit'],
+input[type="button"],
+input[type="submit"],
 .btn {
   box-shadow: 3px 3px 0 #ccc !important;
 }
 
 /* Grid/Flexbox visualization (optional) */
-[style*='display: flex'],
-[style*='display: grid'],
+[style*="display: flex"],
+[style*="display: grid"],
 .flex,
 .grid {
   border: 2px dotted #f00 !important;

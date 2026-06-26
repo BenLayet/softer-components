@@ -1,15 +1,9 @@
-import { Effects } from "@softer-components/types";
+import type { Effects } from "@softer-components/types";
 
-import { ListService } from "../../../../port/list.service";
-import { Contract } from "./create-list.component.contract";
+import type { Contract } from "./create-list.component.contract";
+import type { Dependencies } from "./create-list.component.dependencies";
 
-export type EffectsDependencies = {
-  listService: ListService;
-};
-
-export const effects = ({
-  listService,
-}: EffectsDependencies): Effects<Contract> => ({
+export const effects = ({ listService }: Dependencies["services"]): Effects<Contract> => ({
   createNewListRequested: async (
     { createNewListSucceeded, createNewListFailed },
     { payload: name },
@@ -17,8 +11,13 @@ export const effects = ({
     try {
       const list = await listService.create(name);
       createNewListSucceeded(list);
-    } catch (e: any) {
-      createNewListFailed(e.message);
+    } catch (e) {
+      if (e instanceof Error) {
+        createNewListFailed(e.message);
+      } else {
+        createNewListFailed("unknown error");
+        console.error(e);
+      }
     }
   },
 });

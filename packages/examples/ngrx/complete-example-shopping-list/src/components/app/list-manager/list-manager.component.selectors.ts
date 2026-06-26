@@ -1,9 +1,6 @@
-import {
-  ExtractComponentValuesContract,
-  Selectors,
-} from "@softer-components/types";
+import type { ExtractComponentValuesContract, Selectors } from "@softer-components/types";
 
-import { Children } from "./list-manager.component.children";
+import type { Children } from "./list-manager.component.children";
 
 export const selectors = {
   listCount: (_, children) => children.lists.values.listCount(),

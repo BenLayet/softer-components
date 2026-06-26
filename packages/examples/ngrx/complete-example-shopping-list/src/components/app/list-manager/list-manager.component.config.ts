@@ -1,34 +1,13 @@
-import { ComponentDef } from "@softer-components/types";
-import { SofterContext } from "@softer-components/utils";
+import type { ComponentDefConfig } from "@softer-components/types";
 
-import { ListService } from "../../../port/list.service";
-import { UserContextContract } from "../user-context";
-import { createListDef } from "./create-list";
-import { Contract } from "./list-manager.component.contract";
-import { allEvents } from "./list-manager.component.events";
-import {
-  childrenConfig,
-  eventForwarders,
-} from "./list-manager.component.forwarders";
-import { selectors } from "./list-manager.component.selectors";
-import { listsDef } from "./lists";
+import { createListDef } from "./create-list/create-list.component";
+import type { Contract } from "./list-manager.component.contract";
+import type { Dependencies } from "./list-manager.component.dependencies";
+import { listsDef } from "./lists/lists.component";
 
-type Dependencies = { listService: ListService };
-
-// Component definition
-export const componentDef = ({
-  dependencies,
-  context,
-}: {
-  dependencies: Dependencies;
-  context: SofterContext<{ userContext: UserContextContract }>;
-}): ComponentDef<Contract> => ({
-  selectors,
-  allEvents,
-  eventForwarders,
-  childrenConfig,
-  childrenComponentDefs: {
-    lists: listsDef({ dependencies, context: context.forChild() }),
-    createList: createListDef(dependencies),
+export const config = (dependencies: Dependencies): ComponentDefConfig<Contract> => ({
+  childrenDefs: {
+    lists: listsDef(dependencies),
+    createList: createListDef({ services: dependencies.services }),
   },
 });

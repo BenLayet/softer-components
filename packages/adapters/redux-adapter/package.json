@@ -1,0 +1,55 @@
+{
+  "name": "@softer-components/redux-adapter",
+  "type": "module",
+  "version": "0.8.0",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/BenLayet/softer-components.git",
+    "directory": "packages/redux-adapter"
+  },
+  "files": [
+    "lib"
+  ],
+  "exports": {
+    ".": {
+      "types": "./lib/index.d.ts",
+      "import": "./lib/index.js"
+    }
+  },
+  "main": "lib/index.js",
+  "types": "lib/index.d.ts",
+  "scripts": {
+    "clean": "rimraf lib",
+    "build": "tsc --noEmit && vite build",
+    "build:watch": "vite build --watch",
+    "test": "vitest",
+    "test:ci": "vitest run",
+    "test-for-debug": "vitest --testTimeout=100000 --bail=1",
+    "format": "prettier --write .",
+    "format:check": "prettier --check .",
+    "tsc": "tsc --noEmit"
+  },
+  "dependencies": {
+    "@reduxjs/toolkit": "^2.6.1",
+    "@softer-components/base-adapter": "workspace:^",
+    "react": "^19.1.1",
+    "react-redux": "^9.2.0",
+    "reselect": "^5.1.1"
+  },
+  "devDependencies": {
+    "@softer-components/types": "workspace:^",
+    "@testing-library/jest-dom": "^6.8.0",
+    "@testing-library/react": "^16.3.0",
+    "@types/react": "^19.1.13",
+    "@types/react-dom": "^19.1.9",
+    "@vitejs/plugin-react": "^4.7.0",
+    "jsdom": "^26.1.0",
+    "vite": "8.0.5",
+    "vite-plugin-dts": "^4.5.4",
+    "vitest": "^3.2.4"
+  },
+  "publishConfig": {
+    "access": "public"
+  }
+}

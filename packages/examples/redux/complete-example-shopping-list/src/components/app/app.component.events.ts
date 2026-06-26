@@ -1,6 +1,6 @@
-import { EventsContract } from "@softer-components/types";
+import type { EventsContract } from "@softer-components/types";
 
-import { List } from "../../model";
+import type { List } from "../../model";
 
 export const uiEvents = ["displayed"] as const;
 export const allEvents = [

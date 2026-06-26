@@ -1,29 +1,35 @@
 import { useSofter } from "@softer-components/redux-adapter";
 
-import { SignInContract } from "./sign-in-form.component";
+import type { SignInContract } from "./sign-in-form.component";
 
 export const View = ({ path = "" }) => {
   const [v, d] = useSofter<SignInContract>(path);
   return (
     <div>
       <div style={{ margin: "2em" }}>
-        <a onClick={() => d.signInCancelled()}>👋 Try app without signing in</a>
+        <a
+          onClick={() => {
+            d.signInCancelled();
+          }}
+        >
+          👋 Try app without signing in
+        </a>
         <p>Demo users :</p>
         <ul>
           <li>
             <a
-              onClick={() =>
-                d.demoUserClicked({ username: "alice", password: "demo" })
-              }
+              onClick={() => {
+                d.demoUserClicked({ username: "alice", password: "demo" });
+              }}
             >
               alice/demo
             </a>
           </li>
           <li>
             <a
-              onClick={() =>
-                d.demoUserClicked({ username: "bob", password: "demo" })
-              }
+              onClick={() => {
+                d.demoUserClicked({ username: "bob", password: "demo" });
+              }}
             >
               bob/demo
             </a>
@@ -31,26 +37,32 @@ export const View = ({ path = "" }) => {
         </ul>
       </div>
       <form
-        onSubmit={e => {
+        onSubmit={(e) => {
           e.preventDefault();
           d.signInFormSubmitted();
         }}
         style={{ alignItems: "start", maxWidth: "18em" }}
         autoComplete="off"
       >
-        <label>Username</label>
+        <label htmlFor="usernameInput">Username</label>
         <input
+          id="usernameInput"
           type="text"
           placeholder="Username"
-          onChange={e => d.usernameChanged(e.target.value)}
+          onChange={(e) => {
+            d.usernameChanged(e.target.value);
+          }}
           autoComplete="off"
           value={v.username}
         />
-        <label>Password</label>
+        <label htmlFor="passwordInput">Password</label>
         <input
+          id="passwordInput"
           type="text"
           placeholder="Password"
-          onChange={e => d.passwordChanged(e.target.value)}
+          onChange={(e) => {
+            d.passwordChanged(e.target.value);
+          }}
           autoComplete="off"
           value={v.password}
         />
@@ -66,14 +78,10 @@ export const View = ({ path = "" }) => {
         </p>
       )}
       {v.hasNetworkError && (
-        <p className="error">
-          🌐 Network error. Please check your connection and try again.
-        </p>
+        <p className="error">🌐 Network error. Please check your connection and try again.</p>
       )}
       {v.hasUnknownError && (
-        <p className="error">
-          ⚠️ An unknown error occurred. Please try again later.
-        </p>
+        <p className="error">⚠️ An unknown error occurred. Please try again later.</p>
       )}
     </div>
   );

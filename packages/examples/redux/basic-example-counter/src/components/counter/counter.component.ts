@@ -1,5 +1,4 @@
-import { ComponentDef, EventsContract } from "@softer-components/types";
-import { createBaseSelectors } from "@softer-components/utils";
+import type { ComponentDef, EventsContract } from "@softer-components/types";
 
 // Initial state definition
 export const initialState = {
@@ -16,8 +15,7 @@ export type CounterContract = {
 // Component definition
 export const counterDef: ComponentDef<CounterContract, State> = {
   initialState,
-  selectors: createBaseSelectors(initialState),
-  allEvents,
+  selectors: { count: (state) => state.count },
   uiEvents: allEvents,
   stateUpdaters: {
     incrementRequested: ({ state }) => {

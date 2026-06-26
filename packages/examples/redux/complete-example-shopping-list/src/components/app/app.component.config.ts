@@ -1,44 +1,18 @@
-import { ComponentDef } from "@softer-components/types";
-import { emptyContext } from "@softer-components/utils";
+import type { ComponentDefConfig } from "@softer-components/types";
+import { listDef } from "./list/list.component";
+import { listManagerDef } from "./list-manager/list-manager.component";
+import { signInFormComponentDef } from "./sign-in-form/sign-in-form.component";
+import { userContextDef } from "./user-context/user-context.component";
+import { userMenuDef } from "./user-menu/user-menu.component";
+import type { Dependencies } from "./app.component.dependencies";
+import type { AppContract } from "./app.component";
 
-import { AuthenticationService } from "../../port/authentication.service";
-import { ListService } from "../../port/list.service";
-import { Contract } from "./app.component.contract";
-import { allEvents, uiEvents } from "./app.component.events";
-import { childrenConfig } from "./app.component.forwarders";
-import { selectors } from "./app.component.selectors";
-import { State, initialState } from "./app.component.state";
-import { stateUpdaters } from "./app.component.updaters";
-import { listDef } from "./list";
-import { listManagerDef } from "./list-manager";
-import { signInFormComponentDef } from "./sign-in-form";
-import { UserContextContract, userContextDef } from "./user-context";
-import { userMenuDef } from "./user-menu";
-
-type Dependencies = {
-  authenticationService: AuthenticationService;
-  listService: ListService;
-};
-
-export const componentDef = (
-  dependencies: Dependencies,
-): ComponentDef<Contract, State> => {
-  const context = emptyContext
-    .addContext<"userContext", UserContextContract>("userContext")
-    .forChild();
-  return {
-    initialState,
-    selectors,
-    allEvents,
-    uiEvents,
-    stateUpdaters,
-    childrenConfig,
-    childrenComponentDefs: {
-      userContext: userContextDef(dependencies),
-      userMenu: userMenuDef({ context }),
-      signInForm: signInFormComponentDef({ context }),
-      list: listDef(dependencies),
-      listManager: listManagerDef({ dependencies, context }),
-    },
-  };
-};
+export const config = (dependencies: Dependencies): ComponentDefConfig<AppContract> => ({
+  childrenDefs: {
+    userContext: userContextDef(dependencies),
+    userMenu: userMenuDef(dependencies),
+    signInForm: signInFormComponentDef(dependencies),
+    list: listDef(dependencies),
+    listManager: listManagerDef(dependencies),
+  },
+});

@@ -1,8 +1,7 @@
-import { AppEvents } from "./user-menu.component.events";
-import { Context, Values } from "./user-menu.component.selectors";
+import type { Events } from "./user-menu.component.events";
+import type { Values } from "./user-menu.component.selectors";
 
 export type Contract = {
-  events: AppEvents;
+  events: Events;
   values: Values;
-  context: Context;
 };

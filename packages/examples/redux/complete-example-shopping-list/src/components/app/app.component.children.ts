@@ -1,8 +1,8 @@
-import { ListContract } from "./list";
-import { ListManagerContract } from "./list-manager";
-import { SignInContract } from "./sign-in-form";
-import { UserContextContract } from "./user-context";
-import { UserMenuContract } from "./user-menu";
+import type { UserContextContract } from "./user-context/user-context.component";
+import type { UserMenuContract } from "./user-menu/user-menu.component";
+import type { ListManagerContract } from "./list-manager/list-manager.component";
+import type { ListContract } from "./list/list.component";
+import type { SignInContract } from "./sign-in-form/sign-in-form.component";
 
 export type Children = {
   userMenu: UserMenuContract;

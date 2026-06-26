@@ -1,6 +1,6 @@
 import { useSofter } from "@softer-components/redux-adapter";
 
-import { ItemRowContract } from "./";
+import type { ItemRowContract } from "./item-row.component";
 
 export const View = ({ path = "" }) => {
   const [v, d] = useSofter<ItemRowContract>(path);
@@ -14,29 +14,34 @@ export const View = ({ path = "" }) => {
         padding: "0 4px",
       }}
     >
-      <div
-        className="horizontal"
-        style={{ flexGrow: 1, justifyContent: "flex-start" }}
-      >
+      <div className="horizontal" style={{ flexGrow: 1, justifyContent: "flex-start" }}>
         {v.name}
-        <span style={{ marginLeft: "1em", fontSize: "0.7em" }}>
-          x{v.quantity}
-        </span>
+        <span style={{ marginLeft: "1em", fontSize: "0.7em" }}>x{v.quantity}</span>
       </div>
       <div className="horizontal">
         <button
           aria-label="Decrement value"
-          onClick={() => d.decrementRequested()}
+          onClick={() => {
+            d.decrementRequested();
+          }}
         >
           -
         </button>
         <button
           aria-label="Increment value"
-          onClick={() => d.incrementRequested()}
+          onClick={() => {
+            d.incrementRequested();
+          }}
         >
           +
         </button>
-        <button onClick={() => d.removeItemRequested()}>X</button>
+        <button
+          onClick={() => {
+            d.removeItemRequested();
+          }}
+        >
+          X
+        </button>
       </div>
     </div>
   );

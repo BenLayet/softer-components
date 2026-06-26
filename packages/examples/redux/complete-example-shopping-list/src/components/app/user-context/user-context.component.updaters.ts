@@ -1,7 +1,7 @@
-import { StateUpdaters } from "@softer-components/types";
+import type { StateUpdaters } from "@softer-components/types";
 
-import { Contract } from "./user-context.component.contract";
-import { State } from "./user-context.component.state";
+import type { Contract } from "./user-context.component.contract";
+import type { State } from "./user-context.component.state";
 
 export const stateUpdaters: StateUpdaters<Contract, State> = {
   signInRequested: ({ state }) => {

@@ -95,13 +95,7 @@ textarea::placeholder {
 
 /* Images - show as placeholder boxes */
 img {
-  background: repeating-linear-gradient(
-    45deg,
-    #f0f0f0,
-    #f0f0f0 10px,
-    #e0e0e0 10px,
-    #e0e0e0 20px
-  );
+  background: repeating-linear-gradient(45deg, #f0f0f0, #f0f0f0 10px, #e0e0e0 10px, #e0e0e0 20px);
   border: 2px dashed #999;
   opacity: 0.5;
 }
@@ -118,11 +112,15 @@ img::after {
 }
 
 /* Links - underlined and simple */
+button.link,
 a {
   color: #333;
   text-decoration: underline;
   text-decoration-style: dashed;
   cursor: pointer;
+  background: none;
+  border: none;
+  box-shadow: none;
 }
 
 a:hover {

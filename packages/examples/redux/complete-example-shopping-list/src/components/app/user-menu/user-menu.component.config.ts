@@ -1,22 +1,10 @@
-import { ComponentDef } from "@softer-components/types";
-import { SofterContext } from "@softer-components/utils";
+import type { ComponentDefConfig } from "@softer-components/types";
 
-import { UserContextContract } from "../user-context";
-import { Contract } from "./user-menu.component.contract";
-import { allEvents, uiEvents } from "./user-menu.component.events";
-import { contextsConfig } from "./user-menu.component.forwarders";
-import { selectors } from "./user-menu.component.selectors";
+import type { Contract } from "./user-menu.component.contract";
+import type { ContextsDef, Dependencies } from "./user-menu.component.dependencies";
 
-export const componentDef = ({
-  context,
-}: {
-  context: SofterContext<{ userContext: UserContextContract }>;
-}): ComponentDef<Contract> => ({
-  selectors,
-  allEvents,
-  uiEvents,
-  contextsConfig,
-  contextsDef: {
-    userContext: context.getRelativePath<UserContextContract>("userContext"),
-  },
+export const config = ({
+  contextsPath,
+}: Dependencies): ComponentDefConfig<Contract, ContextsDef> => ({
+  contextsPath,
 });

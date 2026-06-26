@@ -1,6 +1,6 @@
-import { EventsContract } from "@softer-components/types";
+import type { EventsContract } from "@softer-components/types";
 
-import { ListItem } from "../../../../model";
+import type { ListItem } from "../../../../model";
 
 export const uiEvents = [
   "removeItemRequested",

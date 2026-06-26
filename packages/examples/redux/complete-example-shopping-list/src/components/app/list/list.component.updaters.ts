@@ -1,8 +1,8 @@
-import { ChildrenUpdaters, StateUpdaters } from "@softer-components/types";
-import { assertIsNotUndefined } from "@softer-components/utils";
+import type { ChildrenUpdaters, StateUpdaters } from "@softer-components/types";
 
-import { Contract } from "./list.component.contract";
-import { State } from "./list.component.state";
+import type { Contract } from "./list.component.contract";
+import type { State } from "./list.component.state";
+import { assertIsNotUndefined } from "../../../utils/assert.functions";
 
 export const stateUpdaters: StateUpdaters<Contract, State> = {
   initialize: ({ payload: list }) => {
@@ -15,40 +15,25 @@ export const stateUpdaters: StateUpdaters<Contract, State> = {
     };
   },
   nextItemNameChanged: ({ state, payload: nextItemName }) => {
-    assertIsNotUndefined(
-      state,
-      "State should be defined when handling nextItemNameChanged event",
-    );
+    assertIsNotUndefined(state);
     state.nextItemName = nextItemName;
   },
   resetNextItemNameRequested: ({ state }) => {
-    assertIsNotUndefined(
-      state,
-      "State should be defined when handling resetNextItemNameRequested event",
-    );
+    assertIsNotUndefined(state);
     state.nextItemName = "";
   },
   saveRequested: ({ state }) => {
-    assertIsNotUndefined(
-      state,
-      "State should be defined when handling saveRequested event",
-    );
+    assertIsNotUndefined(state);
     state.isSaving = true;
     state.errors = {};
   },
   saveFailed: ({ state, payload: errorMessage }) => {
-    assertIsNotUndefined(
-      state,
-      "State should be defined when handling saveFailed event",
-    );
-    state.errors["SAVE_FAILED"] = errorMessage;
+    assertIsNotUndefined(state);
+    state.errors.SAVE_FAILED = errorMessage;
     state.isSaving = false;
   },
   saveSucceeded: ({ state }) => {
-    assertIsNotUndefined(
-      state,
-      "State should be defined when handling saveSucceeded event",
-    );
+    assertIsNotUndefined(state);
     state.isSaving = false;
     state.errors = {};
   },
@@ -56,7 +41,7 @@ export const stateUpdaters: StateUpdaters<Contract, State> = {
 
 export const childrenUpdaters: ChildrenUpdaters<Contract> = {
   initialize: ({ payload: list, children }) => {
-    children.itemRows = list.listItems.map(listItem => `${listItem.item.id}`);
+    children.itemRows = list.listItems.map((listItem) => `${listItem.item.id}`);
   },
   createItemRequested: ({ children: { itemRows }, payload: listItem }) => {
     itemRows.push(`${listItem.item.id}`);

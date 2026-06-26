@@ -8,7 +8,7 @@
 
 ### Patch Changes
 
-- Updated dependencies [80abdc8]
+- Updated services [80abdc8]
   - @softer-components/redux-adapter@0.8.0
   - @softer-components/types@0.8.0
 
@@ -20,7 +20,7 @@
 
 ### Patch Changes
 
-- Updated dependencies [1ece9bb]
+- Updated services [1ece9bb]
   - @softer-components/redux-adapter@0.7.0
   - @softer-components/types@0.7.0
 
@@ -29,7 +29,7 @@
 ### Patch Changes
 
 - 02df225: fixes test-utilities exports
-- Updated dependencies [02df225]
+- Updated services [02df225]
   - @softer-components/redux-adapter@0.6.1
   - @softer-components/types@0.6.1
 
@@ -41,7 +41,7 @@
 
 ### Patch Changes
 
-- Updated dependencies [69d77db]
+- Updated services [69d77db]
   - @softer-components/redux-adapter@0.6.0
   - @softer-components/types@0.6.0
 
@@ -53,8 +53,8 @@
 
 ### Patch Changes
 
-- Updated dependencies [e518a7c]
-- Updated dependencies [cc07468]
+- Updated services [e518a7c]
+- Updated services [cc07468]
   - @softer-components/redux-adapter@0.5.0
   - @softer-components/types@0.5.0
 
@@ -62,7 +62,7 @@
 
 ### Patch Changes
 
-- Updated dependencies [6291eed]
+- Updated services [6291eed]
   - @softer-components/redux-adapter@0.4.0
   - @softer-components/types@0.4.0
 
@@ -70,7 +70,7 @@
 
 ### Patch Changes
 
-- Updated dependencies
-- Updated dependencies [aac9205]
+- Updated services
+- Updated services [aac9205]
   - @softer-components/redux-adapter@0.3.0
   - @softer-components/types@0.3.0

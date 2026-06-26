@@ -1,0 +1,159 @@
+import { ComponentDef, EventConsumerInput } from "@softer-components/types";
+
+import { findComponentDefFromStatePath } from "../state/component-def-tree";
+import { RelativePathStateReader } from "../state/relative-path-state-manager";
+import { SofterRootState } from "../state/state-initializer";
+import {
+  StateManager,
+  StateReader,
+  StateTreeListener,
+} from "../state/state-manager";
+import {
+  StatePath,
+  statePathStartsWith,
+  statePathToComponentPath,
+  stringToStatePath,
+} from "../state/state-path";
+import {
+  assertIsNotUndefined,
+  ensureIsNotUndefined,
+} from "../utilities/assert.functions";
+import { eventConsumerInputProvider } from "./event-consumer";
+import { FORWARDED_FROM_CONTEXT, SofterEvent } from "./softer-event";
+
+type EventType = {
+  componentPath: string;
+  eventName: string;
+};
+const areEventTypesEqual = (eventType1: EventType, eventType2: EventType) =>
+  eventType1.eventName === eventType2.eventName &&
+  eventType1.componentPath === eventType2.componentPath;
+const listenerMatchingEventType =
+  (eventType: EventType) => (listener: EventListener) =>
+    areEventTypesEqual(listener.from, eventType);
+
+export type EventListener = {
+  from: EventType;
+  to: {
+    statePath: StatePath;
+    eventName: string;
+  };
+  withPayload?: (input: EventConsumerInput) => any; //function that returns the payload for the triggered event
+  onCondition?: (input: EventConsumerInput) => boolean; //function that returns a boolean indicating whether the event should be triggered
+};
+
+export class ContextEventManager {
+  private listeners: EventListener[] = [];
+  private readonly stateReader: StateReader;
+
+  constructor(
+    private readonly rootComponentDef: ComponentDef,
+    stateManager: StateManager,
+  ) {
+    this.stateReader = stateManager;
+    stateManager.addStateTreeListener(
+      stateTreeListener(rootComponentDef, this),
+    );
+  }
+
+  registerListener(listener: EventListener) {
+    this.listeners.push(listener);
+  }
+  unregisterListenerToStatePath = (statePath: StatePath) => {
+    this.listeners = this.listeners.filter(
+      listener => !statePathStartsWith(listener.to.statePath, statePath),
+    );
+  };
+
+  generateEvents(
+    rootState: SofterRootState,
+    triggeringEvent: SofterEvent,
+  ): SofterEvent[] {
+    const componentPath = statePathToComponentPath(triggeringEvent.statePath);
+    const triggeringEventType = {
+      componentPath,
+      eventName: triggeringEvent.name,
+    };
+    return this.listeners
+      .filter(listenerMatchingEventType(triggeringEventType))
+      .flatMap(this.generateEvent(rootState, triggeringEvent));
+  }
+
+  private generateEvent =
+    (rootState: SofterRootState, triggeringEvent: SofterEvent) =>
+    (listener: EventListener): SofterEvent[] => {
+      const relativeStateReader = new RelativePathStateReader(
+        rootState,
+        this.stateReader,
+        triggeringEvent.statePath,
+      );
+      const eventConsumerInput = eventConsumerInputProvider(
+        this.rootComponentDef as ComponentDef,
+        triggeringEvent,
+        relativeStateReader,
+      );
+
+      if (!listener.onCondition || listener.onCondition(eventConsumerInput())) {
+        return [
+          {
+            name: listener.to.eventName,
+            statePath: listener.to.statePath,
+            payload: listener.withPayload
+              ? listener.withPayload(eventConsumerInput())
+              : triggeringEvent.payload,
+            source: FORWARDED_FROM_CONTEXT,
+          },
+        ];
+      } else {
+        return [];
+      }
+    };
+}
+
+const stateTreeListener = (
+  rootComponentDef: ComponentDef,
+  contextEventManager: ContextEventManager,
+): StateTreeListener => ({
+  onStateAdded: statePath => {
+    const componentDef = findComponentDefFromStatePath(
+      rootComponentDef,
+      statePath,
+    );
+
+    const contextsConfig = componentDef.eventForwarders?.contexts;
+    if (
+      typeof componentDef.config?.contextsPath !== "object" ||
+      typeof contextsConfig !== "object"
+    ) {
+      return;
+    }
+    Object.getOwnPropertySymbols(contextsConfig).forEach(contextSymbol => {
+      const contextConfig = contextsConfig[contextSymbol];
+      assertIsNotUndefined(contextConfig);
+      const contextComponentStatePath = stringToStatePath(
+        ensureIsNotUndefined(
+          componentDef.config?.contextsPath?.[contextSymbol],
+        ),
+      );
+      const contextComponentPath = statePathToComponentPath(
+        contextComponentStatePath,
+      );
+      const listenerDefs = contextConfig.listeners ?? [];
+      listenerDefs.forEach(listenerDef => {
+        contextEventManager.registerListener({
+          from: {
+            componentPath: contextComponentPath,
+            eventName: listenerDef.from,
+          },
+          to: {
+            statePath,
+            eventName: listenerDef.to,
+          },
+          withPayload: listenerDef.withPayload,
+          onCondition: listenerDef.onCondition,
+        });
+      });
+    });
+  },
+  onStateRemoved: contextEventManager.unregisterListenerToStatePath,
+});

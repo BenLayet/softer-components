@@ -1,20 +1,13 @@
-import {
-  ExtractComponentValuesContract,
-  Selectors,
-  State,
-} from "@softer-components/types";
+import type { ExtractComponentValuesContract, Selectors, State } from "@softer-components/types";
 
-import { UserContextContract } from "../user-context";
+import { userContextSymbol } from "../user-context/user-context.component";
 
-export type Context = {
-  userContext: UserContextContract;
-};
+import type { ContextsDef } from "./user-menu.component.dependencies";
 
 export const selectors = {
-  isAuthenticated: (_: any, __: any, { userContext }) =>
-    userContext.values.isAuthenticated(),
-  isAnonymous: (_: any, __: any, { userContext }) =>
-    !userContext.values.isAuthenticated(),
-  username: (_: any, __: any, { userContext }) => userContext.values.username(),
-} satisfies Selectors<State, {}, Context>;
+  isAuthenticated: (_, __, contextValues) =>
+    contextValues[userContextSymbol].values.isAuthenticated(),
+  isAnonymous: (_, __, contextValues) => !contextValues[userContextSymbol].values.isAuthenticated(),
+  username: (_, __, contextValues) => contextValues[userContextSymbol].values.username(),
+} satisfies Selectors<State, undefined, ContextsDef>;
 export type Values = ExtractComponentValuesContract<typeof selectors>;

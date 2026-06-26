@@ -1,7 +1,7 @@
-import { ExtractComponentValuesContract } from "@softer-components/types";
+import type { ExtractComponentValuesContract } from "@softer-components/types";
 
-import { Events } from "./create-list.component.events";
-import { selectors } from "./create-list.component.selectors";
+import type { Events } from "./create-list.component.events";
+import type { selectors } from "./create-list.component.selectors";
 
 export type Contract = {
   values: ExtractComponentValuesContract<typeof selectors>;

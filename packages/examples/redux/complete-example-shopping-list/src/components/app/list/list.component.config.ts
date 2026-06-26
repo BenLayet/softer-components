@@ -1,33 +1,13 @@
-import { ComponentDef } from "@softer-components/types";
+import type { ComponentDefConfig } from "@softer-components/types";
 
-import { itemRowDef } from "./item-row";
-import { Contract } from "./list.component.contract";
-import { EffectsDependencies, effects } from "./list.component.effects";
-import { allEvents, uiEvents } from "./list.component.events";
-import { childrenConfig, eventForwarders } from "./list.component.forwarders";
-import { selectors } from "./list.component.selectors";
-import { State } from "./list.component.state";
-import { childrenUpdaters, stateUpdaters } from "./list.component.updaters";
+import { itemRowDef } from "./item-row/item-row.component";
+import type { Contract } from "./list.component.contract";
+import { effects } from "./list.component.effects";
+import type { Dependencies } from "./list.component.dependencies";
 
-export type Dependencies = EffectsDependencies;
-
-const componentDef = (
-  dependencies: Dependencies,
-): ComponentDef<Contract, State> => {
-  return {
-    selectors,
-    allEvents,
-    uiEvents,
-    stateUpdaters,
-    childrenUpdaters,
-    eventForwarders,
-    childrenConfig,
-    effects: effects(dependencies),
-    childrenComponentDefs: {
-      itemRows: itemRowDef(),
-    },
-    initialChildren: { itemRows: [] },
-  };
-};
-
-export { componentDef };
+export const config = ({ services }: Dependencies): ComponentDefConfig<Contract> => ({
+  effects: effects(services),
+  childrenDefs: {
+    itemRows: itemRowDef,
+  },
+});

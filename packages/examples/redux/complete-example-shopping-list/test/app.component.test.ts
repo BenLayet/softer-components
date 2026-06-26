@@ -1,10 +1,14 @@
-import {
-  TestStore,
-  initTestStore,
-} from "@softer-components/utils/test-utilities";
+import type { TestStore } from "@softer-components/test-utilities";
+import { initTestStore } from "@softer-components/test-utilities";
+import type { StatePathString } from "@softer-components/types";
 import { describe, expect, it } from "vitest";
 
-import { AppContract, appDef } from "../src/components/app";
+import type { AppContract } from "../src/components/app/app.component";
+import { appDef } from "../src/components/app/app.component";
+import {
+  type UserContextContract,
+  userContextSymbol,
+} from "../src/components/app/user-context/user-context.component";
 import {
   CREATE_LIST,
   FIRST_ITEM,
@@ -21,12 +25,16 @@ import {
 } from "./app.component.steps";
 import { MockDependencies } from "./mock-dependencies";
 
+const contextsPath = {
+  [userContextSymbol]: "/userContext" as StatePathString<UserContextContract>,
+};
+
 describe("app.component", () => {
   let testStore: TestStore<AppContract>;
   let mockDependencies: MockDependencies;
   beforeEach(() => {
     mockDependencies = new MockDependencies();
-    testStore = initTestStore(appDef(mockDependencies));
+    testStore = initTestStore(appDef({ services: mockDependencies, contextsPath }));
   });
   it("initial list name is empty", () => {
     expect(testStore.getValues(CREATE_LIST).listName()).toBe("");
@@ -56,17 +64,17 @@ describe("app.component", () => {
     expect(testStore.getValues("/userMenu").isAnonymous()).toBe(true);
   });
   it("when user signs in successfully, her name should be displayed", async () => {
-    await testStore.when(USER_SIGNS_IN("alice", "demo"));
+    await testStore.when(USER_SIGNS_IN({ username: "alice", password: "demo" }));
     expect(testStore.getValues(USER_MENU).username()).toBe("alice");
   });
   it("when user signs in and out successfully, her name should not be displayed", async () => {
-    await testStore.when(USER_SIGNS_IN("alice", "demo"));
+    await testStore.when(USER_SIGNS_IN({ username: "alice", password: "demo" }));
     await testStore.and(USER_SIGNS_OUT());
     expect(testStore.getValues(USER_MENU).username()).toBe("");
   });
   it("when user signs in successfully, her lists should be displayed", async () => {
     //GIVEN
-    mockDependencies.listService.savedLists["alice"] = [
+    mockDependencies.listService.savedLists.alice = [
       {
         id: "1",
         name: "Alice's list",
@@ -74,7 +82,7 @@ describe("app.component", () => {
       },
     ];
 
-    await testStore.when(USER_SIGNS_IN("alice", "demo"));
+    await testStore.when(USER_SIGNS_IN({ username: "alice", password: "demo" }));
     expect(testStore.getValues(LIST_MANAGER).listCount()).toBe(1);
   });
 });

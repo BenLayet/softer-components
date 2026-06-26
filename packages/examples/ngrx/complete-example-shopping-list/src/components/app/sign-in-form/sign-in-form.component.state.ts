@@ -1,4 +1,4 @@
-import { AppError } from "../../../model/errors";
+import type { AppError } from "../../../model/errors";
 
 export const initialState = {
   username: "",

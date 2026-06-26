@@ -18,9 +18,6 @@ describe("App", () => {
     const fixture = TestBed.createComponent(App);
     fixture.detectChanges();
 
-    expect(fixture.nativeElement.querySelector("h2")?.textContent).toContain(
-      "Counter",
-    );
+    expect(fixture.nativeElement.querySelector("h2")?.textContent).toContain("Counter");
   });
 });
-

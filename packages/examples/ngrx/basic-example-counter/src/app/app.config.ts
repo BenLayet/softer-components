@@ -1,11 +1,12 @@
-import { ApplicationConfig, provideBrowserGlobalErrorListeners } from '@angular/core';
+import type { ApplicationConfig } from "@angular/core";
+import { provideBrowserGlobalErrorListeners } from "@angular/core";
 
-import { provideStore } from '@ngrx/store';
-import { provideStoreDevtools } from '@ngrx/store-devtools';
-import { environment } from '../environments/environment';
-import { counterDef } from '../components/counter/counter.component';
-import { provideSofterState } from '@softer-components/ngrx-adapter';
-import { ComponentDef } from '@softer-components/types';
+import { provideStore } from "@ngrx/store";
+import { provideStoreDevtools } from "@ngrx/store-devtools";
+import { environment } from "../environments/environment";
+import { counterDef } from "../components/counter/counter.component";
+import { provideSofterState } from "@softer-components/ngrx-adapter";
+import type { ComponentDef } from "@softer-components/types";
 
 const devProviders = environment.devToolsEnabled
   ? [provideStoreDevtools({ maxAge: 25, logOnly: false })]

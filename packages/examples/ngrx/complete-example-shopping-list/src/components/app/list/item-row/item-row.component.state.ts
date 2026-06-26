@@ -1,3 +1,3 @@
-import { ListItem } from "../../../../model";
+import type { ListItem } from "../../../../model";
 
 export type State = ListItem | undefined;
