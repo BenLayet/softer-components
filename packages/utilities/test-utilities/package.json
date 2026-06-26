@@ -35,6 +35,7 @@
   },
   "devDependencies": {
     "@softer-components/types": "workspace:^",
+    "vite": "8.0.5",
     "vite-plugin-dts": "^4.5.4",
     "vitest": "^3.2.4"
   },
