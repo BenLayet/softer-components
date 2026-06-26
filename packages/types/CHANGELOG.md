@@ -1,5 +1,11 @@
 # @softer-components/types
 
+## 0.9.0
+
+### Minor Changes
+
+- ad1f667: breaks packages into independant ones
+
 ## 0.8.0
 
 ### Minor Changes

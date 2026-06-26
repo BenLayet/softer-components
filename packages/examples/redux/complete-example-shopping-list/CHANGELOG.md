@@ -1,5 +1,17 @@
 # vite-template-redux
 
+## 0.9.0
+
+### Minor Changes
+
+- ad1f667: breaks packages into independant ones
+
+### Patch Changes
+
+- Updated dependencies [ad1f667]
+  - @softer-components/redux-adapter@0.9.0
+  - @softer-components/app-utilities@0.9.0
+
 ## 0.8.0
 
 ### Minor Changes
