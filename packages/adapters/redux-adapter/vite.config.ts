@@ -14,7 +14,7 @@ export default defineConfig({
       fileName: "index",
     },
     rollupOptions: {
-      external: ["react"],
+      external: ["react", "react-redux", "reselect", "@reduxjs/toolkit"],
     },
   },
 

@@ -1,6 +1,7 @@
 {
-  "name": "basic-example-counter",
-  "version": "0.8.0",
+  "name": "softer-components-ngrx-basic-example-counter",
+  "version": "1.0.0",
+  "private": true,
   "scripts": {
     "ng": "ng",
     "start": "ng serve --configuration development",
@@ -13,7 +14,6 @@
     "format:check": "prettier --check .",
     "format": "prettier --write ."
   },
-  "private": true,
   "packageManager": "pnpm@10.19.0",
   "dependencies": {
     "@angular/common": "21.2.8",

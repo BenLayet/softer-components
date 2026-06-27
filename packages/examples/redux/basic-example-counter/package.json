@@ -1,7 +1,7 @@
 {
-  "name": "basic-example-counter",
+  "name": "softer-components-redux-basic-example-counter",
+  "version": "1.0.0",
   "private": true,
-  "version": "0.9.0",
   "type": "module",
   "scripts": {
     "dev": "vite",
