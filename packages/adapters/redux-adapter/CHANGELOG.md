@@ -1,5 +1,11 @@
 # @softer-components/redux-adapter
 
+## 0.9.1
+
+### Patch Changes
+
+- c26cc79: fixes build to avoid errors in ESM projects
+
 ## 0.9.0
 
 ### Minor Changes
