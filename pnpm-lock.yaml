@@ -33,9 +33,6 @@ importers:
 
   packages/adapters/base-adapter:
     dependencies:
-      '@softer-components/types':
-        specifier: workspace:^
-        version: link:../../types
       immer:
         specifier: ^10.2.0
         version: 10.2.0
@@ -43,6 +40,9 @@ importers:
         specifier: ^4.17.23
         version: 4.17.23
     devDependencies:
+      '@softer-components/types':
+        specifier: workspace:^
+        version: link:../../types
       vite:
         specifier: 8.0.5
         version: 8.0.5(@types/node@22.18.6)(esbuild@0.27.3)(jiti@2.6.0)(less@4.2.0)(sass@1.98.0)(terser@5.44.0)
@@ -576,11 +576,10 @@ importers:
         version: 3.2.4(@types/node@22.18.6)(jiti@2.6.0)(jsdom@28.1.0)(less@4.2.0)(lightningcss@1.32.0)(sass@1.98.0)(terser@5.44.0)
 
   packages/utilities/app-utilities:
-    dependencies:
+    devDependencies:
       '@softer-components/types':
         specifier: workspace:^
         version: link:../../types
-    devDependencies:
       vite:
         specifier: 8.0.5
         version: 8.0.5(@types/node@22.18.6)(esbuild@0.27.3)(jiti@2.6.0)(less@4.2.0)(sass@1.98.0)(terser@5.44.0)
@@ -3825,6 +3824,7 @@ packages:
   image-size@0.5.5:
     resolution: {integrity: sha512-6TDAlDPZxUFCv+fuOkIoXT/V/f3Qbq8e37p+YOiYrUv3v9cc3/6x78VdfPgFVaB9dZYeLUfKgHRebpkm/oP2VQ==}
     engines: {node: '>=0.10.0'}
+    deprecated: Please migrate to image-size@2.x
     hasBin: true
 
   immer@10.2.0:

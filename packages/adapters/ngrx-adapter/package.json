@@ -35,11 +35,11 @@
     "tslib": "^2.3.0"
   },
   "devDependencies": {
-    "@softer-components/types": "workspace:^",
     "@angular/core": "21.2.8",
     "@ngrx/effects": "^21.1.0",
     "@ngrx/operators": "^21.1.0",
     "@ngrx/store": "^21.1.0",
+    "@softer-components/types": "workspace:^",
     "@testing-library/jest-dom": "^6.8.0",
     "@testing-library/react": "^16.3.0",
     "@types/react": "^19.1.13",
@@ -57,7 +57,8 @@
     "@ngrx/store": "^21.0.0",
     "@ngrx/effects": "^21.0.0",
     "@ngrx/operators": "^21.0.0",
-    "rxjs": "^7.0.0"
+    "rxjs": "^7.0.0",
+    "@softer-components/types": "workspace:^"
   },
   "publishConfig": {
     "access": "public"

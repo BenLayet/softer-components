@@ -37,6 +37,9 @@
     "react-redux": "^9.2.0",
     "reselect": "^5.1.1"
   },
+  "peerDependencies": {
+    "@softer-components/types": "workspace:^"
+  },
   "devDependencies": {
     "@softer-components/types": "workspace:^",
     "@testing-library/jest-dom": "^6.8.0",
