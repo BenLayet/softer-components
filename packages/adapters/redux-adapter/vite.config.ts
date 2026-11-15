@@ -3,7 +3,15 @@ import dts from "vite-plugin-dts";
 import { defineConfig } from "vitest/config";
 
 export default defineConfig({
-  plugins: [dts({ rollupTypes: true }), react()],
+  plugins: [
+    dts({
+      rollupTypes: true,
+      // keeps "@softer-components/..." imports in the published types instead of
+      // replacing them with the "paths" of tsconfig.json, which point to the sources of the monorepo
+      pathsToAliases: false,
+    }),
+    react(),
+  ],
 
   build: {
     outDir: "lib",
@@ -14,7 +22,13 @@ export default defineConfig({
       fileName: "index",
     },
     rollupOptions: {
-      external: ["react", "react-redux", "reselect", "@reduxjs/toolkit"],
+      external: [
+        "react",
+        "react-redux",
+        "reselect",
+        "@reduxjs/toolkit",
+        /^@softer-components\//,
+      ],
     },
   },
 

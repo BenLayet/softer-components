@@ -29,11 +29,14 @@
     "tsc": "tsc --noEmit"
   },
   "dependencies": {
-    "@softer-components/types": "workspace:^",
     "immer": "^10.2.0",
     "lodash": "^4.17.23"
   },
+  "peerDependencies": {
+    "@softer-components/types": "workspace:^"
+  },
   "devDependencies": {
+    "@softer-components/types": "workspace:^",
     "vite": "8.0.5",
     "vite-plugin-dts": "^4.5.4",
     "vitest": "^3.2.4"
